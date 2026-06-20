@@ -734,6 +734,12 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .rm-lab{flex:0 0 76px;font-weight:700;font-size:13px}
 .rm-field label{flex:1;display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--muted)}
 .rm-field input{background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:9px;font-size:14px;font-family:var(--mono);width:100%;box-sizing:border-box;text-align:center}
+.rm-field label.rm-goal{flex:0 0 92px}
+.rm-done{flex:1;display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--muted)}
+.rm-step{display:flex;align-items:center;gap:6px;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px}
+.rm-step button{width:38px;height:32px;border-radius:7px;border:none;background:var(--card);color:var(--cream);font-size:19px;cursor:pointer;flex:0 0 auto}
+.rm-step button:active{background:var(--green);color:var(--green-ink)}
+.rm-step b{font-family:var(--mono);font-size:19px;color:var(--green);flex:1;text-align:center}
 .rc-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
 .rc-overall{text-align:center;padding:6px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
 .rc-onum{font-family:var(--disp);font-size:46px;font-weight:800;color:var(--green);line-height:1}
@@ -1063,9 +1069,9 @@ details[open] .t-open{display:inline;color:var(--muted)}
 <div class="modal" id="recruitModal"><div class="box">
   <div class="rm-prof"><span class="rm-av" id="rmAv"></span><div><div class="rm-name" id="rmName"></div><div class="rm-month" id="rmMonth"></div></div></div>
   <div class="rm-fields">
-    <div class="rm-field"><span class="rm-lab">📞 부킹</span><label>목표<input id="rm-bk-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-bk-d" inputmode="numeric" placeholder="0"></label></div>
-    <div class="rm-field"><span class="rm-lab">🙋 쇼업</span><label>목표<input id="rm-su-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-su-d" inputmode="numeric" placeholder="0"></label></div>
-    <div class="rm-field"><span class="rm-lab">🌱 스타터</span><label>목표<input id="rm-st-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-st-d" inputmode="numeric" placeholder="0"></label></div>
+    <div class="rm-field"><span class="rm-lab">📞 부킹</span><label class="rm-goal">목표<input id="rm-bk-g" inputmode="numeric" placeholder="0"></label><div class="rm-done"><span>달성</span><div class="rm-step"><button type="button" onclick="rmAdj('bk_d',-1)">−</button><b id="rmv-bk">0</b><button type="button" onclick="rmAdj('bk_d',1)">+</button></div></div></div>
+    <div class="rm-field"><span class="rm-lab">🙋 쇼업</span><label class="rm-goal">목표<input id="rm-su-g" inputmode="numeric" placeholder="0"></label><div class="rm-done"><span>달성</span><div class="rm-step"><button type="button" onclick="rmAdj('su_d',-1)">−</button><b id="rmv-su">0</b><button type="button" onclick="rmAdj('su_d',1)">+</button></div></div></div>
+    <div class="rm-field"><span class="rm-lab">🌱 스타터</span><label class="rm-goal">목표<input id="rm-st-g" inputmode="numeric" placeholder="0"></label><div class="rm-done"><span>달성</span><div class="rm-step"><button type="button" onclick="rmAdj('st_d',-1)">−</button><b id="rmv-st">0</b><button type="button" onclick="rmAdj('st_d',1)">+</button></div></div></div>
   </div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('recruitModal')">취소</button><button class="btn" onclick="saveRecruitModal()">저장</button></div>
 </div></div>
@@ -1126,7 +1132,8 @@ const ROLES=['IC','LR','TL','AOP','OP','O'];
 const ROLE_LABEL={IC:'IC',LR:'리더(LR)',TL:'팀리더(TL)',AOP:'AOP',OP:'OP',O:'Owner'};
 const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
-const isAdmin=r=>ri(r)>=3;        // AOP+ → 관리/모더레이션
+const isAdmin=r=>ri(r)>=3;        // AOP+ (역할)
+const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);  // 관리자(소유자) 계정만 편집·관리
 const SURVEY_EXEMPT=['임재영','관리자'];   // 관리자 본인 — 설문 생략
 function isSurveyExempt(name){return SURVEY_EXEMPT.map(s=>s.replace(/\s/g,'')).includes((name||'').replace(/\s/g,''))}
 const reqSurvey=(r,name)=>{if(name&&isSurveyExempt(name))return null;if(r==='IC')return 'IC';if(r==='LR')return 'LR';if(['TL','AOP','OP','O'].includes(r))return 'TL';return null;};
@@ -1420,7 +1427,7 @@ function enterApp(){
   lsSet('presence_sess',{uid:me.uid,t:Date.now()});
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  document.body.classList.toggle('can-mod',isAdmin(me.role));
+  document.body.classList.toggle('can-mod',isFounder(me));
   document.getElementById('mePillNm').textContent=me.name;
   document.getElementById('mePillRole').textContent=me.role;
   paintMePill();renderBell();
@@ -1452,7 +1459,7 @@ function rcOverall(r){const a=[];if(+r.bk_g>0)a.push(rcPct(r.bk_d,r.bk_g));if(+r
 function rcSave(r){state.recruit[me.uid]=r;if(LIVE)DB.set('recruit/'+me.uid,r);renderCalling();}
 function rcAdj(field,d){const r=myRecruit();r[field]=Math.max(0,(+r[field]||0)+d);rcSave(r);}
 function rcGoals(){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rcg-bk').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rcg-su').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rcg-st').value,10)||0);rcSave(r);toast('이번 달 목표를 저장했어요 🎯');}
-function rcReset(){if(!me||!isAdmin(me.role))return;if(!confirm('이번 달 모든 팀원의 리쿠르팅 기록을 초기화할까요?'))return;const mk=recruitMonth();const nr={...state.recruit};Object.keys(nr).forEach(uid=>{if(nr[uid]&&nr[uid].month===mk)delete nr[uid];});state.recruit=nr;if(LIVE)DB.set('recruit',nr);renderCalling();toast('이번 달 리쿠르팅을 초기화했어요');}
+function rcReset(){if(!me||!isFounder(me))return;if(!confirm('이번 달 모든 팀원의 리쿠르팅 기록을 초기화할까요?'))return;const mk=recruitMonth();const nr={...state.recruit};Object.keys(nr).forEach(uid=>{if(nr[uid]&&nr[uid].month===mk)delete nr[uid];});state.recruit=nr;if(LIVE)DB.set('recruit',nr);renderCalling();toast('이번 달 리쿠르팅을 초기화했어요');}
 function teamRecruit(){const mk=recruitMonth();const t={bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0,members:[]};Object.values(state.users).forEach(u=>{if(u.status!=='active')return;const r=state.recruit[u.uid];if(r&&r.month===mk&&((+r.bk_g||0)+(+r.su_g||0)+(+r.st_g||0)+(+r.bk_d||0)+(+r.su_d||0)+(+r.st_d||0))>0){t.bk_g+=+r.bk_g||0;t.bk_d+=+r.bk_d||0;t.su_g+=+r.su_g||0;t.su_d+=+r.su_d||0;t.st_g+=+r.st_g||0;t.st_d+=+r.st_d||0;t.members.push({uid:u.uid,name:u.name,role:u.role,r,pct:rcOverall(r)});}});return t;}
 function renderCalling(){
   const box=document.getElementById('recruitBody');if(!box||!me)return;
@@ -1466,12 +1473,13 @@ function renderCalling(){
   const mem=t.members.slice().sort((a,b)=>b.pct-a.pct);
   const cards=mem.length?mem.map(m=>`<div class="ind-card${m.uid===me.uid?' meind':''}"><div class="ind-top"><span class="ind-av" style="background:${avColor(m.name)}">${avInner(m.name)}</span><span class="ind-name">${esc(m.name)}<small> · ${esc(m.role)}</small></span><span class="ind-pct">${m.pct}%</span></div><div class="ind-metrics"><span>📞 부킹 ${(+m.r.bk_d||0)}/${(+m.r.bk_g||0)}</span><span>🙋 쇼업 ${(+m.r.su_d||0)}/${(+m.r.su_g||0)}</span><span>🌱 스타터 ${(+m.r.st_d||0)}/${(+m.r.st_g||0)}</span></div></div>`).join(''):'<p style="font-size:12px;color:var(--faint)">아직 목표를 등록한 팀원이 없어요. ➕ 버튼으로 내 목표를 추가해 보세요.</p>';
   html+=`<div class="rc-card"><div class="sec-sub">👤 개별 통계 · ${mn}월</div>${cards}</div>`;
-  if(isAdmin(me.role))html+=`<button class="reset-btn" onclick="rcReset()">🔄 이번 달 리쿠르팅 초기화</button>`;
+  if(isFounder(me))html+=`<button class="reset-btn" onclick="rcReset()">🔄 이번 달 리쿠르팅 초기화</button>`;
   if(isTLplus(me.role)){html+=`<div class="rc-card" style="margin-top:22px"><div class="sec-sub">📞 콜링 페이지 · TL 이상</div><p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 13px">리쿠르팅 콜링 페이지를 새 창에서 열어요.</p><a class="btn block call-open" href="${CALLING_URL}" target="_blank" rel="noopener">📞 콜링 페이지 열기 →</a></div>`;}
   box.innerHTML=html;
 }
-function openRecruitModal(){const r=myRecruit(),mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);const av=document.getElementById('rmAv');av.innerHTML=avInner(me.name);av.style.background=avColor(me.name);document.getElementById('rmName').textContent=me.name+' · '+me.role;document.getElementById('rmMonth').textContent=`${mk.slice(0,4)}년 ${mn}월 리쿠르팅 목표`;const set=(id,v)=>document.getElementById(id).value=v||'';set('rm-bk-g',r.bk_g);set('rm-bk-d',r.bk_d);set('rm-su-g',r.su_g);set('rm-su-d',r.su_d);set('rm-st-g',r.st_g);set('rm-st-d',r.st_d);openModal('recruitModal');}
-function saveRecruitModal(){const r=myRecruit();const gv=id=>Math.max(0,parseInt(document.getElementById(id).value,10)||0);r.bk_g=gv('rm-bk-g');r.bk_d=gv('rm-bk-d');r.su_g=gv('rm-su-g');r.su_d=gv('rm-su-d');r.st_g=gv('rm-st-g');r.st_d=gv('rm-st-d');rcSave(r);closeModal('recruitModal');toast('내 목표를 저장했어요 🎯');}
+function openRecruitModal(){const r=myRecruit(),mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);const av=document.getElementById('rmAv');av.innerHTML=avInner(me.name);av.style.background=avColor(me.name);document.getElementById('rmName').textContent=me.name+' · '+me.role;document.getElementById('rmMonth').textContent=`${mk.slice(0,4)}년 ${mn}월 리쿠르팅 목표`;const set=(id,v)=>document.getElementById(id).value=v||'';set('rm-bk-g',r.bk_g);set('rm-su-g',r.su_g);set('rm-st-g',r.st_g);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;openModal('recruitModal');}
+function rmAdj(f,delta){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rm-bk-g').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rm-su-g').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rm-st-g').value,10)||0);r[f]=Math.max(0,(+r[f]||0)+delta);rcSave(r);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;}
+function saveRecruitModal(){const r=myRecruit();const gv=id=>Math.max(0,parseInt(document.getElementById(id).value,10)||0);r.bk_g=gv('rm-bk-g');r.su_g=gv('rm-su-g');r.st_g=gv('rm-st-g');rcSave(r);closeModal('recruitModal');toast('내 목표를 저장했어요 🎯');}
 function fmtLinks(s){return esc(s||'').replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--wepair);word-break:break-all">$1</a>');}
 const KAKAO_ROOMS=[
  {key:'arrival',emj:'🚌',name:'도착현황',leader:false},
@@ -1490,9 +1498,9 @@ function renderKakao(){
   if(isLeader(me.role))html+=`<div class="kgroup-tit" style="margin-top:16px">리더 전용</div><div class="kgrid">${KAKAO_ROOMS.filter(r=>r.leader).map(btn).join('')}</div>`;
   box.innerHTML=html;
   const ed=document.getElementById('kakaoEdit');
-  if(ed)ed.innerHTML=isAdmin(me.role)?`<details class="kedit"><summary>✏️ 카톡 링크 편집 (관리자)</summary><div class="kedit-body">${KAKAO_ROOMS.map(r=>`<label class="kedit-row"><span>${r.emj} ${r.name}</span><input id="lk-${r.key}" value="${esc((state.links||{})[r.key]||'')}" placeholder="https://open.kakao.com/o/..." /></label>`).join('')}<button class="btn block" onclick="saveLinks()">저장</button></div></details>`:'';
+  if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>✏️ 카톡 링크 편집 (관리자)</summary><div class="kedit-body">${KAKAO_ROOMS.map(r=>`<label class="kedit-row"><span>${r.emj} ${r.name}</span><input id="lk-${r.key}" value="${esc((state.links||{})[r.key]||'')}" placeholder="https://open.kakao.com/o/..." /></label>`).join('')}<button class="btn block" onclick="saveLinks()">저장</button></div></details>`:'';
 }
-function saveLinks(){if(!me||!isAdmin(me.role))return;const nl={...(state.links||{})};KAKAO_ROOMS.forEach(r=>{const el=document.getElementById('lk-'+r.key);if(el)nl[r.key]=el.value.trim()});state.links=nl;if(LIVE)DB.set('links',nl);renderKakao();toast('카톡 링크를 저장했어요 ✓');}
+function saveLinks(){if(!me||!isFounder(me))return;const nl={...(state.links||{})};KAKAO_ROOMS.forEach(r=>{const el=document.getElementById('lk-'+r.key);if(el)nl[r.key]=el.value.trim()});state.links=nl;if(LIVE)DB.set('links',nl);renderKakao();toast('카톡 링크를 저장했어요 ✓');}
 function renderRecap(){
   const box=document.getElementById('recapList');if(!box||!me)return;
   const merged={};
@@ -1509,33 +1517,33 @@ function renderRecap(){
     return `<details class="recap-card"><summary>${head}${statsHtml(r)}<div class="recap-toggle"><span class="t-closed">자세히 보기 ▾</span><span class="t-open">접기 ▴</span></div></summary><div class="recap-detail">${r.note?`<p class="recap-note">${esc(r.note)}</p>`:''}${secs}</div></details>`;
   }).join(''):'<div class="empty-row">아직 리캡이 없어요</div>';
   const ed=document.getElementById('recapEdit');
-  if(ed)ed.innerHTML=isAdmin(me.role)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
+  if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
 }
-function saveRecap(){if(!me||!isAdmin(me.role))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
+function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
 function renderTraining(){
   const box=document.getElementById('trainingBody');if(!box||!me)return;
   let html='';
-  if(isAdmin(me.role))html+=`<details class="kedit"><summary>➕ 트레이닝 자료 추가 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>제목</span><input id="tr-tit" placeholder="예: B2B 세일즈 가이드" /></label><label class="kedit-row col"><span>내용 (텍스트·링크 붙여넣기)</span><textarea id="tr-body" rows="4" placeholder="자료 내용이나 링크를 붙여넣으세요"></textarea></label><button class="btn block" onclick="addTraining()">추가</button></div></details>`;
+  if(isFounder(me))html+=`<details class="kedit"><summary>➕ 트레이닝 자료 추가 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>제목</span><input id="tr-tit" placeholder="예: B2B 세일즈 가이드" /></label><label class="kedit-row col"><span>내용 (텍스트·링크 붙여넣기)</span><textarea id="tr-body" rows="4" placeholder="자료 내용이나 링크를 붙여넣으세요"></textarea></label><button class="btn block" onclick="addTraining()">추가</button></div></details>`;
   html+='<div class="kgroup-tit">신입 IC 트레이닝 가이드 · 임재영 AOP</div>';
   html+=TRAINING_SEED.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b><span class="train-tag">${esc(t.tag||'')}</span></div><div class="train-body">${fmtLinks(t.body)}</div></div>`).join('');
   const items=(state.training||[]).sort((a,b)=>(b.t||0)-(a.t||0));
-  if(items.length)html+='<div class="kgroup-tit" style="margin-top:18px">추가 자료</div>'+items.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b>${isAdmin(me.role)?`<button class="train-del" onclick="delTraining('${t.id}')">✕</button>`:''}</div>${t.body?`<div class="train-body">${fmtLinks(t.body)}</div>`:''}</div>`).join('');
+  if(items.length)html+='<div class="kgroup-tit" style="margin-top:18px">추가 자료</div>'+items.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b>${isFounder(me)?`<button class="train-del" onclick="delTraining('${t.id}')">✕</button>`:''}</div>${t.body?`<div class="train-body">${fmtLinks(t.body)}</div>`:''}</div>`).join('');
   box.innerHTML=html;
 }
-function addTraining(){if(!me||!isAdmin(me.role))return;const title=(document.getElementById('tr-tit').value||'').trim(),body=(document.getElementById('tr-body').value||'').trim();if(!title){toast('제목을 입력하세요');return}const id='tr_'+Date.now(),rec={id,title,body,t:Date.now()};if(LIVE)DB.set('training/'+id,rec);else{state.training.push(rec);renderTraining()}toast('트레이닝 자료를 추가했어요 ✓');}
-function delTraining(id){if(!me||!isAdmin(me.role))return;if(!confirm('이 자료를 삭제할까요?'))return;if(LIVE)DB.set('training/'+id,null);else{state.training=state.training.filter(t=>t.id!==id);renderTraining()}}
+function addTraining(){if(!me||!isFounder(me))return;const title=(document.getElementById('tr-tit').value||'').trim(),body=(document.getElementById('tr-body').value||'').trim();if(!title){toast('제목을 입력하세요');return}const id='tr_'+Date.now(),rec={id,title,body,t:Date.now()};if(LIVE)DB.set('training/'+id,rec);else{state.training.push(rec);renderTraining()}toast('트레이닝 자료를 추가했어요 ✓');}
+function delTraining(id){if(!me||!isFounder(me))return;if(!confirm('이 자료를 삭제할까요?'))return;if(LIVE)DB.set('training/'+id,null);else{state.training=state.training.filter(t=>t.id!==id);renderTraining()}}
 function buildRail(){
   const tabs=[{k:'home',e:'🏠',l:'홈'},{k:'sale',e:'🔔',l:'세일즈'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'notice',e:'📢',l:'공지'},{k:'net',e:'🤝',l:'네트워킹',c:'net'},{k:'act',e:'🎉',l:'액티비티',c:'act'},{k:'wins',e:'🏆',l:'Wins',c:'wins'},{k:'manual',e:'📖',l:'매뉴얼'},{k:'obj',e:'🛡️',l:'Objection'},{k:'kakao',e:'💬',l:'카톡'}];
   if(isLeader(me.role))tabs.push({k:'training',e:'🎓',l:'트레이닝'});
   if(isTLplus(me.role))tabs.push({k:'recap',e:'📅',l:'리캡'});
   if(isLeader(me.role))tabs.push({k:'calling',e:'📞',l:'리쿠르팅'});
   if(isLeader(me.role))tabs.push({k:'perf',e:'📊',l:'Performance'});
-  if(isAdmin(me.role))tabs.push({k:'admin',e:'⚙️',l:'관리',c:'pend'});
+  if(isFounder(me))tabs.push({k:'admin',e:'⚙️',l:'관리',c:'pend'});
   document.getElementById('rail').innerHTML=tabs.map((t,i)=>`<button class="mtab${i===0?' active':''}" data-tab="${t.k}" onclick="goTab('${t.k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`).join('');
 }
 function goTab(name){
   if(name==='perf'&&!isLeader(me.role))name='home';
-  if(name==='admin'&&!isAdmin(me.role))name='home';
+  if(name==='admin'&&!isFounder(me))name='home';
   if(name==='training'&&!isLeader(me.role))name='home';
   if(name==='recap'&&!isTLplus(me.role))name='home';
   if(name==='calling'&&!isLeader(me.role))name='home';
@@ -1628,7 +1636,7 @@ function renderTree(weekOverride){
   if(wbtn) wbtn.textContent = ended?'💧 물 주기 🎄':'💧 오늘 물 주기';
   const pbtn=document.getElementById('previewBtn');
   if(pbtn){
-    if(me&&isAdmin(me.role)){pbtn.style.display='flex';pbtn.textContent = preview ? (TREE_PREVIEW[treePreviewStep]==='end'?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 다음 단계 성장 미리보기';}
+    if(me&&isFounder(me)){pbtn.style.display='flex';pbtn.textContent = preview ? (TREE_PREVIEW[treePreviewStep]==='end'?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 다음 단계 성장 미리보기';}
     else pbtn.style.display='none';
   }
   const desc=document.getElementById('compDescHome');
@@ -1702,7 +1710,7 @@ function treeEndingAnim(){
 function renderWaterFeed(){
   const today=Object.values(state.waters).filter(w=>w.last===TODAY).sort((a,b)=>b.count-a.count);
   document.getElementById('waterFeed').innerHTML=today.length?today.map(w=>`<div class="wf-item"><span>💧</span><span class="tx"><b>${esc(w.name)}</b>님이 오늘 물을 주었어요</span><span class="t">누적 ${w.count}</span></div>`).join(''):'<div class="wf-empty" style="color:var(--faint);font-size:13px;padding:8px 2px">오늘 아직 아무도 물을 주지 않았어요 💧</div>';
-  const rb=document.getElementById('treeResetBtn');if(rb)rb.style.display=(me&&isAdmin(me.role))?'block':'none';
+  const rb=document.getElementById('treeResetBtn');if(rb)rb.style.display=(me&&isFounder(me))?'block':'none';
 }
 function waterTree(){
   if(!me){toast('로그인이 필요해요');return}
@@ -1731,7 +1739,7 @@ function waterTree(){
 const PREVIEW_SEASON=['none','sun','leaves','festive','winter','winter'];
 const SEASON_LABEL={none:'🌱 새싹 · 초여름',sun:'☀️ 해가 쨍쨍한 한여름',leaves:'🍂 낙엽 지는 가을',festive:'🎅 산타가 오는 11월',winter:'🎄 눈 내리는 12월'};
 function previewTree(){
-  if(!me||!isAdmin(me.role))return;
+  if(!me||!isFounder(me))return;
   if(treePreviewStep===null){treePreviewStep=0;renderTree();treeGrowAnim();playSeasonFor(PREVIEW_SEASON[0]);toast('🌱 새싹부터 미리보기 — 단계마다 계절이 바뀌어요 (실데이터 영향 없음)');return;}
   if(treePreviewStep<TREE_PREVIEW.length-1){
     treePreviewStep++;renderTree();
@@ -1743,7 +1751,7 @@ function previewTree(){
   treePreviewStep=null;renderTree();toast('↩ 실제 상태로 돌아왔어요 (미리보기 종료)');
 }
 function resetTree(){
-  if(!me||!isAdmin(me.role))return;
+  if(!me||!isFounder(me))return;
   if(!confirm('오늘까지의 물주기 기록(누가 줬는지)을 초기화할까요?\n나무 성장 단계는 날짜 기준이라 그대로 유지됩니다.'))return;
   state.pr=0;state.waters={};
   if(LIVE){DB.set('pr',0);DB.set('waters',null)}
@@ -1882,7 +1890,7 @@ function renderAnimal(){
   document.getElementById('animalBar').style.width=Math.min(100,food/ANIMAL_MAX*100)+'%';
   const ib=document.getElementById('interactBtn');
   if(ib){
-    if(me&&isAdmin(me.role)) ib.textContent = preview ? (previewStage>=ANIMAL_STAGES.length-1?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 성장 과정 미리보기';
+    if(me&&isFounder(me)) ib.textContent = preview ? (previewStage>=ANIMAL_STAGES.length-1?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 성장 과정 미리보기';
     else { const a=actionFor(food); ib.textContent=`${a.emo} ${a.label}` }
   }
   // 단계 상승/부화 자동 축하 — 실제 데이터 성장에만 (미리보기 중엔 끔)
@@ -1917,7 +1925,7 @@ function stageUpBurst(){
 }
 function interact(){
   const stg=document.querySelector('.animal-stage');if(!stg)return;
-  if(me&&isAdmin(me.role)){
+  if(me&&isFounder(me)){
     // 관리자: 성장 과정 미리보기 (애니메이션만, 실데이터 영향 없음)
     if(previewStage===null){ previewStage=0; renderAnimal(); petAnim(); toast('알을 쓰다듬어요 🥚 (미리보기 — 실제 데이터엔 영향 없어요)'); return; }
     if(previewStage<ANIMAL_STAGES.length-1){
@@ -1948,7 +1956,7 @@ function renderComp(){
   db.textContent=ended?'🏁 종료 · 우승자 발표':`⏳ ${daysLeft()}일 남음`;
   db.className='comp-days'+(ended?' ended':'');
   const box=document.getElementById('compAdminBox');
-  if(box)box.innerHTML=(me&&isAdmin(me.role))?`<div class="comp-admin"><input id="compLabelIn" value="${esc(state.comp.label)}" placeholder="챌린지 이름" maxlength="24"/><select id="compWeeksIn">${[1,2,3,4].map(w=>`<option value="${w}" ${w===state.comp.weeks?'selected':''}>${w}주</option>`).join('')}</select><button onclick="startComp()">새 기간 등록</button></div>`:'';
+  if(box)box.innerHTML=(me&&isFounder(me))?`<div class="comp-admin"><input id="compLabelIn" value="${esc(state.comp.label)}" placeholder="챌린지 이름" maxlength="24"/><select id="compWeeksIn">${[1,2,3,4].map(w=>`<option value="${w}" ${w===state.comp.weeks?'selected':''}>${w}주</option>`).join('')}</select><button onclick="startComp()">새 기간 등록</button></div>`:'';
   renderAnimal();
   const {rank}=periodFeeds();
   document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 노제로 기록이 없어요</div>';
@@ -1965,7 +1973,7 @@ function toggleFeedLog(){
   const open=b.style.display!=='none';b.style.display=open?'none':'block';c.textContent=open?'▾':'▴';
 }
 function startComp(){
-  if(!me||!isAdmin(me.role))return;
+  if(!me||!isFounder(me))return;
   const label=document.getElementById('compLabelIn').value.trim()||'노제로 챌린지';
   const weeks=parseInt(document.getElementById('compWeeksIn').value,10)||2;
   if(!confirm(`'${label}' ${weeks}주 새 기간을 등록할까요?\n새 기간의 노제로 일수부터 다시 집계됩니다.`))return;
@@ -1980,7 +1988,7 @@ function renderNotices(){
   if(comp)comp.innerHTML=(me&&isTLplus(me.role))?`<div class="notice-compose"><input id="ntcTitle" placeholder="공지 제목" maxlength="60"/><textarea id="ntcBody" placeholder="내용을 입력하세요 (사진만 올려도 돼요)"></textarea><input type="file" id="ntcPhotoInput" accept="image/*" style="display:none" onchange="onNoticePhoto(event)"/><div id="ntcPreview" class="ntc-preview">${noticePhoto?`<div class="ntc-prev-wrap"><img src="${noticePhoto}"/><button onclick="removeNoticePhoto()">✕ 사진 제거</button></div>`:''}</div><div class="ntc-actions"><button class="ntc-photo-btn" onclick="document.getElementById('ntcPhotoInput').click()">🖼️ 사진·포스터</button><button class="ntc-submit" onclick="addNotice()">📢 공지 올리기</button></div></div>`:'';
   const list=state.notices.slice().sort((a,b)=>b.t-a.t);
   document.getElementById('noticeList').innerHTML=list.length?list.map(n=>{
-    const canDel=me&&(isAdmin(me.role)||me.name===n.by);
+    const canDel=me&&(isFounder(me)||me.name===n.by);
     return `<div class="notice-item"><div class="notice-head"><span class="notice-av" style="background:${avColor(n.by)}">${avInner(n.by)}</span><span class="notice-by">${esc(n.by)}<span class="rolechip">${esc(n.role)}</span></span><span class="notice-t">${ago(n.t)}</span></div><div class="notice-ttl">${esc(n.title)}</div><div class="notice-body">${fmtMentions(n.body)}</div>${n.photo?`<img class="notice-photo" src="${n.photo}" onclick="viewImg(this.src)" alt="공지 이미지"/>`:''}${canDel?`<button class="notice-del" onclick="delNotice(${n.t})">삭제</button>`:''}</div>`;
   }).join(''):'<div class="rank-empty">아직 공지가 없어요</div>';
 }
@@ -1999,14 +2007,14 @@ function renderNoticePreview(){const el=document.getElementById('ntcPreview');if
 function viewImg(src){const el=document.getElementById('imgLightboxImg');if(el){el.src=src;openModal('imgLightbox');}}
 function delNotice(t){
   const n=state.notices.find(x=>x.t===t);if(!n)return;
-  if(!(me&&(isAdmin(me.role)||me.name===n.by)))return;
+  if(!(me&&(isFounder(me)||me.name===n.by)))return;
   if(!confirm('이 공지를 삭제할까요?'))return;
   state.notices=state.notices.filter(x=>x.t!==t);if(LIVE)DB.set('notices',state.notices);
   renderNotices();
 }
 function renderGb(){document.getElementById('gbList').innerHTML=state.gb.slice().sort((a,b)=>b.t-a.t).map((g,i)=>`<div class="gb-item">${document.body.classList.contains('can-mod')?`<button class="gb-del" onclick="delGb(${i})">✕</button>`:''}<div class="gb-head"><span class="gb-av" style="background:${avColor(g.name)}">${avInner(g.name)}</span><span class="gb-nm">${esc(g.name)}</span><span class="gb-t">${ago(g.t)}</span></div><div class="gb-msg">${fmtMentions(g.msg)}</div></div>`).join('')}
 function addGb(){if(!me){toast('로그인이 필요해요');return}const msg=document.getElementById('gbMsg').value.trim();if(!msg){toast('한마디를 입력해 주세요');return}const g={name:me.name,msg,t:Date.now()};state.gb.push(g);if(LIVE)DB.push('gb',g);notifyMentions(msg,'오늘의 한마디',me.name);document.getElementById('gbMsg').value='';renderGb();toast('한마디 남겼어요 🙌')}
-function delGb(i){if(!isAdmin(me.role))return;const s=state.gb.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.gb=state.gb.filter(x=>x!==t);if(LIVE)DB.set('gb',state.gb);renderGb()}
+function delGb(i){if(!isFounder(me))return;const s=state.gb.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.gb=state.gb.filter(x=>x!==t);if(LIVE)DB.set('gb',state.gb);renderGb()}
 
 /* ============================================================
    SALES — 벨/공/혼/텐 + 게이지 + 시트 연동
@@ -2102,8 +2110,8 @@ function testSheet(){const url=Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:S
 function fillAseUsers(){const sel=document.getElementById('aseUser');if(!sel)return;const cur=sel.value;const us=Object.values(state.users).filter(u=>u.status==='active').sort((a,b)=>ri(b.role)-ri(a.role));sel.innerHTML=us.map(u=>`<option value="${u.uid}">${esc(u.name)} · ${u.role}</option>`).join('');if(cur&&us.some(u=>u.uid===cur))sel.value=cur}
 function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!dt||!u.value||!dt.value)return;const e=state.sales[`${dt.value}|${u.value}`];document.getElementById('aseCount').value=e?e.count:0}
 function aseAdj(d){const i=document.getElementById('aseCount');i.value=Math.max(0,(parseInt(i.value,10)||0)+d)}
-function aseSave(){if(!me||!isAdmin(me.role))return;const uid=document.getElementById('aseUser').value,date=document.getElementById('aseDate').value,cnt=Math.max(0,parseInt(document.getElementById('aseCount').value,10)||0);const u=state.users[uid];if(!u||!date){toast('팀원과 날짜를 선택하세요');return}const key=`${date}|${uid}`;if(cnt>0){const t=Date.now();state.sales[key]={uid,name:u.name,role:u.role,date,count:cnt,t};if(LIVE)DB.set(`sales/${date}/${uid}`,{name:u.name,role:u.role,count:cnt,t})}else{delete state.sales[key];if(LIVE)DB.set(`sales/${date}/${uid}`,null)}renderScores();renderComp();if(me)renderSales();renderPerfGauge();toast(`${u.name}님 ${date} 세일즈를 ${cnt}(으)로 수정했어요 ✏️`)}
-function renderAdminSaleEdit(){const card=document.getElementById('adminSaleEdit');if(!card)return;if(!(me&&isAdmin(me.role))){card.style.display='none';return}card.style.display='';fillAseUsers();const dt=document.getElementById('aseDate');if(dt&&!dt.value)dt.value=TODAY;aseLoad()}
+function aseSave(){if(!me||!isFounder(me))return;const uid=document.getElementById('aseUser').value,date=document.getElementById('aseDate').value,cnt=Math.max(0,parseInt(document.getElementById('aseCount').value,10)||0);const u=state.users[uid];if(!u||!date){toast('팀원과 날짜를 선택하세요');return}const key=`${date}|${uid}`;if(cnt>0){const t=Date.now();state.sales[key]={uid,name:u.name,role:u.role,date,count:cnt,t};if(LIVE)DB.set(`sales/${date}/${uid}`,{name:u.name,role:u.role,count:cnt,t})}else{delete state.sales[key];if(LIVE)DB.set(`sales/${date}/${uid}`,null)}renderScores();renderComp();if(me)renderSales();renderPerfGauge();toast(`${u.name}님 ${date} 세일즈를 ${cnt}(으)로 수정했어요 ✏️`)}
+function renderAdminSaleEdit(){const card=document.getElementById('adminSaleEdit');if(!card)return;if(!(me&&isFounder(me))){card.style.display='none';return}card.style.display='';fillAseUsers();const dt=document.getElementById('aseDate');if(dt&&!dt.value)dt.value=TODAY;aseLoad()}
 function renderPrevMonth(){
   const box=document.getElementById('prevMonthCard');if(!box)return;
   const pk=prevMonthKey(),done=teamAchievedFor(pk),tgt=MONTHLY_TEAM_TARGET[pk];
@@ -2133,12 +2141,12 @@ function renderGallery(key){const items=state[key];const cm=document.body.classL
 function openPhoto(key){photoTarget=key;document.getElementById('photoTitle').value='';document.getElementById('photoFile').value='';document.getElementById('photoModalTitle').textContent=key==='net'?'네트워킹 사진 올리기':'액티비티 사진 올리기';openModal('photoModal')}
 function submitPhoto(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('photoTitle').value.trim(),by=me.name,f=document.getElementById('photoFile').files[0];if(!title){toast('제목을 입력해 주세요');return}const done=img=>{const it={title,by,img,cmts:[]};state[photoTarget].unshift(it);if(LIVE)DB.push(photoTarget,it);renderGallery(photoTarget);closeModal('photoModal');toast('올라갔어요!')};f?compressImg(f,done):done(null)}
 function addCmt(key,i,inp){if(!me){toast('로그인이 필요해요');return}const txt=inp.value.trim();if(!txt)return;const by=me.name;state[key][i].cmts=state[key][i].cmts||[];state[key][i].cmts.push({by,txt});if(LIVE)DB.set(key,state[key]);notifyMentions(txt,'댓글',by);renderGallery(key)}
-function delPhoto(key,i){if(!isAdmin(me.role))return;if(!confirm('삭제할까요?'))return;state[key].splice(i,1);if(LIVE)DB.set(key,state[key]);renderGallery(key)}
+function delPhoto(key,i){if(!isFounder(me))return;if(!confirm('삭제할까요?'))return;state[key].splice(i,1);if(LIVE)DB.set(key,state[key]);renderGallery(key)}
 
 /* WINS */
 function renderWins(){const cm=document.body.classList.contains('can-mod');document.getElementById('winsGrid').innerHTML=state.wins.slice().sort((a,b)=>b.t-a.t).map((w,i)=>`<div class="win">${cm?`<button class="del" onclick="delWin(${i})">✕</button>`:''}<div class="who"><span class="av" style="background:${avColor(w.name)}">${avInner(w.name)}</span><span class="nm">${esc(w.name)}</span><span class="t">${ago(w.t)}</span></div><div class="wt">${esc(w.title)}</div><p>${fmtMentions(w.body)}</p></div>`).join('');updateCounts()}
 function addWin(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('winTitle').value.trim(),body=document.getElementById('winBody').value.trim();if(!title){toast('제목을 입력해 주세요');return}const w={name:me.name,title,body,t:Date.now()};state.wins.push(w);if(LIVE)DB.push('wins',w);notifyMentions(title+' '+body,'Wins',me.name);document.getElementById('winTitle').value='';document.getElementById('winBody').value='';renderWins();toast('공유됐어요! 🏆')}
-function delWin(i){if(!isAdmin(me.role))return;const s=state.wins.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.wins=state.wins.filter(w=>w!==t);if(LIVE)DB.set('wins',state.wins);renderWins()}
+function delWin(i){if(!isFounder(me))return;const s=state.wins.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.wins=state.wins.filter(w=>w!==t);if(LIVE)DB.set('wins',state.wins);renderWins()}
 
 /* MANUAL */
 function manualBody(m){
@@ -2164,15 +2172,15 @@ function toggleMsec(id){
 function renderObj(){const cm=document.body.classList.contains('can-mod');document.getElementById('objList').innerHTML=state.obj.map((o,i)=>`<div class="ob" id="ob-${i}"><div class="ob-q" onclick="toggleOb(${i})"><span class="qn">OBJ ${String(i+1).padStart(2,'0')}</span><span class="qt">${esc(o.q)}<span class="sit">${esc(o.sit)}</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div class="ob-body"><div class="ob-inner"><div class="ob-ment" id="ment-${i}"><span class="ml">Handling Ment · 관리자 작성</span>${esc(o.ment)||'<span style="color:var(--faint)">아직 멘트가 없습니다</span>'}</div><div class="ob-mentedit"><button class="btn ghost sm" onclick="editMent(${i})">멘트 수정</button></div><div class="ob-qs"><div class="qhead">Question <span class="badge">질문만 · 한 줄</span></div><div class="qlist">${(o.qs||[]).map((q,qi)=>`<div class="qitem"><span class="qm">Q.</span><span>${esc(q.m)}</span><span class="qby">${esc(q.by)}</span>${cm?`<button class="qdel" onclick="delQ(${i},${qi})">✕</button>`:''}</div>`).join('')||'<div style="font-size:12px;color:var(--faint)">아직 질문이 없어요</div>'}</div><div class="qask"><input id="qin-${i}" maxlength="60" placeholder="질문이 있을 경우 질문만 적어주세요 (한 줄)" onkeydown="if(event.key==='Enter')askQ(${i})" /><button onclick="askQ(${i})">질문</button></div><div class="qhint">답변·장문은 작성할 수 없어요 · 질문 한 줄만</div></div></div></div></div>`).join('')}
 function toggleOb(i){document.getElementById('ob-'+i).classList.toggle('open')}
 function askQ(i){const inp=document.getElementById('qin-'+i),v=inp.value.trim();if(!v)return;if(v.length>60){toast('질문은 한 줄로 짧게');return}state.obj[i].qs=state.obj[i].qs||[];state.obj[i].qs.push({m:v,by:me?me.name:'익명'});if(LIVE)DB.set('obj',state.obj);inp.value='';renderObj();document.getElementById('ob-'+i).classList.add('open');toast('질문이 등록됐어요')}
-function delQ(i,qi){if(!isAdmin(me.role))return;state.obj[i].qs.splice(qi,1);if(LIVE)DB.set('obj',state.obj);renderObj();document.getElementById('ob-'+i).classList.add('open')}
-function editMent(i){if(!isAdmin(me.role))return;const el=document.getElementById('ment-'+i),cur=state.obj[i].ment||'';el.innerHTML=`<textarea id="mta-${i}">${esc(cur)}</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm" onclick="saveMent(${i})">저장</button><button class="btn ghost sm" onclick="renderObj();document.getElementById('ob-${i}').classList.add('open')">취소</button></div>`;document.getElementById('ob-'+i).classList.add('open')}
+function delQ(i,qi){if(!isFounder(me))return;state.obj[i].qs.splice(qi,1);if(LIVE)DB.set('obj',state.obj);renderObj();document.getElementById('ob-'+i).classList.add('open')}
+function editMent(i){if(!isFounder(me))return;const el=document.getElementById('ment-'+i),cur=state.obj[i].ment||'';el.innerHTML=`<textarea id="mta-${i}">${esc(cur)}</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm" onclick="saveMent(${i})">저장</button><button class="btn ghost sm" onclick="renderObj();document.getElementById('ob-${i}').classList.add('open')">취소</button></div>`;document.getElementById('ob-'+i).classList.add('open')}
 function saveMent(i){state.obj[i].ment=document.getElementById('mta-'+i).value.trim();if(LIVE)DB.set('obj',state.obj);renderObj();document.getElementById('ob-'+i).classList.add('open');toast('멘트가 저장됐어요')}
 
 /* ============================================================
    ADMIN DASHBOARD
    ============================================================ */
 function renderAdmin(){
-  if(!me||!isAdmin(me.role))return;
+  if(!me||!isFounder(me))return;
   const users=Object.values(state.users);
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
@@ -2189,7 +2197,7 @@ function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
 function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
-function viewSurvey(uid,key){if(me&&!isAdmin(me.role)){toast('설문은 관리자만 열람할 수 있어요');return}const u=state.users[uid];if(!u||!u.surveys[key]){toast('해당 설문 응답이 없어요');return}document.getElementById('svViewTitle').textContent=`${u.name} · ${SURVEYS[key].title}`;document.getElementById('svViewSub').textContent=u.surveys[key]._seed?'(데모 시드 — 실제 응답 아님)':new Date(u.surveys[key].t).toLocaleString('ko-KR');document.getElementById('svViewBody').innerHTML=surveyAnswerHTML(key,u.surveys[key]);openModal('surveyViewModal')}
+function viewSurvey(uid,key){if(me&&!isFounder(me)){toast('설문은 관리자만 열람할 수 있어요');return}const u=state.users[uid];if(!u||!u.surveys[key]){toast('해당 설문 응답이 없어요');return}document.getElementById('svViewTitle').textContent=`${u.name} · ${SURVEYS[key].title}`;document.getElementById('svViewSub').textContent=u.surveys[key]._seed?'(데모 시드 — 실제 응답 아님)':new Date(u.surveys[key].t).toLocaleString('ko-KR');document.getElementById('svViewBody').innerHTML=surveyAnswerHTML(key,u.surveys[key]);openModal('surveyViewModal')}
 function surveyAnswerHTML(key,rec){if(rec._seed)return '<div style="color:var(--faint);font-size:13px">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div>';const S=SURVEYS[key],a=rec.answers||{};return S.q.map((q,i)=>{const v=a[q.id];let av='';if(Array.isArray(v))av=`<div class="va chips">${v.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`;else av=`<div class="va">${esc(v||'-')}</div>`;return `<div class="vq">${i+1}. ${esc(q.q)}</div>${av}`}).join('')}
 
 /* survey preview (admin) */
@@ -2220,13 +2228,13 @@ function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
 function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
-function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isAdmin(me.role)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');openModal('meModal')}
+function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');openModal('meModal')}
 
 /* modals */
 function openModal(id){document.getElementById(id).classList.add('on')}
 function closeModal(id){document.getElementById(id).classList.remove('on')}
 
-function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(me&&isAdmin(me.role))renderAdmin();updateCounts()}
+function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(me&&isFounder(me))renderAdmin();updateCounts()}
 
 /* ============================================================
    FIREBASE (optional)
@@ -2266,7 +2274,7 @@ async function initFirebase(){
       state.users[f.uid]=f;DB.set('users/'+f.uid,f);
     }
     if(me)me=state.users[me.uid]||me;
-    if(me&&isAdmin(me.role))renderAdmin();updateCounts();
+    if(me&&isFounder(me))renderAdmin();updateCounts();
   });
   }catch(e){console.warn('Firebase 연결 실패 — 로컬 모드로 동작합니다',e);}
 }
