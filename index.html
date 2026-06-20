@@ -198,7 +198,8 @@ main{padding-bottom:40px}
 @keyframes starFall{0%{opacity:0;top:-8%;transform:rotate(0)}15%{opacity:1}100%{opacity:0;top:84%;transform:rotate(45deg)}}
 .bird-fly{position:absolute;z-index:6;left:-14%;font-size:22px;pointer-events:none;animation:birdFly 1.5s ease-out forwards}
 @keyframes birdFly{0%{left:-14%;opacity:0;transform:translateY(0)}20%{opacity:1}50%{transform:translateY(-12px)}100%{left:76%;opacity:1;transform:translateY(0)}}
-.water-can{position:absolute;top:3%;left:50%;width:72px;z-index:7;pointer-events:none;transform-origin:78% 75%;animation:canPour 2.05s ease-in-out forwards;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.water-can{position:absolute;top:22%;left:50%;width:84px;z-index:7;pointer-events:none;transform-origin:78% 75%;animation:canPour 2.05s ease-in-out forwards;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.water-can svg{width:100%;height:auto;display:block;overflow:visible}
 @keyframes canPour{0%{opacity:0;transform:translate(-40%,-18px) rotate(12deg) scale(.85)}16%{opacity:1;transform:translate(-40%,0) rotate(12deg) scale(1)}30%{transform:translate(-40%,0) rotate(-30deg) scale(1)}78%{transform:translate(-40%,0) rotate(-30deg) scale(1)}90%{transform:translate(-40%,-6px) rotate(2deg) scale(1)}100%{opacity:0;transform:translate(-40%,-20px) rotate(8deg) scale(.85)}}
 .can-drop{position:absolute;top:30%;font-size:15px;z-index:6;pointer-events:none;animation:canDrop .95s ease-in forwards}
 @keyframes canDrop{0%{opacity:0;top:30%;transform:scale(.5)}18%{opacity:1}100%{opacity:.15;top:60%;transform:scale(1.05)}}
@@ -206,8 +207,22 @@ main{padding-bottom:40px}
 @keyframes rudolphFly{0%{left:-24%;top:16%;opacity:0;transform:rotate(-4deg)}12%{opacity:1}50%{top:5%}88%{opacity:1}100%{left:106%;top:13%;opacity:0;transform:rotate(3deg)}}
 .rudolph-spark{position:absolute;font-size:12px;z-index:7;pointer-events:none;animation:rudSpark 1.25s ease forwards}
 @keyframes rudSpark{0%{opacity:0;transform:scale(.4)}30%{opacity:1}100%{opacity:0;transform:translateY(-12px) scale(1)}}
+.santa{position:absolute;left:-20%;top:28%;font-size:28px;z-index:8;pointer-events:none;animation:santaFly 2.8s ease-in-out .25s forwards;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4))}
+@keyframes santaFly{0%{left:-20%;top:32%;opacity:0;transform:rotate(-3deg)}14%{opacity:1}50%{top:21%}86%{opacity:1}100%{left:108%;top:29%;opacity:0;transform:rotate(2deg)}}
 .xlight{animation:xtwinkle 1.6s ease-in-out infinite}
 @keyframes xtwinkle{0%,100%{opacity:1}50%{opacity:.3}}
+.sleigh{position:absolute;top:11%;left:-36%;width:124px;z-index:8;pointer-events:none;animation:sleighFly 3.6s linear forwards;filter:drop-shadow(0 4px 7px rgba(0,0,0,.45))}
+.sleigh svg{width:100%;height:auto;display:block;overflow:visible}
+.sleigh.slow{animation-duration:5.2s}
+@keyframes sleighFly{0%{left:-30%;opacity:0;transform:translateY(0) rotate(-2deg)}10%{opacity:1}45%{transform:translateY(-12px) rotate(1deg)}72%{transform:translateY(-3px) rotate(-1deg)}90%{opacity:1}100%{left:114%;opacity:0;transform:translateY(0) rotate(2deg)}}
+.sun-fx{position:absolute;top:8%;right:13%;font-size:46px;z-index:7;pointer-events:none;animation:sunPulse 2.8s ease-in-out forwards;filter:drop-shadow(0 0 18px rgba(255,200,60,.85))}
+@keyframes sunPulse{0%{opacity:0;transform:scale(.6) rotate(0)}22%{opacity:1;transform:scale(1.06) rotate(18deg)}60%{transform:scale(1) rotate(40deg)}100%{opacity:0;transform:scale(1.12) rotate(70deg)}}
+.sun-glow{position:absolute;inset:0;z-index:6;pointer-events:none;background:radial-gradient(70% 62% at 82% 12%,rgba(255,214,90,.36),rgba(255,180,60,.12) 45%,transparent 70%);animation:sunGlow 2.8s ease-in-out forwards}
+@keyframes sunGlow{0%{opacity:0}30%{opacity:1}75%{opacity:1}100%{opacity:0}}
+.leaf{position:absolute;top:-8%;z-index:7;pointer-events:none;animation:leafFall linear forwards}
+@keyframes leafFall{0%{opacity:0;top:-8%;transform:translateX(0) rotate(0)}12%{opacity:1}50%{transform:translateX(-22px) rotate(180deg)}100%{opacity:.2;top:106%;transform:translateX(18px) rotate(360deg)}}
+.snow{position:absolute;top:-6%;z-index:7;pointer-events:none;color:#eaf4ff;animation:snowFall linear forwards;text-shadow:0 0 5px rgba(255,255,255,.6)}
+@keyframes snowFall{0%{opacity:0;top:-6%;transform:translateX(0)}12%{opacity:1}50%{transform:translateX(-14px)}100%{opacity:.3;top:106%;transform:translateX(12px)}}
 .tree-gifts{position:absolute;bottom:10px;left:0;right:0;z-index:4;display:flex;gap:8px;justify-content:center;align-items:flex-end;pointer-events:none}
 .gift{position:relative;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:auto;transition:transform .12s}
 .gift:active{transform:scale(.9)}
@@ -568,6 +583,17 @@ table.scores tr.top1 .big{color:var(--green)}
 .notice-t{font-size:11px;color:var(--faint);margin-left:auto;font-family:var(--mono)}
 .notice-ttl{font-weight:700;font-size:15.5px;color:var(--cream);margin-bottom:5px}
 .notice-body{font-size:14px;color:var(--muted);line-height:1.6;white-space:pre-wrap}
+.ntc-actions{display:flex;gap:8px}
+.notice-compose .ntc-actions button{width:auto}
+.notice-compose .ntc-submit{flex:1}
+.notice-compose .ntc-photo-btn{background:var(--card);border:1px solid var(--line);color:var(--muted);flex:0 0 auto}
+.ntc-preview{margin-bottom:0}
+.ntc-prev-wrap{position:relative;display:inline-block;margin-bottom:9px}
+.ntc-prev-wrap img{max-width:100%;max-height:220px;border-radius:10px;display:block;border:1px solid var(--line)}
+.ntc-prev-wrap button{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.72);color:#fff;border:none;border-radius:8px;padding:4px 9px;font-size:11px;cursor:pointer}
+.notice-photo{width:100%;border-radius:11px;margin-top:11px;cursor:zoom-in;display:block;border:1px solid var(--line)}
+#imgLightbox .box{background:none;border:none;padding:0;max-width:100%;box-shadow:none;cursor:zoom-out}
+#imgLightbox img{max-width:100%;max-height:86vh;border-radius:10px;display:block}
 .notice-del{position:absolute;bottom:12px;right:14px;background:none;border:none;color:var(--danger);font-size:12px;cursor:pointer}
 
 /* ====== ADMIN DASH ====== */
@@ -643,6 +669,93 @@ footer .punch{font-family:var(--disp);font-size:16px;color:var(--cream);font-wei
 footer .punch b{color:var(--green)}
 .toast{position:fixed;bottom:calc(22px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--green-ink);font-weight:700;font-size:13.5px;padding:12px 20px;border-radius:12px;z-index:200;opacity:0;transition:.3s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.kgroup-tit{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);margin:0 2px 8px;text-transform:uppercase}
+.kgrid{display:grid;grid-template-columns:1fr;gap:9px}
+@media(min-width:520px){.kgrid{grid-template-columns:1fr 1fr}}
+.kroom{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;color:var(--cream);text-decoration:none;transition:.13s;font-family:inherit}
+.kroom:hover{border-color:#FAE100;transform:translateY(-1px)}
+.kroom.off{opacity:.55;cursor:default}
+.kroom.off:hover{transform:none;border-color:var(--line)}
+.kemj{font-size:24px;flex:0 0 auto}
+.kname{flex:1;font-weight:700;font-size:14.5px}
+.kgo{font-family:var(--mono);font-size:11px;color:#FAE100;flex:0 0 auto}
+.kroom.off .kgo{color:var(--faint)}
+.kedit{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kedit summary{padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);list-style:none}
+.kedit summary::-webkit-details-marker{display:none}
+.kedit-body{padding:6px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.kedit-row{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.kedit-row input,.kedit-row textarea{background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:10px;font-size:13px;font-family:inherit;width:100%;box-sizing:border-box}
+.recap-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:11px}
+details.recap-card{padding:0}
+details.recap-card>summary{list-style:none;cursor:pointer;padding:15px;display:block}
+details.recap-card>summary::-webkit-details-marker{display:none}
+.recap-toggle{margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--wepair);text-align:center}
+.t-open{display:none}
+details[open] .t-closed{display:none}
+details[open] .t-open{display:inline;color:var(--muted)}
+.recap-detail{padding:3px 15px 16px;border-top:1px solid var(--line)}
+.recap-sec{margin-top:14px}
+.recap-sec-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--amber);margin-bottom:5px;text-transform:uppercase}
+.recap-sec-b{font-size:12.5px;color:var(--cream);line-height:1.7;word-break:break-word}
+.recap-h{display:flex;align-items:center;gap:9px;margin-bottom:11px;font-size:15px}
+.recap-live{font-family:var(--mono);font-size:10px;color:var(--green);border:1px solid var(--green);border-radius:6px;padding:1px 6px}
+.recap-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:8px}
+.recap-period{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.recap-stats>div{background:var(--ink);border-radius:10px;padding:10px;text-align:center}
+.recap-stats span{display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px}
+.recap-stats b{font-size:16px;font-family:var(--disp);color:var(--cream);white-space:nowrap}
+.recap-note{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.train-card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 15px;margin-bottom:10px}
+.train-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;font-size:14.5px}
+.train-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--wepair);border:1px solid var(--line);border-radius:6px;padding:2px 7px;flex:0 0 auto}
+.train-del{background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;flex:0 0 auto}
+.train-del:hover{color:#E74C3C}
+.train-body{font-size:13px;color:var(--muted);line-height:1.6;word-break:break-word}
+.calling-bar{margin-bottom:10px}
+.call-open{display:block;text-align:center;text-decoration:none}
+.ind-card{background:var(--ink);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+.ind-card.meind{border-color:var(--green)}
+.ind-top{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.ind-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
+.ind-av img{width:100%;height:100%;object-fit:cover}
+.ind-name{flex:1;font-weight:700;font-size:13px}
+.ind-name small{color:var(--muted);font-weight:600;font-size:10px}
+.ind-pct{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--green)}
+.ind-metrics{display:flex;gap:9px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.rm-prof{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.rm-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
+.rm-av img{width:100%;height:100%;object-fit:cover}
+.rm-name{font-weight:800;font-size:16px}
+.rm-month{font-family:var(--mono);font-size:11.5px;color:var(--amber);margin-top:2px}
+.rm-fields{display:flex;flex-direction:column;gap:11px}
+.rm-field{display:flex;align-items:center;gap:9px}
+.rm-lab{flex:0 0 76px;font-weight:700;font-size:13px}
+.rm-field label{flex:1;display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--muted)}
+.rm-field input{background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:9px;font-size:14px;font-family:var(--mono);width:100%;box-sizing:border-box;text-align:center}
+.rc-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.rc-overall{text-align:center;padding:6px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.rc-onum{font-family:var(--disp);font-size:46px;font-weight:800;color:var(--green);line-height:1}
+.rc-onum span{font-size:22px;color:var(--muted);margin-left:2px}
+.rc-olab{font-size:12px;color:var(--muted);margin-top:5px}
+.rc-row{margin-bottom:15px}
+.rc-row-top{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.rc-label{font-weight:700;font-size:13.5px;flex:1}
+.rc-val{font-family:var(--mono);font-size:14px;color:var(--cream)}
+.rc-goal{color:var(--muted)}
+.rc-pct{font-family:var(--mono);font-size:13px;color:var(--green);font-weight:700;min-width:42px;text-align:right}
+.rc-bar{height:8px;background:var(--ink);border-radius:6px;overflow:hidden}
+.rc-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-soft));border-radius:6px;transition:width .4s}
+.rc-step{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
+.rc-step button{width:40px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--ink);color:var(--cream);font-size:18px;cursor:pointer}
+.rc-step button:active{background:var(--green);color:var(--green-ink)}
+.sec-sub{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);margin-bottom:13px;text-transform:uppercase}
+.rc-members{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.rc-member{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;background:var(--ink);border-radius:9px;padding:8px 11px}
+.rc-member .pct{font-family:var(--mono);color:var(--green);font-weight:700}
+.calling-wrap{width:100%;height:74vh;min-height:520px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.calling-wrap iframe{width:100%;height:100%;border:none;display:block}
 </style>
 </head>
 <body>
@@ -706,6 +819,7 @@ footer .punch b{color:var(--green)}
             <span class="label" id="compLabelHome">🌳 우리 나무 · 12월 트리</span>
             <p class="tree-desc" id="compDescHome">매주 조금씩 자라 <b>12월 31일</b>에 완성돼요 🎄</p>
             <button class="water-btn" id="waterBtn" onclick="waterTree()">💧 오늘 물 주기</button>
+            <button class="water-btn" id="previewBtn" onclick="previewTree()" style="display:none;background:var(--card);border:1px solid var(--line);color:var(--muted)">🔍 다음 단계 성장 미리보기</button>
             <button class="reset-btn" id="treeResetBtn" onclick="resetTree()" style="display:none">🔄 나무 초기화 · 새 주기 시작</button>
             <div class="water-feed" id="waterFeed"></div>
           </div>
@@ -823,6 +937,32 @@ footer .punch b{color:var(--green)}
       <div id="noticeList"></div>
     </section></div></div>
 
+    <!-- KAKAO (everyone; leader rooms gated) -->
+    <div class="mpanel" id="m-kakao"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>💬 카카오톡</h2><span class="ko">자주 가는 카톡방 바로가기</span></div>
+      <div id="kakaoList"></div>
+      <div id="kakaoEdit"></div>
+    </section></div></div>
+
+    <!-- TRAINING (LR+) -->
+    <div class="mpanel" id="m-training"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🎓 트레이닝</h2><span class="ko">리더 그룹 전용 교육 자료</span><span class="meta">LR 이상</span></div>
+      <div id="trainingBody"></div>
+    </section></div></div>
+
+    <!-- RECAP (TL+) -->
+    <div class="mpanel" id="m-recap"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📅 리캡</h2><span class="ko">월별 성과 리캡</span><span class="meta">TL 이상</span></div>
+      <div id="recapEdit"></div>
+      <div id="recapList"></div>
+    </section></div></div>
+
+    <!-- 리쿠르팅 (LR+; 콜링 링크는 TL+) -->
+    <div class="mpanel" id="m-calling"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📞 리쿠르팅</h2><span class="ko">한 달 목표 &amp; 달성 체크</span><span class="meta">리더 이상</span></div>
+      <div id="recruitBody"></div>
+    </section></div></div>
+
     <!-- PERFORMANCE (leader only) -->
     <div class="mpanel" id="m-perf"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>📊 Performance</h2><span class="ko">팀 실적 보드</span><span class="meta">리더 전용</span></div>
@@ -850,7 +990,7 @@ footer .punch b{color:var(--green)}
             <button class="step-btn plus" style="width:46px;height:46px;font-size:26px" onclick="aseAdj(1)">+</button>
             <button class="btn sm" onclick="aseSave()">저장</button>
           </div>
-          <div style="font-size:11px;color:var(--faint);line-height:1.5">팀원이 실수로 과도하게 누른 세일즈를 바로잡을 수 있어요. <b style="color:var(--muted)">0으로 저장</b>하면 그날 기록이 삭제돼요.</div>
+          <div style="font-size:11px;color:var(--faint);line-height:1.5">팀원이 실수로 과도하게 누른 세일즈를 바로잡을 수 있어요. <b style="color:var(--muted)">0으로 저장</b>하면 그날 기록이 삭제돼요.</div><button class="btn ghost sm" style="margin-top:4px;align-self:flex-start" onclick="testSheet()">🔌 구글시트 연동 확인</button>
         </div>
       </div>
       <div class="board">
@@ -893,7 +1033,7 @@ footer .punch b{color:var(--green)}
 
   <footer>
     <span class="foot-chip"><img src="data:image/png;base64,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" alt="Presence" /></span>
-    <div class="punch">변화는 <b>우리가 왔으니까요.</b></div>
+    <div class="punch">변화는 <b>우리가 존재하는 곳에서</b></div>
     <div>Presence · Oxfam × WePair · Incheon Field Team</div>
   </footer>
 </div>
@@ -919,6 +1059,18 @@ footer .punch b{color:var(--green)}
   <div id="svViewBody" class="sv-view"></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('surveyViewModal')">닫기</button></div>
 </div></div>
+
+<div class="modal" id="recruitModal"><div class="box">
+  <div class="rm-prof"><span class="rm-av" id="rmAv"></span><div><div class="rm-name" id="rmName"></div><div class="rm-month" id="rmMonth"></div></div></div>
+  <div class="rm-fields">
+    <div class="rm-field"><span class="rm-lab">📞 부킹</span><label>목표<input id="rm-bk-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-bk-d" inputmode="numeric" placeholder="0"></label></div>
+    <div class="rm-field"><span class="rm-lab">🙋 쇼업</span><label>목표<input id="rm-su-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-su-d" inputmode="numeric" placeholder="0"></label></div>
+    <div class="rm-field"><span class="rm-lab">🌱 스타터</span><label>목표<input id="rm-st-g" inputmode="numeric" placeholder="0"></label><label>달성<input id="rm-st-d" inputmode="numeric" placeholder="0"></label></div>
+  </div>
+  <div class="acts"><button class="btn ghost" onclick="closeModal('recruitModal')">취소</button><button class="btn" onclick="saveRecruitModal()">저장</button></div>
+</div></div>
+
+<div class="modal" id="imgLightbox" onclick="closeModal('imgLightbox')"><div class="box"><img id="imgLightboxImg" alt="" /></div></div>
 
 <div class="modal" id="notifModal"><div class="box">
   <h3>🔔 알림</h3><p>나를 @태그한 소식이 여기 모여요</p>
@@ -1043,6 +1195,7 @@ function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 const now=Date.now();
 let state={
   pr:0,
+  links:{},recaps:{},training:[],recruit:{},
   waters:{},
   comp:{label:'노제로 챌린지',start:now,weeks:2},
   feeds:[],
@@ -1289,8 +1442,93 @@ function tryAutoLogin(){
 /* ============================================================
    RAIL / TABS
    ============================================================ */
+const TRAINING_SEED=[{"title": "트레이닝 2대 철학", "tag": "Philosophy", "body": "① 가르치기 전에 '배우고 싶게' 만들라\n· 동기가 먼저 — 지식 주입 전에 '하고 싶다'를 켠다\n· 쇼잉으로 욕망 만들기 — 잘하는 모습을 직접 보여줘 '나도 저렇게'를 끌어낸다\n· 작은 성공을 빨리 — 스스로 해낸 성취감 위에 가르침을 얹는다\n\n② 피드백 전에 먼저 '관찰'하라 (루소 『에밀』 소극적 교육)\n· 조급함이 가장 큰 위험 — 준비 안 된 신입에게 주입하면 빈 암기에 그친다\n· 먼저 얼마나 이해했는지 관찰 → 진단 → 맞춤 피드백\n· 기다림이 가장 빠른 길 — 스스로 경험·성숙할 시간을 허락한다\n· 관찰 포인트: 반응·태도 / 두려움의 위치(접근·피치·클로징) / 학습 속도 / 강점과 결"}, {"title": "필드 전, 사람부터 파악", "tag": "Observe", "body": "사람이 다르면 트레이닝도 달라야 한다. 관찰은 첫 만남 이전부터.\n① 이력서를 꼼꼼히 — 경력·이전 직무·성향 단서\n② 주변에 피드백 요청 — 오너·클라이언트·교육자에게 '어떤 사람이었는지'\n③ 트레이닝 사전 설계 — 무엇을 어떻게 가르칠지 미리 고민\n\n신입에게 답이 있다 (3STEP)\nSTEP1 어려워하는 지점 포착 → STEP2 부드럽게 먼저 묻기('왜 어려운지') → STEP3 솔직하게 함께 답 찾기"}, {"title": "트레이너의 전제 조건", "tag": "Standard", "body": "기초군사훈련처럼 누구에게나 동일하게 적용.\n· 세일즈 역량: 주 1회 이상 벨–공 증명 · 4시간 내 세일즈 · 신입에게 쇼잉 가능한 실전력\n· 쇼잉의 중요성: 가장 효과적인 교육은 '직접 보여주기'. 트레이너 실전력 = 교육의 질\n· 스탠다드: 개인 맞춤보다 기본 패턴 통일 우선. '나가면 반드시 세일즈'하는 기본기"}, {"title": "첫 3일의 설계 (Day 1–3)", "tag": "First 3 Days", "body": "DAY 1 · 경험의 날\n성과보다 적응·관찰. '필드는 할 만하다'를 느끼게. 2시간 뛰게 한 뒤 반응·태도 체크. 트레이너는 쇼잉에 집중. 긍정적 첫 경험이 핵심.\n\nDAY 2 · 학습의 날\n반드시 세일즈 1개 이상 함께 달성(매우 중요). 학습력·성장성 체크. 트레이너도 성과 필요 — 함께 내는 것이 이상적.\n\nDAY 3 · 판단의 날 (Stay or Qualifying)\n전략적 사이트·시간 확보로 제로 방지. 3일 성과로 판단:\n· 0–1–2 = 가장 이상적, 리더 육성 가능\n· 3일 2개 = 로드트립 제안\n· 3일 3개 = 의지·센스 보유\n· 0–0–0 = 빠른 Qualifying\n단, 모든 판단은 Case by Case."}, {"title": "5 Step 세일즈 트레이닝", "tag": "Skill", "body": "1. Intro — 주목시키기. 시선·발걸음을 멈춰 세우고 리액션·아이스브레이크로 경계심 해제\n2. Short Story — 짧고 명확한 피치 + Yes Question, WOW 포인트. Tone of Voice·Body Language 활용\n3. Presentation — 해결책 제시. 구호물품을 직접 보여 구매 욕구 최대화\n4. Closing · TAAIS — Trial · Assumptive · Alternative · Indifference · Silence\n5. Rehash — 거래정보 재확인으로 취소율↓, 만족도↑\n\n+ 쿠션 멘트: '바쁘시니까', '이미 좋은 일 많이 하시겠지만' 등으로 거절 확률↓"}, {"title": "개인별 맞춤 피드백", "tag": "Skill", "body": "관찰로 약점 진단 후 맞춤 처방.\n· 리액션 약함 → 표정·제스처·임펄스·바디랭귀지 롤플레이\n· 부스 연결 약함 → 스트릿 스킬(접근 다양화·첫인상·거절 극복·유형별 접근)\n· 클로징 약함 → TAAIS 집중 · Buying sign 포착 · 침묵/대안 · 타이밍\n· 이미 잘함 → 목표 상향 · 자기주도 · 리더십/멘토링 기회"}, {"title": "피드백 타이밍 (WHAT·HOW·WHY)", "tag": "Timing", "body": "필드 전 (WHAT): 피치 점검 · 니즈 파악 · 목표 설정(필드시간·리해쉬·클로즈+AVG) · 사이트 전략 공유 · 프리엠티브 · 물품·복장 점검\n\n필드 중 (HOW): 유형/이해도 파악 · 계속 시도로 데이터 축적 · 2시간마다 콜백싯 점검·CS·넘버 피드백 · 쇼잉 · 네거티브 파악·멘탈 케어 · 좋은 소식 공유\n\n필드 후 (WHY): 소감 파악 · 콜백싯 기준 피드백(넘버·스킬·태도)\n\n기본 5일 교육: D1 콜백싯 작성법 · D2 분석/부스컨트롤 · D3 5 Steps · D4 Closing · D5 약정서&리해쉬"}, {"title": "피드백 주의사항 5", "tag": "Caution", "body": "1. 감정이 아닌 '기준'으로 — 넘버·스킬·태도 모두 콜백싯 기준\n2. 내 말이 아닌 '상대에게 필요한 말'인가 (매우 중요)\n3. KISS — 간단·명료·눈높이 예시\n4. COD 공부 — 올바른 정보만, 긴가민가한 얘긴 금지\n5. 타이밍 — 꼭 필요할 때 외엔 2시간 1번, 그 사이엔 개인 목표 집중"}, {"title": "피드백 모델 3가지", "tag": "Model", "body": "① 샌드위치 — 긍정 → 개선점 → 긍정\n② SBI — 상황(Situation) → 행동(Behavior) → 영향(Impact)\n③ 5R 코칭 — Relation · Refocus · Reality · Resources · Responsibility (관계→목표→장애물→자원→책임)"}, {"title": "트레이너도 콜백싯을 쓴다", "tag": "Self-check", "body": "신입을 위해 매일 3축 점검:\n· Number — 넘버 쌓을 사이트 준비? 시도하게 만드는 피드백? 거절 없는 시도 끌어냄?\n· Pitch·Skill — 약점 바로 교육? 내일 쓸 수 있게?\n· Attitude·Mental — 불안·두려움 제거? 필드에 집중하게?\n신입의 콜백싯이 신입을 키우듯, 트레이너의 콜백싯이 트레이너를 키운다."}, {"title": "자립을 위한 6주 전략", "tag": "6 Weeks", "body": "① 리더힛 2주 이내(이상적) — 전략적 스케줄·필드시간 확보\n② 6주 필드 적응 — 3~5주차 로드트립 적극 활용, 단계별 모니터링\n③ Self 세일즈 준비 — 혼자 하는 시점 미리 안내·프리엠티브, 심리+실전 동시 강화"}, {"title": "트레이너의 3가지 핵심 역할", "tag": "Role", "body": "① 성취감 제공 — '내가 해냈다'를 느끼게. 두려워하면 돕고 아니면 혼자 하게\n② 두려움 제거 — 초기엔 충분한 서포트 → 점진적 독립성 부여\n③ 인정과 칭찬 — 사람은 인정받을 때 주도적이 된다. 혼냄은 효과 없음, 스스로 깨닫게"}, {"title": "캔슬 관리 & 그로스 집중", "tag": "Manage", "body": "· 캔슬은 지점 차원에서 관리 — IC 개인이 과도하게 신경 쓸 영역 아님\n· 그로스(Gross)에 집중 — 캔슬 두려움은 세일즈 Drop으로 이어진다\n· 리젝은 자연스러운 것(20~30%) — 심리적 준비가 되도록 건강한 매니징\n· BEP 대비 타겟 조정 · 하이롤러는 사전 프리엠티브(주 10세일즈+)"}];
+const RECAP_SEED={"2026-05": {"period": "2026.04.20 – 05.24", "done": 212, "net": 112, "avg": "1.7", "income": "1,547만", "hc": 128, "note": "NO ZERO 300일 돌파 · FLM 트레이닝 데뷔 · 트레일워커 성공 · 간승학 2주 내 LR 달성", "sections": [{"t": "팀원별 성과", "b": "윤채영 TL — 52pcs · ₩3,674,356 · 리젝 26\n임재영 AOP — 51pcs · ₩3,699,707 · 리젝 23\n고윤경 LR — 45pcs · ₩3,414,606 · 리젝 21\n손예진 LR — 42pcs · ₩3,196,599 · 리젝 13\n박인선 LR — 18pcs · ₩1,276,150 · 리젝 14\n김하진 IC — 4pcs · ₩206,404 · 리젝 3\n간승학 LR — 0pcs (5/13 첫 필드 · 신규 합류)"}, {"t": "주차별 흐름", "b": "1주 34 · 2주 48 · 3주 46 · 4주 52 · 5주 32 (총 212pcs)\n↑ 4주차 AVG 2.5 — 월간 최고"}, {"t": "리쿠르팅 & H/C", "b": "총 면접 제안 26명 · 쇼업 9명(36%) · 노쇼 16명(64%)\n임재영 6쇼업(46% · 유효 13명) · 고윤경 3쇼업(38% · 유효 8명)\n채널: 당근마켓 / 알바몬 · 간승학 신규 합류"}, {"t": "Challenge & Solution", "b": "리젝률 상승 → 사인 직전 이름·예금주·금액·정기여부 더블체크\n당근 PR 정지 → 소명 접수·해제 대기 후 공고 재개\n더위 시작 → 그늘 사이트로 셋업 포인트 이동"}, {"t": "Win & How", "b": "FLM 트레이닝 미팅 데뷔 · 팀 Q/C 꾸준 관리\n트레일워커 이벤트 성공 + 뉴본드 시스템 체감\n간승학 당근 PR 스타터 → 2주 내 LR 달성\nNO ZERO 300일 돌파 · 윤경·예진 B2B 상승(잠실 유니세프 B2B 수료)\n홍대 미팅 참석 — 재영·채영·예진·승학·승찬"}, {"t": "6월 Goal & Plan", "b": "목표 240pcs+ / ₩1,700만 · 팀 AVG 2.0 · NO ZERO DAYS\n윤경·인선 TL 프로모션 · 예진·승학 섹터리더 도전\nIC 전원 리더힛(하진·승찬·이수·영웅) · 콜링 주간 15부킹+\nReading: 발타자르 그라시안 『완전한 인간』"}]}, "2026-04": {"period": "2026.03.23 – 04.19", "done": 160, "net": 113, "avg": "1.5", "income": "1,131만", "hc": 105, "note": "팀 본격 가동 — 4주 연속 상승 · 윤채영 첫 BIG 프로모션(LR→TL)", "sections": [{"t": "팀원별 성과", "b": "윤채영 TL — 39pcs · ₩2,508,542 · 리젝 14\n고윤경 LR — 36pcs · ₩2,432,699 · 리젝 8\n손예진 LR — 34pcs · ₩2,764,934 · 리젝 5\n임재영 AOP — 27pcs · ₩1,896,207 · 리젝 15\n박인선 LR — 17pcs · ₩1,271,316 · 리젝 2\n서경욱 LR — 7pcs · ₩376,075 · 리젝 2\n김하진 IC — 0pcs · ₩68,032"}, {"t": "주차별 흐름", "b": "1주 39 · 2주 40 · 3주 37 · 4주 31 (총 160pcs)\n↑ 4주 연속 상승 · Net 113pcs"}, {"t": "Challenge & Solution", "b": "오리나 개인사 셋업 제한 → 상위 리더 직접 케어\n당근 PR 채널 막힘 → 공고 주기 텀·내용 수정·개인 사업자 활용\n리젝 47건 → 서명 전 정기여부·₩30,000·워터버켓 재확인·클로징 스크립트 보완"}, {"t": "Win & How", "b": "4월 S.W TOP 3 이내 AOP 팀 · 기복 없는 안정적 인컴\n첫 BIG 프로모션 — 윤채영 LR → TL\n예진 IC → Leader · 팀 Q/C 강화·교육 퀄리티 UP\n좋은 여성 리더상(윤경·채영) 롤모델"}, {"t": "5월 Goal & Plan", "b": "목표 200pcs+ / ₩1,500만 · AVG 2.0 · NO ZERO 300일\n윤경 LR→TL · First LR 확보 · 김하진 리더힛·New IC 스타터\nPR 참여자 주 3회+ · 평일 SNS 5부킹 · 주말 PR 콜링"}]}};
+const CALLING_URL='https://jaeyoung5178-bot.github.io/presence-calling/';
+function recruitMonth(){return TODAY.slice(0,7);}
+function myRecruit(){const mk=recruitMonth();let r=state.recruit[me.uid];if(!r||r.month!==mk)r={month:mk,bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0};return {...r};}
+function rcPct(d,g){g=+g||0;d=+d||0;return g<=0?0:Math.min(100,Math.round(d/g*100));}
+function rcOverall(r){const a=[];if(+r.bk_g>0)a.push(rcPct(r.bk_d,r.bk_g));if(+r.su_g>0)a.push(rcPct(r.su_d,r.su_g));if(+r.st_g>0)a.push(rcPct(r.st_d,r.st_g));return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;}
+function rcSave(r){state.recruit[me.uid]=r;if(LIVE)DB.set('recruit/'+me.uid,r);renderCalling();}
+function rcAdj(field,d){const r=myRecruit();r[field]=Math.max(0,(+r[field]||0)+d);rcSave(r);}
+function rcGoals(){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rcg-bk').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rcg-su').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rcg-st').value,10)||0);rcSave(r);toast('이번 달 목표를 저장했어요 🎯');}
+function rcReset(){if(!me||!isAdmin(me.role))return;if(!confirm('이번 달 모든 팀원의 리쿠르팅 기록을 초기화할까요?'))return;const mk=recruitMonth();const nr={...state.recruit};Object.keys(nr).forEach(uid=>{if(nr[uid]&&nr[uid].month===mk)delete nr[uid];});state.recruit=nr;if(LIVE)DB.set('recruit',nr);renderCalling();toast('이번 달 리쿠르팅을 초기화했어요');}
+function teamRecruit(){const mk=recruitMonth();const t={bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0,members:[]};Object.values(state.users).forEach(u=>{if(u.status!=='active')return;const r=state.recruit[u.uid];if(r&&r.month===mk&&((+r.bk_g||0)+(+r.su_g||0)+(+r.st_g||0)+(+r.bk_d||0)+(+r.su_d||0)+(+r.st_d||0))>0){t.bk_g+=+r.bk_g||0;t.bk_d+=+r.bk_d||0;t.su_g+=+r.su_g||0;t.su_d+=+r.su_d||0;t.st_g+=+r.st_g||0;t.st_d+=+r.st_d||0;t.members.push({uid:u.uid,name:u.name,role:u.role,r,pct:rcOverall(r)});}});return t;}
+function renderCalling(){
+  const box=document.getElementById('recruitBody');if(!box||!me)return;
+  const mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);
+  const t=teamRecruit();
+  const ta=[];if(t.bk_g>0)ta.push(rcPct(t.bk_d,t.bk_g));if(t.su_g>0)ta.push(rcPct(t.su_d,t.su_g));if(t.st_g>0)ta.push(rcPct(t.st_d,t.st_g));
+  const tov=ta.length?Math.round(ta.reduce((x,y)=>x+y,0)/ta.length):0;
+  const trow=(label,emj,d,g)=>{const p=rcPct(d,g);return `<div class="rc-row"><div class="rc-row-top"><span class="rc-label">${emj} ${label}</span><span class="rc-val">${d}<span class="rc-goal"> / ${g}</span></span><span class="rc-pct">${p}%</span></div><div class="rc-bar"><i style="width:${p}%"></i></div></div>`;};
+  let html=`<div class="rc-card"><div class="sec-sub">🟣 전체 Presence · ${mn}월</div><div class="rc-overall team"><div class="rc-onum">${tov}<span>%</span></div><div class="rc-olab">전체 종합 달성률 · ${t.members.length}명 참여</div></div>${trow('부킹','📞',t.bk_d,t.bk_g)}${trow('쇼업','🙋',t.su_d,t.su_g)}${trow('스타터','🌱',t.st_d,t.st_g)}</div>`;
+  html+=`<button class="btn block" onclick="openRecruitModal()">➕ 내 ${mn}월 목표 설정 / 수정</button>`;
+  const mem=t.members.slice().sort((a,b)=>b.pct-a.pct);
+  const cards=mem.length?mem.map(m=>`<div class="ind-card${m.uid===me.uid?' meind':''}"><div class="ind-top"><span class="ind-av" style="background:${avColor(m.name)}">${avInner(m.name)}</span><span class="ind-name">${esc(m.name)}<small> · ${esc(m.role)}</small></span><span class="ind-pct">${m.pct}%</span></div><div class="ind-metrics"><span>📞 부킹 ${(+m.r.bk_d||0)}/${(+m.r.bk_g||0)}</span><span>🙋 쇼업 ${(+m.r.su_d||0)}/${(+m.r.su_g||0)}</span><span>🌱 스타터 ${(+m.r.st_d||0)}/${(+m.r.st_g||0)}</span></div></div>`).join(''):'<p style="font-size:12px;color:var(--faint)">아직 목표를 등록한 팀원이 없어요. ➕ 버튼으로 내 목표를 추가해 보세요.</p>';
+  html+=`<div class="rc-card"><div class="sec-sub">👤 개별 통계 · ${mn}월</div>${cards}</div>`;
+  if(isAdmin(me.role))html+=`<button class="reset-btn" onclick="rcReset()">🔄 이번 달 리쿠르팅 초기화</button>`;
+  if(isTLplus(me.role)){html+=`<div class="rc-card" style="margin-top:22px"><div class="sec-sub">📞 콜링 페이지 · TL 이상</div><p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 13px">리쿠르팅 콜링 페이지를 새 창에서 열어요.</p><a class="btn block call-open" href="${CALLING_URL}" target="_blank" rel="noopener">📞 콜링 페이지 열기 →</a></div>`;}
+  box.innerHTML=html;
+}
+function openRecruitModal(){const r=myRecruit(),mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);const av=document.getElementById('rmAv');av.innerHTML=avInner(me.name);av.style.background=avColor(me.name);document.getElementById('rmName').textContent=me.name+' · '+me.role;document.getElementById('rmMonth').textContent=`${mk.slice(0,4)}년 ${mn}월 리쿠르팅 목표`;const set=(id,v)=>document.getElementById(id).value=v||'';set('rm-bk-g',r.bk_g);set('rm-bk-d',r.bk_d);set('rm-su-g',r.su_g);set('rm-su-d',r.su_d);set('rm-st-g',r.st_g);set('rm-st-d',r.st_d);openModal('recruitModal');}
+function saveRecruitModal(){const r=myRecruit();const gv=id=>Math.max(0,parseInt(document.getElementById(id).value,10)||0);r.bk_g=gv('rm-bk-g');r.bk_d=gv('rm-bk-d');r.su_g=gv('rm-su-g');r.su_d=gv('rm-su-d');r.st_g=gv('rm-st-g');r.st_d=gv('rm-st-d');rcSave(r);closeModal('recruitModal');toast('내 목표를 저장했어요 🎯');}
+function fmtLinks(s){return esc(s||'').replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--wepair);word-break:break-all">$1</a>');}
+const KAKAO_ROOMS=[
+ {key:'arrival',emj:'🚌',name:'도착현황',leader:false},
+ {key:'peacemaker',emj:'🕊️',name:'피스메이커 카톡방',leader:false},
+ {key:'presence',emj:'🟣',name:'Presence 카톡방',leader:false},
+ {key:'productivity',emj:'📈',name:'생산성 보고방',leader:true},
+ {key:'score',emj:'🎯',name:'스코어방',leader:true},
+ {key:'weekly',emj:'📅',name:'위클리 스코어방',leader:true},
+];
+function renderKakao(){
+  const box=document.getElementById('kakaoList');if(!box||!me)return;
+  const btn=r=>{const url=(state.links||{})[r.key]||'';const on=!!url;return on
+    ?`<a class="kroom" href="${esc(url)}" target="_blank" rel="noopener"><span class="kemj">${r.emj}</span><span class="kname">${r.name}</span><span class="kgo">바로가기 →</span></a>`
+    :`<button class="kroom off" onclick="toast('아직 링크가 등록되지 않았어요')"><span class="kemj">${r.emj}</span><span class="kname">${r.name}</span><span class="kgo">준비중</span></button>`;};
+  let html=`<div class="kgroup-tit">전체 공개</div><div class="kgrid">${KAKAO_ROOMS.filter(r=>!r.leader).map(btn).join('')}</div>`;
+  if(isLeader(me.role))html+=`<div class="kgroup-tit" style="margin-top:16px">리더 전용</div><div class="kgrid">${KAKAO_ROOMS.filter(r=>r.leader).map(btn).join('')}</div>`;
+  box.innerHTML=html;
+  const ed=document.getElementById('kakaoEdit');
+  if(ed)ed.innerHTML=isAdmin(me.role)?`<details class="kedit"><summary>✏️ 카톡 링크 편집 (관리자)</summary><div class="kedit-body">${KAKAO_ROOMS.map(r=>`<label class="kedit-row"><span>${r.emj} ${r.name}</span><input id="lk-${r.key}" value="${esc((state.links||{})[r.key]||'')}" placeholder="https://open.kakao.com/o/..." /></label>`).join('')}<button class="btn block" onclick="saveLinks()">저장</button></div></details>`:'';
+}
+function saveLinks(){if(!me||!isAdmin(me.role))return;const nl={...(state.links||{})};KAKAO_ROOMS.forEach(r=>{const el=document.getElementById('lk-'+r.key);if(el)nl[r.key]=el.value.trim()});state.links=nl;if(LIVE)DB.set('links',nl);renderKakao();toast('카톡 링크를 저장했어요 ✓');}
+function renderRecap(){
+  const box=document.getElementById('recapList');if(!box||!me)return;
+  const merged={};
+  Object.keys(RECAP_SEED).forEach(mk=>{merged[mk]={...RECAP_SEED[mk]};});
+  Object.keys(state.recaps||{}).forEach(mk=>{merged[mk]={...(merged[mk]||{}),...state.recaps[mk]};});
+  const cmk=TODAY.slice(0,7);merged[cmk]={...(merged[cmk]||{}),done:teamAchievedFor(cmk),live:true};
+  const keys=Object.keys(merged).sort().reverse();
+  const statsHtml=r=>`<div class="recap-stats"><div><span>팀 세일즈</span><b>${r.done||0}</b></div><div><span>AVG</span><b>${r.avg||'-'}</b></div><div><span>실인컴</span><b>${r.income||'-'}</b></div>${r.hc?`<div><span>H/C</span><b>${r.hc}</b></div>`:''}${r.net?`<div><span>Net</span><b>${r.net}</b></div>`:''}</div>`;
+  box.innerHTML=keys.length?keys.map(mk=>{const r=merged[mk],mn=parseInt(mk.slice(5,7),10);
+    const head=`<div class="recap-h"><b>${mk.slice(0,4)}년 ${mn}월</b>${r.period?`<span class="recap-period">${esc(r.period)}</span>`:''}${r.live?'<span class="recap-live">진행중</span>':''}</div>`;
+    const secs=(r.sections||[]).map(s=>`<div class="recap-sec"><div class="recap-sec-t">${esc(s.t)}</div><div class="recap-sec-b">${fmtLinks(s.b)}</div></div>`).join('');
+    const hasDetail=(r.sections&&r.sections.length)||r.note;
+    if(!hasDetail)return `<div class="recap-card">${head}${statsHtml(r)}</div>`;
+    return `<details class="recap-card"><summary>${head}${statsHtml(r)}<div class="recap-toggle"><span class="t-closed">자세히 보기 ▾</span><span class="t-open">접기 ▴</span></div></summary><div class="recap-detail">${r.note?`<p class="recap-note">${esc(r.note)}</p>`:''}${secs}</div></details>`;
+  }).join(''):'<div class="empty-row">아직 리캡이 없어요</div>';
+  const ed=document.getElementById('recapEdit');
+  if(ed)ed.innerHTML=isAdmin(me.role)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
+}
+function saveRecap(){if(!me||!isAdmin(me.role))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
+function renderTraining(){
+  const box=document.getElementById('trainingBody');if(!box||!me)return;
+  let html='';
+  if(isAdmin(me.role))html+=`<details class="kedit"><summary>➕ 트레이닝 자료 추가 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>제목</span><input id="tr-tit" placeholder="예: B2B 세일즈 가이드" /></label><label class="kedit-row col"><span>내용 (텍스트·링크 붙여넣기)</span><textarea id="tr-body" rows="4" placeholder="자료 내용이나 링크를 붙여넣으세요"></textarea></label><button class="btn block" onclick="addTraining()">추가</button></div></details>`;
+  html+='<div class="kgroup-tit">신입 IC 트레이닝 가이드 · 임재영 AOP</div>';
+  html+=TRAINING_SEED.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b><span class="train-tag">${esc(t.tag||'')}</span></div><div class="train-body">${fmtLinks(t.body)}</div></div>`).join('');
+  const items=(state.training||[]).sort((a,b)=>(b.t||0)-(a.t||0));
+  if(items.length)html+='<div class="kgroup-tit" style="margin-top:18px">추가 자료</div>'+items.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b>${isAdmin(me.role)?`<button class="train-del" onclick="delTraining('${t.id}')">✕</button>`:''}</div>${t.body?`<div class="train-body">${fmtLinks(t.body)}</div>`:''}</div>`).join('');
+  box.innerHTML=html;
+}
+function addTraining(){if(!me||!isAdmin(me.role))return;const title=(document.getElementById('tr-tit').value||'').trim(),body=(document.getElementById('tr-body').value||'').trim();if(!title){toast('제목을 입력하세요');return}const id='tr_'+Date.now(),rec={id,title,body,t:Date.now()};if(LIVE)DB.set('training/'+id,rec);else{state.training.push(rec);renderTraining()}toast('트레이닝 자료를 추가했어요 ✓');}
+function delTraining(id){if(!me||!isAdmin(me.role))return;if(!confirm('이 자료를 삭제할까요?'))return;if(LIVE)DB.set('training/'+id,null);else{state.training=state.training.filter(t=>t.id!==id);renderTraining()}}
 function buildRail(){
-  const tabs=[{k:'home',e:'🏠',l:'홈'},{k:'sale',e:'🔔',l:'세일즈'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'notice',e:'📢',l:'공지'},{k:'net',e:'🤝',l:'네트워킹',c:'net'},{k:'act',e:'🎉',l:'액티비티',c:'act'},{k:'wins',e:'🏆',l:'Wins',c:'wins'},{k:'manual',e:'📖',l:'매뉴얼'},{k:'obj',e:'🛡️',l:'Objection'}];
+  const tabs=[{k:'home',e:'🏠',l:'홈'},{k:'sale',e:'🔔',l:'세일즈'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'notice',e:'📢',l:'공지'},{k:'net',e:'🤝',l:'네트워킹',c:'net'},{k:'act',e:'🎉',l:'액티비티',c:'act'},{k:'wins',e:'🏆',l:'Wins',c:'wins'},{k:'manual',e:'📖',l:'매뉴얼'},{k:'obj',e:'🛡️',l:'Objection'},{k:'kakao',e:'💬',l:'카톡'}];
+  if(isLeader(me.role))tabs.push({k:'training',e:'🎓',l:'트레이닝'});
+  if(isTLplus(me.role))tabs.push({k:'recap',e:'📅',l:'리캡'});
+  if(isLeader(me.role))tabs.push({k:'calling',e:'📞',l:'리쿠르팅'});
   if(isLeader(me.role))tabs.push({k:'perf',e:'📊',l:'Performance'});
   if(isAdmin(me.role))tabs.push({k:'admin',e:'⚙️',l:'관리',c:'pend'});
   document.getElementById('rail').innerHTML=tabs.map((t,i)=>`<button class="mtab${i===0?' active':''}" data-tab="${t.k}" onclick="goTab('${t.k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`).join('');
@@ -1298,6 +1536,9 @@ function buildRail(){
 function goTab(name){
   if(name==='perf'&&!isLeader(me.role))name='home';
   if(name==='admin'&&!isAdmin(me.role))name='home';
+  if(name==='training'&&!isLeader(me.role))name='home';
+  if(name==='recap'&&!isTLplus(me.role))name='home';
+  if(name==='calling'&&!isLeader(me.role))name='home';
   document.querySelectorAll('.mtab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
@@ -1305,6 +1546,10 @@ function goTab(name){
   if(name==='home'){treePreviewStep=null;renderTree();}
   if(name==='comp'){previewStage=null;renderComp();}
   if(name==='notice')renderNotices();
+  if(name==='kakao')renderKakao();
+  if(name==='training')renderTraining();
+  if(name==='recap')renderRecap();
+  if(name==='calling')renderCalling();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function updateCounts(){const set=(id,n)=>{const e=document.getElementById(id);if(e)e.textContent=n};set('c-net',state.net.length);set('c-act',state.act.length);set('c-wins',state.wins.length);const p=Object.values(state.users).filter(u=>u.status==='pending').length;set('c-pend',p);}
@@ -1328,8 +1573,46 @@ function treeEnded(){return Date.now()>=TREE_END}
 function isTreeGrowthDay(){return !treeEnded() && treeWeek()>0 && treeDays()%7===0}
 function peekGift(){toast('🎁 Coming Soon — 무슨 선물이 기다리고 있을까요? 기대해 주세요!')}
 function paintGifts(show){const el=document.getElementById('treeGifts');if(!el)return;if(!show){el.innerHTML='';return}const hues=[0,135,255];el.innerHTML=hues.map(hu=>`<button class="gift" onclick="peekGift()"><span class="gq">?</span><span class="gbox" style="filter:hue-rotate(${hu}deg) drop-shadow(0 3px 5px rgba(0,0,0,.45))">🎁</span><span class="glab">Coming&nbsp;Soon</span></button>`).join('')}
-function isRudolphSeason(){return Date.now()>=Date.parse('2026-11-01T00:00:00+09:00')}
-function rudolphAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;const s=document.createElement('div');s.className='rudolph';s.textContent='🦌🛷';stg.appendChild(s);setTimeout(()=>s.remove(),2700);for(let i=0;i<5;i++){setTimeout(()=>{const sp=document.createElement('div');sp.className='rudolph-spark';sp.textContent='✨';sp.style.left=(12+i*16)+'%';sp.style.top=(8+Math.random()*12)+'%';stg.appendChild(sp);setTimeout(()=>sp.remove(),1300)},320+i*200)}}
+function seasonOf(){const m=new Date().getMonth()+1;if(m>=7&&m<=9)return'sun';if(m===10)return'leaves';if(m===11)return'festive';if(m===12)return'winter';return'none';}
+function playSeasonFor(s){if(s==='sun')sunAnim();else if(s==='leaves')leavesAnim();else if(s==='festive')festiveAnim(false);else if(s==='winter'){festiveAnim(true);snowAnim();}}
+function seasonAnim(){playSeasonFor(seasonOf());}
+const SLEIGH_SVG=`<svg viewBox="0 0 180 84" xmlns="http://www.w3.org/2000/svg">
+<path d="M58 40 Q92 30 122 45" stroke="#7a5230" stroke-width="2" fill="none"/>
+<path d="M10 71 Q3 79 15 79 L67 79 Q81 79 81 66" stroke="#B0392B" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M16 71 L16 50 Q16 42 26 42 L62 42 Q72 42 74 55 L79 71 Z" fill="#E74C3C"/>
+<path d="M16 57 L78 57" stroke="#C0392B" stroke-width="2"/>
+<path d="M76 71 Q86 70 84 60 Q83 55 78 57" fill="none" stroke="#B0392B" stroke-width="4" stroke-linecap="round"/>
+<circle cx="27" cy="45" r="9" fill="#8E44AD"/><rect x="22" y="39" width="9" height="4" rx="2" fill="#F5D061"/>
+<path d="M39 51 Q37 34 47 34 Q57 34 55 51 Z" fill="#E74C3C"/>
+<rect x="39" y="46" width="16" height="3.2" fill="#5b3a1a"/><rect x="45" y="45.4" width="4" height="4.4" rx="1" fill="#F5D061"/>
+<path d="M53 43 L62 39" stroke="#E74C3C" stroke-width="5.5" stroke-linecap="round"/><circle cx="63" cy="38" r="3.3" fill="#fff"/>
+<ellipse cx="47" cy="34" rx="9.5" ry="3" fill="#fff"/>
+<circle cx="47" cy="23" r="9.2" fill="#F3C7A0"/>
+<path d="M37.8 24 Q37 43 47 45 Q57 43 56.2 24 Q52 33 47 33 Q42 33 37.8 24 Z" fill="#fff"/>
+<path d="M43 28 Q47 31 47 28 Q47 31 51 28 Q49 32 47 31 Q45 32 43 28 Z" fill="#f4f4f4"/>
+<circle cx="41.5" cy="25" r="2.3" fill="#F2A39C" opacity=".75"/><circle cx="52.5" cy="25" r="2.3" fill="#F2A39C" opacity=".75"/>
+<circle cx="47" cy="25.5" r="2.1" fill="#EAAE86"/>
+<circle cx="43.6" cy="21" r="1.2" fill="#3a2a1a"/><circle cx="50.4" cy="21" r="1.2" fill="#3a2a1a"/>
+<path d="M41 18.6 Q43.6 17.4 46 19" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M48 19 Q50.4 17.4 53 18.6" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+<path d="M38 17 Q46 3 57 15 Q52 12 47 12 Q42 12 38 17 Z" fill="#E74C3C"/>
+<path d="M38.5 17 L56 16" stroke="#fff" stroke-width="4.6" stroke-linecap="round"/>
+<path d="M47 8 Q39 3 32 10" stroke="#E74C3C" stroke-width="5" fill="none" stroke-linecap="round"/>
+<circle cx="31" cy="10" r="3.4" fill="#fff"/>
+<ellipse cx="128" cy="53" rx="20" ry="11" fill="#8B5A2B"/>
+<path d="M116 61 L113 75 M124 63 L123 77 M134 63 L137 77 M144 61 L148 74" stroke="#6b4a2b" stroke-width="3" stroke-linecap="round"/>
+<path d="M108 49 q-6 -1 -7 5" stroke="#6b4a2b" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M145 49 Q153 40 155 30" stroke="#8B5A2B" stroke-width="9" fill="none" stroke-linecap="round"/>
+<circle cx="157" cy="26" r="8" fill="#9B6B3A"/>
+<path d="M150 23 Q145 21 147 26 Z" fill="#7a5230"/>
+<ellipse cx="163" cy="29" rx="5" ry="3.6" fill="#B07A45"/>
+<circle cx="167" cy="29" r="3.2" fill="#FF3B3B"/><circle cx="166" cy="28" r="1" fill="#ffb3b3"/>
+<circle cx="157" cy="24" r="1.3" fill="#2a1a0a"/>
+<path d="M153 19 Q151 11 147 9 M153 19 Q152 13 156 10 M161 19 Q163 11 167 9 M161 19 Q162 13 158 10" stroke="#6b4a2b" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>`;
+function festiveAnim(slow){const stg=document.querySelector('.tree-stage');if(!stg)return;const g=document.createElement('div');g.className='sleigh'+(slow?' slow':'');g.innerHTML=SLEIGH_SVG;stg.appendChild(g);setTimeout(()=>g.remove(),slow?5200:3600);}
+function sunAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;const o=document.createElement('div');o.className='sun-glow';stg.appendChild(o);const s=document.createElement('div');s.className='sun-fx';s.textContent='☀️';stg.appendChild(s);setTimeout(()=>{o.remove();s.remove()},2800);}
+function leavesAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;const E=['🍂','🍁'];for(let i=0;i<11;i++){setTimeout(()=>{const l=document.createElement('div');l.className='leaf';l.textContent=E[i%2];l.style.left=(4+Math.random()*92)+'%';l.style.fontSize=(15+Math.random()*11)+'px';l.style.animationDuration=(2.8+Math.random()*1.4)+'s';stg.appendChild(l);setTimeout(()=>l.remove(),4400)},i*170)}}
+function snowAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;for(let i=0;i<18;i++){setTimeout(()=>{const f=document.createElement('div');f.className='snow';f.textContent=Math.random()<0.5?'❄️':'❅';f.style.left=(Math.random()*100)+'%';f.style.fontSize=(9+Math.random()*11)+'px';f.style.animationDuration=(3+Math.random()*1.8)+'s';stg.appendChild(f);setTimeout(()=>f.remove(),5000)},i*110)}}
 function wateringCanAnim(pour){const stg=document.querySelector('.tree-stage');if(!stg)return;const can=document.createElement('div');can.className='water-can';can.innerHTML=`<svg viewBox="0 0 72 54"><path d="M22 24 L52 24 L49 48 Q48 51 45 51 L29 51 Q26 51 25 48 Z" fill="#5CBC2E"/><rect x="20" y="19" width="34" height="6" rx="3" fill="#4aa325"/><path d="M28 19 Q37 5 48 17" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M50 25 q10 3 7 18" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M22 29 L7 17" stroke="#5CBC2E" stroke-width="6" stroke-linecap="round"/><ellipse cx="6" cy="16" rx="5" ry="3" fill="#4aa325" transform="rotate(-42 6 16)"/></svg>`;stg.appendChild(can);if(pour){for(let i=0;i<11;i++){setTimeout(()=>{if(!can.parentNode)return;const d=document.createElement('div');d.className='can-drop';d.textContent='💧';d.style.left=(39+Math.random()*10)+'%';stg.appendChild(d);setTimeout(()=>d.remove(),950)},650+i*72)}}setTimeout(()=>can.remove(),2050)}
 function renderTree(weekOverride){
   const preview = weekOverride==null && treePreviewStep!==null;
@@ -1342,9 +1625,11 @@ function renderTree(weekOverride){
   const prc=document.getElementById('prCount');if(prc)prc.textContent=state.pr;
   const stg=document.getElementById('stageTag');if(stg)stg.textContent=(ended?'완성 🎄':st.name)+(preview?' · 미리보기':'');
   const wbtn=document.getElementById('waterBtn');
-  if(wbtn){
-    if(me&&isAdmin(me.role)) wbtn.textContent = preview ? (TREE_PREVIEW[treePreviewStep]==='end'?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 성장 과정 미리보기';
-    else wbtn.textContent = ended?'💧 물 주기 🎄':'💧 오늘 물 주기';
+  if(wbtn) wbtn.textContent = ended?'💧 물 주기 🎄':'💧 오늘 물 주기';
+  const pbtn=document.getElementById('previewBtn');
+  if(pbtn){
+    if(me&&isAdmin(me.role)){pbtn.style.display='flex';pbtn.textContent = preview ? (TREE_PREVIEW[treePreviewStep]==='end'?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 다음 단계 성장 미리보기';}
+    else pbtn.style.display='none';
   }
   const desc=document.getElementById('compDescHome');
   if(desc){
@@ -1400,9 +1685,6 @@ function renderTree(weekOverride){
     for(let i=0;i<nf;i++){const px=fp[i][0],py=fp[i][1],fx=cx+px*R,fy=cy+py*R;svg+=`<circle cx="${fx.toFixed(1)}" cy="${fy.toFixed(1)}" r="${(R*.13).toFixed(1)}" fill="#E84C4C"/><circle cx="${(fx-R*.045).toFixed(1)}" cy="${(fy-R*.045).toFixed(1)}" r="${(R*.045).toFixed(1)}" fill="#ffb3b3" opacity=".85"/>`}
   }
   // 새 (frac>.82부터)
-  const bird=(bx,by)=>`<g transform="translate(${bx.toFixed(1)},${by.toFixed(1)})"><ellipse cx="0" cy="0" rx="6" ry="3.6" fill="#39404b"/><circle cx="5" cy="-2.4" r="2.8" fill="#39404b"/><path d="M7 -3 l3.4 -.6 l-3 1.6 z" fill="#E6B052"/><circle cx="5.8" cy="-2.8" r=".7" fill="#fff"/><circle cx="5.9" cy="-2.7" r=".35" fill="#222"/><path d="M-2 -1.4 q-3.4 -3 -6.4 -1 q4 1.2 6.4 2.2" fill="#2c323b"/></g>`;
-  if(frac>0.82)svg+=bird(cx-R*.5,cy-R*.55);
-  if(frac>0.9)svg+=bird(cx+R*.34,cy-R*.62);
   // 별 토퍼 (완성)
   if(ended)svg+=`<path d="M${cx} ${cy-R-12} l3.2 7.2 7.9 .6 -6 5.2 2 7.7 -7.1 -4.2 -7.1 4.2 2 -7.7 -6 -5.2 7.9 -.6 z" fill="#F5D061" stroke="#e0b840" stroke-width=".6"/>`;
   document.getElementById('treeSvg').innerHTML=svg;
@@ -1415,7 +1697,6 @@ function treeGrowAnim(){
 function treeEndingAnim(){
   const stg=document.querySelector('.tree-stage');if(!stg)return;
   for(let i=0;i<9;i++){const s=document.createElement('div');s.className='star-fall';s.textContent=['⭐','✨','🌟'][i%3];s.style.left=(8+Math.random()*84)+'%';s.style.animationDelay=(Math.random()*0.7)+'s';stg.appendChild(s);setTimeout(()=>s.remove(),2000)}
-  for(let i=0;i<2;i++){const bd=document.createElement('div');bd.className='bird-fly';bd.textContent='🐦';bd.style.top=(18+i*15)+'%';bd.style.animationDelay=(i*0.25)+'s';stg.appendChild(bd);setTimeout(()=>bd.remove(),1700)}
   const svg=document.getElementById('treeSvg');if(svg){svg.classList.remove('treegrow');void svg.offsetWidth;svg.classList.add('treegrow')}
 }
 function renderWaterFeed(){
@@ -1425,26 +1706,17 @@ function renderWaterFeed(){
 }
 function waterTree(){
   if(!me){toast('로그인이 필요해요');return}
-  if(isAdmin(me.role)){
-    if(treePreviewStep===null){treePreviewStep=0;renderTree();treeGrowAnim();toast('🌱 새싹부터 성장 과정 미리보기 (실제엔 영향 없어요)');return;}
-    if(treePreviewStep<TREE_PREVIEW.length-1){
-      treePreviewStep++;renderTree();
-      if(TREE_PREVIEW[treePreviewStep]==='end'){treeEndingAnim();rudolphAnim();toast('🎄 12월 31일 — 완성 크리스마스 트리! 🦌')}
-      else{treeGrowAnim();toast('🌳 무럭무럭 자라는 중...')}
-      return;
-    }
-    treePreviewStep=null;renderTree();toast('↩ 실제 상태로 돌아왔어요 (미리보기 종료)');return;
-  }
-  if(isRudolphSeason())rudolphAnim();
+  if(treePreviewStep!==null){treePreviewStep=null;}   // 물 주면 미리보기 종료
+  seasonAnim();   // 월별 계절 애니메이션 (7~9월 해 / 10월 낙엽 / 11월 산타·루돌프 / 12월 +눈)
   const w=state.waters[me.uid], watered=w&&w.last===TODAY;
-  // 평일에 이미 물 준 경우: 물뿌리개만 등장(물은 안 나옴) + 멘트
+  // 이미 오늘 준 경우: 물뿌리개 모션은 나오되 물은 안 나옴 + 멘트
   if(watered && !isTreeGrowthDay() && !treeEnded()){
     wateringCanAnim(false);
-    toast('오늘은 이미 물을 줬어요 🌱 내일 또 와요!');
+    toast('오늘은 이미 물을 줬어요 🌱 (내일 또 와요!)');
     return;
   }
   const record=()=>{const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
-  wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기
+  wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기 (첫 물주기엔 물이 나옴)
   if(treeEnded()){
     if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
     setTimeout(()=>{renderTree();treeEndingAnim()},1050);return;
@@ -1455,6 +1727,20 @@ function waterTree(){
     setTimeout(()=>{renderTree();treeGrowAnim()},1050);return;
   }
   record();setTimeout(renderTree,500);toast('💧 오늘 물 줬어요! 내일 또 만나요 🌱');
+}
+const PREVIEW_SEASON=['none','sun','leaves','festive','winter','winter'];
+const SEASON_LABEL={none:'🌱 새싹 · 초여름',sun:'☀️ 해가 쨍쨍한 한여름',leaves:'🍂 낙엽 지는 가을',festive:'🎅 산타가 오는 11월',winter:'🎄 눈 내리는 12월'};
+function previewTree(){
+  if(!me||!isAdmin(me.role))return;
+  if(treePreviewStep===null){treePreviewStep=0;renderTree();treeGrowAnim();playSeasonFor(PREVIEW_SEASON[0]);toast('🌱 새싹부터 미리보기 — 단계마다 계절이 바뀌어요 (실데이터 영향 없음)');return;}
+  if(treePreviewStep<TREE_PREVIEW.length-1){
+    treePreviewStep++;renderTree();
+    const sea=PREVIEW_SEASON[treePreviewStep]||'none';
+    if(TREE_PREVIEW[treePreviewStep]==='end'){treeEndingAnim();playSeasonFor('winter');toast('🎄 완성! '+SEASON_LABEL.winter)}
+    else{treeGrowAnim();playSeasonFor(sea);toast('🌳 무럭무럭 자라는 중 · '+(SEASON_LABEL[sea]||''))}
+    return;
+  }
+  treePreviewStep=null;renderTree();toast('↩ 실제 상태로 돌아왔어요 (미리보기 종료)');
 }
 function resetTree(){
   if(!me||!isAdmin(me.role))return;
@@ -1688,23 +1974,29 @@ function startComp(){
   renderComp();toast(`🐔 '${label}' ${weeks}주 시작!`);
 }
 /* ===== NOTICES ===== */
+let noticePhoto=null;
 function renderNotices(){
   const comp=document.getElementById('noticeCompose');
-  if(comp)comp.innerHTML=(me&&isTLplus(me.role))?`<div class="notice-compose"><input id="ntcTitle" placeholder="공지 제목" maxlength="60"/><textarea id="ntcBody" placeholder="내용을 입력하세요"></textarea><button onclick="addNotice()">📢 공지 올리기</button></div>`:'';
+  if(comp)comp.innerHTML=(me&&isTLplus(me.role))?`<div class="notice-compose"><input id="ntcTitle" placeholder="공지 제목" maxlength="60"/><textarea id="ntcBody" placeholder="내용을 입력하세요 (사진만 올려도 돼요)"></textarea><input type="file" id="ntcPhotoInput" accept="image/*" style="display:none" onchange="onNoticePhoto(event)"/><div id="ntcPreview" class="ntc-preview">${noticePhoto?`<div class="ntc-prev-wrap"><img src="${noticePhoto}"/><button onclick="removeNoticePhoto()">✕ 사진 제거</button></div>`:''}</div><div class="ntc-actions"><button class="ntc-photo-btn" onclick="document.getElementById('ntcPhotoInput').click()">🖼️ 사진·포스터</button><button class="ntc-submit" onclick="addNotice()">📢 공지 올리기</button></div></div>`:'';
   const list=state.notices.slice().sort((a,b)=>b.t-a.t);
   document.getElementById('noticeList').innerHTML=list.length?list.map(n=>{
     const canDel=me&&(isAdmin(me.role)||me.name===n.by);
-    return `<div class="notice-item"><div class="notice-head"><span class="notice-av" style="background:${avColor(n.by)}">${avInner(n.by)}</span><span class="notice-by">${esc(n.by)}<span class="rolechip">${esc(n.role)}</span></span><span class="notice-t">${ago(n.t)}</span></div><div class="notice-ttl">${esc(n.title)}</div><div class="notice-body">${fmtMentions(n.body)}</div>${canDel?`<button class="notice-del" onclick="delNotice(${n.t})">삭제</button>`:''}</div>`;
+    return `<div class="notice-item"><div class="notice-head"><span class="notice-av" style="background:${avColor(n.by)}">${avInner(n.by)}</span><span class="notice-by">${esc(n.by)}<span class="rolechip">${esc(n.role)}</span></span><span class="notice-t">${ago(n.t)}</span></div><div class="notice-ttl">${esc(n.title)}</div><div class="notice-body">${fmtMentions(n.body)}</div>${n.photo?`<img class="notice-photo" src="${n.photo}" onclick="viewImg(this.src)" alt="공지 이미지"/>`:''}${canDel?`<button class="notice-del" onclick="delNotice(${n.t})">삭제</button>`:''}</div>`;
   }).join(''):'<div class="rank-empty">아직 공지가 없어요</div>';
 }
 function addNotice(){
   if(!me||!isTLplus(me.role)){toast('공지는 TL 이상만 작성할 수 있어요');return}
   const title=document.getElementById('ntcTitle').value.trim(),body=document.getElementById('ntcBody').value.trim();
-  if(!title||!body){toast('제목과 내용을 입력해 주세요');return}
-  const n={by:me.name,role:me.role,title,body,t:Date.now()};
+  if(!title){toast('공지 제목을 입력해 주세요');return}
+  if(!body&&!noticePhoto){toast('내용이나 사진을 넣어주세요');return}
+  const n={by:me.name,role:me.role,title,body,photo:noticePhoto||null,t:Date.now()};
   state.notices.push(n);if(LIVE)DB.push('notices',n);
-  notifyMentions(title+' '+body,'공지',me.name);renderNotices();toast('공지를 올렸어요 📢');
+  notifyMentions(title+' '+body,'공지',me.name);noticePhoto=null;renderNotices();toast('공지를 올렸어요 📢');
 }
+function onNoticePhoto(e){const f=e.target.files&&e.target.files[0];if(!f)return;compressImg(f,d=>{noticePhoto=d;renderNoticePreview();});}
+function removeNoticePhoto(){noticePhoto=null;const i=document.getElementById('ntcPhotoInput');if(i)i.value='';renderNoticePreview();}
+function renderNoticePreview(){const el=document.getElementById('ntcPreview');if(el)el.innerHTML=noticePhoto?`<div class="ntc-prev-wrap"><img src="${noticePhoto}"/><button onclick="removeNoticePhoto()">✕ 사진 제거</button></div>`:'';}
+function viewImg(src){const el=document.getElementById('imgLightboxImg');if(el){el.src=src;openModal('imgLightbox');}}
 function delNotice(t){
   const n=state.notices.find(x=>x.t===t);if(!n)return;
   if(!(me&&(isAdmin(me.role)||me.name===n.by)))return;
@@ -1806,6 +2098,7 @@ function renderPerfGauge(){
   const inc=document.getElementById('tgIncome');if(inc)inc.textContent=todayTeam;
   renderPrevMonth();renderAdminSaleEdit();
 }
+function testSheet(){const url=Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:SURVEY_WEBHOOK;if(!url){toast('웹훅 URL이 없어요');return}postWebhook({type:'sale',date:TODAY,name:'연동테스트',id:'_연동테스트',role:'IC',count:1,at:new Date().toISOString()});toast('테스트 전송! 새 탭의 응답이 alive면 배포 OK · 시트 "세일즈로그"에 _연동테스트 행 확인');window.open(url,'_blank')}
 function fillAseUsers(){const sel=document.getElementById('aseUser');if(!sel)return;const cur=sel.value;const us=Object.values(state.users).filter(u=>u.status==='active').sort((a,b)=>ri(b.role)-ri(a.role));sel.innerHTML=us.map(u=>`<option value="${u.uid}">${esc(u.name)} · ${u.role}</option>`).join('');if(cur&&us.some(u=>u.uid===cur))sel.value=cur}
 function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!dt||!u.value||!dt.value)return;const e=state.sales[`${dt.value}|${u.value}`];document.getElementById('aseCount').value=e?e.count:0}
 function aseAdj(d){const i=document.getElementById('aseCount');i.value=Math.max(0,(parseInt(i.value,10)||0)+d)}
@@ -1956,6 +2249,10 @@ async function initFirebase(){
   DB.on('wins',v=>{state.wins=v?Object.values(v):[];renderWins()});
   DB.on('notifs',v=>{state.notifs={};if(v){for(const uid in v){state.notifs[uid]=Array.isArray(v[uid])?v[uid]:Object.values(v[uid])}}renderBell();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList()});
   DB.on('obj',v=>{if(v){state.obj=v;renderObj()}});
+  DB.on('links',v=>{state.links=v||{};if(me)renderKakao()});
+  DB.on('recaps',v=>{state.recaps=v||{};if(me)renderRecap()});
+  DB.on('training',v=>{state.training=v?Object.values(v):[];if(me)renderTraining()});
+  DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
   DB.on('sales',v=>{
     state.sales={};
     if(v){for(const date in v){for(const uid in v[date]){const e=v[date][uid];state.sales[`${date}|${uid}`]={uid,name:e.name,role:e.role,date,count:e.count,t:e.t}}}}
