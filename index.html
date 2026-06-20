@@ -198,6 +198,23 @@ main{padding-bottom:40px}
 @keyframes starFall{0%{opacity:0;top:-8%;transform:rotate(0)}15%{opacity:1}100%{opacity:0;top:84%;transform:rotate(45deg)}}
 .bird-fly{position:absolute;z-index:6;left:-14%;font-size:22px;pointer-events:none;animation:birdFly 1.5s ease-out forwards}
 @keyframes birdFly{0%{left:-14%;opacity:0;transform:translateY(0)}20%{opacity:1}50%{transform:translateY(-12px)}100%{left:76%;opacity:1;transform:translateY(0)}}
+.water-can{position:absolute;top:3%;left:50%;width:72px;z-index:7;pointer-events:none;transform-origin:78% 75%;animation:canPour 2.05s ease-in-out forwards;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+@keyframes canPour{0%{opacity:0;transform:translate(-40%,-18px) rotate(12deg) scale(.85)}16%{opacity:1;transform:translate(-40%,0) rotate(12deg) scale(1)}30%{transform:translate(-40%,0) rotate(-30deg) scale(1)}78%{transform:translate(-40%,0) rotate(-30deg) scale(1)}90%{transform:translate(-40%,-6px) rotate(2deg) scale(1)}100%{opacity:0;transform:translate(-40%,-20px) rotate(8deg) scale(.85)}}
+.can-drop{position:absolute;top:30%;font-size:15px;z-index:6;pointer-events:none;animation:canDrop .95s ease-in forwards}
+@keyframes canDrop{0%{opacity:0;top:30%;transform:scale(.5)}18%{opacity:1}100%{opacity:.15;top:60%;transform:scale(1.05)}}
+.rudolph{position:absolute;left:-24%;top:12%;font-size:30px;z-index:8;pointer-events:none;white-space:nowrap;animation:rudolphFly 2.6s ease-in-out forwards;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4))}
+@keyframes rudolphFly{0%{left:-24%;top:16%;opacity:0;transform:rotate(-4deg)}12%{opacity:1}50%{top:5%}88%{opacity:1}100%{left:106%;top:13%;opacity:0;transform:rotate(3deg)}}
+.rudolph-spark{position:absolute;font-size:12px;z-index:7;pointer-events:none;animation:rudSpark 1.25s ease forwards}
+@keyframes rudSpark{0%{opacity:0;transform:scale(.4)}30%{opacity:1}100%{opacity:0;transform:translateY(-12px) scale(1)}}
+.xlight{animation:xtwinkle 1.6s ease-in-out infinite}
+@keyframes xtwinkle{0%,100%{opacity:1}50%{opacity:.3}}
+.tree-gifts{position:absolute;bottom:10px;left:0;right:0;z-index:4;display:flex;gap:8px;justify-content:center;align-items:flex-end;pointer-events:none}
+.gift{position:relative;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:auto;transition:transform .12s}
+.gift:active{transform:scale(.9)}
+.gift:hover{transform:translateY(-2px)}
+.gift .gbox{font-size:30px;line-height:1}
+.gift .gq{position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);z-index:2}
+.gift .glab{font-family:var(--mono);font-size:8px;letter-spacing:.02em;color:var(--amber);background:rgba(20,22,27,.78);border:1px solid rgba(230,176,82,.45);border-radius:6px;padding:1px 5px;white-space:nowrap}
 .tree-side{padding:20px;display:flex;flex-direction:column}
 .tree-side .label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
 .water-row{display:flex;gap:8px}
@@ -581,6 +598,15 @@ table.scores tr.top1 .big{color:var(--green)}
 .roster .sdone{color:var(--green);font-family:var(--mono);font-size:11px}
 .roster .sno{color:var(--faint);font-family:var(--mono);font-size:11px}
 .empty-row{color:var(--faint);font-size:13px;text-align:center;padding:18px}
+.surv-row{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:8px;cursor:pointer;color:var(--cream);transition:.12s;font-family:inherit}
+.surv-row:hover{border-color:var(--wepair)}
+.surv-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
+.surv-av img{width:100%;height:100%;object-fit:cover}
+.surv-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.surv-nm{font-weight:700;font-size:13.5px}
+.surv-role{font-size:10px;color:var(--muted);font-weight:600}
+.surv-meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.surv-go{font-size:11.5px;color:var(--wepair);font-family:var(--mono);flex:0 0 auto}
 
 /* survey */
 .survey-wrap{max-width:560px;margin:0 auto}
@@ -674,6 +700,7 @@ footer .punch b{color:var(--green)}
             <div class="tree-counter"><div class="n" id="prCount">0</div><div class="l">물 준 횟수</div></div>
             <div class="stage-tag" id="stageTag">씨앗</div>
             <svg id="treeSvg" viewBox="0 0 200 260"></svg>
+            <div class="tree-gifts" id="treeGifts"></div>
           </div>
           <div class="tree-side">
             <span class="label" id="compLabelHome">🌳 우리 나무 · 12월 트리</span>
@@ -810,6 +837,22 @@ footer .punch b{color:var(--green)}
         </div>
       </div>
       <div class="gauge-card" id="prevMonthCard" style="margin-top:0;margin-bottom:16px;display:none"></div>
+      <div class="gauge-card" id="adminSaleEdit" style="margin-top:0;margin-bottom:16px;display:none">
+        <div class="gauge-top"><span class="lab">✏️ 세일즈 수정 · 관리자</span></div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="aseUser" onchange="aseLoad()" style="flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:10px;font-size:13px"></select>
+            <input type="date" id="aseDate" onchange="aseLoad()" style="background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:10px;font-size:13px"/>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="step-btn" style="width:46px;height:46px;font-size:26px" onclick="aseAdj(-1)">−</button>
+            <input id="aseCount" type="number" min="0" value="0" style="flex:1;text-align:center;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:12px;font-size:20px;font-weight:700;font-family:var(--disp)"/>
+            <button class="step-btn plus" style="width:46px;height:46px;font-size:26px" onclick="aseAdj(1)">+</button>
+            <button class="btn sm" onclick="aseSave()">저장</button>
+          </div>
+          <div style="font-size:11px;color:var(--faint);line-height:1.5">팀원이 실수로 과도하게 누른 세일즈를 바로잡을 수 있어요. <b style="color:var(--muted)">0으로 저장</b>하면 그날 기록이 삭제돼요.</div>
+        </div>
+      </div>
       <div class="board">
         <div class="board-top"><span class="sync" id="syncState"><span class="led"></span><span id="syncTxt" >세일즈 버튼 자동 집계</span></span><span class="src">이번 달 · 실시간</span></div>
         <div class="board-scroll"><table class="scores"><thead><tr><th>팀원</th><th>이번 달 세일즈</th></tr></thead><tbody id="scoreBody"></tbody></table></div>
@@ -824,7 +867,7 @@ footer .punch b{color:var(--green)}
         <div class="adm-card">
           <div class="ah"><h3>설문 양식 미리보기</h3><span class="badge zero">IC·LR·TL</span></div>
           <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">팀원이 작성하게 될 설문을 미리 볼 수 있어요. 제출된 응답은 아래 명단에서 직급 옆 링크로 확인돼요.</p>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">팀원이 작성하게 될 설문을 미리 볼 수 있어요. 제출된 응답은 아래 ‘제출된 설문’에서 이름을 눌러 확인돼요.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn ghost sm" onclick="previewSurvey('IC')">IC 설문</button>
               <button class="btn ghost sm" onclick="previewSurvey('LR')">리더(LR) 설문</button>
@@ -835,6 +878,10 @@ footer .punch b{color:var(--green)}
         <div class="adm-card">
           <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
           <div class="adm-body" id="pendList"></div>
+        </div>
+        <div class="adm-card">
+          <div class="ah"><h3>제출된 설문</h3><span class="badge zero" id="survBadge">0</span></div>
+          <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p><div id="survList"></div></div>
         </div>
         <div class="adm-card">
           <div class="ah"><h3>팀원 명단</h3><span class="badge zero" id="rosterBadge">0</span></div>
@@ -896,9 +943,8 @@ const FIREBASE_CONFIG = {
 };
 const SHEETS_CSV_URL  = null;   // 복잡한 스코어 시트 직접 파싱은 비활성. 타겟은 🎯 타겟 탭(게시 CSV)으로, 세일즈는 앱에서
 const SURVEY_WEBHOOK = [
-  "https://script.google.com/macros/s/AKfycbzew1vUnBO4D9j7kEGZfFWytVKI4ITVe9CiHeN6jJe6Hdp7n-iYP2yWXNfEcfTcTdPvsQ/exec",
-  "https://script.google.com/macros/s/AKfycby3jSM-RMCdKcEgDTHR32ViJVRozQIiC4x9dVOSp_J9OqFkdZiJtNxSEkgF9Kt4kjNZ/exec"
-];   // 설문·가입·세일즈 → 구글시트 자동 기록 (둘 다 전송; doPost 있는 시트가 기록)
+  "https://script.google.com/macros/s/AKfycbxX4Da__UZiZTeZywAxkrFqmgMREhJevA9qKKHd1hLEMrs9nseVij6SCy_s6VWM9EG2/exec"
+];   // 스코어 시트 통합 웹훅 — 세일즈/가입/설문 모두 자동 기록
 function postWebhook(payload){
   const urls = Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK:(SURVEY_WEBHOOK?[SURVEY_WEBHOOK]:[]);
   urls.forEach(u=>{try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}});
@@ -929,14 +975,16 @@ const ROLE_LABEL={IC:'IC',LR:'리더(LR)',TL:'팀리더(TL)',AOP:'AOP',OP:'OP',O
 const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
 const isAdmin=r=>ri(r)>=3;        // AOP+ → 관리/모더레이션
-const reqSurvey=r=>['IC','LR','TL'].includes(r)?r:null;
+const SURVEY_EXEMPT=['임재영','관리자'];   // 관리자 본인 — 설문 생략
+function isSurveyExempt(name){return SURVEY_EXEMPT.map(s=>s.replace(/\s/g,'')).includes((name||'').replace(/\s/g,''))}
+const reqSurvey=(r,name)=>{if(name&&isSurveyExempt(name))return null;if(r==='IC')return 'IC';if(r==='LR')return 'LR';if(['TL','AOP','OP','O'].includes(r))return 'TL';return null;};
 
 /* ---- SURVEYS ---- */
 const SURVEYS={
   IC:{title:'Team Presence (IC)',intro:'팀과의 효율적인 업무를 위해, 또 서로 더 알아가고 친밀하게 지내기 위함입니다.',q:[
-    {id:'phone',type:'text',q:'연락처',sub:'010-0000-0000'},
+    {id:'phone',type:'text',fmt:'phone',q:'연락처',sub:'숫자만 입력하면 자동으로 - 가 들어가요'},
     {id:'email',type:'text',q:'이메일',sub:'구글 스프레드시트 등 협업 시 사용'},
-    {id:'birth6',type:'text',q:'생년월일 6자리',sub:'생일축하 파티가 있어요 🎉'},
+    {id:'birth6',type:'date',q:'생년월일',sub:'생일축하 파티가 있어요 🎉 · 달력에서 선택'},
     {id:'vision',type:'long',q:'인생에서 반드시 이루고자 하는 목표나 비전이 있다면?'},
     {id:'likeAct',type:'long',q:'가장 좋아하는 활동'},
     {id:'dislikeAct',type:'long',q:'가장 싫어하는 활동'},
@@ -949,8 +997,8 @@ const SURVEYS={
     {id:'toTeam',type:'long',q:'함께 근무할 팀원에게 남기고 싶은 말과 앞으로의 포부가 있다면!'},
   ]},
   LR:{title:'Team Presence (LR)',intro:'멋진 리더가 되셨습니다 😊 축하해요!! 리더가 된 이후 더 성장하고 더 배울 수 있도록 하기 위한 설문입니다.',q:[
-    {id:'firstField',type:'text',q:'📅 첫 필드는 언제였나요?',sub:'MM/DD/YYYY'},
-    {id:'leaderHit',type:'text',q:'📆 리더힛은 언제 했나요?',sub:'MM/DD/YYYY'},
+    {id:'firstField',type:'date',q:'📅 첫 필드는 언제였나요?',sub:'달력에서 선택'},
+    {id:'leaderHit',type:'date',q:'📆 리더힛은 언제 했나요?',sub:'달력에서 선택'},
     {id:'why10',type:'long',q:'🎞️ 리더가 되고 싶었던 이유를 10가지 적어보세요 🤭',sub:'예) 1. 내가 도움 받은 것처럼 신입 IC분들이 리더가 되도록 돕고 싶어서 … 10.'},
     {id:'hard',type:'long',q:'🔍 리더가 되기까지 가장 힘들었던 순간과 그 이유는?'},
     {id:'wantGet',type:'multi',max:6,q:'👔 리더가 되어 얻게 되는 것들 중 가장 관심 있는 것은?',options:['팀 빌딩의 기회 — 내 팀을 만들고 팀원 모집·운영','FOM 등 리더 이상 미팅 참석 기회','섹터리더로 나갈 수 있는 트레이닝·경험','클라이언트 물품(조끼·아이디카드) 관리 권한','Game Changer 도전','팀리더 Promotion 도전']},
@@ -979,6 +1027,7 @@ const SURVEYS={
 /* ---- utils ---- */
 function ago(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'방금';if(s<3600)return Math.floor(s/60)+'분 전';if(s<86400)return Math.floor(s/3600)+'시간 전';return Math.floor(s/86400)+'일 전'}
 function esc(s){return(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmtPhone(el){let v=(el.value||'').replace(/\D/g,'').slice(0,11);el.value=v.length<4?v:(v.length<8?v.slice(0,3)+'-'+v.slice(3):v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7))}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
 const AVCOL=['#5CBC2E','#46B6DD','#E6B052','#43CD7D','#B98BE6','#F2856A'];
 function avColor(n){let h=0;for(const c of(n||'?'))h=(h*31+c.charCodeAt(0))%AVCOL.length;return AVCOL[h]}
@@ -1143,7 +1192,7 @@ function doLogin(){
   if(!u||u.pwHash!==hash(pw)){authMsg('아이디 또는 비밀번호가 올바르지 않아요','err');return}
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
   me=u;
-  const rk=reqSurvey(u.role);
+  const rk=reqSurvey(u.role,u.name);
   if(rk && !u.surveys[rk]){ // 직급에 맞는 설문 미완료 → 게이팅
     authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
     authMsg(`${ROLE_LABEL[u.role]} 설문을 작성해야 로그인할 수 있어요.`,'info');return;
@@ -1169,8 +1218,9 @@ function surveyFormHTML(key){
   const S=SURVEYS[key];
   return S.q.map((q,i)=>{
     let body='';
-    if(q.type==='text')body=`<input class="svtext" data-qid="${q.id}" style="width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:12px;font-size:14px" placeholder="입력해 주세요" />`;
+    if(q.type==='text')body=`<input class="svtext" data-qid="${q.id}"${q.fmt==='phone'?' inputmode="numeric" maxlength="13" oninput="fmtPhone(this)"':''} style="width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:12px;font-size:14px" placeholder="${q.fmt==='phone'?'010-0000-0000':'입력해 주세요'}" />`;
     else if(q.type==='long')body=`<textarea data-qid="${q.id}" placeholder="자유롭게 작성해 주세요"></textarea>`;
+    else if(q.type==='date')body=`<input type="date" class="svtext" data-qid="${q.id}" style="width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:12px;font-size:14px" />`;
     else body=`<div class="opts" data-qid="${q.id}" data-type="${q.type}" data-max="${q.max||1}">${q.options.map(o=>`<div class="opt" onclick="pickOpt(this,'${q.id}',${q.type==='multi'},${q.max||1})"><span class="box"></span><span>${esc(o)}</span></div>`).join('')}</div>${q.type==='multi'?`<div class="maxnote">최대 ${q.max}개 선택</div>`:''}`;
     return `<div class="svq"><div class="qlab"><span class="qnum">${i+1}.</span><span>${esc(q.q)}</span></div>${q.sub?`<div class="qsub">${esc(q.sub)}</div>`:''}${body}</div>`;
   }).join('');
@@ -1185,7 +1235,7 @@ function pickOpt(el,qid,multi,max){
 function submitSurvey(){
   const key=authState.surveyKey,S=SURVEYS[key],ans={};
   for(const q of S.q){
-    if(q.type==='text'){const v=document.querySelector(`.svtext[data-qid="${q.id}"]`).value.trim();if(!v){authMsg('모든 항목을 작성해 주세요','err');return}ans[q.id]=v}
+    if(q.type==='text'||q.type==='date'){const v=document.querySelector(`.svtext[data-qid="${q.id}"]`).value.trim();if(!v){authMsg('모든 항목을 작성해 주세요','err');return}ans[q.id]=v}
     else if(q.type==='long'){const v=document.querySelector(`textarea[data-qid="${q.id}"]`).value.trim();if(!v){authMsg('모든 항목을 작성해 주세요','err');return}ans[q.id]=v}
     else{const v=authState.sel[q.id]||[];if(!v.length){authMsg('모든 항목을 선택해 주세요','err');return}ans[q.id]=v}
   }
@@ -1232,7 +1282,7 @@ function tryAutoLogin(){
   const s=lsGet('presence_sess');if(!s)return false;
   if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
   const u=state.users[s.uid];if(!u||u.status!=='active')return false;
-  const rk=reqSurvey(u.role);if(rk&&!u.surveys[rk])return false;
+  const rk=reqSurvey(u.role,u.name);if(rk&&!u.surveys[rk])return false;
   me=u;enterApp();return true;
 }
 
@@ -1276,6 +1326,11 @@ function treeG(w){return 0.08+0.92*treeFrac(w)}
 function treeStage(f){let s=TREE_STAGES[0];for(const st of TREE_STAGES)if(f>=st.min)s=st;return s}
 function treeEnded(){return Date.now()>=TREE_END}
 function isTreeGrowthDay(){return !treeEnded() && treeWeek()>0 && treeDays()%7===0}
+function peekGift(){toast('🎁 Coming Soon — 무슨 선물이 기다리고 있을까요? 기대해 주세요!')}
+function paintGifts(show){const el=document.getElementById('treeGifts');if(!el)return;if(!show){el.innerHTML='';return}const hues=[0,135,255];el.innerHTML=hues.map(hu=>`<button class="gift" onclick="peekGift()"><span class="gq">?</span><span class="gbox" style="filter:hue-rotate(${hu}deg) drop-shadow(0 3px 5px rgba(0,0,0,.45))">🎁</span><span class="glab">Coming&nbsp;Soon</span></button>`).join('')}
+function isRudolphSeason(){return Date.now()>=Date.parse('2026-11-01T00:00:00+09:00')}
+function rudolphAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;const s=document.createElement('div');s.className='rudolph';s.textContent='🦌🛷';stg.appendChild(s);setTimeout(()=>s.remove(),2700);for(let i=0;i<5;i++){setTimeout(()=>{const sp=document.createElement('div');sp.className='rudolph-spark';sp.textContent='✨';sp.style.left=(12+i*16)+'%';sp.style.top=(8+Math.random()*12)+'%';stg.appendChild(sp);setTimeout(()=>sp.remove(),1300)},320+i*200)}}
+function wateringCanAnim(pour){const stg=document.querySelector('.tree-stage');if(!stg)return;const can=document.createElement('div');can.className='water-can';can.innerHTML=`<svg viewBox="0 0 72 54"><path d="M22 24 L52 24 L49 48 Q48 51 45 51 L29 51 Q26 51 25 48 Z" fill="#5CBC2E"/><rect x="20" y="19" width="34" height="6" rx="3" fill="#4aa325"/><path d="M28 19 Q37 5 48 17" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M50 25 q10 3 7 18" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M22 29 L7 17" stroke="#5CBC2E" stroke-width="6" stroke-linecap="round"/><ellipse cx="6" cy="16" rx="5" ry="3" fill="#4aa325" transform="rotate(-42 6 16)"/></svg>`;stg.appendChild(can);if(pour){for(let i=0;i<11;i++){setTimeout(()=>{if(!can.parentNode)return;const d=document.createElement('div');d.className='can-drop';d.textContent='💧';d.style.left=(39+Math.random()*10)+'%';stg.appendChild(d);setTimeout(()=>d.remove(),950)},650+i*72)}}setTimeout(()=>can.remove(),2050)}
 function renderTree(weekOverride){
   const preview = weekOverride==null && treePreviewStep!==null;
   let endedPreview=false, wkP=null;
@@ -1289,15 +1344,36 @@ function renderTree(weekOverride){
   const wbtn=document.getElementById('waterBtn');
   if(wbtn){
     if(me&&isAdmin(me.role)) wbtn.textContent = preview ? (TREE_PREVIEW[treePreviewStep]==='end'?'↩ 실제 상태로 돌아가기':'▶ 다음 단계 보기') : '🔍 성장 과정 미리보기';
-    else wbtn.textContent = ended?'💧 물 주고 별 내리기':'💧 오늘 물 주기';
+    else wbtn.textContent = ended?'💧 물 주기 🎄':'💧 오늘 물 주기';
   }
   const desc=document.getElementById('compDescHome');
   if(desc){
     if(preview)desc.innerHTML='🔍 <b>성장 과정 미리보기</b> — 버튼을 눌러 12월 완성까지 미리 봐요 (실제엔 영향 없음)';
-    else if(ended)desc.innerHTML='🎄 <b>완성된 트리</b>! 물을 주면 새들이 날아오고 별이 내려앉아요 ✨';
-    else{const dleft=Math.max(0,Math.ceil((TREE_END-Date.now())/86400000));desc.innerHTML=`매주 조금씩 자라 <b>12월 31일</b>에 완성돼요 🎄 · <b>${treeWeek()}주차</b> · 완성까지 ${dleft}일`}
+    else if(ended)desc.innerHTML='🎄 <b>완성된 크리스마스 트리</b>! 나무 앞에 선물도 도착했어요 🎁 물을 주면 루돌프가 지나가요 🦌';
+    else{const dleft=Math.max(0,Math.ceil((TREE_END-Date.now())/86400000));desc.innerHTML=`매주 조금씩 자라 <b>12월 31일</b> 크리스마스 트리로 완성돼요 🎄 · <b>${treeWeek()}주차</b> · 완성까지 ${dleft}일`}
   }
   const baseY=236,cx=100;
+  paintGifts(ended || frac>=0.6);
+  if(ended){
+    let s=`<ellipse cx="${cx}" cy="${baseY+6}" rx="66" ry="11" fill="#1b140d" opacity=".5"/>`;
+    s+=`<ellipse cx="${cx}" cy="${baseY+2}" rx="72" ry="9" fill="#eef3f7" opacity=".92"/>`;
+    s+=`<rect x="${cx-9}" y="${baseY-22}" width="18" height="26" rx="3" fill="#6b4a2b"/>`;
+    const tier=(apexY,half,by,col)=>`<path d="M${cx} ${apexY} L${cx-half} ${by} Q${cx} ${by+11} ${cx+half} ${by} Z" fill="${col}"/>`;
+    s+=tier(150,64,214,'#1f6b2e');s+=tier(110,52,176,'#247b34');s+=tier(74,40,138,'#2b8a3c');
+    // 가랜드
+    s+=`<path d="M${cx-46} 196 Q${cx} 188 ${cx+46} 200" stroke="#ffe14d" stroke-width="1.4" fill="none" opacity=".55"/><path d="M${cx-34} 158 Q${cx} 152 ${cx+34} 162" stroke="#ffe14d" stroke-width="1.4" fill="none" opacity=".55"/>`;
+    // 전구 (반짝이는 색색 불빛)
+    const lc=['#ff5a5a','#ffe14d','#5aa9ff','#ff8ad0','#ffffff','#ffb04d'];
+    const lp=[[-32,206],[-10,197],[14,207],[34,200],[-24,179],[0,171],[22,178],[-15,151],[9,147],[27,155],[-5,121],[13,125],[0,97]];
+    lp.forEach((p,i)=>{s+=`<circle class="xlight" style="animation-delay:${(i*0.12).toFixed(2)}s" cx="${cx+p[0]}" cy="${p[1]}" r="3.1" fill="${lc[i%lc.length]}"/>`;});
+    // 장식볼
+    const oc=['#E84C4C','#F5D061','#5aa9ff','#d77ad0'];const op=[[-20,201],[23,191],[-9,163],[17,141],[1,113]];
+    op.forEach((p,i)=>{const ox=cx+p[0],oy=p[1];s+=`<circle cx="${ox}" cy="${oy}" r="5" fill="${oc[i%oc.length]}"/><circle cx="${ox-1.6}" cy="${oy-1.6}" r="1.5" fill="#fff" opacity=".85"/>`;});
+    // 별 토퍼
+    s+=`<circle cx="${cx}" cy="62" r="17" fill="#F5D061" opacity=".18"/>`;
+    s+=`<path d="M${cx} 50 l3.6 7.9 8.6 .6 -6.5 5.7 2.1 8.4 -7.8 -4.6 -7.8 4.6 2.1 -8.4 -6.5 -5.7 8.6 -.6 z" fill="#F5D061" stroke="#e0b840" stroke-width=".6"/>`;
+    document.getElementById('treeSvg').innerHTML=s;return;
+  }
   let svg=`<ellipse cx="${cx}" cy="${baseY+6}" rx="${28+g*34}" ry="${8+g*5}" fill="#1b140d" opacity=".5"/>`;
   if(frac<0.04){
     svg+=`<rect x="${cx-3}" y="${baseY-28}" width="6" height="28" rx="3" fill="#6b4a2b"/>`;
@@ -1349,31 +1425,36 @@ function renderWaterFeed(){
 }
 function waterTree(){
   if(!me){toast('로그인이 필요해요');return}
-  const drop=()=>{const st=document.querySelector('.tree-stage'),d=document.createElement('div');d.className='drop fall';st.appendChild(d);setTimeout(()=>d.remove(),1150)};
   if(isAdmin(me.role)){
-    // 관리자: 성장 과정 미리보기 (애니메이션만, 실데이터 영향 없음)
     if(treePreviewStep===null){treePreviewStep=0;renderTree();treeGrowAnim();toast('🌱 새싹부터 성장 과정 미리보기 (실제엔 영향 없어요)');return;}
     if(treePreviewStep<TREE_PREVIEW.length-1){
       treePreviewStep++;renderTree();
-      if(TREE_PREVIEW[treePreviewStep]==='end'){treeEndingAnim();toast('🎄 12월 31일 — 완성 트리!')}
+      if(TREE_PREVIEW[treePreviewStep]==='end'){treeEndingAnim();rudolphAnim();toast('🎄 12월 31일 — 완성 크리스마스 트리! 🦌')}
       else{treeGrowAnim();toast('🌳 무럭무럭 자라는 중...')}
       return;
     }
     treePreviewStep=null;renderTree();toast('↩ 실제 상태로 돌아왔어요 (미리보기 종료)');return;
   }
+  if(isRudolphSeason())rudolphAnim();
   const w=state.waters[me.uid], watered=w&&w.last===TODAY;
+  // 평일에 이미 물 준 경우: 물뿌리개만 등장(물은 안 나옴) + 멘트
+  if(watered && !isTreeGrowthDay() && !treeEnded()){
+    wateringCanAnim(false);
+    toast('오늘은 이미 물을 줬어요 🌱 내일 또 와요!');
+    return;
+  }
   const record=()=>{const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
+  wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기
   if(treeEnded()){
-    drop();if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
-    renderTree();setTimeout(treeEndingAnim,250);return;
+    if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
+    setTimeout(()=>{renderTree();treeEndingAnim()},1050);return;
   }
   if(isTreeGrowthDay()){
-    drop();lsSet('tree_grown_seen',TODAY);
+    lsSet('tree_grown_seen',TODAY);
     if(!watered){record();toast(`🌱 이번 주도 쑥! ${treeWeek()}주차로 자랐어요`)}else toast('🌱 쑥쑥 자라는 중!');
-    renderTree();setTimeout(treeGrowAnim,250);return;
+    setTimeout(()=>{renderTree();treeGrowAnim()},1050);return;
   }
-  if(watered){toast('오늘은 이미 물을 줬어요 🌱 내일 또 와요!');return}
-  drop();record();renderTree();toast('💧 오늘 물 줬어요! 내일 또 만나요 🌱');
+  record();setTimeout(renderTree,500);toast('💧 오늘 물 줬어요! 내일 또 만나요 🌱');
 }
 function resetTree(){
   if(!me||!isAdmin(me.role))return;
@@ -1723,8 +1804,13 @@ function renderPerfGauge(){
   const a=document.getElementById('tgAvg');if(a)a.textContent=(liveTeam/activeTeamDays()).toFixed(2);
   let todayTeam=0;for(const k in state.sales){if(state.sales[k].date===TODAY)todayTeam+=state.sales[k].count}
   const inc=document.getElementById('tgIncome');if(inc)inc.textContent=todayTeam;
-  renderPrevMonth();
+  renderPrevMonth();renderAdminSaleEdit();
 }
+function fillAseUsers(){const sel=document.getElementById('aseUser');if(!sel)return;const cur=sel.value;const us=Object.values(state.users).filter(u=>u.status==='active').sort((a,b)=>ri(b.role)-ri(a.role));sel.innerHTML=us.map(u=>`<option value="${u.uid}">${esc(u.name)} · ${u.role}</option>`).join('');if(cur&&us.some(u=>u.uid===cur))sel.value=cur}
+function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!dt||!u.value||!dt.value)return;const e=state.sales[`${dt.value}|${u.value}`];document.getElementById('aseCount').value=e?e.count:0}
+function aseAdj(d){const i=document.getElementById('aseCount');i.value=Math.max(0,(parseInt(i.value,10)||0)+d)}
+function aseSave(){if(!me||!isAdmin(me.role))return;const uid=document.getElementById('aseUser').value,date=document.getElementById('aseDate').value,cnt=Math.max(0,parseInt(document.getElementById('aseCount').value,10)||0);const u=state.users[uid];if(!u||!date){toast('팀원과 날짜를 선택하세요');return}const key=`${date}|${uid}`;if(cnt>0){const t=Date.now();state.sales[key]={uid,name:u.name,role:u.role,date,count:cnt,t};if(LIVE)DB.set(`sales/${date}/${uid}`,{name:u.name,role:u.role,count:cnt,t})}else{delete state.sales[key];if(LIVE)DB.set(`sales/${date}/${uid}`,null)}renderScores();renderComp();if(me)renderSales();renderPerfGauge();toast(`${u.name}님 ${date} 세일즈를 ${cnt}(으)로 수정했어요 ✏️`)}
+function renderAdminSaleEdit(){const card=document.getElementById('adminSaleEdit');if(!card)return;if(!(me&&isAdmin(me.role))){card.style.display='none';return}card.style.display='';fillAseUsers();const dt=document.getElementById('aseDate');if(dt&&!dt.value)dt.value=TODAY;aseLoad()}
 function renderPrevMonth(){
   const box=document.getElementById('prevMonthCard');if(!box)return;
   const pk=prevMonthKey(),done=teamAchievedFor(pk),tgt=MONTHLY_TEAM_TARGET[pk];
@@ -1803,12 +1889,13 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  updateCounts();
+  renderSurveyResponses();updateCounts();
 }
+function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
-function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
+function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
 function viewSurvey(uid,key){if(me&&!isAdmin(me.role)){toast('설문은 관리자만 열람할 수 있어요');return}const u=state.users[uid];if(!u||!u.surveys[key]){toast('해당 설문 응답이 없어요');return}document.getElementById('svViewTitle').textContent=`${u.name} · ${SURVEYS[key].title}`;document.getElementById('svViewSub').textContent=u.surveys[key]._seed?'(데모 시드 — 실제 응답 아님)':new Date(u.surveys[key].t).toLocaleString('ko-KR');document.getElementById('svViewBody').innerHTML=surveyAnswerHTML(key,u.surveys[key]);openModal('surveyViewModal')}
 function surveyAnswerHTML(key,rec){if(rec._seed)return '<div style="color:var(--faint);font-size:13px">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div>';const S=SURVEYS[key],a=rec.answers||{};return S.q.map((q,i)=>{const v=a[q.id];let av='';if(Array.isArray(v))av=`<div class="va chips">${v.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`;else av=`<div class="va">${esc(v||'-')}</div>`;return `<div class="vq">${i+1}. ${esc(q.q)}</div>${av}`}).join('')}
 
@@ -1820,7 +1907,7 @@ function previewSurvey(key){
   document.getElementById('svViewBody').innerHTML=S.q.map((q,i)=>{
     let a='';
     if(q.type==='multi'||q.type==='single')a=`<div class="va chips">${q.options.map(o=>`<span class="chip">${esc(o)}</span>`).join('')}</div>`+(q.type==='multi'?`<div style="font-size:11px;color:var(--faint);margin-top:4px">복수선택${q.max?` · 최대 ${q.max}개`:''}</div>`:'<div style="font-size:11px;color:var(--faint);margin-top:4px">단일선택</div>');
-    else a=`<div class="va" style="color:var(--faint)">${q.type==='long'?'장문 입력':'단답 입력'}${q.sub?' · '+esc(q.sub):''}</div>`;
+    else a=`<div class="va" style="color:var(--faint)">${q.type==='long'?'장문 입력':(q.type==='date'?'📅 달력 선택':'단답 입력')}${q.sub?' · '+esc(q.sub):''}</div>`;
     return `<div class="vq">${i+1}. ${esc(q.q)}</div>${a}`;
   }).join('');
   openModal('surveyViewModal');
