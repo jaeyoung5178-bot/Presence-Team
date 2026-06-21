@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --ink:#14161B; --surface:#1B1E25; --card:#232730; --card-2:#2A2F39;
+  --ink:#0E1013; --surface:#1B1E25; --card:#232730; --card-2:#2A2F39;
   --line:#30353F; --line-soft:#262A33;
   --cream:#F2EFE8; --muted:#A2ABB9; --faint:#6B7280;
   --green:#5CBC2E; --green-soft:#8AE05C; --green-ink:#0E2A06;
@@ -972,10 +972,62 @@ body.can-mod .admin-only{display:block}
 .celeb-mng{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
 .celeb-mng:hover{border-color:var(--g2);color:#a5b4fc}
 .celeb-empty{margin-top:12px;text-align:center;color:var(--faint);font-size:12.5px;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:18px;line-height:1.6}
-.celeb-empty b{color:var(--muted)}
+/* ===== AMBIENT AURORA BG (after login) ===== */
+#ambientBg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;isolation:isolate;opacity:0;transition:opacity 1.4s ease}
+body.app-on #ambientBg{opacity:.7}
+#ambientBg .blob{position:absolute;border-radius:50%;mix-blend-mode:screen;filter:blur(72px);will-change:transform}
+#ambientBg .b1{width:62vmax;height:62vmax;left:-18vmax;top:-22vmax;background:radial-gradient(circle at center,rgba(38,64,132,.40),transparent 68%);animation:adrift1 34s ease-in-out infinite}
+#ambientBg .b2{width:54vmax;height:54vmax;right:-16vmax;top:-10vmax;background:radial-gradient(circle at center,rgba(58,140,188,.26),transparent 68%);animation:adrift2 43s ease-in-out infinite}
+#ambientBg .b3{width:50vmax;height:50vmax;right:-12vmax;bottom:-18vmax;background:radial-gradient(circle at center,rgba(214,128,168,.14),transparent 70%);animation:adrift3 38s ease-in-out infinite}
+#ambientBg .b4{width:48vmax;height:48vmax;left:-14vmax;bottom:-16vmax;background:radial-gradient(circle at center,rgba(132,186,78,.12),transparent 70%);animation:adrift4 47s ease-in-out infinite}
+#ambientBg .b5{width:40vmax;height:40vmax;left:30%;top:32%;background:radial-gradient(circle at center,rgba(220,228,255,.07),transparent 72%);animation:adrift5 52s ease-in-out infinite}
+#ambientBg .b6{width:46vmax;height:46vmax;left:44%;bottom:-16vmax;background:radial-gradient(circle at center,rgba(104,80,170,.16),transparent 70%);animation:adrift6 40s ease-in-out infinite}
+@keyframes adrift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.12)}}
+@keyframes adrift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-7vmax,8vmax) scale(1.1)}}
+@keyframes adrift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-9vmax,-6vmax) scale(1.14)}}
+@keyframes adrift4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(7vmax,-7vmax) scale(1.1)}}
+@keyframes adrift5{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-6vmax,5vmax) scale(1.08)}66%{transform:translate(6vmax,-4vmax) scale(.95)}}
+@keyframes adrift6{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-8vmax,-5vmax) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){#ambientBg .blob{animation:none}}
+
+/* ===== AUTO-LOGIN CHECKBOX ===== */
+.auth-remember{display:flex;align-items:center;gap:9px;margin:12px 2px 2px;cursor:pointer;user-select:none}
+.auth-remember input{position:absolute;opacity:0;width:0;height:0}
+.auth-remember .box{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--line);background:var(--card);flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:.15s}
+.auth-remember .box::after{content:"✓";font-size:12px;font-weight:800;color:#fff;opacity:0;transform:scale(.6);transition:.15s}
+.auth-remember input:checked+.box{background:var(--green);border-color:var(--green)}
+.auth-remember input:checked+.box::after{opacity:1;transform:scale(1)}
+.auth-remember input:focus-visible+.box{box-shadow:0 0 0 3px rgba(92,188,46,.3)}
+.auth-remember .tx{font-size:12.5px;color:var(--muted)}
+
+/* ===== GALLERY PHOTO SLIDER ===== */
+.gcard .ph .slider{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none}
+.gcard .ph .slider::-webkit-scrollbar{display:none}
+.gcard .ph .slide{flex:0 0 100%;height:100%;scroll-snap-align:center}
+.gcard .ph .slide img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.gcard .ph>img{cursor:zoom-in}
+.gcard .ph .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:5px;pointer-events:none;z-index:2}
+.gcard .ph .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);transition:.2s}
+.gcard .ph .dots i.on{background:#fff;width:15px;border-radius:3px}
+.gcard .ph .gx-count{position:absolute;top:8px;left:8px;background:rgba(14,16,19,.72);color:#fff;font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:999px;pointer-events:none;z-index:2}
+.gcard .ph .gx-nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(14,16,19,.6);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s;z-index:2}
+.gcard .ph:hover .gx-nav{opacity:1}
+.gcard .ph .gx-nav.prev{left:8px}.gcard .ph .gx-nav.next{right:8px}
+@media(hover:none){.gcard .ph .gx-nav{display:none}}
+.ph-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ph-thumb{position:relative;width:62px;height:62px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.ph-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-thumb button{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:5px;background:rgba(14,16,19,.82);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center}
+.ph-hint{font-size:11px;color:var(--faint);margin-left:6px}
 </style>
 </head>
 <body>
+
+<!-- ===================== AMBIENT AURORA BG (after login) ===================== -->
+<div id="ambientBg" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <span class="blob b4"></span><span class="blob b5"></span><span class="blob b6"></span>
+</div>
 
 <!-- ===================== HOME MOOD FX OVERLAYS ===================== -->
 <canvas id="fxCanvas"></canvas>
@@ -1458,9 +1510,9 @@ body.can-mod .admin-only{display:block}
 </div></div>
 
 <div class="modal" id="photoModal"><div class="box">
-  <h3 id="photoModalTitle">사진 올리기</h3><p>사진과 제목을 올려주세요.</p>
+  <h3 id="photoModalTitle">사진 올리기</h3><p>사진과 제목을 올려주세요. <span class="ph-hint">사진은 최대 5장</span></p>
   <div class="field"><label>제목</label><input id="photoTitle" placeholder="예: 재영 리더님과 즐거운 점심" maxlength="50" /></div>
-  <div class="field"><label>사진</label><input type="file" id="photoFile" accept="image/*" /></div>
+  <div class="field"><label>사진 <span class="ph-hint">· 한 번에 여러 장 선택 가능</span></label><input type="file" id="photoFile" accept="image/*" multiple onchange="onPhotoFiles(this.files)" /><div class="ph-preview" id="photoPreview"></div></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('photoModal')">취소</button><button class="btn" onclick="submitPhoto()">올리기</button></div>
 </div></div>
 
@@ -1532,7 +1584,7 @@ function teamTargetNow(){return MONTHLY_TEAM_TARGET[curMonthKey()]||TEAM_TARGET}
 function teamAchievedFor(mk){return (MONTHLY_TEAM_DONE[mk]||0)+sumMonth(null,mk)}
 /* ============================================================ */
 const LIVE=!!FIREBASE_CONFIG;
-const SESSION_DAYS=90;          // 분기별 재로그인
+const SESSION_DAYS=3650;        // 로그아웃 전까지 유지 (방문 시마다 갱신)
 
 /* roles */
 const ROLES=['IC','LR','TL','AOP','OP','O'];
@@ -1715,6 +1767,7 @@ function renderAuth(){
       <div class="auth-msg" id="authMsg"></div>
       <div class="field"><label>아이디</label><input id="liId" placeholder="아이디" autocomplete="username" /></div>
       <div class="field"><label>비밀번호</label><input id="liPw" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+      <label class="auth-remember"><input type="checkbox" id="liRemember" ${rememberPref()?'checked':''}/><span class="box"></span><span class="tx">자동 로그인 — 로그아웃 전까지 유지</span></label>
       <button class="btn block" style="margin-top:6px" onclick="doLogin()">로그인</button>
       <div class="auth-foot">처음이신가요? <b style="color:var(--green);cursor:pointer" onclick="goSignup()">회원가입하기</b></div>`;
   }else if(authState.view==='signup'){
@@ -1760,6 +1813,7 @@ function doLogin(){
   const u=findUserById(id);
   if(!u||u.pwHash!==hash(pw)){authMsg('아이디 또는 비밀번호가 올바르지 않아요','err');return}
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
+  const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
   me=u;
   const rk=reqSurvey(u.role,u.name);
   if(rk && !u.surveys[rk]){ // 직급에 맞는 설문 미완료 → 게이팅
@@ -1833,9 +1887,10 @@ function sendSurveyToSheet(user,key,rec){
 
 /* enter / leave */
 function enterApp(){
-  lsSet('presence_sess',{uid:me.uid,t:Date.now()});
+  if(rememberPref())lsSet('presence_sess',{uid:me.uid,t:Date.now()});else lsDel('presence_sess');
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  document.body.classList.add('app-on');
   document.body.classList.toggle('can-mod',isFounder(me));
   document.getElementById('mePillNm').textContent=me.name;
   document.getElementById('mePillRole').textContent=me.role;
@@ -1845,9 +1900,11 @@ function enterApp(){
   
   buildRail();renderAll();goTab('home');startAutoPull();
 }
-function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
+function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
+function rememberPref(){const v=lsGet('presence_remember');return v===null?true:!!v;}
 function tryAutoLogin(){
+  if(!rememberPref())return false;
   const s=lsGet('presence_sess');if(!s)return false;
   if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
   const u=state.users[s.uid];if(!u||u.status!=='active')return false;
@@ -2811,9 +2868,24 @@ async function loadSheets(){if(!SHEETS_CSV_URL)return;try{const txt=await(await 
 /* GALLERIES */
 let photoTarget='net';
 const gid=k=>k==='net'?'netGallery':'actGallery';
-function renderGallery(key){const items=state[key];const cm=document.body.classList.contains('can-mod');let h=items.map((it,i)=>`<div class="gcard"><div class="ph">${cm?`<button class="del" onclick="delPhoto('${key}',${i})">✕</button>`:''}${it.img?`<img src="${it.img}"/>`:'<span class="empty">🖼️</span>'}</div><div class="body"><div class="title">${esc(it.title)}</div><div class="by">by ${esc(it.by)}</div></div><div class="cmts">${(it.cmts||[]).map(c=>`<div class="cmt"><b>${esc(c.by)}</b>${fmtMentions(c.txt)}</div>`).join('')||'<div class="cmt none">첫 댓글을 남겨보세요</div>'}</div><div class="cmtbox"><input placeholder="댓글 · @이름 으로 태그" onkeydown="if(event.key==='Enter')addCmt('${key}',${i},this)" /><button onclick="addCmt('${key}',${i},this.previousElementSibling)">→</button></div></div>`).join('');h+=`<div class="add-card" onclick="openPhoto('${key}')"><span class="plus">+</span><span class="t">사진 올리기</span></div>`;document.getElementById(gid(key)).innerHTML=h;updateCounts()}
-function openPhoto(key){photoTarget=key;document.getElementById('photoTitle').value='';document.getElementById('photoFile').value='';document.getElementById('photoModalTitle').textContent=key==='net'?'네트워킹 사진 올리기':'액티비티 사진 올리기';openModal('photoModal')}
-function submitPhoto(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('photoTitle').value.trim(),by=me.name,f=document.getElementById('photoFile').files[0];if(!title){toast('제목을 입력해 주세요');return}const done=img=>{const it={title,by,img,cmts:[]};state[photoTarget].unshift(it);if(LIVE)DB.push(photoTarget,it);renderGallery(photoTarget);closeModal('photoModal');toast('올라갔어요!')};f?compressImg(f,done):done(null)}
+let photoFiles=[];
+function galPh(it){
+  const imgs=(it.imgs&&it.imgs.length)?it.imgs:(it.img?[it.img]:[]);
+  if(!imgs.length)return '<span class="empty">🖼️</span>';
+  if(imgs.length===1)return `<img src="${imgs[0]}" onclick="viewImg(this.src)" alt="사진"/>`;
+  return `<div class="slider" onscroll="gxDots(this)">${imgs.map(s=>`<div class="slide"><img src="${s}" onclick="viewImg(this.src)" alt="사진"/></div>`).join('')}</div>`
+    +`<button class="gx-nav prev" onclick="gxNav(this,-1)" aria-label="이전">‹</button><button class="gx-nav next" onclick="gxNav(this,1)" aria-label="다음">›</button>`
+    +`<div class="gx-count">1/${imgs.length}</div>`
+    +`<div class="dots">${imgs.map((_,k)=>`<i class="${k===0?'on':''}"></i>`).join('')}</div>`;
+}
+function gxDots(sl){const i=Math.round(sl.scrollLeft/Math.max(1,sl.clientWidth)),ph=sl.parentElement,dots=ph.querySelector('.dots'),cnt=ph.querySelector('.gx-count');if(dots)[...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));if(cnt)cnt.textContent=(i+1)+'/'+sl.children.length;}
+function gxNav(btn,dir){const sl=btn.parentElement.querySelector('.slider');if(sl)sl.scrollBy({left:dir*sl.clientWidth,behavior:'smooth'});}
+function onPhotoFiles(files){const list=[...files],room=5-photoFiles.length;if(room<=0){toast('최대 5장까지 올릴 수 있어요');document.getElementById('photoFile').value='';return}const arr=list.slice(0,room);if(list.length>room)toast('최대 5장까지 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{photoFiles.push(d);if(--pend===0)renderPhotoPreview();}));document.getElementById('photoFile').value='';}
+function renderPhotoPreview(){const el=document.getElementById('photoPreview');if(el)el.innerHTML=photoFiles.map((p,i)=>`<div class="ph-thumb"><img src="${p}" alt="미리보기"/><button onclick="rmPhotoFile(${i})">✕</button></div>`).join('');}
+function rmPhotoFile(i){photoFiles.splice(i,1);renderPhotoPreview();}
+function renderGallery(key){const items=state[key];const cm=document.body.classList.contains('can-mod');let h=items.map((it,i)=>`<div class="gcard"><div class="ph">${cm?`<button class="del" onclick="delPhoto('${key}',${i})">✕</button>`:''}${galPh(it)}</div><div class="body"><div class="title">${esc(it.title)}</div><div class="by">by ${esc(it.by)}</div></div><div class="cmts">${(it.cmts||[]).map(c=>`<div class="cmt"><b>${esc(c.by)}</b>${fmtMentions(c.txt)}</div>`).join('')||'<div class="cmt none">첫 댓글을 남겨보세요</div>'}</div><div class="cmtbox"><input placeholder="댓글 · @이름 으로 태그" onkeydown="if(event.key==='Enter')addCmt('${key}',${i},this)" /><button onclick="addCmt('${key}',${i},this.previousElementSibling)">→</button></div></div>`).join('');h+=`<div class="add-card" onclick="openPhoto('${key}')"><span class="plus">+</span><span class="t">사진 올리기</span></div>`;document.getElementById(gid(key)).innerHTML=h;updateCounts()}
+function openPhoto(key){photoTarget=key;photoFiles=[];document.getElementById('photoTitle').value='';document.getElementById('photoFile').value='';renderPhotoPreview();document.getElementById('photoModalTitle').textContent=key==='net'?'네트워킹 사진 올리기':'액티비티 사진 올리기';openModal('photoModal')}
+function submitPhoto(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('photoTitle').value.trim(),by=me.name;if(!title){toast('제목을 입력해 주세요');return}if(!photoFiles.length){toast('사진을 1장 이상 올려주세요');return}const imgs=photoFiles.slice();const it={title,by,img:imgs[0]||null,imgs,cmts:[]};state[photoTarget].unshift(it);if(LIVE)DB.push(photoTarget,it);photoFiles=[];renderPhotoPreview();renderGallery(photoTarget);closeModal('photoModal');toast(imgs.length>1?`사진 ${imgs.length}장 올라갔어요!`:'올라갔어요!')}
 function addCmt(key,i,inp){if(!me){toast('로그인이 필요해요');return}const txt=inp.value.trim();if(!txt)return;const by=me.name;state[key][i].cmts=state[key][i].cmts||[];state[key][i].cmts.push({by,txt});if(LIVE)DB.set(key,state[key]);notifyMentions(txt,'댓글',by);renderGallery(key)}
 function delPhoto(key,i){if(!isFounder(me))return;if(!confirm('삭제할까요?'))return;state[key].splice(i,1);if(LIVE)DB.set(key,state[key]);renderGallery(key)}
 
@@ -3041,6 +3113,7 @@ async function initFirebase(){
       state.users[f.uid]=f;DB.set('users/'+f.uid,f);
     }
     if(me)me=state.users[me.uid]||me;
+    if(!me&&authState.view==='login'&&lsGet('presence_sess'))tryAutoLogin();
     if(me&&isFounder(me))renderAdmin();updateCounts();
   });
   }catch(e){console.warn('Firebase 연결 실패 — 로컬 모드로 동작합니다',e);}
