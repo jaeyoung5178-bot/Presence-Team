@@ -1019,6 +1019,22 @@ body.app-on #ambientBg{opacity:.7}
 .ph-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .ph-thumb button{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:5px;background:rgba(14,16,19,.82);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center}
 .ph-hint{font-size:11px;color:var(--faint);margin-left:6px}
+
+/* ===== GENERIC PHOTO SLIDER (notice/goodnews) ===== */
+.pslider{position:relative;width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--card);margin-top:8px}
+.pslider .slider{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none}
+.pslider .slider::-webkit-scrollbar{display:none}
+.pslider .slide{flex:0 0 100%;height:100%;scroll-snap-align:center}
+.pslider .slide img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.pslider .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:5px;pointer-events:none;z-index:2}
+.pslider .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);transition:.2s}
+.pslider .dots i.on{background:#fff;width:15px;border-radius:3px}
+.pslider .gx-count{position:absolute;top:8px;left:8px;background:rgba(14,16,19,.72);color:#fff;font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:999px;pointer-events:none;z-index:2}
+.pslider .gx-nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(14,16,19,.6);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s;z-index:2}
+.pslider:hover .gx-nav{opacity:1}
+.pslider .gx-nav.prev{left:8px}.pslider .gx-nav.next{right:8px}
+@media(hover:none){.pslider .gx-nav{display:none}}
+.psingle{width:100%;border-radius:12px;display:block;margin-top:8px;cursor:zoom-in;max-height:440px;object-fit:cover}
 </style>
 </head>
 <body>
@@ -1298,7 +1314,7 @@ body.app-on #ambientBg{opacity:.7}
       <div class="sec-sub" style="margin-top:24px">📣 굳뉴스 추가</div>
       <input id="gnTitle" class="ev-in" placeholder="굳뉴스 제목 (예: 이번 주 팀 신기록!)" maxlength="40"/>
       <textarea id="gnBody" class="ev-in" placeholder="내용 (선택)" rows="2"></textarea>
-      <div class="gn-upload"><button type="button" onclick="document.getElementById('gnFiles').click()">🖼️ 포스터 사진 추가 (최대 3장)</button><input type="file" id="gnFiles" accept="image/*" multiple style="display:none" onchange="onGnFiles(this.files)"/></div>
+      <div class="gn-upload"><button type="button" onclick="document.getElementById('gnFiles').click()">🖼️ 포스터 사진 추가 (최대 5장)</button><input type="file" id="gnFiles" accept="image/*" multiple style="display:none" onchange="onGnFiles(this.files)"/></div>
       <div id="gnPreview" class="gn-photos"></div>
       <button class="btn block" onclick="addGoodnews()" style="margin-top:10px">📣 굳뉴스 등록</button>
       <div id="gnAdminList" style="margin-top:18px"></div>
@@ -2666,28 +2682,29 @@ function startComp(){
   renderComp();toast(`🐔 '${label}' ${weeks}주 시작!`);
 }
 /* ===== NOTICES ===== */
-let noticePhoto=null;
+let noticePhotos=[];
 function renderNotices(){
   const comp=document.getElementById('noticeCompose');
-  if(comp)comp.innerHTML=(me&&isTLplus(me.role))?`<div class="notice-compose"><input id="ntcTitle" placeholder="공지 제목" maxlength="60"/><textarea id="ntcBody" placeholder="내용을 입력하세요 (사진만 올려도 돼요)"></textarea><input type="file" id="ntcPhotoInput" accept="image/*" style="display:none" onchange="onNoticePhoto(event)"/><div id="ntcPreview" class="ntc-preview">${noticePhoto?`<div class="ntc-prev-wrap"><img src="${noticePhoto}"/><button onclick="removeNoticePhoto()">✕ 사진 제거</button></div>`:''}</div><div class="ntc-actions"><button class="ntc-photo-btn" onclick="document.getElementById('ntcPhotoInput').click()">🖼️ 사진·포스터</button><button class="ntc-submit" onclick="addNotice()">📢 공지 올리기</button></div></div>`:'';
+  if(comp)comp.innerHTML=(me&&isTLplus(me.role))?`<div class="notice-compose"><input id="ntcTitle" placeholder="공지 제목" maxlength="60"/><textarea id="ntcBody" placeholder="내용을 입력하세요 (사진만 올려도 돼요)"></textarea><input type="file" id="ntcPhotoInput" accept="image/*" multiple style="display:none" onchange="onNoticeFiles(this.files)"/><div id="ntcPreview" class="ph-preview">${noticePhotos.map((p,i)=>`<div class="ph-thumb"><img src="${p}"/><button onclick="rmNoticePhoto(${i})">✕</button></div>`).join('')}</div><div class="ntc-actions"><button class="ntc-photo-btn" onclick="document.getElementById('ntcPhotoInput').click()">🖼️ 사진·포스터 (최대 5장)</button><button class="ntc-submit" onclick="addNotice()">📢 공지 올리기</button></div></div>`:'';
   const list=state.notices.slice().sort((a,b)=>b.t-a.t);
   document.getElementById('noticeList').innerHTML=list.length?list.map(n=>{
     const canDel=me&&(isFounder(me)||me.name===n.by);
-    return `<div class="notice-item"><div class="notice-head"><span class="notice-av" style="background:${avColor(n.by)}">${avInner(n.by)}</span><span class="notice-by">${esc(n.by)}<span class="rolechip">${esc(n.role)}</span></span><span class="notice-t">${ago(n.t)}</span></div><div class="notice-ttl">${esc(n.title)}</div><div class="notice-body">${fmtMentions(n.body)}</div>${n.photo?`<img class="notice-photo" src="${n.photo}" onclick="viewImg(this.src)" alt="공지 이미지"/>`:''}${canDel?`<button class="notice-del" onclick="delNotice(${n.t})">삭제</button>`:''}</div>`;
+    return `<div class="notice-item"><div class="notice-head"><span class="notice-av" style="background:${avColor(n.by)}">${avInner(n.by)}</span><span class="notice-by">${esc(n.by)}<span class="rolechip">${esc(n.role)}</span></span><span class="notice-t">${ago(n.t)}</span></div><div class="notice-ttl">${esc(n.title)}</div><div class="notice-body">${fmtMentions(n.body)}</div>${photoSlides(n.photos&&n.photos.length?n.photos:(n.photo?[n.photo]:[]))}${canDel?`<button class="notice-del" onclick="delNotice(${n.t})">삭제</button>`:''}</div>`;
   }).join(''):'<div class="rank-empty">아직 공지가 없어요</div>';
 }
 function addNotice(){
   if(!me||!isTLplus(me.role)){toast('공지는 TL 이상만 작성할 수 있어요');return}
   const title=document.getElementById('ntcTitle').value.trim(),body=document.getElementById('ntcBody').value.trim();
   if(!title){toast('공지 제목을 입력해 주세요');return}
-  if(!body&&!noticePhoto){toast('내용이나 사진을 넣어주세요');return}
-  const n={by:me.name,role:me.role,title,body,photo:noticePhoto||null,t:Date.now()};
+  if(!body&&!noticePhotos.length){toast('내용이나 사진을 넣어주세요');return}
+  const photos=noticePhotos.slice();
+  const n={by:me.name,role:me.role,title,body,photo:photos[0]||null,photos,t:Date.now()};
   state.notices.push(n);if(LIVE)DB.push('notices',n);
-  notifyMentions(title+' '+body,'공지',me.name);noticePhoto=null;renderNotices();toast('공지를 올렸어요 📢');
+  notifyMentions(title+' '+body,'공지',me.name);noticePhotos=[];renderNotices();toast('공지를 올렸어요 📢');
 }
-function onNoticePhoto(e){const f=e.target.files&&e.target.files[0];if(!f)return;compressImg(f,d=>{noticePhoto=d;renderNoticePreview();});}
-function removeNoticePhoto(){noticePhoto=null;const i=document.getElementById('ntcPhotoInput');if(i)i.value='';renderNoticePreview();}
-function renderNoticePreview(){const el=document.getElementById('ntcPreview');if(el)el.innerHTML=noticePhoto?`<div class="ntc-prev-wrap"><img src="${noticePhoto}"/><button onclick="removeNoticePhoto()">✕ 사진 제거</button></div>`:'';}
+function onNoticeFiles(files){const room=5-noticePhotos.length;if(room<=0){toast('최대 5장까지 올릴 수 있어요');const i=document.getElementById('ntcPhotoInput');if(i)i.value='';return}const arr=[...files].slice(0,Math.max(0,room));if([...files].length>room)toast('최대 5장까지 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{noticePhotos.push(d);if(--pend===0)renderNoticePreview();}));const i=document.getElementById('ntcPhotoInput');if(i)i.value='';}
+function rmNoticePhoto(i){noticePhotos.splice(i,1);renderNoticePreview();}
+function renderNoticePreview(){const el=document.getElementById('ntcPreview');if(el)el.innerHTML=noticePhotos.map((p,i)=>`<div class="ph-thumb"><img src="${p}"/><button onclick="rmNoticePhoto(${i})">✕</button></div>`).join('');}
 function viewImg(src){const el=document.getElementById('imgLightboxImg');if(el){el.src=src;openModal('imgLightbox');}}
 /* ===== 기념일 · 굳뉴스 ===== */
 function bdayMD(u){if(!u||!u.surveys)return null;for(const k in u.surveys){const a=u.surveys[k]&&u.surveys[k].answers;if(a&&a.birth6&&/^\d{4}-\d{2}-\d{2}/.test(a.birth6))return a.birth6.slice(5,10);}return null;}
@@ -2696,7 +2713,7 @@ function tomorrowMD(){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+
 function birthdaysOn(md){return Object.values(state.users).filter(u=>u.status==='active'&&bdayMD(u)===md).map(u=>u.name);}
 function upcomingBdays(days){const out=[];for(let i=0;i<days;i++){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+i);const md=d.toISOString().slice(5,10);birthdaysOn(md).forEach(nm=>out.push({name:nm,md,in:i}));}return out;}
 function confettiBurst(){const host=document.getElementById('app')||document.body;const colors=['#E8473C','#F5D061','#5CBC2E','#46B6DD','#7c3aed','#ff8ad0','#fff'];for(let i=0;i<64;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=colors[i%colors.length];c.style.animationDelay=(Math.random()*0.7)+'s';c.style.animationDuration=(1.8+Math.random()*1.5)+'s';if(Math.random()<0.3)c.style.borderRadius='50%';host.appendChild(c);setTimeout(()=>c.remove(),3800);}}
-function gnCard(g){const photos=(g.photos||[]);const thumbs=photos.length?`<div class="gn-photos">${photos.map(p=>`<img src="${p}" onclick="viewImg(this.src)" alt="굳뉴스 사진"/>`).join('')}</div>`:'';const cm=isFounder(me);return `<div class="gn-card">${cm?`<button class="gn-del" onclick="delGoodnews('${g.id}')">✕</button>`:''}<div class="gn-title">🎉 ${esc(g.title||'굳뉴스')}</div>${g.body?`<p class="gn-body">${fmtMentions(g.body)}</p>`:''}${thumbs}<div class="gn-by">by ${esc(g.by||'관리자')} · ${ago(g.t)}</div></div>`;}
+function gnCard(g){const photos=(g.photos||[]);const thumbs=photoSlides(photos);const cm=isFounder(me);return `<div class="gn-card">${cm?`<button class="gn-del" onclick="delGoodnews('${g.id}')">✕</button>`:''}<div class="gn-title">🎉 ${esc(g.title||'굳뉴스')}</div>${g.body?`<p class="gn-body">${fmtMentions(g.body)}</p>`:''}${thumbs}<div class="gn-by">by ${esc(g.by||'관리자')} · ${ago(g.t)}</div></div>`;}
 function renderCelebrations(){
   const sec=document.getElementById('celebSec');if(!sec)return;
   sec.style.display='';
@@ -2730,7 +2747,7 @@ function renderEvents(){
   if(el){const evs=(state.events||[]).slice().sort((a,b)=>a.md.localeCompare(b.md));el.innerHTML=evs.length?evs.map(e=>`<div class="ev-row"><span class="ev-md">${e.md}</span><span class="ev-nm">📌 ${esc(e.title)}</span><button class="ev-del" onclick="delEvent('${e.id}')">✕</button></div>`).join(''):'<div class="empty-row">등록한 기념일이 없어요</div>';}
 }
 let gnPhotos=[];
-function onGnFiles(files){const room=3-gnPhotos.length;const arr=[...files].slice(0,Math.max(0,room));let pend=arr.length;if(!pend){toast('최대 3장까지 올릴 수 있어요');return}arr.forEach(f=>compressImg(f,d=>{gnPhotos.push(d);if(--pend===0)renderGnPreview();}));}
+function onGnFiles(files){const room=5-gnPhotos.length;if(room<=0){toast('최대 5장까지 올릴 수 있어요');const i=document.getElementById('gnFiles');if(i)i.value='';return}const arr=[...files].slice(0,Math.max(0,room));if([...files].length>room)toast('최대 5장까지 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{gnPhotos.push(d);if(--pend===0)renderGnPreview();}));const i=document.getElementById('gnFiles');if(i)i.value='';}
 function renderGnPreview(){const el=document.getElementById('gnPreview');if(el)el.innerHTML=gnPhotos.map((p,i)=>`<div class="gn-pthumb"><img src="${p}"/><button onclick="rmGnPhoto(${i})">✕</button></div>`).join('');}
 function rmGnPhoto(i){gnPhotos.splice(i,1);renderGnPreview();}
 function addGoodnews(){if(!isFounder(me))return;const title=document.getElementById('gnTitle').value.trim(),body=document.getElementById('gnBody').value.trim();if(!title&&!gnPhotos.length){toast('제목이나 사진을 넣어주세요');return}const g={id:'gn_'+Date.now(),title,body,photos:gnPhotos.slice(),by:me.name,t:Date.now()};const arr=[...(state.goodnews||[]),g];state.goodnews=arr;if(LIVE)DB.set('goodnews',arr);gnPhotos=[];document.getElementById('gnTitle').value='';document.getElementById('gnBody').value='';renderGnPreview();renderGnAdmin();renderCelebrations();toast('📣 굳뉴스를 등록했어요!');}
@@ -2869,6 +2886,12 @@ async function loadSheets(){if(!SHEETS_CSV_URL)return;try{const txt=await(await 
 let photoTarget='net';
 const gid=k=>k==='net'?'netGallery':'actGallery';
 let photoFiles=[];
+function photoSlides(imgs){
+  imgs=(imgs||[]).filter(Boolean);
+  if(!imgs.length)return '';
+  if(imgs.length===1)return `<img class="psingle" src="${imgs[0]}" onclick="viewImg(this.src)" alt="사진"/>`;
+  return `<div class="pslider"><div class="slider" onscroll="gxDots(this)">${imgs.map(s=>`<div class="slide"><img src="${s}" onclick="viewImg(this.src)" alt="사진"/></div>`).join('')}</div><button class="gx-nav prev" onclick="gxNav(this,-1)" aria-label="이전">‹</button><button class="gx-nav next" onclick="gxNav(this,1)" aria-label="다음">›</button><div class="gx-count">1/${imgs.length}</div><div class="dots">${imgs.map((_,k)=>`<i class="${k===0?'on':''}"></i>`).join('')}</div></div>`;
+}
 function galPh(it){
   const imgs=(it.imgs&&it.imgs.length)?it.imgs:(it.img?[it.img]:[]);
   if(!imgs.length)return '<span class="empty">🖼️</span>';
