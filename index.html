@@ -668,7 +668,8 @@ table.scores tr.top1 .big{color:var(--green)}
 .roster th{text-align:left;padding:9px 11px;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
 .roster td{padding:9px 11px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
 .roster tr:last-child td{border-bottom:none}
-.roster .rn{font-weight:700;color:var(--cream)}
+.roster .rn{font-weight:700;color:var(--cream);white-space:nowrap}
+.roster td:first-child,.roster th:first-child{white-space:nowrap}
 .roster select{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:6px 8px;font-size:12px}
 .roster .vlink{color:var(--wepair);font-size:11.5px;cursor:pointer;font-family:var(--mono)}
 .roster .sdone{color:var(--green);font-family:var(--mono);font-size:11px}
@@ -1070,6 +1071,14 @@ body.app-on #ambientBg{opacity:.7}
 .tok-log-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 3px;border-bottom:1px solid var(--line-soft);color:var(--cream)}
 .tok-log-row .mono{color:var(--muted)}
 .tok-log-row .tlplus{color:var(--amber);font-weight:700;flex:0 0 auto}
+.sheet-conn{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.sheet-conn .sc-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.sheet-conn .sc-note b{color:var(--cream)}
+.sheet-conn .sc-row{display:flex;gap:7px}
+.sheet-conn .sc-row input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:9px 10px;font-size:11.5px;font-family:var(--mono)}
+.sheet-conn .sc-row button{flex:0 0 auto;background:var(--wepair);color:#062330;border:none;border-radius:9px;padding:0 16px;font-weight:800;font-size:13px;cursor:pointer}
+.sheet-conn .sc-hint{font-size:10.5px;color:var(--faint);line-height:1.55;margin-top:8px}
+.sheet-conn .sc-hint b{color:var(--muted)}
 @media(max-width:760px){#sndToggle{bottom:86px;right:12px}}
 </style>
 </head>
@@ -1338,6 +1347,11 @@ body.app-on #ambientBg{opacity:.7}
       <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자</span></div>
       <div class="daily-datebar"><button onclick="dailyShift(-1)">‹</button><input type="date" id="dailyDate" onchange="renderDaily()" /><button onclick="dailyShift(1)">›</button><button class="daily-today" onclick="dailyToday()">오늘</button></div>
       <div class="sheet-sync"><span class="sync-dot idle" id="sheetSyncDot"></span><span id="sheetSyncTxt">대기 중</span><button class="sync-now" onclick="autoPullSheet()">↻ 지금 동기화</button></div>
+      <div class="sheet-conn" id="sheetConn">
+        <div class="sc-note">⚠️ 앱은 <b>시트 주소가 아니라</b>, 시트에 연결된 <b>Apps Script 웹앱(/exec) 주소</b>로 연동돼요. 그래서 시트 주소를 넣는 칸은 없어요 — Apps Script가 자기가 붙어있는 시트를 알아서 읽거든요. 시트를 바꾸거나 새로 배포했을 때만 아래에 그 <b>/exec 주소</b>를 붙여넣으면 <b>전 팀원에게 공유</b>됩니다.</div>
+        <div class="sc-row"><input id="webhookUrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook()">저장</button></div>
+        <div class="sc-hint">Apps Script 배포 시 <b>액세스: 모든 사용자(Anyone)</b> 로 해야 가져오기·전송이 됩니다. 같은 주소 유지하려면 <b>배포 관리 → 연필 → 새 버전 → 배포</b>.</div>
+      </div>
       <div class="daily-sum" id="dailySum"></div>
       <div id="dailyList"></div>
       <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 완료 처리 · 시트로 전송</button>
@@ -1628,9 +1642,10 @@ const SHEETS_CSV_URL  = null;   // 복잡한 스코어 시트 직접 파싱은 �
 const SURVEY_WEBHOOK = [
   "https://script.google.com/macros/s/AKfycbxX4Da__UZiZTeZywAxkrFqmgMREhJevA9qKKHd1hLEMrs9nseVij6SCy_s6VWM9EG2/exec"
 ];   // 스코어 시트 통합 웹훅 — 세일즈/가입/설문 모두 자동 기록
+function effectiveWebhook(){const w=(typeof state!=='undefined'&&state.settings)?state.settings.webhook:null;if(typeof w==='string'&&/script\.google\.com/.test(w))return w.trim();return Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:SURVEY_WEBHOOK;}
 function postWebhook(payload){
-  const urls = Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK:(SURVEY_WEBHOOK?[SURVEY_WEBHOOK]:[]);
-  urls.forEach(u=>{try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}});
+  const u=effectiveWebhook();if(!u)return;
+  try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}
 }
 const FOUNDER = {uid:'admin', name:'관리자', id:'Presence', pw:'0001'};   // 관리자(소유자) 계정 — 항상 로그인 보장
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
@@ -1744,6 +1759,7 @@ let state={
   events:[],goodnews:[],
   homeFx:null,
   tokens:{},tokenGrants:{},
+  settings:{},
   obj:[
     {q:'이미 다른 곳에 후원하고 있어요',sit:'다른 단체 후원 중이라 거절',ment:'좋은 일 하고 계시네요! 정말 멋지세요. 다만 옥스팜은 긴급구호와 자립을 동시에 다루는 곳이라 결이 조금 달라요. 기존 후원을 줄이시라는 게 아니라, 한 아이의 하루를 더 바꾸는 작은 한 걸음을 더해보시는 건 어떨까요?'},
     {q:'지금은 돈이 없어요 / 여유가 없어요',sit:'경제적 부담을 이유로 거절',ment:'충분히 이해해요. 그래서 부담 없는 금액부터 시작하실 수 있어요. 하루 커피 한 잔보다 적은 금액으로 한 아이의 식수와 교육이 바뀝니다. 큰 금액이 아니라 꾸준함이 만드는 변화예요.'},
@@ -2000,7 +2016,7 @@ function teamRecruit(){const mk=recruitMonth();const t={bk_g:0,bk_d:0,su_g:0,su_
 function pullFromSheet(){
   if(!isFounder(me))return;
   if(!confirm('구글시트의 과거 월별·일별 결과를 앱으로 가져올까요?\n시트에 적힌 값으로 해당 날짜·팀원이 채워집니다.'))return;
-  const url=Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:SURVEY_WEBHOOK;
+  const url=effectiveWebhook();
   if(!url){toast('웹훅 URL이 없어요');return}
   toast('📥 시트에서 가져오는 중…');
   const cb='__sheetPull_'+Date.now();
@@ -2009,6 +2025,21 @@ function pullFromSheet(){
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{toast('시트 연결 실패 — 배포(액세스: 모든 사용자) 확인');setSheetSync('err');delete window[cb];const x=document.getElementById(cb);if(x)x.remove();};
   document.body.appendChild(s);
+}
+function renderSheetConn(){
+  const inp=document.getElementById('webhookUrlInput');if(!inp)return;
+  if(document.activeElement!==inp)inp.value=effectiveWebhook()||'';
+}
+function saveWebhook(){
+  if(!isFounder(me)){toast('관리자만 설정할 수 있어요');return;}
+  const inp=document.getElementById('webhookUrlInput');if(!inp)return;
+  const url=inp.value.trim();
+  if(!url){toast('주소를 붙여넣어 주세요');return;}
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(url)){toast('Apps Script 웹앱 주소(.../exec)를 정확히 붙여넣어 주세요');return;}
+  state.settings=state.settings||{};state.settings.webhook=url;
+  if(LIVE)DB.set('settings/webhook',url);
+  setSheetSync('idle');toast('🔗 연동 주소를 저장했어요 · 전 팀원에게 공유됩니다');
+  autoPullSheet();
 }
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
 function importSheetData(data,opt){
@@ -2039,7 +2070,7 @@ function importSheetData(data,opt){
 let sheetSyncState='idle',autoPullTimer=null;
 function setSheetSync(st){sheetSyncState=st;const d=document.getElementById('sheetSyncDot'),t=document.getElementById('sheetSyncTxt');if(d)d.className='sync-dot '+st;if(t)t.textContent=st==='ok'?'시트 실시간 연동':st==='sync'?'동기화 중…':st==='err'?'연동 안 됨 (배포 확인)':'대기 중';}
 function autoPullSheet(){
-  const url=Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:SURVEY_WEBHOOK;
+  const url=effectiveWebhook();
   if(!url){setSheetSync('err');return;}
   setSheetSync('sync');
   const cb='__autoPull_'+Date.now();let done=false;
@@ -2103,6 +2134,7 @@ function dailyComplete(){
 }
 function renderDaily(){
   const box=document.getElementById('dailyList');if(!box||!me||!isFounder(me))return;
+  renderSheetConn();
   const d=dailyDateVal(),members=rosterMembers();
   let tot=0,act=0,nac=0;
   box.innerHTML=members.length?members.map(u=>{
@@ -2962,7 +2994,7 @@ function renderPerfGauge(){
   const inc=document.getElementById('tgIncome');if(inc)inc.textContent=todayTeam;
   renderPrevMonth();renderAdminSaleEdit();
 }
-function testSheet(){const url=Array.isArray(SURVEY_WEBHOOK)?SURVEY_WEBHOOK[0]:SURVEY_WEBHOOK;if(!url){toast('웹훅 URL이 없어요');return}postWebhook({type:'sale',date:TODAY,name:'연동테스트',id:'_연동테스트',role:'IC',count:1,at:new Date().toISOString()});toast('테스트 전송! 새 탭의 응답이 alive면 배포 OK · 시트 "세일즈로그"에 _연동테스트 행 확인');window.open(url,'_blank')}
+function testSheet(){const url=effectiveWebhook();if(!url){toast('웹훅 URL이 없어요');return}postWebhook({type:'sale',date:TODAY,name:'연동테스트',id:'_연동테스트',role:'IC',count:1,at:new Date().toISOString()});toast('테스트 전송! 새 탭의 응답이 alive면 배포 OK · 시트 "세일즈로그"에 _연동테스트 행 확인');window.open(url,'_blank')}
 function fillAseUsers(){const sel=document.getElementById('aseUser');if(!sel)return;const cur=sel.value;const us=rosterMembers();sel.innerHTML=us.map(u=>`<option value="${esc(u.name)}">${esc(u.name)} · ${u.role}</option>`).join('');if(cur&&us.some(u=>u.name===cur))sel.value=cur}
 function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!dt||!u.value||!dt.value)return;const e=state.sales[`${dt.value}|${u.value}`];document.getElementById('aseCount').value=e?e.count:0}
 function aseAdj(d){const i=document.getElementById('aseCount');i.value=Math.max(0,(parseInt(i.value,10)||0)+d)}
@@ -3337,6 +3369,7 @@ async function initFirebase(){
   DB.on('homeFx',v=>{state.homeFx=v||null;applyHomeFx(v&&v.type?v.type:null);});
   DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
+  DB.on('settings',v=>{state.settings=v||{};renderSheetConn();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
   DB.on('sales',v=>{
     state.sales={};
