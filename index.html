@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
 <title>Presence · 머물고 싶은 자리</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314161B'/%3E%3Cpath d='M20 74 L37 36 Q39 32 41 36 L44 50 L52 34 Q54 30 56 34 L80 74 Z' fill='%235CBC2E'/%3E%3Cpath d='M52 34 Q54 30 56 34 L80 74 L60 74 Z' fill='%238AE05C'/%3E%3C/svg%3E" />
+<!-- 홈 화면(아이폰/안드로이드) 앱 아이콘 — 같은 폴더에 icon.png(512x512 권장) 올리면 적용됨 -->
+<link rel="apple-touch-icon" href="icon.png" />
+<meta name="apple-mobile-web-app-title" content="Presence" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1467,6 +1472,7 @@ body.app-on #ambientBg{opacity:.7}
       <div id="dailyList"></div>
       <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 검수 완료 · 결과보고 (시트 전송)</button>
       <button class="btn ghost block" onclick="pullFromSheet()" style="margin-top:8px">📥 시트에서 과거 데이터 가져오기</button>
+      <button class="btn ghost block" onclick="resetAndRepull()" style="margin-top:8px;border-color:rgba(230,176,82,.4);color:var(--amber)">🧹 스코어 싹 지우고 시트에서 다시 가져오기</button>
       <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">+/− · NA · 랠리로 결과를 입력(검수)하면 <b>앱 보드에는 즉시 저장</b>되지만, <b>구글시트에는 전송되지 않습니다.</b> 다 확인한 뒤 <b>"검수 완료 · 결과보고"</b>를 누르면 그때 시트 월별 탭(이름 × 날짜 칸)으로 <b>한 번에 전송</b>되고, 성공/실패가 바로 표시됩니다. (전송되려면 아래 '연동'이 최신 배포여야 해요.)</p>
       <div class="sec-sub" style="margin-top:28px">📊 월별 통계</div>
       <div class="month-btns" id="monthBtns"></div>
@@ -2197,6 +2203,22 @@ function pruneBadSales(){
   }
   return removed;
 }
+function resetAndRepull(){
+  if(!isFounder(me))return;
+  if(!confirm('⚠️ 앱에 저장된 모든 세일즈 기록을 지우고, 시트에서 처음부터 깨끗하게 다시 가져옵니다.\n(시트 원본은 그대로예요 · Apps Script가 최신 배포여야 정확히 들어와요)\n\n진행할까요?'))return;
+  state.sales={};
+  if(LIVE)DB.set('sales',null);
+  renderDaily();renderScores();renderPerfGauge();renderComp();
+  const url=effectiveWebhook();
+  if(!url){toast('웹훅 URL이 없어요');return}
+  toast('🧹 초기화 완료 · 시트에서 다시 가져오는 중…');setSheetSync('sync');
+  const cb='__reReq_'+Date.now();
+  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();renderDaily();renderScores();renderPerfGauge();renderComp();const cnt=Object.keys(state.sales).length;toast(`✅ 다시 가져오기 완료 · ${cnt}건 기록`);setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  const s=document.createElement('script');s.id=cb;
+  s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
+  s.onerror=()=>{toast('시트 연결 실패 — 배포(액세스: 모든 사용자) 확인');setSheetSync('err');delete window[cb];const x=document.getElementById(cb);if(x)x.remove();};
+  document.body.appendChild(s);
+}
 function renderSheetConn(){
   const inp=document.getElementById('webhookUrlInput');if(!inp)return;
   if(document.activeElement!==inp)inp.value=effectiveWebhook()||'';
@@ -2220,12 +2242,13 @@ function importSheetData(data,opt){
   Object.keys(data).forEach(date=>{const row=data[date];if(!row)return;
     Object.keys(row).forEach(nm=>{
       const name=String(nm).trim();if(!name)return;
+      if(BAD_NAME.test(name))return;                 // Gross·DailyTotal·FieldH/C·Avg 등 가짜 이름 무시
       const role=roleOf(name),val=row[nm],key=`${date}|${name}`,t=Date.now();
       const sval=String(val).trim();let ne=null;
       const slow=sval.toLowerCase();
       if(slow==='na'||slow==='n')ne={name,role,date,count:0,na:true,t};
       else if(sval==='랠리')ne={name,role,date,count:0,rally:true,t};
-      else{const c=Number(sval);if(!isNaN(c)&&c>0)ne={name,role,date,count:c,t};}
+      else{const c=Number(sval);if(!isNaN(c)&&c>0&&c<=300)ne={name,role,date,count:c,t};}  // 300 초과 = 인컴(₩) 오염 → 무시
       if(!ne)return;
       const cur=state.sales[key];
       if(fillOnly&&cur)return;
@@ -2246,7 +2269,7 @@ function autoPullSheet(){
   if(!url){setSheetSync('err');return;}
   setSheetSync('sync');
   const cb='__autoPull_'+Date.now();let done=false;
-  window[cb]=(data)=>{done=true;try{importSheetData(data,{silent:true,fillOnly:true});setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{done=true;try{importSheetData(data,{silent:true,fillOnly:true});const rm=pruneBadSales();if(rm){renderDaily();renderScores();renderPerfGauge();renderComp();}setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{setSheetSync('err');try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}};
@@ -2985,9 +3008,9 @@ function renderComp(){
 const WDAY=['일','월','화','수','목','금','토'];
 function fmtMDW(dateStr,ts){let d=dateStr?new Date(dateStr+'T12:00:00'):new Date(ts);if(isNaN(d.getTime()))d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDAY[d.getDay()]})`;}
 function feedEvents(){
-  // 실제로 먹이를 준 행동(토큰 먹이주기) — feedByDay {날짜:{이름:횟수}} 를 한 줄씩 풀어냄
+  // 실제로 먹이를 준 행동(토큰 먹이주기) — feedByDay {날짜:{이름:횟수}}. 관리자 제외.
   const out=[],fbd=state.feedByDay||{};
-  Object.keys(fbd).forEach(date=>{const row=fbd[date]||{};Object.keys(row).forEach(name=>{const c=+row[name]||0;for(let i=0;i<c;i++)out.push({name,role:roleOf(name),date});});});
+  Object.keys(fbd).forEach(date=>{const row=fbd[date]||{};Object.keys(row).forEach(name=>{if(isAdminName(name))return;const c=+row[name]||0;for(let i=0;i<c;i++)out.push({name,role:roleOf(name),date});});});
   return out.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
 }
 function renderFeedLog(){
@@ -2999,6 +3022,7 @@ function renderFeedLog(){
 function toggleFeedLog(){
   const b=document.getElementById('feedLogBody'),c=document.getElementById('feedCaret');
   const open=b.style.display!=='none';b.style.display=open?'none':'block';c.textContent=open?'▾':'▴';
+  if(!open)renderFeedLog();
 }
 function toggleAdmCard(head){const card=head.closest('.adm-card');if(card)card.classList.toggle('adm-collapsed');}
 function startComp(){
@@ -3338,9 +3362,10 @@ function grantGiftAll(){
   toast(`🎁 ${names.length}명에게 기념 토큰을 1개씩 지급했어요!`);
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
-function feedTotals(){const t={};const fbd=state.feedByDay||{};Object.keys(fbd).forEach(d=>{const day=fbd[d]||{};Object.keys(day).forEach(n=>{t[n]=(t[n]||0)+(day[n]||0);});});return t;}
-function topFeeder(map){let best=null,bv=0;Object.keys(map||{}).forEach(n=>{if(map[n]>bv){bv=map[n];best=n;}});return best?{name:best,count:bv}:null;}
-function renderRewardLead(){const el=document.getElementById('rewardLead');if(!el)return;const top=topFeeder(feedTotals());el.innerHTML=top?`현재 선두 🥇 <b>${esc(top.name)}</b> · 누적 먹이 ${top.count}회`:'아직 먹이를 준 기록이 없어요 — 첫 주인공이 되어보세요!';}
+function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
+function feedTotals(){const t={};const fbd=state.feedByDay||{};Object.keys(fbd).forEach(d=>{const day=fbd[d]||{};Object.keys(day).forEach(n=>{if(isAdminName(n))return;t[n]=(t[n]||0)+(day[n]||0);});});return t;}
+function topFeeder(map){let best=null,bv=0;Object.keys(map||{}).forEach(n=>{if(isAdminName(n))return;if(map[n]>bv){bv=map[n];best=n;}});return best?{name:best,count:bv}:null;}
+function renderRewardLead(){const el=document.getElementById('rewardLead');if(!el)return;const top=topFeeder(feedTotals());el.innerHTML=top?`현재 선두 🥇 <b>${esc(top.name)}</b> · 누적 먹이 <b>${top.count}회</b>로 1위`:'아직 먹이를 준 기록이 없어요 — 첫 주인공이 되어보세요!';}
 function finalizeComp(){
   if(!me||!isFounder(me))return;
   const fbd=state.feedByDay||{};
