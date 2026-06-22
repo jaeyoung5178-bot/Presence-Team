@@ -2185,11 +2185,13 @@ function meIsBot(){return isTestBot(me);}
 function testbot1Obj(){return {uid:'testbot1',name:'testbot1',id:'testbot1',role:'IC',status:'active',surveys:{},test:true,createdAt:0,lastLogin:Date.now(),pwHash:hash('0000')};}
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
 let ALLOWED_MEMBERS = ['임재영','윤채영','고윤경','박인선','손예진','간승학','김하진','권영웅','최이수','고다연'];
+let DEPARTED_MEMBERS = ['나승찬'];  // 팀에서 나간 사람 — 명단·토큰·먹이 집계에서 항상 제외
 function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const rm=((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).map(n=>(n||'').replace(/\s/g,''));const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]&&rm.indexOf(k)<0){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
 function roleOf(name){const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
-function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
+function isDeparted(name){const k=String(name||'').replace(/\s/g,'');if(!k)return false;if(DEPARTED_MEMBERS.some(n=>String(n).replace(/\s/g,'')===k))return true;return ((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).some(n=>String(n||'').replace(/\s/g,'')===k);}
+function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
 const TEAM_TARGET  = 215;    // 폴백 기본값
 const MONTHLY_TEAM_TARGET = {'2026-05':215,'2026-06':215,'2026-07':215,'2026-08':215,'2026-09':215,'2026-10':215,'2026-11':215,'2026-12':215}; // 🎯 타겟 탭 연동 전 폴백. 연동되면 시트값으로 자동 대체
@@ -3466,7 +3468,7 @@ function periodFeeds(){
   // 기념토큰 사용 = 그날 먹이
   const fbd=state.feedByDay||{};
   Object.keys(fbd).forEach(d=>{ if(d<sd||d>ed)return; const row=fbd[d]||{};
-    Object.keys(row).forEach(nm=>{ if(isAdminName(nm)||(+row[nm]||0)<1)return;
+    Object.keys(row).forEach(nm=>{ if(isAdminName(nm)||isDeparted(nm)||(+row[nm]||0)<1)return;
       (byName[nm]=byName[nm]||{});
       if(!byName[nm][d])byName[nm][d]={src:'토큰',role:roleOf(nm),t:new Date(d+'T12:00:00').getTime()};
     });
@@ -4087,7 +4089,7 @@ function renderTokenAdmin(){
   const issued={};Object.keys(net).forEach(n=>issued[n]=net[n]);
   rosterMembers().forEach(u=>{if(issued[u.name]===undefined)issued[u.name]=0;});
   Object.keys(tokens).forEach(n=>{if(issued[n]===undefined)issued[n]=0;});
-  const names=Object.keys(issued).sort((a,b)=>((tokens[b]||0)-(tokens[a]||0))||(issued[b]-issued[a])||a.localeCompare(b,'ko'));
+  const names=Object.keys(issued).filter(n=>!isDeparted(n)).sort((a,b)=>((tokens[b]||0)-(tokens[a]||0))||(issued[b]-issued[a])||a.localeCompare(b,'ko'));
   let totGiven=0,totBal=0;names.forEach(n=>{totGiven+=Math.max(0,issued[n]);totBal+=(tokens[n]||0);});
   const bd=document.getElementById('tokIssuedBadge');if(bd){bd.textContent=totGiven;bd.classList.toggle('zero',totGiven===0);}
   body.innerHTML=names.length?names.map(n=>{const iss=Math.max(0,issued[n]||0),bal=tokens[n]||0,used=Math.max(0,iss-bal);
@@ -4135,11 +4137,13 @@ function renderFeedAttend(){
 function toggleFeedAttend(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
   state.feedByDay=state.feedByDay||{};state.feedByDay[TODAY]=state.feedByDay[TODAY]||{};
+  state.tokens=state.tokens||{};
   const cur=(+state.feedByDay[TODAY][name]||0)>=1;
-  if(cur)delete state.feedByDay[TODAY][name];else state.feedByDay[TODAY][name]=1;
-  if(LIVE)DB.set('feedByDay',state.feedByDay);
-  renderComp();
-  toast(cur?(name+'님 오늘 먹이 해제'):('🌽 '+name+'님 오늘 먹이 기록!'));
+  if(cur){delete state.feedByDay[TODAY][name];state.tokens[name]=(state.tokens[name]||0)+1;}      // 먹이 취소 → 토큰 환급
+  else{state.feedByDay[TODAY][name]=1;state.tokens[name]=Math.max(0,(state.tokens[name]||0)-1);}    // 먹이 = 토큰 1 소모
+  if(LIVE){DB.set('feedByDay',state.feedByDay);DB.set('tokens',state.tokens);}
+  renderComp();renderTokenAdmin();renderTokenShop();
+  toast(cur?(name+'님 먹이 취소 · 토큰 +1 환급'):('🌽 '+name+'님 먹이 기록 · 토큰 −1 사용'));
 }
 /* ===== 오늘의 기념주화 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
 function todayFielders(){
