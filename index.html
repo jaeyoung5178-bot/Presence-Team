@@ -309,9 +309,42 @@ body.can-mod .gcard .del{display:flex}
 .win-form .note b{color:var(--amber)}
 .win-form .row{display:flex;gap:9px;margin-bottom:9px;flex-wrap:wrap}
 .win-form input,.win-form textarea{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:14px;resize:vertical}
-.wins-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-@media(max-width:680px){.wins-grid{grid-template-columns:1fr}}
-.win{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 16px;position:relative}
+.wins-grid{display:flex;flex-direction:column;gap:13px;max-width:560px;margin:0 auto}
+@media(min-width:820px){.wins-grid{max-width:none;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:14px}}
+.win{background:linear-gradient(165deg,rgba(92,188,46,.09),var(--surface) 45%);border:1px solid var(--line);border-radius:16px;padding:17px 17px 16px;position:relative;overflow:hidden}
+.win::before{content:'🏆';position:absolute;right:-10px;top:-14px;font-size:68px;opacity:.07;transform:rotate(10deg);pointer-events:none;line-height:1;z-index:0}
+.win::after{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,#F5D061,#5CBC2E)}
+.win .who,.win .wt,.win p{position:relative;z-index:1}
+.wins-empty{text-align:center;padding:40px 20px;border:1.5px dashed var(--line);border-radius:16px;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:5px;max-width:560px;margin:0 auto}
+.wins-empty .we-ic{font-size:42px;opacity:.5;margin-bottom:4px}
+.wins-empty b{color:var(--cream);font-size:15px}
+.wins-empty span{font-size:12.5px;color:var(--faint)}
+.cb-compose{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px}
+.cb-compose textarea{width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:14px;line-height:1.6;resize:vertical;font-family:inherit;margin:10px 0}
+.cb-photo{background:var(--card);border:1px dashed var(--line);color:var(--muted);border-radius:10px;padding:11px;width:100%;cursor:pointer;font-size:13px;font-weight:700}
+.cb-photo:hover{color:var(--cream);border-color:var(--green)}
+.cb-prev{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+.cb-prev:empty{display:none}
+.cb-thumb{position:relative;width:84px;height:84px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.cb-thumb img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.cb-thumb button{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:6px;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1}
+.cb-pick{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.cb-pick label{font-size:11.5px;font-weight:800;color:var(--muted)}
+.cb-pick select{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:14px;font-family:inherit;cursor:pointer}
+.cb-date{font-family:var(--mono);font-size:11.5px;font-weight:800;letter-spacing:.03em;color:var(--green-soft);margin:16px 2px 9px;display:flex;align-items:center;gap:8px}
+.cb-date::after{content:"";flex:1;height:1px;background:var(--line)}
+.cb-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:11px;position:relative}
+.cb-meta{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.cb-tm{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.cb-by{font-size:12px;font-weight:800;color:var(--cream);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.cb-imgs{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+.cb-img{width:100%;border-radius:10px;border:1px solid var(--line);cursor:zoom-in;display:block}
+.cb-text{font-size:13.5px;line-height:1.7;color:var(--cream);white-space:pre-wrap}
+.cb-del{position:absolute;top:10px;right:10px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;width:24px;height:24px;cursor:pointer;font-size:12px}
+.cb-del:hover{color:var(--danger);border-color:var(--danger)}
+#cbLightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+#cbLightbox.on{display:flex}
+#cbLightbox img{max-width:100%;max-height:100%;border-radius:10px}
 .win .who{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .win .who .av{width:25px;height:25px;border-radius:50%;color:var(--green-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
 .win .who .nm{font-weight:700;font-size:13px;color:var(--cream)}
@@ -1627,6 +1660,12 @@ body.app-on #ambientBg{opacity:.7}
       <div id="recruitBody"></div>
     </section></div></div>
 
+    <div class="mpanel" id="m-cbjournal"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📓 콜백싯 일지</h2><span class="ko">나만 보는 콜백싯 기록 · 솔직한 후기</span><span class="meta">리더 전용</span></div>
+      <p class="intro" id="cbIntro"></p>
+      <div id="cbBody"></div>
+    </section></div></div>
+
     <!-- 일일 결과 입력 (관리자) -->
     <div class="mpanel" id="m-daily"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자 · 매니저</span></div>
@@ -2151,6 +2190,8 @@ let state={
   extraMembers:[],
   removedMembers:[],
   customRooms:[],
+  cbMine:{},
+  cbAll:{},
   settings:{},
   popupAnnounce:null,
   obj:[
@@ -2386,7 +2427,7 @@ function enterApp(){
   document.getElementById('greet').innerHTML=`안녕하세요, <b>${esc(me.name)}</b>님 👋`;
   // prefill name fields
   
-  buildRail();renderAll();goTab('home');startAutoPull();
+  buildRail();renderAll();goTab('home');startAutoPull();subCbjournal();
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
@@ -2798,7 +2839,7 @@ function renderRecap(){
   const statsHtml=r=>`<div class="recap-stats"><div><span>팀 세일즈</span><b>${r.done||0}</b></div><div><span>AVG</span><b>${r.avg||'-'}</b></div><div><span>실인컴</span><b>${r.income||'-'}</b></div>${r.hc?`<div><span>H/C</span><b>${r.hc}</b></div>`:''}${r.net?`<div><span>Net</span><b>${r.net}</b></div>`:''}</div>`;
   box.innerHTML=keys.length?keys.map(mk=>{const r=merged[mk],mn=parseInt(mk.slice(5,7),10);
     const head=`<div class="recap-h"><b>${mk.slice(0,4)}년 ${mn}월</b>${r.period?`<span class="recap-period">${esc(r.period)}</span>`:''}${r.live?'<span class="recap-live">진행중</span>':''}</div>`;
-    const secs=(r.sections||[]).map(s=>`<div class="recap-sec"><div class="recap-sec-t">${esc(s.t)}</div><div class="recap-sec-b">${fmtLinks(s.b)}</div></div>`).join('');
+    const secs=(r.sections||[]).filter(s=>isFounder(me)||!/팀원별/.test(s.t||'')).map(s=>`<div class="recap-sec"><div class="recap-sec-t">${esc(s.t)}</div><div class="recap-sec-b">${fmtLinks(s.b)}</div></div>`).join('');
     const hasDetail=(r.sections&&r.sections.length)||r.note;
     if(!hasDetail)return `<div class="recap-card">${head}${statsHtml(r)}</div>`;
     return `<details class="recap-card"><summary>${head}${statsHtml(r)}<div class="recap-toggle"><span class="t-closed">자세히 보기 ▾</span><span class="t-open">접기 ▴</span></div></summary><div class="recap-detail">${r.note?`<p class="recap-note">${esc(r.note)}</p>`:''}${secs}</div></details>`;
@@ -2807,6 +2848,84 @@ function renderRecap(){
   if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
 }
 function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
+/* ===== 콜백싯 일지 (리더 개인 일기 · 본인만 보기 / 관리자 전체 열람) ===== */
+let cbFiles=[]; let cbViewUid=null;
+function subCbjournal(){
+  if(!LIVE||!me)return;
+  if(window._cbSubMine!==me.uid){window._cbSubMine=me.uid;DB.on('cbjournal/'+me.uid,v=>{state.cbMine=v||{};if(curTab==='cbjournal')renderCbBoard();});}
+  if(isFounder(me)&&!window._cbSubAll){window._cbSubAll=1;DB.on('cbjournal',v=>{state.cbAll=v||{};if(curTab==='cbjournal')renderCbBoard();});}
+}
+function cbDate(t){const d=new Date(t);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' ('+'일월화수목금토'[d.getDay()]+')';}
+function cbTime(t){const d=new Date(t);let h=d.getHours();const ap=h<12?'오전':'오후';h=h%12||12;return ap+' '+h+':'+String(d.getMinutes()).padStart(2,'0');}
+function cbEmpty(msg){return '<div class="wins-empty"><div class="we-ic">📓</div><b>'+msg+'</b></div>';}
+function renderCbjournal(){
+  const wrap=document.getElementById('cbBody');if(!wrap||!me)return;
+  const intro=document.getElementById('cbIntro');
+  if(intro)intro.innerHTML=isFounder(me)?'관리자는 <b>모든 팀원</b>의 콜백싯 일지를 볼 수 있어요. 아래에서 팀원을 선택하세요. (팀원끼리는 서로 절대 볼 수 없어요)':'여기 올린 콜백싯과 글은 <b>오직 나만</b> 볼 수 있어요. 매일 일기처럼 콜백싯을 올리고 솔직한 후기·보완점을 남겨보세요.';
+  wrap.innerHTML='<div class="cb-compose"><div class="cb-prev" id="cbPrev"></div><button class="cb-photo" type="button" onclick="document.getElementById(\'cbFiles\').click()">📷 콜백싯 사진 첨부 (최대 2장)</button><input type="file" id="cbFiles" accept="image/*" multiple style="display:none" onchange="onCbFiles(this.files)"/><textarea id="cbText" rows="3" placeholder="오늘 콜백싯 후기 — 잘된 점, 솔직한 피드백, 보완하고 싶은 부분을 적어보세요"></textarea><button class="btn block" onclick="postCb()">📓 오늘 콜백싯 올리기</button></div><div id="cbBoard"></div>';
+  renderCbCompose();renderCbBoard();
+}
+function renderCbCompose(){const el=document.getElementById('cbPrev');if(!el)return;el.innerHTML=cbFiles.map((pp,i)=>'<div class="cb-thumb"><img src="'+pp+'" onclick="cbZoom(this.src)"/><button onclick="rmCbFile('+i+')">✕</button></div>').join('');}
+function onCbFiles(files){const room=2-cbFiles.length;if(room<=0){toast('콜백싯은 2장까지 올릴 수 있어요');const i=document.getElementById('cbFiles');if(i)i.value='';return;}const arr=[...files].slice(0,room);if([...files].length>room)toast('2장까지만 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{cbFiles.push(d);if(--pend===0)renderCbCompose();}));const i=document.getElementById('cbFiles');if(i)i.value='';}
+function rmCbFile(i){cbFiles.splice(i,1);renderCbCompose();}
+function postCb(){
+  if(!me)return;
+  if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return;}
+  const text=(document.getElementById('cbText').value||'').trim();
+  if(!cbFiles.length&&!text){toast('콜백싯 사진이나 글을 올려주세요');return;}
+  const id='cb_'+Date.now();
+  const entry={id,t:Date.now(),text,imgs:cbFiles.slice()};
+  state.cbMine=state.cbMine||{};state.cbMine[id]=entry;
+  if(isFounder(me)){state.cbAll=state.cbAll||{};state.cbAll[me.uid]=state.cbAll[me.uid]||{};state.cbAll[me.uid][id]=entry;}
+  if(LIVE)DB.set('cbjournal/'+me.uid+'/'+id,entry);
+  cbFiles=[];const ta=document.getElementById('cbText');if(ta)ta.value='';
+  renderCbjournal();toast('오늘의 콜백싯을 올렸어요 📓');
+}
+function delCb(uid,id){
+  if(!me)return;const own=uid===me.uid;if(!own&&!isFounder(me))return;
+  if(!confirm('이 콜백싯 기록을 삭제할까요?'))return;
+  if(state.cbMine&&own)delete state.cbMine[id];
+  if(state.cbAll&&state.cbAll[uid])delete state.cbAll[uid][id];
+  if(LIVE)DB.set('cbjournal/'+uid+'/'+id,null);
+  renderCbBoard();
+}
+function cbCardHTML(e,uid,name,showName){
+  const canDel=(uid===me.uid)||isFounder(me);
+  const imgs=(e.imgs||[]).map(src=>'<img class="cb-img" src="'+src+'" onclick="cbZoom(this.src)"/>').join('');
+  return '<div class="cb-card">'+(canDel?'<button class="cb-del" onclick="delCb(\''+uid+'\',\''+e.id+'\')">✕</button>':'')+'<div class="cb-meta"><span class="cb-tm">'+cbTime(e.t)+'</span>'+(showName?'<span class="cb-by">'+esc(name)+'</span>':'')+'</div>'+(imgs?'<div class="cb-imgs">'+imgs+'</div>':'')+(e.text?'<div class="cb-text">'+fmtLinks(e.text)+'</div>':'')+'</div>';
+}
+function cbEntries(uid,obj,name,showName){
+  const list=Object.values(obj||{}).sort((a,b)=>b.t-a.t);
+  if(!list.length)return cbEmpty('아직 올린 콜백싯이 없어요 · 오늘 첫 기록을 남겨보세요');
+  let out='',last='';
+  list.forEach(e=>{const d=cbDate(e.t);if(d!==last){out+='<div class="cb-date">'+d+'</div>';last=d;}out+=cbCardHTML(e,uid,name,showName);});
+  return out;
+}
+function renderCbBoard(){
+  const el=document.getElementById('cbBoard');if(!el||!me)return;
+  if(isFounder(me)){
+    const all=state.cbAll||{};
+    const uids=Object.keys(all).filter(u=>all[u]&&Object.keys(all[u]).length);
+    const nameOf=u=>(state.users[u]&&state.users[u].name)||(u==='admin'?'관리자':u);
+    if(cbViewUid==null)cbViewUid='__all';
+    if(cbViewUid!=='__all'&&!uids.includes(cbViewUid))cbViewUid='__all';
+    let h='<div class="cb-pick"><label>📂 팀원 일지 열람 (관리자 전용)</label><select id="cbPick" onchange="cbViewUid=this.value;renderCbBoard()"><option value="__all"'+(cbViewUid==='__all'?' selected':'')+'>전체 (최근순)</option>'+uids.map(u=>'<option value="'+u+'"'+(u===cbViewUid?' selected':'')+'>'+esc(nameOf(u))+' · '+Object.keys(all[u]).length+'개</option>').join('')+'</select></div>';
+    if(!uids.length){el.innerHTML=h+cbEmpty('아직 올라온 콜백싯 일지가 없어요');return;}
+    if(cbViewUid==='__all'){
+      let flat=[];uids.forEach(u=>Object.values(all[u]).forEach(e=>flat.push({e:e,u:u})));
+      flat.sort((a,b)=>b.e.t-a.e.t);
+      let out='',last='';
+      flat.forEach(x=>{const d=cbDate(x.e.t);if(d!==last){out+='<div class="cb-date">'+d+'</div>';last=d;}out+=cbCardHTML(x.e,x.u,nameOf(x.u),true);});
+      el.innerHTML=h+out;
+    }else{
+      el.innerHTML=h+cbEntries(cbViewUid,all[cbViewUid]||{},nameOf(cbViewUid),true);
+    }
+  }else{
+    el.innerHTML=cbEntries(me.uid,state.cbMine||{},me.name,false);
+  }
+}
+function cbZoom(src){let o=document.getElementById('cbLightbox');if(!o){o=document.createElement('div');o.id='cbLightbox';o.onclick=()=>o.classList.remove('on');document.body.appendChild(o);}o.innerHTML='<img src="'+src+'"/>';o.classList.add('on');}
+
 function renderTraining(){
   const box=document.getElementById('trainingBody');if(!box||!me)return;
   let html='';
@@ -2874,7 +2993,7 @@ const NAV=[
   {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
-  {k:'lead',e:'🎯',l:'리더',tabs:['recap','calling']},
+  {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','recap','calling']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
 const TABMETA={
@@ -2883,7 +3002,7 @@ const TABMETA={
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성'},topics:{e:'🗂️',l:'토픽자료'},
-  recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},
+  recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},cbjournal:{e:'📓',l:'콜백싯 일지',g:()=>isFounder(me)||isLeader(me.role)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'🎉',l:'기념일',g:()=>isFounder(me)},
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
@@ -2929,6 +3048,7 @@ function goTab(name){
   if(name==='cod'&&!isLeader(me.role))name='home';
   if(name==='recap'&&!isTLplus(me.role))name='home';
   if(name==='calling'&&!isLeader(me.role))name='home';
+  if(name==='cbjournal'&&!(isFounder(me)||isLeader(me.role)))name='home';
   curTab=name;const gk=groupFor(name);
   if(gk!==curGroup){curGroup=gk;buildRail();}else buildSubRail();
   document.querySelectorAll('#rail .gtab').forEach(t=>t.classList.toggle('active',t.dataset.group===curGroup));
@@ -2947,6 +3067,7 @@ function goTab(name){
   if(name==='cod')renderCod();
   if(name==='callback')renderCallback();
   if(name==='topics')renderTopics();
+  if(name==='cbjournal'){subCbjournal();renderCbjournal();}
   if(name==='manual')renderManual();
   if(name==='obj')renderObj();
   if(name==='recap')renderRecap();
@@ -3754,7 +3875,7 @@ function delCmt(key,i,ci){if(!me||!isFounder(me)){toast('관리자만 삭제할 
 function delPhoto(key,i){if(!isFounder(me))return;if(!confirm('삭제할까요?'))return;state[key].splice(i,1);if(LIVE)DB.set(key,state[key]);renderGallery(key)}
 
 /* WINS */
-function renderWins(){const cm=document.body.classList.contains('can-mod');document.getElementById('winsGrid').innerHTML=state.wins.slice().sort((a,b)=>b.t-a.t).map((w,i)=>`<div class="win">${cm?`<button class="del" onclick="delWin(${i})">✕</button>`:''}<div class="who"><span class="av" style="background:${avColor(w.name)}">${avInner(w.name)}</span><span class="nm">${esc(w.name)}</span><span class="t">${ago(w.t)}</span></div><div class="wt">${esc(w.title)}</div><p>${fmtMentions(w.body)}</p></div>`).join('');updateCounts()}
+function renderWins(){const cm=document.body.classList.contains('can-mod');const box=document.getElementById('winsGrid');if(!box)return;const list=state.wins.slice().sort((a,b)=>b.t-a.t);if(!list.length){box.innerHTML='<div class="wins-empty"><div class="we-ic">🏆</div><b>아직 이번 주 Win이 없어요</b><span>가장 먼저 좋은 순간을 공유해 보세요!</span></div>';updateCounts();return;}box.innerHTML=list.map((w,i)=>`<div class="win">${cm?`<button class="del" onclick="delWin(${i})">✕</button>`:''}<div class="who"><span class="av" style="background:${avColor(w.name)}">${avInner(w.name)}</span><span class="nm">${esc(w.name)}</span><span class="t">${ago(w.t)}</span></div><div class="wt">${esc(w.title)}</div>${w.body?`<p>${fmtMentions(w.body)}</p>`:''}</div>`).join('');updateCounts()}
 function addWin(){if(!me){toast('로그인이 필요해요');return}if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return}const title=document.getElementById('winTitle').value.trim(),body=document.getElementById('winBody').value.trim();if(!title){toast('제목을 입력해 주세요');return}const w={name:me.name,title,body,t:Date.now()};state.wins.push(w);if(LIVE)DB.push('wins',w);notifyMentions(title+' '+body,'Wins',me.name);document.getElementById('winTitle').value='';document.getElementById('winBody').value='';renderWins();toast('공유됐어요! 🏆')}
 function delWin(i){if(!isFounder(me))return;const s=state.wins.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.wins=state.wins.filter(w=>w!==t);if(LIVE)DB.set('wins',state.wins);renderWins()}
 
@@ -3935,14 +4056,29 @@ function removeMember(name){
 function deleteMember(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
   name=(name||'').trim();if(!name)return;
-  if(!confirm('정말 '+name+'님을 삭제하시겠습니까?\n\n· 팀원 명단에서 제외됩니다\n· 가입한 계정·트리·피드 표시가 삭제됩니다\n· 이 작업은 되돌릴 수 없어요')) return;
+  if(!confirm('정말 '+name+'님을 삭제하시겠습니까?\n\n· 팀원 명단에서 제외됩니다\n· 가입 계정과 함께 본인이 남긴 콜백싯 일지·댓글·한마디·Wins·물주기·리쿠르팅 기록이 모두 삭제됩니다\n· (다른 사람이 올린 사진 속 모습 등은 남을 수 있어요)\n· 이 작업은 되돌릴 수 없어요')) return;
   const nm=name.replace(/\s/g,'');
-  // 1) 가입 계정 삭제
-  Object.values(state.users||{}).forEach(u=>{
-    if(u&&u.name&&u.name.replace(/\s/g,'')===nm&&!isTestBot(u)){
-      const uid=u.uid; delete state.users[uid]; if(LIVE)DB.set('users/'+uid,null);
-    }
+  const eq=x=>String(x||'').replace(/\s/g,'')===nm;
+  // 1) 가입 계정 + uid 기준 개인 데이터 소거 (콜백싯 일지·리쿠르팅·알림·물주기)
+  const uids=[];
+  Object.values(state.users||{}).forEach(u=>{ if(u&&eq(u.name)&&!isTestBot(u))uids.push(u.uid); });
+  uids.forEach(uid=>{
+    delete state.users[uid];
+    if(state.recruit)delete state.recruit[uid];
+    if(state.notifs)delete state.notifs[uid];
+    if(state.waters)delete state.waters[uid];
+    if(LIVE){DB.set('users/'+uid,null);DB.set('cbjournal/'+uid,null);DB.set('recruit/'+uid,null);DB.set('notifs/'+uid,null);DB.set('waters/'+uid,null);}
   });
+  if(state.cbAll)uids.forEach(uid=>{delete state.cbAll[uid];});
+  // 1b) 이름 기준 본인 작성물 소거 — 한마디·Wins·굳뉴스
+  ['gb','wins','goodnews'].forEach(k=>{ if(Array.isArray(state[k])){ const f=state[k].filter(it=>!eq(it.name)&&!eq(it.by)); if(f.length!==state[k].length){state[k]=f;if(LIVE)DB.set(k,f);} } });
+  // 1c) 공지 — 본인이 올린 공지 제거
+  if(Array.isArray(state.notices)){ const f=state.notices.filter(it=>!eq(it.by)); if(f.length!==state.notices.length){state.notices=f;if(LIVE)DB.set('notices',f);} }
+  // 1d) 갤러리(네트워킹·액티비티) — 본인 게시물 제거 + 본인 댓글 제거
+  ['net','act'].forEach(k=>{ if(!Array.isArray(state[k]))return; let ch=false; let arr=state[k].filter(it=>{if(eq(it.by)){ch=true;return false;}return true;}); arr.forEach(it=>{ if(Array.isArray(it.cmts)){const c=it.cmts.filter(cm=>!eq(cm.by)); if(c.length!==it.cmts.length){it.cmts=c;ch=true;}} }); if(ch){state[k]=arr;if(LIVE)DB.set(k,arr);} });
+  // 1e) 토큰 — 본인 토큰 잔액·로그 제거
+  if(state.tokens&&state.tokens[name]!=null){delete state.tokens[name];if(LIVE)DB.set('tokens',state.tokens);}
+  if(Array.isArray(state.tokenLog)){const f=state.tokenLog.filter(l=>!eq(l.name)); if(f.length!==state.tokenLog.length){state.tokenLog=f;if(LIVE)DB.set('tokenLog',f);}}
   // 2) 기본 명단이면 removedMembers에, 추가 명단이면 제거
   if(ALLOWED_MEMBERS.some(n=>n.replace(/\s/g,'')===nm)){
     state.removedMembers=state.removedMembers||[];
@@ -3956,8 +4092,10 @@ function deleteMember(name){
     state.managers=state.managers.filter(n=>(n||'').replace(/\s/g,'')!==nm);
     if(LIVE)DB.set('managers',state.managers);
   }
-  renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();updateCounts&&updateCounts();
-  toast('🗑️ '+name+'님을 삭제했어요');
+  renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();
+  try{renderWaterFeed();renderGb();renderWins();renderNotices&&renderNotices();renderGallery('net');renderGallery('act');renderCelebrations&&renderCelebrations();if(typeof renderScores==='function')renderScores();if(curTab==='cbjournal')renderCbBoard();}catch(e){}
+  updateCounts&&updateCounts();
+  toast('🗑️ '+name+'님과 본인이 남긴 기록을 모두 삭제했어요');
 }
 /* ===== 팀 세일즈관리 (개인별 월간 리뷰 · 리젝률·인컴·BEP) ===== */
 let smMonthKey=null;
