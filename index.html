@@ -371,6 +371,13 @@ body.can-mod .gcard .del{display:flex}
 .wadm-champ b{color:var(--green-soft);font-size:14px}
 .colead-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .colead{background:rgba(245,208,97,.14);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--cream);font-weight:700}
+.feed-attend{margin:12px 0}
+.fa-card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px}
+.fa-h{font-weight:800;color:var(--cream);font-size:13.5px;margin-bottom:4px}.fa-h small{color:var(--faint);font-weight:600}
+.fa-sub{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.fa-chips{display:flex;flex-wrap:wrap;gap:6px}
+.fa-chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--muted);font-weight:700;cursor:pointer;transition:.12s}
+.fa-chip.on{background:linear-gradient(90deg,rgba(67,205,125,.22),rgba(67,205,125,.1));border-color:var(--green-soft);color:var(--green-soft)}
 #tokenIssueModal .ti-sub{font-size:13px;color:var(--cream);line-height:1.6;margin-bottom:10px}
 #tokenIssueModal .ti-list{max-height:42vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
 #tokenIssueModal .ti-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px}
@@ -1694,6 +1701,7 @@ body.app-on #ambientBg{opacity:.7}
           </div>
           <div class="reward-lead" id="rewardLead"></div>
         </div>
+      <div class="feed-attend" id="feedAttendBox"></div>
       <div class="rank-card">
         <h3>🐔 먹이 순위 <span class="rank-sub">(토큰으로 먹이 준 날 수)</span></h3>
         <div id="saleRank"></div>
@@ -2549,7 +2557,7 @@ function enterApp(){
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
   showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);
-  if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();setTimeout(maybeTokenIssuePrompt,1300);}
+  if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
@@ -3174,7 +3182,7 @@ function goTab(name){
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
   if(name==='sale')initSaleEditor();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();}
-  if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();}}
+  if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();setTimeout(maybeTokenIssuePrompt,500);}}
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
@@ -3446,11 +3454,12 @@ function resetTree(){
 }
 /* ===== COMPETITION : 동물 키우기 ===== */
 function isTLplus(role){return ['TL','AOP','OP','O'].includes(role)}
-function compEnd(){return state.comp.start+state.comp.weeks*7*86400000}
+function compStart(){const v=state.comp&&state.comp.start;return (typeof v==='number'&&isFinite(v))?v:Date.now();}
+function compEnd(){return compStart()+(((state.comp&&state.comp.weeks))||2)*7*86400000}
 function daysLeft(){return Math.max(0,Math.ceil((compEnd()-Date.now())/86400000))}
 function compEnded(){return Date.now()>=compEnd()}
 function fmtD(ts){const d=new Date(ts);return `${d.getMonth()+1}.${d.getDate()}`}
-function compRange(){return {sd:new Date(state.comp.start).toISOString().slice(0,10),ed:new Date(compEnd()).toISOString().slice(0,10)}}
+function compRange(){return {sd:new Date(compStart()).toISOString().slice(0,10),ed:new Date(compEnd()).toISOString().slice(0,10)}}
 function periodFeeds(){
   // 먹이 = 기념토큰 사용만 (하루 1회 · 관리자 제외) — 결과 자동먹이 제거(관리자 발행 토큰으로만)
   const {sd,ed}=compRange(),byName={};
@@ -3742,7 +3751,7 @@ function renderComp(){
   renderAnimal();
   const {rank}=periodFeeds();
   document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 먹이 기록이 없어요</div>';
-  renderFeedLog();
+  renderFeedLog();renderRewardLead();renderFeedAttend();
 }
 const WDAY=['일','월','화','수','목','금','토'];
 function fmtMDW(dateStr,ts){let d=dateStr?new Date(dateStr+'T12:00:00'):new Date(ts);if(isNaN(d.getTime()))d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDAY[d.getDay()]})`;}
@@ -4112,6 +4121,26 @@ function grantGiftAll(){
   renderTokenAdmin();renderTokenShop();
   toast(`🎁 ${names.length}명에게 기념 토큰을 1개씩 지급했어요!`);
 }
+/* ===== 오늘 먹이 출석부 (관리자가 오늘 먹이 준 사람 체크 → 공동 1위·로그 반영) ===== */
+function renderFeedAttend(){
+  const box=document.getElementById('feedAttendBox');if(!box)return;
+  if(!me||!isFounder(me)){box.innerHTML='';return;}
+  const fed=((state.feedByDay||{})[TODAY])||{};
+  const mem=rosterMembers().filter(u=>!isAdminName(u.name));
+  const onCnt=mem.filter(u=>(+fed[u.name]||0)>=1).length;
+  box.innerHTML='<div class="fa-card"><div class="fa-h">🌽 오늘 먹이 출석부 <small>· '+TODAY+'</small></div>'
+    +'<div class="fa-sub">오늘 먹이 준 사람을 탭해서 켜세요. 켠 사람은 먹이 순위·로그에 <b>오늘 먹이(공동 1위)</b>로 올라가요. <b>'+onCnt+'명</b> 체크됨</div>'
+    +'<div class="fa-chips">'+mem.map(u=>{const on=(+fed[u.name]||0)>=1;return '<button class="fa-chip'+(on?' on':'')+'" onclick="toggleFeedAttend(\''+u.name+'\')">'+(on?'✅ ':'')+esc(u.name)+'</button>';}).join('')+'</div></div>';
+}
+function toggleFeedAttend(name){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  state.feedByDay=state.feedByDay||{};state.feedByDay[TODAY]=state.feedByDay[TODAY]||{};
+  const cur=(+state.feedByDay[TODAY][name]||0)>=1;
+  if(cur)delete state.feedByDay[TODAY][name];else state.feedByDay[TODAY][name]=1;
+  if(LIVE)DB.set('feedByDay',state.feedByDay);
+  renderComp();
+  toast(cur?(name+'님 오늘 먹이 해제'):('🌽 '+name+'님 오늘 먹이 기록!'));
+}
 /* ===== 오늘의 기념주화 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
 function todayFielders(){
   const out=[],roster={};rosterMembers().forEach(u=>roster[u.name]=u.role);
@@ -4153,7 +4182,7 @@ function confirmTokenIssue(){
 function holdTokenIssue(){closeModal('tokenIssueModal');toast('⏸️ 발행을 보류했어요 · 토큰 현황의 [오늘 결과 토큰 발행]에서 다시 발행할 수 있어요');}
 function maybeTokenIssuePrompt(){
   if(!me||!isFounder(me))return;
-  if(new Date().getHours()>=23 && !tokensIssuedToday() && todayFielders().length){openTokenIssue();}
+  if(new Date().getHours()>=22 && !tokensIssuedToday() && todayFielders().length){openTokenIssue();}
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
 function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
