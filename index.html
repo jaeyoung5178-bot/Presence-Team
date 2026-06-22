@@ -378,6 +378,11 @@ body.can-mod .gcard .del{display:flex}
 .fa-chips{display:flex;flex-wrap:wrap;gap:6px}
 .fa-chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--muted);font-weight:700;cursor:pointer;transition:.12s}
 .fa-chip.on{background:linear-gradient(90deg,rgba(67,205,125,.22),rgba(67,205,125,.1));border-color:var(--green-soft);color:var(--green-soft)}
+.welcome-box{text-align:center}
+.wc-icon{font-size:46px;margin-bottom:4px}
+.wc-title{font-size:18px;color:var(--cream);margin-bottom:12px;font-weight:800}
+.wc-msg{font-size:14px;color:var(--cream);line-height:1.75;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.wc-token{font-size:12.5px;color:var(--green-soft);font-weight:700;margin-bottom:14px}
 #tokenIssueModal .ti-sub{font-size:13px;color:var(--cream);line-height:1.6;margin-bottom:10px}
 #tokenIssueModal .ti-list{max-height:42vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
 #tokenIssueModal .ti-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px}
@@ -387,6 +392,10 @@ body.can-mod .gcard .del{display:flex}
 #tokenIssueModal .ti-coin{color:var(--green-soft);font-weight:800}
 #tokenIssueModal .ti-done{background:rgba(67,205,125,.12);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12.5px;color:var(--green-soft);margin-bottom:10px}
 #tokenIssueModal .ti-empty{font-size:12.5px;color:var(--faint);padding:8px 0}
+#tokenIssueModal .ti-date{font-size:12px;color:var(--muted);margin-bottom:8px}#tokenIssueModal .ti-date b{color:var(--cream)}
+.tok-date-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:12.5px;color:var(--cream);font-weight:700}
+.tok-date-row input[type=date]{background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:inherit}
+.tok-date-hint{font-size:11px;color:var(--faint);font-weight:600}
 .wadm-award{background:linear-gradient(90deg,rgba(232,71,60,.16),transparent);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;color:var(--cream);margin-bottom:10px;line-height:1.5}
 .gift-msg{white-space:normal;line-height:1.6}
 .gift-win-box{text-align:center;max-width:380px}
@@ -1719,9 +1728,10 @@ body.app-on #ambientBg{opacity:.7}
             <p style="font-size:12px;color:var(--muted);margin-bottom:11px"><b>먹이는 토큰으로만</b> 줘요(하루 한 번). 필드에서 결과(1건↑)를 낸 사람에게 <b>밤 11시 승인</b> 또는 아래 <b>[오늘 결과 토큰 발행]</b>으로 토큰을 1개씩 발행하고, 이벤트 토큰은 따로 줄 수 있어요. <b>누적 지급</b>=총 지급 · <b>사용</b>=먹이로 쓴 수 · <b>보유</b>=잔액. (− 는 회수)</p>
             <div class="tok-scroll"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table>
             <div id="tokenGrantLog" class="tok-log"></div></div>
-            <button class="gift-all-btn" onclick="openTokenIssue()" style="margin-bottom:8px">🪙 오늘 결과 토큰 발행 (필드 출전자에게 1개씩 · 승인)</button>
+            <div class="tok-date-row">📅 기준 날짜 <input type="date" id="tokWorkDate" onchange="renderTokenAdmin()"><span class="tok-date-hint">자정 넘으면 어제 날짜로 바꿔서 처리</span></div>
+            <button class="gift-all-btn" onclick="openTokenIssue()" style="margin-bottom:8px">🪙 선택 날짜 결과 토큰 발행 (필드 출전자 1개씩 · 승인)</button>
             <button class="gift-all-btn" onclick="grantGiftAll()">🎁 (이벤트) 오늘 전원에게 기념 토큰 1개씩 지급</button>
-            <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.16);border-color:rgba(232,71,60,.4)">🧹 오늘 기준으로 토큰 정리 (지급내역 초기화)</button>
+            <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.16);border-color:rgba(232,71,60,.4)">🧹 선택 날짜 기준으로 토큰 정리 (지급내역 초기화)</button>
             <div class="gift-note">기념일용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 ＋ 로 개별 지급하면 돼요.</div>
           </div>
         </div>
@@ -1973,6 +1983,7 @@ body.app-on #ambientBg{opacity:.7}
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
+<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">환영합니다!</h3><div class="wc-msg" id="wcMsg"></div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>기념주화 1개</b>가 지급되었어요!</div><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
 <div class="modal" id="giftWinModal"><div class="box gift-win-box">
   <div class="gw-box">🎁<span class="gw-q">?</span></div>
   <h3 class="gw-title" id="gwTitle">🎉 깜짝 선물 쿠폰 도착!</h3>
@@ -2187,6 +2198,8 @@ function testbot1Obj(){return {uid:'testbot1',name:'testbot1',id:'testbot1',role
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
 let ALLOWED_MEMBERS = ['임재영','윤채영','고윤경','박인선','손예진','간승학','김하진','권영웅','최이수','고다연'];
 let DEPARTED_MEMBERS = ['나승찬'];  // 팀에서 나간 사람 — 명단·토큰·먹이 집계에서 항상 제외
+const SIGNUP_TOKEN_FROM='2026-06-24';  // 이 날짜(수)부터 가입자에게 기념토큰 1개 지급
+const WELCOME_MSG='Presence 웹앱 가입을 축하합니다 🎉\n\nPresence와 함께 즐겁고 행복하게 일해봐요~\n\n- 임재영 AOP -';
 function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const rm=((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).map(n=>(n||'').replace(/\s/g,''));const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]&&rm.indexOf(k)<0){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
@@ -2519,6 +2532,9 @@ function submitSurvey(){
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
     if(!isTestBot(u)){
+      const gotTok=(TODAY>=SIGNUP_TOKEN_FROM);
+      if(gotTok){state.tokens=state.tokens||{};state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}}
+      addNotif(u.uid,{type:'welcome',by:'임재영 AOP',t:Date.now(),read:false,msg:WELCOME_MSG,token:gotTok,popup:true,popupSeen:false});
       sendSignupToSheet(u,authState.draftPw);
       sendSurveyToSheet(u,key,rec);
     }
@@ -2558,7 +2574,7 @@ function enterApp(){
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
-  showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);
+  showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
@@ -4085,20 +4101,22 @@ function tokenIssued(){
 }
 function resetTokenBaseline(){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
-  if(!confirm('오늘 기준으로 토큰을 정리할까요?\n\n· 오늘 전원을 먹이 준 것으로 기록(사용 1)\n· 오늘 필드에서 결과(1건↑) 낸 사람만 보유 1개\n· 그 외에는 보유 0개\n· 아래 지급내역은 초기화\n\n되돌릴 수 없어요.'))return;
+  const d=tokWorkDate();
+  if(!confirm(d+' 기준으로 토큰을 정리할까요?\n\n· '+d+' 전원을 먹이 준 것으로 기록(사용 1)\n· '+d+' 필드 결과(1건↑) 낸 사람만 보유 1개\n· 그 외에는 보유 0개\n· 지급내역 초기화\n\n되돌릴 수 없어요.'))return;
   const roster=rosterMembers().filter(u=>!isAdminName(u.name)&&!isDeparted(u.name));
-  state.feedByDay=state.feedByDay||{};state.feedByDay[TODAY]=state.feedByDay[TODAY]||{};
-  roster.forEach(u=>{state.feedByDay[TODAY][u.name]=1;});            // 오늘 전원 먹이(사용 1)
-  const fld={};todayFielders().forEach(f=>{fld[f.name]=1;});          // 오늘 필드 결과자
+  state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};
+  roster.forEach(u=>{state.feedByDay[d][u.name]=1;});                // 전원 먹이(사용 1)
+  const fld={};fieldersOn(d).forEach(f=>{fld[f.name]=1;});            // 필드 결과자
   state.tokens={};roster.forEach(u=>{state.tokens[u.name]=fld[u.name]?1:0;}); // 결과자만 보유 1
   state.tokenLog=[];state.tokenGrants={};                            // 지급내역 초기화
   if(LIVE){DB.set('feedByDay',state.feedByDay);DB.set('tokens',state.tokens);DB.set('tokenLog',[]);DB.set('tokenGrants',{});}
   renderComp();renderTokenAdmin();renderTokenShop();
   const f=Object.keys(fld).length;
-  toast('🧹 오늘 기준 정리 완료! 전원 사용 1 · 필드 결과 '+f+'명만 보유 1 · 지급내역 초기화');
+  toast('🧹 '+d+' 기준 정리 완료! 전원 사용 1 · 필드 결과 '+f+'명만 보유 1 · 지급내역 초기화');
 }
 function renderTokenAdmin(){
   const body=document.getElementById('tokenAdminBody');if(!body)return;
+  const di=document.getElementById('tokWorkDate');if(di&&!di.value)di.value=TODAY;
   const tokens=state.tokens||{};
   const feeds={};periodFeeds().rank.forEach(r=>{feeds[r.name]=r.days;});  // 사용 = 먹이 준 횟수
   const seen={};rosterMembers().forEach(u=>seen[u.name]=1);Object.keys(tokens).forEach(n=>seen[n]=1);Object.keys(feeds).forEach(n=>seen[n]=1);
@@ -4159,14 +4177,17 @@ function toggleFeedAttend(name){
   toast(cur?(name+'님 먹이 취소 · 토큰 +1 환급'):('🌽 '+name+'님 먹이 기록 · 토큰 −1 사용'));
 }
 /* ===== 오늘의 기념주화 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
-function todayFielders(){
-  const out=[],roster={};rosterMembers().forEach(u=>roster[u.name]=u.role);
-  Object.keys(state.sales||{}).forEach(k=>{const e=state.sales[k];if(!e||e.date!==TODAY)return;if(e.na||e.rally)return;if((+e.count||0)<1)return;if(isAdminName(e.name))return;
+function tokWorkDate(){const el=document.getElementById('tokWorkDate');return (el&&el.value)?el.value:TODAY;}
+function fieldersOn(d){
+  d=d||TODAY;const out=[],roster={};rosterMembers().forEach(u=>roster[u.name]=u.role);
+  Object.keys(state.sales||{}).forEach(k=>{const e=state.sales[k];if(!e||e.date!==d)return;if(e.na||e.rally)return;if((+e.count||0)<1)return;if(isAdminName(e.name)||isDeparted(e.name))return;
     out.push({name:e.name,role:e.role||roster[e.name]||'IC',count:+e.count||0});});
   out.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ko'));
   return out;
 }
-function tokensIssuedToday(){return !!((state.tokenIssueDays||{})[TODAY]);}
+function todayFielders(){return fieldersOn(TODAY);}
+function tokensIssuedOn(d){return !!((state.tokenIssueDays||{})[d||TODAY]);}
+function tokensIssuedToday(){return tokensIssuedOn(TODAY);}
 function ensureTokenIssueModal(){
   if(document.getElementById('tokenIssueModal'))return;
   const m=document.createElement('div');m.className='modal';m.id='tokenIssueModal';
@@ -4176,30 +4197,33 @@ function ensureTokenIssueModal(){
 function openTokenIssue(){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
   ensureTokenIssueModal();
-  const f=todayFielders(),done=tokensIssuedToday();let body='';
-  if(done)body+='<div class="ti-done">✅ 오늘('+TODAY+') 기념주화는 이미 발행했어요. (하루 1개씩만 발행돼요)</div>';
-  if(!f.length){body+='<div class="ti-empty">오늘 필드에서 결과(노제로 1건↑)를 낸 팀원이 없어요. 발행할 주화가 없습니다.</div>';}
-  else{body+='<div class="ti-sub">📋 오늘('+TODAY+') 최종 결과 — 필드에서 결과를 낸 <b>'+f.length+'명</b>에게 기념주화를 <b>1개씩</b> 발행해요.<br><small style="color:var(--faint)">결과를 못 낸(0·NA) 팀원은 발행 대상이 아니에요. 이대로 발행할까요?</small></div><div class="ti-list">'+f.map(x=>'<div class="ti-row"><span class="ti-nm">'+esc(x.name)+' <small>'+esc(x.role)+'</small></span><span class="ti-cnt">'+x.count+'건</span><span class="ti-coin">🪙 +1</span></div>').join('')+'</div>';}
+  const d=tokWorkDate();
+  const f=fieldersOn(d),done=tokensIssuedOn(d);let body='';
+  body+='<div class="ti-date">📅 기준 날짜 · <b>'+d+'</b></div>';
+  if(done)body+='<div class="ti-done">✅ '+d+' 기념주화는 이미 발행했어요. (하루 1개씩만)</div>';
+  if(!f.length){body+='<div class="ti-empty">'+d+'에 필드 결과(노제로 1건↑)를 낸 팀원이 없어요. 발행할 주화가 없습니다.</div>';}
+  else{body+='<div class="ti-sub">📋 '+d+' 최종 결과 — 필드에서 결과를 낸 <b>'+f.length+'명</b>에게 기념주화를 <b>1개씩</b> 발행해요.<br><small style="color:var(--faint)">0·NA인 팀원은 발행 대상이 아니에요. 이대로 발행할까요?</small></div><div class="ti-list">'+f.map(x=>'<div class="ti-row"><span class="ti-nm">'+esc(x.name)+' <small>'+esc(x.role)+'</small></span><span class="ti-cnt">'+x.count+'건</span><span class="ti-coin">🪙 +1</span></div>').join('')+'</div>';}
   document.getElementById('tiBody').innerHTML=body;
   const ok=document.getElementById('tiConfirmBtn');if(ok){const can=f.length&&!done;ok.style.display=can?'':'none';ok.textContent='✅ 발급 ('+f.length+'명)';}
   openModal('tokenIssueModal');
 }
 function confirmTokenIssue(){
   if(!isFounder(me))return;
-  if(tokensIssuedToday()){toast('오늘 기념주화는 이미 발행했어요');closeModal('tokenIssueModal');return;}
-  const f=todayFielders();if(!f.length){closeModal('tokenIssueModal');return;}
+  const d=tokWorkDate();
+  if(tokensIssuedOn(d)){toast(d+' 기념주화는 이미 발행했어요');closeModal('tokenIssueModal');return;}
+  const f=fieldersOn(d);if(!f.length){closeModal('tokenIssueModal');return;}
   const now=Date.now();state.tokenLog=state.tokenLog||[];state.tokens=state.tokens||{};
   f.forEach((x,i)=>{state.tokens[x.name]=(state.tokens[x.name]||0)+1;state.tokenLog.push({name:x.name,t:now+i,by:me.name,amt:1,earn:true});});
   if(state.tokenLog.length>500)state.tokenLog=state.tokenLog.slice(-500);
-  state.tokenIssueDays=state.tokenIssueDays||{};state.tokenIssueDays[TODAY]=now;
-  if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);DB.set('tokenIssueDays/'+TODAY,now);}
+  state.tokenIssueDays=state.tokenIssueDays||{};state.tokenIssueDays[d]=now;
+  if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);DB.set('tokenIssueDays/'+d,now);}
   renderTokenAdmin();renderTokenShop();closeModal('tokenIssueModal');
-  toast('🪙 '+f.length+'명에게 오늘의 기념주화를 1개씩 발행했어요!');
+  toast('🪙 '+f.length+'명에게 '+d+' 기념주화를 1개씩 발행했어요!');
 }
 function holdTokenIssue(){closeModal('tokenIssueModal');toast('⏸️ 발행을 보류했어요 · 토큰 현황의 [오늘 결과 토큰 발행]에서 다시 발행할 수 있어요');}
 function maybeTokenIssuePrompt(){
   if(!me||!isFounder(me))return;
-  if(new Date().getHours()>=22 && !tokensIssuedToday() && todayFielders().length){openTokenIssue();}
+  if(new Date().getHours()>=22 && !tokensIssuedOn(TODAY) && fieldersOn(TODAY).length){const el=document.getElementById('tokWorkDate');if(el)el.value=TODAY;openTokenIssue();}
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
 function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
@@ -4642,7 +4666,7 @@ function addNotif(uid,n){if(!state.notifs[uid])state.notifs[uid]=[];state.notifs
 function notifyMentions(text,ctx,by){const ms=parseMentions(text);ms.forEach(u=>{if(me&&u.uid===me.uid)return;addNotif(u.uid,{by:by||(me?me.name:'누군가'),ctx,text:(text||'').slice(0,90),t:Date.now(),read:false})});if(ms.length){renderBell();toast('🔔 '+ms.map(u=>u.name).join(', ')+'님에게 알림을 보냈어요')}}
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
-function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>{if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="notif-item gift${n.read?'':' unread'}"><div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div></div>`;}return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`;}).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
+function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>{if(n.type==='welcome'){return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>🎉 환영합니다</b></div><div class="notif-prev">${n.msg?esc(n.msg).replace(/\n/g,'<br>'):''}</div><div class="notif-t">${ago(n.t)}</div></div>`;}if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="notif-item gift${n.read?'':' unread'}"><div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div></div>`;}return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`;}).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
 function giftHuntActive(){const now=Date.now();return now>=GIFT_HUNT_START&&now<GIFT_HUNT_END;}
 function giftRemaining(){const g=state.giftHunt||{};return Math.max(0,(g.total||100)-(g.opened||0));}
 function openedGiftToday(){const g=state.giftHunt||{};return !!(me&&g.opens&&g.opens[TODAY+'|'+me.uid]);}
@@ -4790,6 +4814,15 @@ function maybeShowGiftPopup(){
   const e=document.getElementById('gwExp');if(e)e.textContent=exp?('🎁 받은 날부터 2주 이내 · '+exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')+'까지 유효'):'';
   openModal('giftWinModal');
   g.popupSeen=true;if(LIVE)DB.set('notifs/'+me.uid,list);
+}
+function maybeShowWelcome(){
+  if(!me||window._welcomeShown)return;
+  const list=myNotifs();const w=list.find(n=>n&&n.type==='welcome'&&n.popup&&!n.popupSeen);
+  if(!w)return;window._welcomeShown=true;
+  const m=document.getElementById('wcMsg');if(m)m.innerHTML=(w.msg||'').replace(/\n/g,'<br>');
+  const tk=document.getElementById('wcToken');if(tk)tk.style.display=w.token?'':'none';
+  openModal('welcomeModal');
+  w.popupSeen=true;if(LIVE)DB.set('notifs/'+me.uid,list);
 }
 function closeGiftWin(){closeModal('giftWinModal');}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
