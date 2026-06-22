@@ -613,6 +613,9 @@ table.scores tr.top1 .big{color:var(--green)}
 .feed-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .feed-item:last-child{border-bottom:none}
 .fi-emo{font-size:16px;flex:0 0 auto}
+.feed-item .fi-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
+.feed-item .fi-av img{width:100%;height:100%;object-fit:cover;display:block}
+.feed-item .fi-tx{flex:1;min-width:0}
 .fi-tx{font-size:13px;color:var(--muted);line-height:1.4}
 .fi-tx b{color:var(--cream)}
 .fi-n{color:var(--green-soft);font-weight:700;font-family:var(--mono);font-size:12px}
@@ -1412,8 +1415,8 @@ body.app-on #ambientBg{opacity:.7}
         <div id="saleRank"></div>
       </div>
       <div class="feed-log">
-        <button class="feed-log-head" onclick="toggleFeedLog()"><span>📋 먹이 기록 <span id="feedCount" class="feed-count">0</span></span><span id="feedCaret" class="caret">▾</span></button>
-        <div class="feed-log-body" id="feedLogBody" style="display:none"></div>
+        <button class="feed-log-head" onclick="toggleFeedLog()"><span>📋 먹이 기록 <span id="feedCount" class="feed-count">0</span></span><span id="feedCaret" class="caret">▴</span></button>
+        <div class="feed-log-body" id="feedLogBody" style="display:block"></div>
       </div>
     </section></div></div>
 
@@ -2207,7 +2210,8 @@ function importSheetData(data,opt){
       const name=String(nm).trim();if(!name)return;
       const role=roleOf(name),val=row[nm],key=`${date}|${name}`,t=Date.now();
       const sval=String(val).trim();let ne=null;
-      if(sval.toLowerCase()==='na')ne={name,role,date,count:0,na:true,t};
+      const slow=sval.toLowerCase();
+      if(slow==='na'||slow==='n')ne={name,role,date,count:0,na:true,t};
       else if(sval==='랠리')ne={name,role,date,count:0,rally:true,t};
       else{const c=Number(sval);if(!isNaN(c)&&c>0)ne={name,role,date,count:c,t};}
       if(!ne)return;
@@ -2966,11 +2970,13 @@ function renderComp(){
   document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 노제로 기록이 없어요</div>';
   renderFeedLog();
 }
+const WDAY=['일','월','화','수','목','금','토'];
+function fmtMDW(dateStr,ts){let d=dateStr?new Date(dateStr+'T12:00:00'):new Date(ts);if(isNaN(d.getTime()))d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDAY[d.getDay()]})`;}
 function renderFeedLog(){
   const body=document.getElementById('feedLogBody');if(!body)return;
-  const logs=periodFeeds().log.sort((a,b)=>b.t-a.t);
+  const logs=periodFeeds().log.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.t-a.t);
   document.getElementById('feedCount').textContent=logs.length;
-  body.innerHTML=logs.length?logs.map(f=>`<div class="feed-item"><span class="fi-emo">🌽</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨습니다</span><span class="fi-t">${fmtD(f.t)}</span></div>`).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이 기록이 없어요</div>';
+  body.innerHTML=logs.length?logs.map(f=>`<div class="feed-item"><span class="fi-av" style="background:${avColor(f.name)}">${avInner(f.name)}</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨어요 🌽</span><span class="fi-t">${fmtMDW(f.date,f.t)}</span></div>`).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이 기록이 없어요</div>';
 }
 function toggleFeedLog(){
   const b=document.getElementById('feedLogBody'),c=document.getElementById('feedCaret');
