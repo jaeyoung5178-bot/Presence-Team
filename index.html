@@ -336,6 +336,12 @@ body.can-mod .win .del{display:block}
 .msec.open .msec-car{transform:rotate(180deg)}
 .msec-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.2,.8,.2,1)}
 .msec.open .msec-body{max-height:1600px}
+.lacc{display:flex;flex-direction:column;gap:10px}
+.lacc .msec.open .msec-body{max-height:5000px}
+.topic-filter{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.tf-chip{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s}
+.tf-chip:hover{color:var(--cream)}
+.tf-chip.on{background:var(--grad);color:#fff;border-color:transparent}
 .msec-inner{padding:2px 17px 18px}
 .kit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 @media(max-width:520px){.kit-grid{grid-template-columns:1fr}}
@@ -778,6 +784,21 @@ footer .punch b{color:var(--green)}
 .kedit-body{padding:6px 14px 14px;display:flex;flex-direction:column;gap:10px}
 .kedit-row{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
 .kedit-row input,.kedit-row textarea{background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:10px;font-size:13px;font-family:inherit;width:100%;box-sizing:border-box}
+.kr-add{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.kr-add input,.kr-sel{background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:9px 10px;font-size:13px;font-family:inherit;box-sizing:border-box}
+.kr-add #kr-emj{flex:0 0 48px;text-align:center}
+.kr-add #kr-name{flex:1;min-width:120px}
+.kr-add #kr-url{flex:1 0 100%}
+.kr-sel{cursor:pointer;flex:0 0 auto}
+.kr-addbtn{background:var(--green);color:var(--green-ink);font-weight:800;border:none;border-radius:9px;padding:9px 16px;font-size:13px;cursor:pointer;flex:0 0 auto}
+.kr-item{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:11px;padding:10px;display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.kr-item-top{display:flex;gap:7px}
+.kr-item input,.kr-item .kr-sel{background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:8px;font-size:13px;font-family:inherit;box-sizing:border-box}
+.kr-item-top input:first-child{flex:0 0 48px;text-align:center}
+.kr-item-top input:nth-child(2){flex:1}
+.kr-item>input{width:100%}
+.kr-item-act{display:flex;gap:7px;justify-content:flex-end}
+.kr-del{color:var(--danger)!important}
 .recap-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:11px}
 details.recap-card{padding:0}
 details.recap-card>summary{list-style:none;cursor:pointer;padding:15px;display:block}
@@ -943,6 +964,9 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .calling-wrap{width:100%;height:74vh;min-height:520px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
 .calling-wrap iframe{width:100%;height:100%;border:none;display:block}
 .rail .subrail{border-top:1px solid var(--line);background:var(--ink)}
+.rail .row.subrail{flex-wrap:wrap;overflow-x:visible;justify-content:center;row-gap:0}
+.topic-sec-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:var(--cream);margin:4px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.topic-sec-n{font-size:10.5px;color:var(--faint);font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
 .subrail .mtab{font-size:12.5px;padding:9px 13px 8px}
 .subrail .mtab .em{font-size:13.5px}
 .gtab{font-weight:700}
@@ -1243,11 +1267,22 @@ body.app-on #ambientBg{opacity:.7}
 .mgr-btn.off{background:transparent;border:1px solid var(--line);color:var(--muted)}
 .mgr-btn.off:hover{border-color:var(--danger);color:var(--danger)}
 .mem-add button{flex:0 0 auto;background:var(--green);color:var(--green-ink);font-weight:800;border:none;border-radius:9px;padding:0 16px;font-size:13px;cursor:pointer}
+.du-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:8px}
+.du-name{font-size:13px;font-weight:700;color:var(--cream)}
+.du-val{font-size:13px;font-weight:800;color:var(--cream);font-family:var(--mono);white-space:nowrap}
+.du-lim{color:var(--faint);font-weight:600;font-size:11.5px}
+.du-bar{height:13px;background:var(--ink);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.du-fill{height:100%;border-radius:999px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.du-pct{font-size:11.5px;font-weight:800;margin-top:6px;font-family:var(--mono)}
+.du-note{font-size:11px;color:var(--faint);line-height:1.6;margin-top:11px}
+.du-ref{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.du-ref-t{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.du-ref-i{font-size:12px;color:var(--cream);line-height:1.75}
 .mem-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
 .mem-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--cream)}
 .mem-chip.extra{background:rgba(92,188,46,.14);border-color:rgba(92,188,46,.4)}
-.mem-chip.extra button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0;line-height:1}
-.mem-chip.extra button:hover{color:var(--danger)}
+.mem-chip button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0;line-height:1;margin-left:2px}
+.mem-chip button:hover{color:var(--danger)}
 .mem-sync{width:100%;background:var(--wepair);color:#062330;font-weight:800;border:none;border-radius:10px;padding:11px;font-size:13px;cursor:pointer}
 .mem-sync:hover{filter:brightness(1.05)}
 .mem-note{font-size:10.5px;color:var(--faint);line-height:1.5;margin-top:8px;text-align:center}
@@ -1418,6 +1453,24 @@ body.app-on #ambientBg{opacity:.7}
     </section></div></div>
 
     <!-- MANUAL -->
+    <div class="mpanel" id="m-cod"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📕 COD</h2><span class="ko">세일즈 기본기 · 단체(체리티) 지식</span></div>
+      <p class="intro">필드의 코어 — 5 STEP 흐름과 옥스팜·타단체 지식. 각 항목을 눌러 펼쳐보세요.</p>
+      <div class="manual-acc lacc" id="codBody"></div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-callback"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📝 콜백싯 작성</h2><span class="ko">넘버·스킬·태도로 돌아보는 법</span></div>
+      <p class="intro">하루를 KPI·BEP 관점으로 점검하고 0을 다루는 법까지. 각 항목을 눌러 펼쳐보세요.</p>
+      <div class="manual-acc lacc" id="callbackBody"></div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-topics"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🗂️ 토픽자료</h2><span class="ko">강의·교육 자료 모음 게시판</span></div>
+      <p class="intro">주제별 핵심 정리예요. 위 칩으로 분류를 고르고, 제목을 눌러 내용을 펼쳐보세요.</p>
+      <div class="manual-acc lacc" id="topicsBody"></div>
+    </section></div></div>
+
     <div class="mpanel" id="m-manual"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>📖 첫필드 가이드</h2><span class="ko">캠페인 활동 매뉴얼</span></div>
       <p class="intro">처음 필드를 나가도 이것만 보면 돼요. 각 항목을 눌러 펼쳐보세요. <span style="color:var(--faint)">— 피스메이커에 오신 걸 환영해요 :-)</span></p>
@@ -1737,6 +1790,13 @@ body.app-on #ambientBg{opacity:.7}
             <div id="memberAdminBody"></div>
           </div>
         </div>
+        <div class="adm-card">
+          <div class="ah"><h3>📊 데이터 사용량</h3></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">이 앱은 <b>무료 한도</b> 안에서 운영돼요. 아래는 지금까지 쌓인 데이터량이에요. 게이지가 가득 차기 전에 정리하거나 유료 전환을 검토하면 돼요.</p>
+            <div id="dataUsageBody"></div>
+          </div>
+        </div>
       </div>
     </section></div></div>
   </main>
@@ -1963,7 +2023,7 @@ function meIsBot(){return isTestBot(me);}
 function testbot1Obj(){return {uid:'testbot1',name:'testbot1',id:'testbot1',role:'IC',status:'active',surveys:{},test:true,createdAt:0,lastLogin:Date.now(),pwHash:hash('0000')};}
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
 let ALLOWED_MEMBERS = ['임재영','윤채영','고윤경','박인선','손예진','간승학','나승찬','김하진','권영웅','최이수','고다연'];
-function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]){seen[k]=1;out.push(n);}});return out;}
+function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const rm=((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).map(n=>(n||'').replace(/\s/g,''));const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]&&rm.indexOf(k)<0){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
 function roleOf(name){const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
@@ -2089,6 +2149,8 @@ let state={
   managers:[],
   salesMeta:{},bep:{},
   extraMembers:[],
+  removedMembers:[],
+  customRooms:[],
   settings:{},
   popupAnnounce:null,
   obj:[
@@ -2658,24 +2720,72 @@ function openRecruitModal(){const r=myRecruit(),mk=recruitMonth(),mn=parseInt(mk
 function rmAdj(f,delta){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rm-bk-g').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rm-su-g').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rm-st-g').value,10)||0);r[f]=Math.max(0,(+r[f]||0)+delta);rcSave(r);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;}
 function saveRecruitModal(){const r=myRecruit();const gv=id=>Math.max(0,parseInt(document.getElementById(id).value,10)||0);r.bk_g=gv('rm-bk-g');r.su_g=gv('rm-su-g');r.st_g=gv('rm-st-g');rcSave(r);closeModal('recruitModal');toast('내 목표를 저장했어요 🎯');}
 function fmtLinks(s){return esc(s||'').replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--wepair);word-break:break-all">$1</a>');}
+const PRESENCE_MARK_SVG="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314161B'/%3E%3Cpath d='M20 74 L37 36 Q39 32 41 36 L44 50 L52 34 Q54 30 56 34 L80 74 Z' fill='%235CBC2E'/%3E%3Cpath d='M52 34 Q54 30 56 34 L80 74 L60 74 Z' fill='%238AE05C'/%3E%3C/svg%3E";window.PRESENCE_MARK_SVG=PRESENCE_MARK_SVG;
+const PRESENCE_ICON='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAb6UlEQVR42u2dd5xU5fX/3+e5d/rM9kbv0hEEBEFEFEv0a0RiNFiSWEjyNZFEifmaWDBGTfIzJjFFEzQ9MWI3MbZYokYRQUSIpiiWKMWFZXZ3+tx7n+f3x8wuS1MIQnaHOa/XCi7PzNy5p33O5znPucLeiwIE8Dp+0dAwqFH5ZKJBpoAcbDBDwDRhiImIv7i+LDuKMZARQxx4xwivAMuUJc9u/Pfrr3ZZZxX/9Pb2A+XDUnxtv369Le0/EfgoyKFKaNj69gZjCn+WZXe0IsU7J0Wr0BmElzFyv4e+e/O6N17rYggG0PvTAKSofA+gqd/gSWi5wMApSqkqAxhjiv9Bd/kMKXv+7keCLj8CKBGFiKC1lwPuMcgPmte9/nwXQ/D2hwGoDmtraho6yljmchE5XUSU1howXvEtVVnZ+8IgjAaxlVKYgvzew1xVjAgdDrZH0cDag7U24DF0aKAxVH0lSn6llJpgjBFjtAciIKqs/H2TFAo/ogoBVmtAlFLjxPDpWKzGSSbizxUNxdqTXCt7oHy3oc+gcYK6VSk1WWuvw+Otsn7+a4HBA7GUstBaPyaed/7GjW+93aGvDysCFJTfa/A8JXKfiBpktOd28fiy/PcCQ0dE8JRSQw3yiUiselUqEV8LM214W++tAdiAW99r8FeUpX4Cxm+M8UDscpjvTulBlDHaFZEKETkjHKl8K518edXuGIH1gZ7fe/Aiy1LXmkLM76gAytI9o4EGlFLW3HCsqjmdWPXCBxmB9b6e33vgJUpZ1xqt3eLastd3f7AIGK1EnRSJVq5LJVetKOpT7y4ItACvrvfA0y2xbzemrPweWjZqEbFc453csv6tP+yKK5Cd1fmNjUNGG5sXwAQxZQKnh4pGBCCDYw5rbn5jTVcep6vCt601R43yG2V+K0gY08lElaXnicIYIxDB5o76+vrozpxebfd3rz6euUxZ1nhjPHcPiaKydD+xjNGuUmqE2LEbO0DizlKAAkxd70HDFKwulnllRq90IIEromwPc+LmdW882BUPWF1zfzRafbNYalxxI6dc7pVSeSCAMYdVRkO3JpNJt2vYtwCvvveA8SJ8zBR2dcqhv8TwgDHas5Qa7BD8UtdU0OnlYtRFopRiL/aWy9KtY4CltdEKvtzUNLS+wwgU4DU0DGpEmKu1oez9pWsBoLWyVLVW7v8WuIKZSgAaeg2cr5S1WBc2eezyvSpdbkBERBuz3iZ70IYNG9LFFCBzDJgiVChLaWMBbSnVxzXBjwDYTU1D6z3jTkEbMWXkfyBkgkLDnph5wN3KRU8WpWqLbZvlCFD6YmltBMPMWO8RtUrETC3qvYz+DxgwaIxSqs5PdrrCcHC5XfvAA4MgiJEZthE9WApMcDn8H1glIYI5RGGkqXBo4wDP/wKiFKgD4jZIsc98sA0mtvUWHLjKRxu8TAaUoIL+0v/GBa+vU8Wzegc2JPIMEvBRd+o0qo4ai/H0gfLVw+XuXhFMPk/dGTOonDka42l01qH92X+gIgHQJQ2Q1YFN/ChBp3NEDxlCbMownE3t6HSOqmMOxooG4QCIBAeuAQjgaqxYiNqPTsa4GrEV2nHx966h4vCR6Ey+5H1EbXMOtYR/lAiWUlt/h6AzeaqPPwRfr2pMzikcyxaFyTpUzhyNXVuByRd7J0r1vhwQkV4pstk8bW0JBEGUQmfyhEb2pfKIUehUDiy1FRS6LnZtjKpZY4qGoUo4ApSs2xfcVikhnc4wdEh/jjt2Jq7noj0PFbCpPWVKse43O0AjnclTMX0E/r61mLzTBSqX1n2ywtGqq0oxvRvAUop0JsPwgwbzp3t+znnzzyYSCnD/nQ/SZ85hRKcehE7nCgTQ9qINKhJA/BbJlW+g/HaxVbK0pCQNYGuFJ+TzDot/dB0HjxtFy+bNHDntUFpsl9eGxYj4/Ri9i0JYBON4BPrWknltA/lN7YhtlWIKKE2xbYst8TY+ecZcjj1mJvF4Gz7bJplOc90lC5jYbyCJbLYADHclxiA+i+pjx4MpTT6gJA1AiZDJ5hg0oC+X/d/nyaTTWFZhxo5rDD5Hc/Wk2VQFQuS1h+yKC1OFSiE8tj+RsQOKZaGUDaDbh36lyKQzXPHVC+nTtxfZbB4pdrtZIqQ8h2GVdVx+yCxynvvBjXAGqo8dj/iskosEJWcAlmXR2trGSScczRmnnUxbvA17u9xti6I1n+G4/sM5f+RkWnMZ7F2VeiKYrENoWC9ik4ag03mkhKJASRmAiOA4LtXVlXz9iovwvF2PybFE0Z7PcsHoqRzZewit+SzWLo0AjONRfcx4VCRYUptFqtS8v709wcIF8xk9ZgSpVBr1PiDPGINnNIsmHU3/aBUZz0HtLB+IoPMO/r61VE4fXlIUsSod5SvaEwmmHTaRCz5zFonWdmzb/kCwmPNcGkIRvj55NkoEbcwuqkLB5BwqZ43FrolhXLck9lGtcLSyBHgAAWMwxnDrTd9i0KD+ZLPZ9/X+bSoG12VoVR0hy8dj775O2PYXRyNsGwXwPOyqKDgu6TVvowK+Hg8KS2IzyLYs4vFWPnPOPGbMmEp7WwLL2n3SxlaKtlyGsw4az9zBo4nvChRKkSKeMQp/rxp0zikaX8+9dz0+AiilyGQyDBkykMU//mZnA4fs6SEnAc8YpjUOYFnzv1mfbido2dvGgWLrmBULoWxF8qU3Uf6eHQV6PAYQgXze4euXXUR9fS15x9lz5QOC4GhN2PbxjcnHEvMFyGu9I0nU0URy6DCCgxvR2XyPPlHXow2gEPrb+PjcEzllzvG0xtuwrf+cr7dESLp5RlTV87UJ70MSaYPy21QfN6GwQdSDwWCPTQGFmt+hpqaKXyy+nnA4hOfp/8j7dwCFnsO4ul6k3TzPbXybiO1Hd00GxY0if59asm81k18XR/x2jzxfo3oqflFK0Z5M8dVLLmDI0EFk0hnUh8TQKVEk8jm+MGYah/caSJuzE5LIFAyh+rgJYCuM6aH3sacSPq3tCWbPms65nzqN9ta2D6z59xAPoovA7qpJs+kdriC7PUmkBJPJEx7eh+jEIcW+gp6XC3qcAQjgeR7hUIhrFi3EUqpTWR/qjREh6zn0Dldw1aTZxdS/HUkkYFyPmmPHo8J+TA9sIe9xBmDZNvHWNi78308yafIEEonk++/p781niaLNyTK910AuHDON9nwO1TUViKBzDoH+9VQcNmLX3UXdGwRW9BgQqJQilUozdvQIfnLjNbj5Qskn+7AMUyJkXYdDG/rxTqqV1Vs2bgMKBcAYAr1rSK5cW+gfVOUIsM9EG801V15MRUUM13X3qfK7cg1Zz+FrE2YxoqqBpJvH6vhcEbTj4muopHLmGHQ2j/SgLuIec6WFFq9WPjlvLscfP4u2tvY9onv3DncUSKKoz883Dj2GsO3D6UISdbSZVx0xGl9TNTrv9BhyqEfwACJCLpenT69Gfv7T6/HZhQ5d2Y83WYmQ1S4DYlXUBcM8/M5rBO2tVLHRGqsijFJC8qU3esxGkeoZp3oU6XSGKy9dQN9+vclmc/tV+Z1RSBStuQxzBo7m7IMmFDqJiqBPlEKnc8SmDic4sEgR94CNom6fAgotXu2c9JGjOWPenJ22eO1XjxFFwsnxpXHTmdo4gPZ8bitJpA0q6CtQxJ7uERRxtzYAEcF1XaqqKrh60cXobtCK1UESKYSrJ8+mIRQh57kFkqhjo2jCYMIj+/WILmLV7b2/rZ0vf/F8xowdRSqV2q0mj/2BBzKeQ79oJYsmzsYzeuupIQOihJrjJxQ4gW4OA6xwpHuCQEsp2hNJpkwez403XEUuk+0Wyu9qBGnPYUR1AwrhyfVvELZ9mGIDqb93Dfn1LeTe3oQEuu9GUbeNAJ7W+H0+rlm0kFAwiOd53e4abSl0Ep03chIn9B9OwskVUoGA8TTVx01AhfzdesqIbbqhaVrFFq9zP3U6R8yYyubNLfhsG7ebGUEHHsiS5+Ix03mpeR0JpwAKdTpHcEADsclDaX36FaxIkMIjf7uZAXRrgKIE8YWpr6Mbt2EbUBbppMKOhrDyhUEUxhhUwNftWwS6pQF4nkdFRYwldz1AwO9n6JCBOM7W7hyxrAK67iZEiyXCY2//i9c3byBo22htENvCea+VxPLXUCF/t/R+AKlp6NttjdQYQyKR3CfbvR9eGhA0hoCyCNm+zi1jUyxjVchfjgB7wwNUV1d1az6lY8S6xqCNwd7mak237xHo9k8H6Y7o//0Nomc1hdjlQeEHtpSfEFI2gLKUDaAsB6zY5aeFlCNAWcoGUJayAZTlwMQAZQRQjgBlKRtAWcoGUJayAZTlAASBZR7oQDeAsgWUU0BZDugIsP9k+/N8xpSjzwFjAMYYtN72+Swigm1bXf6tLCVrALZtYSkLXZzpC4V2r3hrG36fj3A4VDaCUjQAy7KIt7bxtUs+z/nnnUEqkSIUCgCQTKV5adUr/PDmX7J6zd+JRiNovXXWX4ehqGKf/fYpozAeptAdvqt0sjtrtq6TnX5O1/TVMZdg99/zg9d1TB/7b3Q/73MQKIDWmpqaKvoPHEo0GmHLllba2hI0NdRz9qfO5uE//IpJE8d1zvf3PA/HcTrfI53O4Hpe57kApVTn0IhMJofWeqfTQizLwvM8MpkcuVy++Du1g5Isy8J1PTKZDPm8g1Jqh+cGOI6L47gopdBak8lkcRx3h/fbs+srvDaTy5HJ5XZ6fSVTBWSzObSx+d3v72Hi1BOYdfwnOHjK8dy15A5qGvqycMH8YgewIRIJU1dXhzEG1/U4aNgQYtEInqexLEUymSKXy9G3Ty8GDeqHUorW1rYdlBZvbSMQ8DNoYD/69e2F63q0J7aeMBYRtNbE421EI2GGDB5IfX0tiUSSXD7fGXlEhJqaSmprq0kmU4gIQ4cMoramira2xLZKVYpkKkU2l6NvnyYGDeqHXZxs1hUEK6Voa0/ieR4D+/dlYP++eJ6mrT25Xw/B7rdJoSKCEil4h88mEAiwYWMzP/3ZbRgnzfCDBlNXV0s83s7ll17IyuWPMe+0k7nrtptZtXIpx82eSSqdIZXOMn3aJB75429Zs+IR/rbiUZ5/+n7O+9TpJNOZzjFtecfl0oWfY8WzD7BmxaOsWfEoTz5yO0cfOY32RLLg9Z4HIlx39SWsfP5BVq94lDXLH+F3v/wBvZoayeZyaGOoqIjy5MNL+N0vbuSEjxzF6hceYfmzD/Dck/dy+aUXFqKLCMoqTC+dNnUSD933K15e9jBrlj/K80/dx4L//TSZTHbrukSSk0+czVN/vpM1yx9hzYpHeebxO5nzP8eQSBaMdOvzT/fdz34ggro+yrWQ54z28LRXeEavz8YUn9RhjEGjqYjFqKoMsuiyL5FIJnn0ofvY0tqK6+SZdMg47rn9ViqrYvz8l7+neVMLnz7zVH7y0x+Qyzvcdsd9GODcs0/jmmu/wb9eXc1lV11PdXUllyy8gAcfuI1JU4/nH/98Hdf1+OENVzH/sxeyeuVfueVnv2Xs2FGcetonGNC/Nyeccg7pTBbLsojFIlRUDOHG6xfx8ppXUa8oZh91OFcu+gqv/P017v3jI/h9PsaPG8U9ty+mqq6Gu+64j3fe3cCZp8/hu9+7AW0MN93yGyylOHb2ESy5bTH5bJqbbvkNrutx/qc/we9/+1NOnHMWTzz1HBXRKJ7et+ci9vvBEMtS2D4fSgnDRw7jixecg7IjrF7zd7bE4/hsm3w+jzEBXnn1n3zsjM+RSKSoqIhg+3x86QvnUlnbwMdP+yR33XknAIt/dhsrlj7MFz9/Dvf/6VHa2tqZOWMKrmv44c2/4Ec/ugmAp/+6jJkzZxAKBkinkkyfPoXzzj2bZ/7yEEcccyq4aQBu+M7bXLxwISccN4tf/+YOVK9G0ukM/fr35atXfotbFv8C7AC33PT/OO/88znyiKncfd+DuCJcvOB8qur68O1vfZtLv3oN4PLwn//Cbb/+CXNOOpaf/3oJWmu+9uULcF3N0SeewXPPPA3AHXc/wFOP38+Fn/sUT/zl2f1yyGS/GYBlW+AlOGveXE772P8gCE1N9fgjtbz1+qt8+7s34/f7yWazGAyiAtx9/0O0tsRp7N1EJpOhtraGiRPGkm7dxPhxoxhx0KX4/D4ymQzZVILhBw2hX99exDe18OJLf2PemcIVly5g7JgRLH/xZZ5duoIH/vAHwhV1oGwOnXgwyhcgk8ly8YL51NZU09rWTn1dDQBTJo/n179aAhj8fj/xli089sRfqa5rpL09wfPLVnL+fEU4FEJ7mrrGGg4ZP4ZcajN33vsngtEIFRVRli57iSmHf6SIOQz9+vZh5IhhxFuamXXENI6ZNaNT2flMgoPHjaKutoZkKt3Jk+w7A9hPGaAwV78w6bO5eTO2bfPa2jdZ/uJqfvbLJby7bgOxWJR0Kl3MGAaFQmwb7XpoTxMOBQmFghhj+Ox5ZxYGMWiDZVkkUynWb9iIQhGKRvj5r5ZQVRHlzHlz+cz8s/jMZz+Hybdx7/0P8cVLrmbdu+uora7CeDnGjxvNxAlj0VqjLEU+l2fTxjdxHQ9RhUngUiwBfT4fnudhjNlmQLXRmlAwQDQSJpPOkEkXUofruNiWxdo33ilEP8siFo3g89mIwEVfOK9TwSIQj7ezqWVL5yi87TJoz40A2tOgItxx9wNcdvk1xKpqyOcdcrk8kUh4l0SQMaY4Ht4imUyRSqWprIgx89jTeHfdBqLRCKlUmlwuh7IsAn4/wWCQdCbDFYuu5frvL2bkiKEcPHYUCy74NHM/Po+Vq17h2uu+zabNWxArypK7bmXBl6+ib59e5HJ5Uqk0WnsEg0EiFTE819sKyLp4Y9e/i7JIJtPEW9upb2ygtqaaf/5rLQG/H609jps9A8/zeP6FVbS2tuE4Lu2JBIcdeQr5vIPf7yOVSpPP57FsG7/Ph21Z+5wu32/1hjEGz/OKVUCQYCBQKPdqq/H7fdsoX2vT6WXFF+Pz2bS0xPnrc8uJVvfm9FNPor09yfp319Ovb2+u/9YVXHXZRViWheO4/Ph73+Dppx9h8sSDWbb0WRYvvoXHnnwWgOqqSsDiuWUvkku1cMJHjmbUiKG8+/a7tLa2cda8U7j5x99h+mGTyKaL3ITWeNtNKev4TlprfD6bzVsK12cHqvjc/DMJR8JsadnCqXNP4OGH7uPqKxaiteaddRtY/uLLDBgyjDknHUtL82Y2rNvAmFHD+f53r+GiL5xXnIcg+wUDeIC1j7VPIBDAsvwEAwGM1p38v96JoYRDQSwrgL/LA5mM0QSDQb7z/cUcdeR0rlx0GScefxQbNmxkxuFTqKwbxPdu+DbJVArP07z173WcN//z3LtkGA//+Slqa6o56qjDad38Dnfc/QDhihpWvfwq13/3Ji6/4jKW/uU+nv7rMhob65k89Ujim97m+zfejLIsRKAyFsVnW9swgn6fD8sKFmYYaU0kHOKGGxdz9KxpnHHW2Uw6ZBzNm1o4fPqhONk2vnXDTXieh2Uprv7mjUyeNIGbbrqBMz9xCu3tCWbPOhxfpImFCy8im80RCPjwvH0aAYwVCMUuEWGfTTEQERzXY+CAvsQqKnjq6WdYtfpVAn7/Tqldz3MZOmQgvkCAP//5Cf619q1iGC3k3+ZNLTz48OP4bTho2CD69evDP/65lquuvpbv/vBWwqEQAb+fp55+njff+AeNjQ0cPGYksViExx5/hgULF7Hy5b8RCYewbZsnn1rKm2tfp6mpgZEjhqFEcc+993LuZxay9o1/EwoFsSyLkcOH8ubb7/DAQ48XSC2taWqqp3fvJp57bilLl60kGg6zafMW/vTwEwRsw4D+faitqWLp8y+y8CtX88hjzxCNRrBtm7feeofHnniGaMjPiOFD6dXYwPKVq7nk/y7j17+7h4qKKHpfzxYwJieVtb3eEmRA0dVkXxlBPp/HcRx8Ph/+nSi/69pcLo/rOvj9AXw+e5u1Simy2RyZbJaKWBTLskil0jiuS2VFrAugEtraE/hsm0gkjOd5JJIpfD6bSDjcmXK6rotGwziOSyKZIhQMEgwG0MVolc0WqNpgMNC5b+A4Lvl8Dtv2EQgUjNSyFNlcjkwmS2VFDKUUiUQSgFgs2vm5ShXG3+Ydh4pYtHOdMYaKiti+3hgr6NqwSapqej0uSo4yxuh9iQk+aLNlT9YqJYgoXLcDjVvF6OHtsBfQQSeLgF1E1tvf3MI6jetqlJLO/+/qgR30bNfX7uo6t16f2/n+hQeP6p3uGWy7TvbHUAyNiDLG/M1G6ZWgjtrXE5cKN0l2q6b5oLUFxRR2DZWSolJ2XFt4erhgWYIx7PJp4ruzTu+EkdvVdXa9PpGdv7bre3Y87GpX32NfqKNY1q5VGPPM/qsIzIe8tsPzzF6u2ZN1e3KdZrfKuK0RZD9vB4t5WXl5+1mj9eZi/i/3aB0YogCUlmUqkVjfgvCUiDLFkrAspS0GEKN1ixOUF+xCCJLbET7Wsx+CWpbdBYAiorQxy5IbNmxWAOGAPKiNXgeigHJjXslHABEx6j6KDKCdTCZzgVA0qkTNwhiP8nmBUg7/ymiT9PLm846TSnV4vGg/Nxuj40Xll8FgaYonogRl7kml3msGLKuobCufTCYDobClxJoN5ShQylFAae+cbDb9Hl1msGtARQLW943RbwhilbFASXq/AnN3a+uml4vp3+u6C6iSyWTeH4ysVUrOLEeBksv9BoyjlX1qPp2Id/ze2m6Rlc+m/ukPhvsrZU0E45aNoGS838Z417Zv2XhP0fs1O1GuBlTANl80Wv9DRDr6BcrSo5UvtjZ6VZ94/XVdlQ87J34UoKurG8ZqYSmoULEoKEeCHhv6yVrI5C1bNr7aod+uymYnUcCKx5vXiOYMkc6ysFwa9jzleyKijOHcovJ3APfW+7zYzmZTfw8Ew+tEqZM7+ALKdHEPUr6yjfa+0h5vXszW9j92xwA6IoGdy6ZW+IPh95RSJ3V587IRdG/l64Ly3a+3xTddV1T+TpshPqgZtMMIXvCFw2sF+SgiVvHNypigGwI+QImIMtp8pS3e/L7KZw882QbcSGXjUZbFb0VUL6O1i2CVo0E38XqDJ0pso0mCmd8ef+/2D1L+7kSAbSKBk0utDQcr7jRGjxFRw4r9UOVo0C28XimMWa6MmdPW2vz47ih/TwygszrIZpOtuWzqN/5gOCHIYSISKvYTlkHifs7znYrHZAz6m+3x5nOy2dT63VX+nhpAxwcrgHw2tTTgD9+FSA0wTkRUUfnuf5BiyrL7SjcdeR7EGGOWGKXOSsab7+yIBuwBebc3CrI6PihW0zgFwwLBzBVRwS7NkLpL1VCODntO4JgufI0UTiUJ2ug2gXvw1E3t7RtXdNHHHrcV761COrzeA6ioqB8qFh8zhpMRGV9ID8VvVJ4JuGci0qmcwmFp3QzygsAf88p7INPSsr6LDuA/3L39sDxyG0MAiNY0jbSMnm5gKpjRGOlnMNUiEiyDxvfzfJMDEhjeQ1hrYBVYL2i/WZF6773m7SKwYS+37f8/qeuSW/xOqN8AAAAASUVORK5CYII=';  /* 재영님 Presence 앱 아이콘 (앱에 직접 임베드) */
 const KAKAO_ROOMS=[
  {key:'arrival',emj:'🚌',name:'도착현황',leader:false},
  {key:'peacemaker',emj:'🕊️',name:'피스메이커 카톡방',leader:false},
- {key:'presence',emj:'🟣',name:'Presence 카톡방',leader:false},
+ {key:'presence',emj:'🟣',name:'Presence 카톡방',leader:false,icon:PRESENCE_ICON},
  {key:'productivity',emj:'📈',name:'생산성 보고방',leader:true},
  {key:'score',emj:'🎯',name:'스코어방',leader:true},
  {key:'weekly',emj:'📅',name:'위클리 스코어방',leader:true},
 ];
+function ROOM_ACCESS_LABEL(a){return ({all:'전체 공개',leader:'리더 전용 (LR+)',tl:'섹터리더 전용 (TL+)',founder:'관리자 전용'})[a]||'전체 공개';}
+function roomAccessOK(a){if(!me)return false;if(a==='founder')return isFounder(me);if(a==='tl')return isTLplus(me.role);if(a==='leader')return isLeader(me.role);return true;}
+function allRooms(){
+  const out=[];
+  KAKAO_ROOMS.forEach(r=>out.push({id:r.key,key:r.key,name:r.name,emj:r.emj,icon:r.icon||null,url:(state.links||{})[r.key]||'',access:r.leader?'leader':'all',builtin:true}));
+  ((typeof state!=='undefined'&&Array.isArray(state.customRooms))?state.customRooms:[]).forEach(r=>out.push({id:r.id,key:r.id,name:r.name,emj:r.emj||'💬',icon:null,url:r.url||'',access:r.access||'all',builtin:false}));
+  return out;
+}
 function renderKakao(){
   const box=document.getElementById('kakaoList');if(!box||!me)return;
-  const btn=r=>{const url=(state.links||{})[r.key]||'';const on=!!url;return on
-    ?`<a class="kroom" href="${esc(url)}" target="_blank" rel="noopener"><span class="kemj">${r.emj}</span><span class="kname">${r.name}</span><span class="kgo">바로가기 →</span></a>`
-    :`<button class="kroom off" onclick="toast('아직 링크가 등록되지 않았어요')"><span class="kemj">${r.emj}</span><span class="kname">${r.name}</span><span class="kgo">준비중</span></button>`;};
-  let html=`<div class="kgroup-tit">전체 공개</div><div class="kgrid">${KAKAO_ROOMS.filter(r=>!r.leader).map(btn).join('')}</div>`;
-  if(isLeader(me.role))html+=`<div class="kgroup-tit" style="margin-top:16px">리더 전용</div><div class="kgrid">${KAKAO_ROOMS.filter(r=>r.leader).map(btn).join('')}</div>`;
-  box.innerHTML=html;
+  const btn=r=>{const url=r.url||'';const on=!!url;const ic=r.icon?`<img src="${r.icon}" alt="" onerror="this.onerror=null;this.src=PRESENCE_MARK_SVG" style="width:24px;height:24px;border-radius:7px;object-fit:cover;display:inline-block;vertical-align:middle"/>`:r.emj;return on
+    ?`<a class="kroom" href="${esc(url)}" target="_blank" rel="noopener"><span class="kemj">${ic}</span><span class="kname">${esc(r.name)}</span><span class="kgo">바로가기 →</span></a>`
+    :`<button class="kroom off" onclick="toast('아직 링크가 등록되지 않았어요')"><span class="kemj">${ic}</span><span class="kname">${esc(r.name)}</span><span class="kgo">준비중</span></button>`;};
+  const tiers=['all','leader','tl','founder'];const rooms=allRooms();let html='';
+  tiers.forEach(t=>{if(!roomAccessOK(t))return;const rs=rooms.filter(r=>r.access===t);if(rs.length)html+=`<div class="kgroup-tit"${html?' style="margin-top:16px"':''}>${ROOM_ACCESS_LABEL(t)}</div><div class="kgrid">${rs.map(btn).join('')}</div>`;});
+  box.innerHTML=html||`<div style="color:var(--faint);font-size:13px;padding:6px 2px">표시할 카톡방이 없어요.</div>`;
   const ed=document.getElementById('kakaoEdit');
-  if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>✏️ 카톡 링크 편집 (관리자)</summary><div class="kedit-body">${KAKAO_ROOMS.map(r=>`<label class="kedit-row"><span>${r.emj} ${r.name}</span><input id="lk-${r.key}" value="${esc((state.links||{})[r.key]||'')}" placeholder="https://open.kakao.com/o/..." /></label>`).join('')}<button class="btn block" onclick="saveLinks()">저장</button></div></details>`:'';
+  if(ed)ed.innerHTML=isFounder(me)?kakaoAdminHTML():'';
+}
+function kakaoAdminHTML(){
+  const cr=(state.customRooms||[]);
+  const accSel=(id,val)=>`<select id="${id}" class="kr-sel">${[['all','전체'],['leader','리더(LR+)'],['tl','섹터리더(TL+)'],['founder','관리자']].map(o=>`<option value="${o[0]}"${o[0]===(val||'all')?' selected':''}>${o[1]}</option>`).join('')}</select>`;
+  let h=`<details class="kedit" open><summary>⚙️ 카톡방 관리 (관리자)</summary><div class="kedit-body">`;
+  h+=`<div class="kgroup-tit">+ 새 카톡방 추가</div><div class="kr-add"><input id="kr-emj" placeholder="🔔" maxlength="2"/><input id="kr-name" placeholder="방 이름 (예: 섹터리더방)" maxlength="20"/>${accSel('kr-acc','all')}<input id="kr-url" placeholder="https://open.kakao.com/o/..."/><button class="kr-addbtn" onclick="addCustomRoom()">+ 추가</button></div>`;
+  if(cr.length){h+=`<div class="kgroup-tit" style="margin-top:14px">내가 추가한 방 (수정·삭제)</div>`+cr.map(r=>`<div class="kr-item"><div class="kr-item-top"><input id="kr-e-${r.id}" value="${esc(r.emj||'💬')}" maxlength="2"/><input id="kr-n-${r.id}" value="${esc(r.name)}" maxlength="20"/>${accSel('kr-a-'+r.id,r.access)}</div><input id="kr-u-${r.id}" value="${esc(r.url||'')}" placeholder="https://open.kakao.com/o/..."/><div class="kr-item-act"><button class="btn ghost sm" onclick="saveCustomRoom('${r.id}')">저장</button><button class="btn ghost sm kr-del" onclick="deleteCustomRoom('${r.id}')">삭제</button></div></div>`).join('');}
+  h+=`<div class="kgroup-tit" style="margin-top:14px">기본 방 주소</div>`+KAKAO_ROOMS.map(r=>`<label class="kedit-row"><span>${r.emj} ${esc(r.name)}</span><input id="lk-${r.key}" value="${esc((state.links||{})[r.key]||'')}" placeholder="https://open.kakao.com/o/..." /></label>`).join('')+`<button class="btn block" onclick="saveLinks()">기본 방 주소 저장</button>`;
+  h+=`</div></details>`;return h;
+}
+function addCustomRoom(){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  const g=id=>((document.getElementById(id)||{}).value||'');
+  const name=g('kr-name').trim();if(!name){toast('방 이름을 입력하세요');return;}
+  const emj=g('kr-emj').trim()||'💬',url=g('kr-url').trim(),access=g('kr-acc')||'all';
+  state.customRooms=state.customRooms||[];
+  state.customRooms.push({id:'kr_'+Date.now(),name,emj,url,access});
+  if(LIVE)DB.set('customRooms',state.customRooms);
+  renderKakao();toast('✅ "'+name+'" 방을 추가했어요');
+}
+function saveCustomRoom(id){
+  if(!isFounder(me))return;
+  const r=(state.customRooms||[]).find(x=>x.id===id);if(!r)return;
+  const el=i=>document.getElementById(i);
+  if(el('kr-n-'+id))r.name=(el('kr-n-'+id).value||'').trim()||r.name;
+  if(el('kr-e-'+id))r.emj=(el('kr-e-'+id).value||'').trim()||'💬';
+  if(el('kr-u-'+id))r.url=(el('kr-u-'+id).value||'').trim();
+  if(el('kr-a-'+id))r.access=el('kr-a-'+id).value||'all';
+  if(LIVE)DB.set('customRooms',state.customRooms);
+  renderKakao();toast('저장했어요 ✓');
+}
+function deleteCustomRoom(id){
+  if(!isFounder(me))return;
+  const r=(state.customRooms||[]).find(x=>x.id===id);if(!r)return;
+  if(!confirm('정말 "'+r.name+'" 카톡방을 삭제하시겠습니까?'))return;
+  state.customRooms=(state.customRooms||[]).filter(x=>x.id!==id);
+  if(LIVE)DB.set('customRooms',state.customRooms);
+  renderKakao();toast('🗑️ 삭제했어요');
 }
 function saveLinks(){if(!me||!isFounder(me))return;const nl={...(state.links||{})};KAKAO_ROOMS.forEach(r=>{const el=document.getElementById('lk-'+r.key);if(el)nl[r.key]=el.value.trim()});state.links=nl;if(LIVE)DB.set('links',nl);renderKakao();toast('카톡 링크를 저장했어요 ✓');}
 function renderRecap(){
@@ -2709,11 +2819,58 @@ function renderTraining(){
 }
 function addTraining(){if(!me||!isFounder(me))return;const title=(document.getElementById('tr-tit').value||'').trim(),body=(document.getElementById('tr-body').value||'').trim();if(!title){toast('제목을 입력하세요');return}const id='tr_'+Date.now(),rec={id,title,body,t:Date.now()};if(LIVE)DB.set('training/'+id,rec);else{state.training.push(rec);renderTraining()}toast('트레이닝 자료를 추가했어요 ✓');}
 function delTraining(id){if(!me||!isFounder(me))return;if(!confirm('이 자료를 삭제할까요?'))return;if(LIVE)DB.set('training/'+id,null);else{state.training=state.training.filter(t=>t.id!==id);renderTraining()}}
+
+/* ============================================================
+   배움 확장 — COD · 콜백싯 작성 · 토픽자료 (임재영 자료 정리)
+   ============================================================ */
+const COD_SEED=[
+  {ic:'🙂',title:'COD1 · 3 STEPS (고객을 대하는 자세)',tag:'COD 1',body:'What · Why · How\n\n· Smile(미소) — 경계심↓ 호감도↑ · 처음 만날 때 웃으며 다가가기\n· Eye-to-Eye Contact(아이컨택) — 신뢰감↑ · 눈을 보며, 피하지 않기\n· Enthusiasm(열정) — 후원 동기 부여 · 눈빛·목소리·바디랭귀지·표정에 열정을 담기'},
+  {ic:'5️⃣',title:'COD1 · 5 STEPS (영업의 단계)',tag:'COD 1',body:'① Introduction(자기소개) — 주목시키기 · S.E.E(밝은 눈빛·표정·목소리·몸짓), 간단한 질문/농담, 시민의 특징으로 명확히 지목(외모 언급 X)\n② Short Story(짧은 대화) — 흥미유발·고객선별 · 문제점 제시 + Yes Question, 관심 없어 보이면 빨리 마무리\n③ Presentation(상품소개) — 구매욕구 최고치 · 해결책(구호물품) 보여주기, 짧고 간결(KISS)\n④ Close(마무리) — 후원 권유 · TAAIS + 자신감 있는 목소리\n⑤ Rehash(재확인) — 만족·신뢰·취소(CxL) 방어 · 칭찬, 후원으로 바뀔 미래 가치 설명, 장기후원 필요성, 거래내용 재확인\n\n핵심 도구\n· Ice Break — 칭찬·농담으로 어색함 해소 → 집중·신뢰↑\n· Yes Question — "Yes"가 반복되면 최종 제안에도 Yes 확률↑ ("옥스팜 처음 들어보셨죠?")\n· K.I.S.S — 간결·쉽게 핵심만. 말이 길수록 호응·집중↓'},
+  {ic:'8️⃣',title:'COD1 · 8 STEPS (필드 태도)',tag:'COD 1',body:'· Good attitude — 긍정적 태도, 부정적 생각 X\n· Maintain attitude — 결과보다 과정, 콜백싯으로 구체적 목표, 감정을 겉으로 드러내지 않기\n· Be on time — 약속·출근 지키기, 10분 먼저 도착, 휴식시간 관리\n· Be prepared — 콜백싯·네거티브 대비·마음가짐·날씨·옷차림\n· 100% effort — 내 한계(100%) 알고 목표는 상향(120%), 항상 최선\n· Work your territory — 지도분석(B2B·STREET), 사이트별 전략(동선·유속), 시간당 클로즈 점검\n· Know why you are here — 목표가 있어야 성과, 주간·월간 목표, 오늘 필드를 나가는 이유\n· Take control — 능동적 자세, 주도권은 질문으로 잡는다'},
+  {ic:'💎',title:'COD1 · Quality Sales (S.W 핵심가치)',tag:'COD 1',body:'고객·클라이언트·나 자신 모두를 위한 양질의 세일즈.\n· 고객 → 만족·행복감\n· 클라이언트 → 양질의 고객 유치\n· 나 자신 → 수입 증대\n→ 결국 장기적 비즈니스가 가능해진다.\n\n[마지막 10초] 거래 성사와 무관하게 가장 긍정적인 이미지 전달\n[Rehash] 불편했던 점·재의사·전달 정보 정확성 확인'},
+  {ic:'📈',title:'COD1 · L.O.A (평균의 법칙) & A·B·C 패턴',tag:'COD 1',body:'L.O.A (Law of Average) — "No"를 많이 받을수록 "Yes"에 가까워지는 통계적 법칙\n· 편견 없이 만나는 모든 사람에게\n· 긍정적 태도 유지 + 하루 과정목표에 집중\n· 단, 태도와 3STEPS가 안 되면 LOA는 작동하지 않는다\n\n결과 패턴\n· A패턴 — 초반에 결과 (압박감 없음)\n· B패턴 — 필드 전반에 고루 결과 (가장 많이 배우는 패턴)\n· C패턴 — 마지막에 결과 (집중·태도 유지가 중요)'},
+  {ic:'🗣️',title:'COD1 · Body Language & Tone of Voice',tag:'COD 1',body:'F2F 마케팅의 강력한 무기 — "내용"도 중요하지만 "어떻게 말하는가"가 더 중요!\n· 바디랭귀지 70% · 목소리 톤 23% · 내용 7%\n\n· Voice — 상대보다 높은 톤, 소리 크기 조절\n· Eye Contact — 눈을 보며 신뢰 형성\n· Face — 상황에 맞는 표정 변화\n· Gesture — 이미지를 형상화하는 동작\n· 자세 — 긴장 없이 편하게\n· 용모 — 깔끔·프로다운 복장으로 호감'},
+  {ic:'🎁',title:'COD1 · Impulse Factor (G.I.F.T.S) & Buying Sign',tag:'COD 1',body:'G.I.F.T.S — 후원 충동(임펄스)을 높이는 요인\n· Greed(욕구) — 선한 일 기회 + 나에게도 이득(소득공제). "3만원으로 만드는 변화" 설명\n· Indifference(무관심) — 희망자에 한해, 내 피치에 자신감 (당당함이 구매욕구를 부른다)\n· Fear of loss(상실 두려움) — "오늘·지금만 가능한 기회"\n· The John\u2019s Theory(존의 법칙) — 대중심리. 옆사람·오늘 몇 명 했는지·공통점 가진 사람 예시\n· Sense of urgency(긴급성) — 시간당 사망자 수 등으로 결정을 앞당김\n\nClose 타이밍 — 임펄스가 최고점일 때! (Buying line 위에서)\nBuying Sign — Yes 의미의 말·행동 / 아이컨택 / 팔짱 풀림 / 상체 가까워짐 / 긍정적 질문\n→ 피치는 K.I.S.S'},
+  {ic:'🤝',title:'COD1 · Closing (TAAIS)',tag:'COD 1',body:'Close 없이는 Sales 없다. 구매 직전 장애물을 제거해 구매를 돕는 것.\n· Trial(시도) — Yes Q 계속, 어떤 상황에도 클로징 시도\n· Alternative(대안) — 둘 중 하나 선택 (No는 없다)\n· Assumptive(가정) — 당연히 해야 하는 듯이\n· Indifference(무관심) — 한발 물러나기, 매달리지 않기\n· Silence(침묵) — 생각할 시간을 줘 집중도↑'},
+  {ic:'🛡️',title:'COD1 · Objection Handling (3F)',tag:'COD 1',body:'구매 직전 장애물 제거 — 구매자의 실제 의도가 중요.\n① Smile / Agree — 상대에게 동의(한발 물러나기)\n② 3F — Feel(상황 이해) → Felt(나도 그랬다) → Found(그런데 해냈다·해결책 제시)\n③ Re-impulse — 떨어진 임펄스 다시 올리기\n④ Re-close — 다시 클로징\n※ 한 오브젝션당 2회까지만 사용'},
+  {ic:'🗺️',title:'COD1 · 고객·테리토리 유형',tag:'COD 1',body:'· 다양한 고객 유형 → 그에 따른 다양한 접근방식\n· 똑같은 테리토리는 없다 → 사이트마다 다른 전략\n· 결국 필드 경험을 통해 체득된다'},
+  {ic:'🏢',title:'COD2 · Company & 기업문화',tag:'COD 2',body:'Salesworks Group Asia — 1995년 말레이시아 쿠알라룸푸르에서 James Greaves 회장이 레스토랑 쿠폰을 팔며 시작. 현재 9개국 200개 오피스의 아시아 최대 Direct Sales & Marketing 회사.\n\n기업문화 = 구성원이 공유하는 가치와 목표. 기업의 핵심으로 함께 지키고 발전시켜야 할 가치.'},
+  {ic:'🧭',title:'COD2 · G.R.A.S.P (리더의 기준)',tag:'COD 2',body:'G · Goal / Get with right people — 목표가 있는가, 잘하는 사람과 어울리는가\nR · Responsibility — 책임감 있게 행동, 변명하지 않기\nA · Assuming the role — (목표·롤모델)답게 행동하기 (태도)\nS · System — 시스템에 잘 적응하고 따르는가\nP · Profit — 세일즈로 수익을 잘 내고 있는가'},
+  {ic:'⭐',title:'COD2 · S.W Core Value',tag:'COD 2',body:'· PASSION 열정\n· INTEGRITY & HONESTY 정직\n· CHALLENGES 도전\n· COMMUNICATION & RESPECT 소통과 존중\n· CELEBRATING 축하\n· SELF-IMPROVEMENT 자기계발\n· ACCOUNTABILITY 책임'},
+  {ic:'🪜',title:'COD2 · Promotion Structure (승진 구조)',tag:'COD 2',body:'직급 · First Gen(팀원) · 팀 생산성(주/2주 연속) · COD · 오버라이드\n\n· Owner Partner — 5(15LR) · 600만원/900만원 · COD5 · 35~40%\n· Assistant Owner — 4(10) · 400만원 · COD4 · 14%\n· Senior Team Leader — 3(5) · 240만원 · 리더매뉴얼 · 7%\n· Team Leader — 2 · 120만원 · COD3 · 3.5%\n· Leader — 주 8 sales · 리더 10가지 이유 · SHEMA Core Value · COD1,2\n· IC — 정직·성실·배우려는 자세·긍정적 태도\n\n※ OP 프로모션은 스타트 3주 이상 된 LR 15명이 필요'},
+  {ic:'🎯',title:'COD2 · Leadership & 목표설정(What·Why·How)',tag:'COD 2',body:'리더십이란 다음을 할 수 있는 것:\nPersonal recruiting · Show vs Tell · Re-training · Attitude example · Teaching sales · Reliable · Controlling day · Image · Work Ethics · Taking out · Observers · Problem solving · Setting the pace\n\n목표설정은 What – Why – How 방식으로 구체화.\n\nHave Fun 선순환: 즐기기 → 긍정적·훌륭한 태도 → 좋은 세일즈·더 많은 배움 → 좋은 수입·승진 → 다시 즐기기'},
+  {ic:'📐',title:'COD2 · Leadership Criteria & S.M.A.R.T',tag:'COD 2',body:'Leader의 조건\n· Goals — 리더가 되고 싶은 10가지 이유, SHEMA Core Value\n· Image — 성공적인 리더의 이미지(옷차림·말), 오피스 정장\n· Theory — C.O.D 1,2 배우고 가르치기\n· Sales — 5일간 8 sales\n· Promoting — 생산성(수익) 창출, 꾸준히 벨치기\n\nS.M.A.R.T 목표\n· Specific 구체적으로 (Personal/Business 구분)\n· Measurable 측정 가능 (기간별 세분화)\n· Action-oriented 행동 지향 (Short 1주)\n· Realistic 현실적 (Mid 2주)\n· Time frame 시간제한 (Long 4주)'},
+  {ic:'⚖️',title:'COD2 · BEP (손익분기점)',tag:'COD 2',body:'자신의 손익분기점(BEP)을 반드시 알 것.\n구분별로 한 달 고정지출을 적어 합계를 낸다:\n· 통신비 (예: 핸드폰 50,000 + 인터넷 20,000 = 70,000)\n· 식비 / 저축 / 교통비 / 보험비 / 기타\n→ 합계 = 내 BEP. 이 금액을 넘겨야 비로소 이익.'},
+  {ic:'💰',title:'COD2 · K.A.S.H & Customer Service',tag:'COD 2',body:'K.A.S.H = Cash — S.W가 가르치는 4가지\n· Knowledge(지식) — 상품지식·체계 등 정보\n· Attitude(태도) — 배우려는 자세, 8 step\n· Skill(스킬) — 피치, 오브젝션 핸들링\n· Habit(습관) — 위 셋의 습관화\n\nCustomer Service — 고객을 존중하는 비즈니스 매너\n· 첫인상은 웃으며, 바른 자세·깔끔한 옷차림, 경청\n· AR(Action Response) System — 불만사항을 행동으로 개선해 우리를 지키는 시스템. AR코드 점수 10점 이상 시 IC 계약 철회\n· 고객 불편·불만은 이유 불문 CS 사유 → "마지막 10초"가 중요한 이유'},
+];
+const CALLBACK_SEED=[
+  {ic:'📝',title:'콜백싯이란? 3축으로 쓴다',tag:'Basic',body:'콜백싯 = 그날의 필드를 넘버·스킬·태도 3축으로 기록·점검하는 시트.\n\n· Number(넘버) — 넘버 쌓을 사이트를 준비했나? 거절 없는 시도를 끌어냈나?\n· Pitch·Skill(스킬) — 약점을 바로 교육했나? 내일 바로 쓸 수 있게?\n· Attitude·Mental(태도·멘탈) — 불안·두려움을 제거하고 필드에 집중하게 했나?\n\n"신입의 콜백싯이 신입을 키우듯, 트레이너의 콜백싯이 트레이너를 키운다."'},
+  {ic:'⚖️',title:'BEP & KPI 개념 잡기',tag:'BEP',body:'BEP (Break Even Point · 손익분기점)\n· 총수입 = 총비용이 되는 지점 (손실도 이익도 없는 영업이익 0원 시점)\n· BEP를 넘어야 비로소 진짜 보람과 가치를 전하는 비전에 집중할 수 있다\n\nKPI (핵심성과지표)\n· Contact · Stop · Presentation · Close\n· 줄여야 할 것(불필요한 헛심)과 늘려야 할 것(Close)을 구분해 관리'},
+  {ic:'📉',title:'KPI 줄이기 · 원인 → 해결책',tag:'Analysis',body:'Contact — 형식적인 "좀비 컨택"(3STEP 결여)\n→ 3STEP을 점검한 열정적 컨택 ("왜 저렇게까지?" 싶을 만큼)\n\nStop — 선별 없이 무작정 피치만 빠르게 전달\n→ 부스컨트롤로 한 번 더 제안 후 보내드리기(마지막 10초). 마음 없던 사람도 듣고 싶게 피치\n\nPresentation — 멀어지는 바디사인에 피치만 급해짐\n→ "커다란 문제제기 → 심플한 해결책"의 반전요소로 구호물품 효과 설명, 전달된 미래가 그려지는 표정·톤\n\nClose — 어썸티브 없이 클로즈 멘트만, "언젠가 LOA가 작동하겠지"\n→ 임펄스 펙터 + TAAIS로 상황·사람에 맞게, "지금·여기서 후원해야 할 명확한 이유"(긴급성 SOU·심각성) 제시'},
+  {ic:'0️⃣',title:'0을 다루는 콜백싯',tag:'No Zero',body:'· 0는 피해야 할 사고가 아니라 전략적으로 "선택"한 결과 (LOA상 0를 선택해야 하는 날도 있다)\n· 최선을 다한 0일수록, 거기엔 다음을 여는 단서가 숨어 있다\n· 최선을 다했는데도 0가 주 1회 이상 → 반드시 내 피치 안에 0가 남긴 힌트가 있다\n· 잘한 날보다 0인 날, 콜백싯을 더 꼼꼼히 써야 벗어난다'},
+];
+const TOPICS_SEED=[
+  {ic:'💛',title:'진심을 담아야 하는 이유',tag:'마인드',body:'바쁜 시민이 멈춘 것을 후회하지 않게 하는 말하기.\n\n· 진심은 사람을 바꾸고, 가장 큰 원동력이 된다 — 그래서 "네가" 중요하다\n· 여유는 "연습 + 준비된 정보(공부)"에서 나온다 (옥스팜·타단체·뉴스 매일 체크)\n· 문제제기는 나에게 먼저 — 진짜 내 마음에서 문제라고 느끼는 문제제기\n· Why Power: "왜 이렇게까지?" — 한두 번의 제안으로 누군가의 마음이 바뀌면, 아이의 삶·후원자의 삶·나의 삶이 함께 바뀐다\n\n"우리는 기적을 만드는 사람들입니다."'},
+  {ic:'🔥',title:'노제로 300 DAYS · 세 가지 확신',tag:'멘탈',body:'거친 필드에서 흔들리지 않으려면 세 가지 확신이 필요하다.\n\n① 자신에 대한 확신 — 0를 다루는 법, 연습과 객관성. "자신과의 약속"(정한 연습량·필드시간)을 지킬 때 확신이 생긴다\n② 동료와 사이트에 대한 확신 — 혼자 하는 일이 아니다. "이 사람들과 함께라면 나도 해낼 수 있다"는 믿음이 사이트를 지킨다\n③ 클라이언트(옥스팜)에 대한 확신 — 직접(옥스팜워크·트레일워커·미팅) + 간접(인스타·블로그·유튜브)으로 깊이 알수록 확신은 단단해진다\n\n필드 539일 중 제로 28일 · 누적 후원자 1,130명 · 일평균 KPI 2.10'},
+  {ic:'🔔',title:'노제로 멘탈리티 · 나를 포기하지 않을 이유',tag:'멘탈',body:'· Why 점검 — "이루고 싶지만 포기할 수도 있는 Why" vs "절대 포기하고 싶지 않은 Why"\n· 몰입보다 향유 — 목표의 주인이 되어 필드·오피스·삶에서 누리기\n· "어차피 맞을 비라면 당당하게 맞기"\n· 벨의 의미 = "울림". 벨을 치기 위해 필요한 것도 "울림" — 벨 울리기 전에 내 마음을 먼저 울리자\n· 셀프 코칭 5문: 목표가 있는가 → 장애물은 무엇인가 → 그럼에도 도전할 이유는 → 내 자원은 → 언제까지 행동으로 옮길 것인가'},
+  {ic:'😊',title:'Custom Service · 고객만족',tag:'스킬',body:'CS = 고객이 만족하는 서비스 (라틴어 servire · 섬김·봉사)\n\n· 만족 = 지불한 금액·투자한 시간보다 더 좋은 서비스를 받았다고 느낄 때\n· 3STEP + MIND — 미소(아이컨택) · 열정(움직임·언행) · 이해심(마지막 10초까지 고마움)\n· 장애물: 컨디션·날씨·마인드·시민 태도 → 그럼에도 지키기\n· 선순환: 상대의 미소 → 나의 태도(3STEP 자동) → 넘버 up·리젝률 감소 → 돌고 돌아 후원으로\n\n"오늘 0을 쳐도 나는 양질의 옥스팜 씨앗을 심는다."'},
+  {ic:'🏡',title:'머물고 싶은 팀 · Presence',tag:'팀',body:'필드에서는 사람을, 오피스에서는 사귐을, 팀을 이끌며 사랑을 배운다.\n\nCore Value\n· Happiness 행복 / Together 함께 / Everyone 누구나 / Everywhere 어디서나 / Change 변화\n· "언제 어디서나 행복을 위한 변화를 함께 꿈꾸는 사람들"\n\n성공을 향한 다섯 걸음\nContact → Stop → PT → Close → Rehash = 시도 → 흥미유발 → 해결책 → 행동촉구 → 후원정보 재확인\n\n"당신은 머물고 싶은 사람입니까?"'},
+  {ic:'🧭',title:'GRASP · 좋은 리더의 원칙',tag:'리더십',lead:true,body:'이끌든지, 따르든지 — principle of being a good leader\n\nG · Goal / Get with right people — 명확한 목표, 같이 가야 멀리 간다\nR · Responsibility — 주인의식·책임 수용, 변명하지 않기, 건강한 반응\nA · Assuming the role — 롤모델을 찾고, 본받고, 롤모델답게 행동하기\nS · System — 시스템을 이해·따르고·만드는 사람. "우리가 지키는 것이 우리를 지킨다"\nP · Profit — 무엇으로 증명할 것인가 (BEP·KPI·유실률 개선, Promotion으로 팀 성장 증명)'},
+  {ic:'🌱',title:'슬기로운 세웍생활',tag:'성장',body:'세웍에서 배운 꿀팁 — Contact·Stop·Presentation·Close 흐름으로.\n\n· Contact = 마음껏 시도할 기회, 마음껏 실패해보는 경험, 반복된 실패로 성장\n· Stop = 잠시 멈춰 생각하면 문제가 보인다. 잘한 건 저장, 부족한 건 개선점으로 (三人行必有我師)\n· Presentation = 문제가 아니라 해결책에 집중하는 습관\n· Close = 행동력 있는 사람이 된다. 행동하는 사람과 함께하면(Get with Right People) 행동 습관이 생긴다\n· 경험 가능: 피치개발·트립운영·B2B·이벤트·섹터리딩·해외연수·사이트개발·팀빌딩·트레이닝·프로모션·채리티 런칭·네트워킹·컴페티션'},
+  {ic:'🛎️',title:'How to Bellinger · 22일 벨링어 후기',tag:'도전',body:'"벨은 울림이다."\n\n· 벨의 효과 — 작은 불꽃이 번지면 큰 산을 태우듯, 작은 벨이 꾸준히 쌓이면 큰 영향력. 매일 30클로즈로 "혼"을 칠 순 없어도 최소 6H 필드·15클로즈(시간당 2)는 누구나 가능 → 현실적·지속가능 → 재정 안정\n· 준비 과정 — 다양한 시도 / 꾸준한 공부(옥스팜 전문가 되기·타단체 동향) / 결국은 연습(이틀간 약 150개 영상 촬영)\n· "진심이 있다면 그 크기만큼 행동하게 된다"\n· 나와 동료를 신뢰하고, 목표와 이유를 강력하게 인지하기'},
+];
+function learnAccHTML(boxId,arr){return arr.map((d,i)=>`<div class="msec${i===0?' open':''}" id="${boxId}-${i}"><button class="msec-head" onclick="toggleMsecEl('${boxId}-${i}')"><span class="msec-ic">${d.ic||'📌'}</span><span class="msec-tt"><b>${esc(d.title)}</b><i>${esc(d.tag||'')}</i></span><span class="msec-car">▾</span></button><div class="msec-body"><div class="msec-inner" style="white-space:normal;line-height:1.75;font-size:13.5px;color:var(--cream)">${fmtLinks(d.body)}</div></div></div>`).join('');}
+function toggleMsecEl(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+function renderCod(){const b=document.getElementById('codBody');if(!b)return;b.innerHTML='<a class="btn block" href="cod.pdf" download style="display:block;text-align:center;text-decoration:none;margin-bottom:14px">\ud83d\udce5 COD \uc790\ub8cc PDF \ub2e4\uc6b4\ub85c\ub4dc</a>'+learnAccHTML('cod',COD_SEED);}
+function renderCallback(){const b=document.getElementById('callbackBody');if(b)b.innerHTML=learnAccHTML('callback',CALLBACK_SEED);}
+function renderTopics(){const b=document.getElementById('topicsBody');if(!b)return;const lead=me&&isLeader(me.role);const list=TOPICS_SEED.filter(t=>!t.lead||lead);const cats=[...new Set(list.map(t=>t.tag))];const CI={'\ub9c8\uc778\ub4dc':'\ud83d\udcad','\uba58\ud0c8':'\ud83d\udd25','\uc2a4\ud0ac':'\ud83c\udfaf','\ud300':'\ud83e\udd1d','\ub9ac\ub354\uc2ed':'\ud83e\udded','\uc131\uc7a5':'\ud83c\udf31','\ub3c4\uc804':'\ud83d\udea9'};let html=`<div class="topic-filter"><button class="tf-chip on" onclick="topicFilter('all',this)">\uc804\uccb4</button>${cats.map(c=>`<button class="tf-chip" onclick="topicFilter('${c}',this)">${esc(c)}</button>`).join('')}</div>`;let idx=0;html+=cats.map(c=>{const items=list.filter(t=>t.tag===c);const cards=items.map(d=>{const id='topics-'+(idx++);return `<div class="msec topic-card" id="${id}"><button class="msec-head" onclick="toggleMsecEl('${id}')"><span class="msec-ic">${d.ic||'\ud83d\udccc'}</span><span class="msec-tt"><b>${esc(d.title)}</b><i>${esc(d.tag||'')}</i></span><span class="msec-car">\u25be</span></button><div class="msec-body"><div class="msec-inner" style="white-space:normal;line-height:1.75;font-size:13.5px;color:var(--cream)">${fmtLinks(d.body)}</div></div></div>`;}).join('');return `<div class="topic-sec" data-cat="${esc(c)}"><div class="topic-sec-h">${CI[c]||'\ud83d\udcc2'} ${esc(c)} <span class="topic-sec-n">${items.length}</span></div><div class="lacc" style="margin-bottom:18px">${cards}</div></div>`;}).join('');b.innerHTML=html;}
+function topicFilter(cat,btn){document.querySelectorAll('#topicsBody .tf-chip').forEach(c=>c.classList.remove('on'));if(btn)btn.classList.add('on');document.querySelectorAll('#topicsBody .topic-sec').forEach(sec=>{sec.style.display=(cat==='all'||sec.dataset.cat===cat)?'':'none';});}
+
 const NAV=[
   {k:'home',e:'🏠',l:'홈',tabs:['home']},
   {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
-  {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','training']},
+  {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
   {k:'lead',e:'🎯',l:'리더',tabs:['recap','calling']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
@@ -2721,7 +2878,8 @@ const TABMETA={
   home:{e:'🏠',l:'홈'},
   sale:{e:'🔔',l:'세일즈'},comp:{e:'🏆',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
-  manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝',g:()=>isLeader(me.role)},
+  manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
+  cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성'},topics:{e:'🗂️',l:'토픽자료'},
   recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'🎉',l:'기념일',g:()=>isFounder(me)},
@@ -2765,6 +2923,7 @@ function goTab(name){
   if(name==='gsheet'&&!isFounder(me))name='home';
   if(name==='daily'&&!canDaily(me))name='home';
   if(name==='training'&&!isLeader(me.role))name='home';
+  if(name==='cod'&&!isLeader(me.role))name='home';
   if(name==='recap'&&!isTLplus(me.role))name='home';
   if(name==='calling'&&!isLeader(me.role))name='home';
   curTab=name;const gk=groupFor(name);
@@ -2782,6 +2941,9 @@ function goTab(name){
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
+  if(name==='cod')renderCod();
+  if(name==='callback')renderCallback();
+  if(name==='topics')renderTopics();
   if(name==='recap')renderRecap();
   if(name==='calling')renderCalling();
   if(name==='daily'){const dd=document.getElementById('dailyDate');if(dd&&!dd.value)dd.value=TODAY;renderDaily();startAutoPull();}
@@ -3633,7 +3795,7 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderSalesMgr();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDataUsage();renderSalesMgr();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -3764,6 +3926,34 @@ function removeMember(name){
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   toast(`${name}님을 명단에서 뺐어요`);
 }
+
+function deleteMember(name){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  name=(name||'').trim();if(!name)return;
+  if(!confirm('정말 '+name+'님을 삭제하시겠습니까?\n\n· 팀원 명단에서 제외됩니다\n· 가입한 계정·트리·피드 표시가 삭제됩니다\n· 이 작업은 되돌릴 수 없어요')) return;
+  const nm=name.replace(/\s/g,'');
+  // 1) 가입 계정 삭제
+  Object.values(state.users||{}).forEach(u=>{
+    if(u&&u.name&&u.name.replace(/\s/g,'')===nm&&!isTestBot(u)){
+      const uid=u.uid; delete state.users[uid]; if(LIVE)DB.set('users/'+uid,null);
+    }
+  });
+  // 2) 기본 명단이면 removedMembers에, 추가 명단이면 제거
+  if(ALLOWED_MEMBERS.some(n=>n.replace(/\s/g,'')===nm)){
+    state.removedMembers=state.removedMembers||[];
+    if(!state.removedMembers.some(n=>(n||'').replace(/\s/g,'')===nm))state.removedMembers.push(name);
+    if(LIVE)DB.set('removedMembers',state.removedMembers);
+  }
+  state.extraMembers=(state.extraMembers||[]).filter(n=>n.replace(/\s/g,'')!==nm);
+  if(LIVE)DB.set('extraMembers',state.extraMembers);
+  // 3) 매니저 목록에서도 제거
+  if(Array.isArray(state.managers)&&state.managers.some(n=>(n||'').replace(/\s/g,'')===nm)){
+    state.managers=state.managers.filter(n=>(n||'').replace(/\s/g,'')!==nm);
+    if(LIVE)DB.set('managers',state.managers);
+  }
+  renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();updateCounts&&updateCounts();
+  toast('🗑️ '+name+'님을 삭제했어요');
+}
 /* ===== 팀 세일즈관리 (개인별 월간 리뷰 · 리젝률·인컴·BEP) ===== */
 let smMonthKey=null;
 function smMK(){return smMonthKey||curMonthKey();}
@@ -3882,14 +4072,27 @@ function toggleManager(name){
   state.managers=mg;if(LIVE)DB.set('managers',mg);
   renderManagerAdmin();
 }
+function duFmt(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';if(n<1073741824)return (n/1048576).toFixed(2)+' MB';return (n/1073741824).toFixed(2)+' GB';}
+function dataUsageBytes(){try{const seen=new WeakSet();const json=JSON.stringify(state,(k,v)=>{if(v&&typeof v==='object'){if(seen.has(v))return undefined;seen.add(v);}return v;});return new Blob([json]).size;}catch(e){return 0;}}
+function renderDataUsage(){
+  const box=document.getElementById('dataUsageBody');if(!box)return;
+  const bytes=dataUsageBytes();const FB=1073741824;
+  let pct=bytes/FB*100;if(pct>100)pct=100;
+  const col=pct<60?'#5CBC2E':(pct<85?'#F5D061':'#E8473C');
+  const pctTxt=pct<0.1?'<0.1':pct.toFixed(pct<1?2:1);
+  box.innerHTML=`<div class="du-row"><div class="du-head"><span class="du-name">🔥 Firebase 저장 데이터</span><span class="du-val">${duFmt(bytes)} <span class="du-lim">/ 1 GB</span></span></div><div class="du-bar"><div class="du-fill" style="width:${Math.max(pct,bytes>0?0.6:0).toFixed(2)}%;background:${col}"></div></div><div class="du-pct" style="color:${col}">${pctTxt}% 사용 중</div></div>`
+    +`<div class="du-note">무료(Spark) 한도 기준 추정치예요. 앱이 동기화한 데이터로 계산했고, 실제 청구 기준에는 인덱스·메타데이터가 더해져 조금 더 클 수 있어요.</div>`
+    +`<div class="du-ref"><div class="du-ref-t">무료 한도 한눈에</div><div class="du-ref-i">🔥 <b>Firebase 실시간DB</b> · 저장 1GB · 다운로드 10GB/월 · 동시접속 100명</div><div class="du-ref-i">🐙 <b>GitHub Pages</b> · 사이트 1GB · 대역폭 100GB/월</div><div class="du-ref-i" style="color:var(--faint)">넘으면 → Firebase는 Blaze(종량제 $5/GB 저장·$1/GB 다운로드), GitHub은 CDN/다른 호스팅 검토</div></div>`
+    +`<button class="btn ghost sm" style="margin-top:11px" onclick="renderDataUsage()">↻ 지금 다시 계산</button>`;
+}
 function renderMemberAdmin(){
   const box=document.getElementById('memberAdminBody');if(!box)return;
   const ex=state.extraMembers||[];
   const baseCnt=ALLOWED_MEMBERS.length;
+  const list=allMembers();const exk=ex.map(n=>(n||'').replace(/\s/g,''));
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-list">`
-    + ALLOWED_MEMBERS.map(n=>`<span class="mem-chip base">${esc(n)}</span>`).join('')
-    + ex.map(n=>`<span class="mem-chip extra">${esc(n)}<button onclick="removeMember('${n}')" title="명단에서 빼기">✕</button></span>`).join('')
+    + list.map(n=>{const isEx=exk.indexOf((n||'').replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}">${esc(n)}<button onclick="deleteMember('${esc(n)}')" title="팀원 삭제">✕</button></span>`;}).join('')
     +`</div>`
     +`<button class="mem-sync" onclick="pullRoster({manual:true})">🔄 구글시트 '팀' 탭에서 팀원 동기화</button>`
     +`<div class="mem-note">시트 '팀' 탭에 이름을 추가한 뒤 이 버튼을 누르면 새 팀원이 자동으로 들어와요. (관리자 접속 시에도 자동으로 한 번 확인해요.)</div>`;
@@ -4320,6 +4523,8 @@ async function initFirebase(){
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
+  DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
+  DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
