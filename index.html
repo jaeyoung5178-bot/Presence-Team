@@ -1951,13 +1951,23 @@ function postWebhook(payload){
 function effectiveWeb(){const w=(typeof state!=='undefined'&&state.settings)?state.settings.webhook2:null;return (typeof w==='string'&&/script\.google\.com/.test(w))?w.trim():'';}
 function postWeb(payload){const u=effectiveWeb();if(!u)return;try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}}
 const FOUNDER = {uid:'admin', name:'관리자', id:'Presence', pw:'0001'};   // 관리자(소유자) 계정 — 항상 로그인 보장
+/* ===== 관찰(테스트) 계정 ===== 
+   testbot1: 가입 절차 없이 0000으로 즉시 로그인 (DB에 저장 안 됨)
+   testbot2: 일반 가입 절차를 그대로 체험 (가입은 되지만 집계/로그/시트에서 제외)
+   두 계정 모두: 버튼·이펙트·애니메이션은 전부 체험되지만
+   나무·컴페티션·세일즈·채팅·갤러리 어디에도 기록·집계·영향이 남지 않음 */
+const TEST_BOTS=['testbot1','testbot2'];
+function isTestName_(s){s=(s||'').toLowerCase().replace(/\s/g,'');return TEST_BOTS.includes(s);}
+function isTestBot(u){return !!(u&&(u.test===true||isTestName_(u.name)||isTestName_(u.id)));}
+function meIsBot(){return isTestBot(me);}
+function testbot1Obj(){return {uid:'testbot1',name:'testbot1',id:'testbot1',role:'IC',status:'active',surveys:{},test:true,createdAt:0,lastLogin:Date.now(),pwHash:hash('0000')};}
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
 let ALLOWED_MEMBERS = ['임재영','윤채영','고윤경','박인선','손예진','간승학','나승찬','김하진','권영웅','최이수','고다연'];
 function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
 function roleOf(name){const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
-function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!seen[u.name]){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
+function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
 const TEAM_TARGET  = 215;    // 폴백 기본값
 const MONTHLY_TEAM_TARGET = {'2026-05':215,'2026-06':215,'2026-07':215,'2026-08':215,'2026-09':215,'2026-10':215,'2026-11':215,'2026-12':215}; // 🎯 타겟 탭 연동 전 폴백. 연동되면 시트값으로 자동 대체
@@ -2217,6 +2227,11 @@ function findUserById(id){return Object.values(state.users).find(u=>u.id.toLower
 function doLogin(){
   const id=document.getElementById('liId').value.trim(),pw=document.getElementById('liPw').value;
   if(!id||!pw){authMsg('아이디와 비밀번호를 입력해 주세요','err');return}
+  if(id.toLowerCase()==='testbot1'){   // 관찰 계정 — 가입 없이 0000으로 즉시 입장
+    if(pw!=='0000'){authMsg('testbot1 비밀번호는 0000 이에요','err');return}
+    const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
+    me=testbot1Obj();enterApp();return;
+  }
   const u=findUserById(id);
   if(!u||u.pwHash!==hash(pw)){authMsg('아이디 또는 비밀번호가 올바르지 않아요','err');return}
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
@@ -2234,11 +2249,11 @@ function doLogin(){
 function submitSignup(){
   const name=document.getElementById('suName').value.trim(),id=document.getElementById('suId').value.trim(),pw=document.getElementById('suPw').value,pw2=document.getElementById('suPw2').value;
   if(!name||!id||!pw){authMsg('모든 항목을 입력해 주세요','err');return}
-  if(!isAllowedName(name)){authMsg('구글 시트 팀원 명단에 없는 이름이에요. 관리자에게 문의해 주세요','err');return}
+  if(!isTestName_(name)&&!isAllowedName(name)){authMsg('구글 시트 팀원 명단에 없는 이름이에요. 관리자에게 문의해 주세요','err');return}
   if(pw.length<4){authMsg('비밀번호는 4자 이상으로 해주세요','err');return}
   if(pw!==pw2){authMsg('비밀번호가 일치하지 않아요','err');return}
   if(findUserById(id)){authMsg('이미 사용 중인 아이디예요','err');return}
-  authState.draft={uid:'u'+Date.now().toString(36),name,id,pwHash:hash(pw),role:'IC',status:'pending',surveys:{},createdAt:Date.now(),lastLogin:0};
+  authState.draft={uid:'u'+Date.now().toString(36),name,id,pwHash:hash(pw),role:'IC',status:'pending',surveys:{},createdAt:Date.now(),lastLogin:0,test:isTestName_(name)};
   authState.draftPw=pw;
   authState.view='survey';authState.surveyKey='IC';authState.surveyCtx='signup';authState.sel={};renderAuth();
 }
@@ -2272,9 +2287,11 @@ function submitSurvey(){
   const rec={answers:ans,t:Date.now()};
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
-    state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
-    sendSignupToSheet(u,authState.draftPw);
-    sendSurveyToSheet(u,key,rec);
+    if(!isTestBot(u)){
+      state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
+      sendSignupToSheet(u,authState.draftPw);
+      sendSurveyToSheet(u,key,rec);
+    }
     authState.draftPw=null;
     authState.view='pending';renderAuth();
   }else{ // gate: 이미 active 사용자, 승격 설문 완료 → 바로 입장
@@ -2313,6 +2330,7 @@ function enterApp(){
   if(isFounder(me))finalizeComp();
   showAnnounceIfNew();
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
+  if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
@@ -2321,6 +2339,7 @@ function tryAutoLogin(){
   if(!rememberPref())return false;
   const s=lsGet('presence_sess');if(!s)return false;
   if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
+  if(s.uid==='testbot1'){me=testbot1Obj();enterApp();return true;}
   const u=state.users[s.uid];if(!u||u.status!=='active')return false;
   const rk=reqSurvey(u.role,u.name);if(rk&&!u.surveys[rk])return false;
   me=u;enterApp();return true;
@@ -2417,7 +2436,7 @@ function backupAllToWeb(){
   if(!effectiveWeb()){toast('먼저 웹관리 시트 주소(/exec)를 저장해 주세요');return;}
   const jobs=[];let nSignup=0,nSurvey=0;
   Object.values(state.users||{}).forEach(u=>{
-    if(!u||u.uid==='admin')return;
+    if(!u||u.uid==='admin'||isTestBot(u))return;
     jobs.push({type:'signup',name:u.name,id:u.id,password:'',role:u.role,status:u.status,submittedAt:new Date(u.createdAt||Date.now()).toISOString()});nSignup++;
     const sv=u.surveys||{};
     Object.keys(sv).forEach(key=>{
@@ -2942,7 +2961,7 @@ function waterTree(){
     toast('오늘은 이미 물을 줬어요 🌱 (내일 또 와요!)');
     return;
   }
-  const record=()=>{const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
+  const record=()=>{if(isTestBot(me))return;const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
   wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기 (첫 물주기엔 물이 나옴)
   if(treeEnded()){
     if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
@@ -3267,6 +3286,7 @@ function fedToday(name){
 }
 function buyFeed(){
   if(!me){toast('로그인이 필요해요');return;}
+  if(isTestBot(me)){buyFeedAnim();toast('🌽 (관찰 계정 · 집계엔 반영되지 않아요)');return;}
   if(fedToday(me.name)){toast('오늘은 이미 먹이를 줬어요 🐔 (먹이는 하루 한 번이에요)');return;}
   if(myTokens()<1){toast('🪙 토큰이 없어요 · 노제로 결과를 내면 그날 먹이는 자동! 토큰은 관리자가 기념일에 발행해요');shakeCoin();return;}
   state.tokens[me.name]=myTokens()-1;
@@ -3411,7 +3431,7 @@ function renderGb(){
 }
 function toggleGb(){gbOpen=!gbOpen;renderGb();}
 function toggleWf(){wfOpen=!wfOpen;renderWaterFeed();}
-function addGb(){if(!me){toast('로그인이 필요해요');return}const msg=document.getElementById('gbMsg').value.trim();if(!msg){toast('한마디를 입력해 주세요');return}const g={name:me.name,msg,t:Date.now()};state.gb.push(g);if(LIVE)DB.push('gb',g);notifyMentions(msg,'오늘의 한마디',me.name);document.getElementById('gbMsg').value='';renderGb();toast('한마디 남겼어요 🙌')}
+function addGb(){if(!me){toast('로그인이 필요해요');return}const msg=document.getElementById('gbMsg').value.trim();if(!msg){toast('한마디를 입력해 주세요');return}if(isTestBot(me)){document.getElementById('gbMsg').value='';toast('👀 관찰 계정은 기록되지 않아요');return}const g={name:me.name,msg,t:Date.now()};state.gb.push(g);if(LIVE)DB.push('gb',g);notifyMentions(msg,'오늘의 한마디',me.name);document.getElementById('gbMsg').value='';renderGb();toast('한마디 남겼어요 🙌')}
 function delGb(i){if(!isFounder(me))return;const s=state.gb.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.gb=state.gb.filter(x=>x!==t);if(LIVE)DB.set('gb',state.gb);renderGb()}
 
 /* ============================================================
@@ -3444,6 +3464,7 @@ function adjSale(delta){
 }
 function commitSale(){
   if(!me)return;
+  if(isTestBot(me)){saleEditing=false;renderSales();renderPerfGauge();if(saleDraft>0&&document.getElementById('m-comp')&&document.getElementById('m-comp').classList.contains('active'))feedAnimalAnim();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
   const key=`${TODAY}|${me.name}`, t=Date.now();
   const prevCount=state.sales[key]?.count||0;
   if(saleDraft>0){
@@ -3560,14 +3581,14 @@ function renderPhotoPreview(){const el=document.getElementById('photoPreview');i
 function rmPhotoFile(i){photoFiles.splice(i,1);renderPhotoPreview();}
 function renderGallery(key){const items=state[key];const cm=document.body.classList.contains('can-mod');let h=items.map((it,i)=>`<div class="gcard"><div class="ph">${cm?`<button class="del" onclick="delPhoto('${key}',${i})">✕</button>`:''}${galPh(it)}</div><div class="body"><div class="title">${esc(it.title)}</div><div class="by">by ${esc(it.by)}</div></div><div class="cmts">${(it.cmts||[]).map((c,ci)=>`<div class="cmt"><span class="cmt-av" style="background:${avColor(c.by)}">${avInner(c.by)}</span><span class="cmt-tx"><b>${esc(c.by)}</b>${fmtMentions(c.txt)}</span>${cm?`<button class="cmt-del" onclick="delCmt('${key}',${i},${ci})" title="댓글 삭제">✕</button>`:''}</div>`).join('')||'<div class="cmt none">첫 댓글을 남겨보세요</div>'}</div><div class="cmtbox"><input placeholder="댓글 · @이름 으로 태그" onkeydown="if(event.key==='Enter')addCmt('${key}',${i},this)" /><button onclick="addCmt('${key}',${i},this.previousElementSibling)">→</button></div></div>`).join('');h+=`<div class="add-card" onclick="openPhoto('${key}')"><span class="plus">+</span><span class="t">사진 올리기</span></div>`;document.getElementById(gid(key)).innerHTML=h;updateCounts()}
 function openPhoto(key){photoTarget=key;photoFiles=[];document.getElementById('photoTitle').value='';document.getElementById('photoFile').value='';renderPhotoPreview();document.getElementById('photoModalTitle').textContent=key==='net'?'네트워킹 사진 올리기':'액티비티 사진 올리기';openModal('photoModal')}
-function submitPhoto(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('photoTitle').value.trim(),by=me.name;if(!title){toast('제목을 입력해 주세요');return}if(!photoFiles.length){toast('사진을 1장 이상 올려주세요');return}const imgs=photoFiles.slice();const it={title,by,img:imgs[0]||null,imgs,cmts:[]};state[photoTarget].unshift(it);if(LIVE)DB.push(photoTarget,it);photoFiles=[];renderPhotoPreview();renderGallery(photoTarget);closeModal('photoModal');toast(imgs.length>1?`사진 ${imgs.length}장 올라갔어요!`:'올라갔어요!')}
+function submitPhoto(){if(!me){toast('로그인이 필요해요');return}if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return}const title=document.getElementById('photoTitle').value.trim(),by=me.name;if(!title){toast('제목을 입력해 주세요');return}if(!photoFiles.length){toast('사진을 1장 이상 올려주세요');return}const imgs=photoFiles.slice();const it={title,by,img:imgs[0]||null,imgs,cmts:[]};state[photoTarget].unshift(it);if(LIVE)DB.push(photoTarget,it);photoFiles=[];renderPhotoPreview();renderGallery(photoTarget);closeModal('photoModal');toast(imgs.length>1?`사진 ${imgs.length}장 올라갔어요!`:'올라갔어요!')}
 function addCmt(key,i,inp){if(!me){toast('로그인이 필요해요');return}const txt=inp.value.trim();if(!txt)return;const by=me.name;state[key][i].cmts=state[key][i].cmts||[];state[key][i].cmts.push({by,txt});if(LIVE)DB.set(key,state[key]);notifyMentions(txt,'댓글',by);renderGallery(key)}
 function delCmt(key,i,ci){if(!me||!isFounder(me)){toast('관리자만 삭제할 수 있어요');return}const it=state[key]&&state[key][i];if(!it||!it.cmts||!it.cmts[ci])return;if(!confirm('이 댓글을 삭제할까요?'))return;it.cmts.splice(ci,1);if(LIVE)DB.set(key,state[key]);renderGallery(key);toast('댓글을 삭제했어요')}
 function delPhoto(key,i){if(!isFounder(me))return;if(!confirm('삭제할까요?'))return;state[key].splice(i,1);if(LIVE)DB.set(key,state[key]);renderGallery(key)}
 
 /* WINS */
 function renderWins(){const cm=document.body.classList.contains('can-mod');document.getElementById('winsGrid').innerHTML=state.wins.slice().sort((a,b)=>b.t-a.t).map((w,i)=>`<div class="win">${cm?`<button class="del" onclick="delWin(${i})">✕</button>`:''}<div class="who"><span class="av" style="background:${avColor(w.name)}">${avInner(w.name)}</span><span class="nm">${esc(w.name)}</span><span class="t">${ago(w.t)}</span></div><div class="wt">${esc(w.title)}</div><p>${fmtMentions(w.body)}</p></div>`).join('');updateCounts()}
-function addWin(){if(!me){toast('로그인이 필요해요');return}const title=document.getElementById('winTitle').value.trim(),body=document.getElementById('winBody').value.trim();if(!title){toast('제목을 입력해 주세요');return}const w={name:me.name,title,body,t:Date.now()};state.wins.push(w);if(LIVE)DB.push('wins',w);notifyMentions(title+' '+body,'Wins',me.name);document.getElementById('winTitle').value='';document.getElementById('winBody').value='';renderWins();toast('공유됐어요! 🏆')}
+function addWin(){if(!me){toast('로그인이 필요해요');return}if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return}const title=document.getElementById('winTitle').value.trim(),body=document.getElementById('winBody').value.trim();if(!title){toast('제목을 입력해 주세요');return}const w={name:me.name,title,body,t:Date.now()};state.wins.push(w);if(LIVE)DB.push('wins',w);notifyMentions(title+' '+body,'Wins',me.name);document.getElementById('winTitle').value='';document.getElementById('winBody').value='';renderWins();toast('공유됐어요! 🏆')}
 function delWin(i){if(!isFounder(me))return;const s=state.wins.slice().sort((a,b)=>b.t-a.t),t=s[i];if(!confirm('삭제할까요?'))return;state.wins=state.wins.filter(w=>w!==t);if(LIVE)DB.set('wins',state.wins);renderWins()}
 
 /* MANUAL */
@@ -3932,7 +3953,7 @@ function renderAnnounceAdmin(){
     ?`<div class="ann-cur"><div class="ann-cur-lbl">지금 띄워진 공지</div><div class="ann-cur-tx">${esc(a.text)}</div><div class="ann-cur-meta">${esc(a.by||'')} · ${a.t?new Date(a.t).toLocaleString('ko-KR'):''}</div><button class="ann-clear" onclick="clearAnnounce()">공지 내리기</button></div>`
     :'<div class="ann-cur-none">지금 띄워진 팝업 공지가 없어요</div>';
 }
-function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
+function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
@@ -3948,6 +3969,7 @@ function downloadSurveysCSV(){
   if(me&&!isFounder(me)){toast('관리자만 내려받을 수 있어요');return;}
   const byKey={};
   Object.values(state.users||{}).forEach(u=>{
+    if(isTestBot(u))return;
     Object.keys(u.surveys||{}).forEach(k=>{
       const rec=u.surveys[k];if(!rec||rec._seed||!SURVEYS[k])return;
       (byKey[k]=byKey[k]||[]).push({u,rec});
