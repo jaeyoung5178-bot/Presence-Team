@@ -1076,6 +1076,17 @@ body.app-on #ambientBg{opacity:.7}
 .tok-table .tk-minus{background:transparent;color:var(--muted)}
 .tok-table .tk-minus:hover{border-color:var(--danger);color:var(--danger)}
 .tok-table tr.tok-sum td{border-top:2px solid var(--line);background:rgba(255,255,255,.02)}
+/* 접기 가능한 관리 카드 헤더 */
+.adm-card .ah.tog{cursor:pointer;user-select:none}
+.adm-card .ah.tog:hover{background:rgba(255,255,255,.02)}
+.adm-card .ah .ah-caret{margin-left:auto;color:var(--muted);font-size:13px;transition:transform .28s ease;flex:0 0 auto}
+.adm-card.adm-collapsed .ah .ah-caret{transform:rotate(-90deg)}
+.adm-card.adm-collapsed .adm-body{display:none}
+/* 카드 안에서만 스크롤 — 길어져도 위 내용 안 밀림 */
+.tok-scroll{max-height:290px;overflow-y:auto;overflow-x:auto;border:1px solid var(--line-soft);border-radius:11px;background:rgba(0,0,0,.12)}
+.tok-scroll::-webkit-scrollbar{width:7px}
+.tok-scroll .tok-table{margin:0}
+.tok-scroll .tok-table thead th{position:sticky;top:0;background:var(--surface);z-index:2}
 .tok-log{margin-top:13px}
 .tok-log-h{font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
 .tok-log-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 3px;border-bottom:1px solid var(--line-soft);color:var(--cream)}
@@ -1541,11 +1552,11 @@ body.app-on #ambientBg{opacity:.7}
           <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
         </div>
         <div class="adm-card">
-          <div class="ah"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span></div>
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body">
             <p style="font-size:12px;color:var(--muted);margin-bottom:11px">일일 결과를 확인·더블체크한 뒤, 결과를 낸 팀원 옆 <b>＋ 버튼</b>으로 직접 토큰을 지급하세요. <b>누적 지급</b> = 지금까지 준 총 개수 · <b>사용</b> = 먹이로 쓴 개수 · <b>보유</b> = 잔액. (− 는 잘못 준 토큰 회수)</p>
-            <div style="overflow-x:auto"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table></div>
-            <div id="tokenGrantLog" class="tok-log"></div>
+            <div class="tok-scroll"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table>
+            <div id="tokenGrantLog" class="tok-log"></div></div>
             <button class="gift-all-btn" onclick="grantGiftAll()">🎁 오늘 전원에게 기념 토큰 1개씩 지급</button>
             <div class="gift-note">첫날 기념용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 결과 낸 사람만 ＋ 로 주시면 돼요.</div>
           </div>
@@ -2965,6 +2976,7 @@ function toggleFeedLog(){
   const b=document.getElementById('feedLogBody'),c=document.getElementById('feedCaret');
   const open=b.style.display!=='none';b.style.display=open?'none':'block';c.textContent=open?'▾':'▴';
 }
+function toggleAdmCard(head){const card=head.closest('.adm-card');if(card)card.classList.toggle('adm-collapsed');}
 function startComp(){
   if(!me||!isFounder(me))return;
   const label=document.getElementById('compLabelIn').value.trim()||'노제로 챌린지';
