@@ -1678,7 +1678,9 @@ body.app-on #ambientBg{opacity:.7}
         </div>
         <div class="adm-card">
           <div class="ah"><h3>제출된 설문</h3><span class="badge zero" id="survBadge">0</span></div>
-          <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p><div id="survList"></div></div>
+          <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p>
+          <button class="btn block" onclick="downloadSurveysCSV()" style="margin-bottom:12px">📥 설문 응답 전체 다운로드 (엑셀)</button>
+          <div id="survList"></div></div>
         </div>
       </div>
     </section></div></div>
@@ -3940,6 +3942,39 @@ function gfAnswerHTML(v){
   if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
   if(Array.isArray(v))return `<div class="gf-chips">${v.map(x=>`<span class="gf-chip">${esc(String(x))}</span>`).join('')}</div>`;
   return `<div class="gf-a">${esc(String(v))}</div>`;
+}
+function csvCell_(v){v=(v==null?'':String(v));return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function downloadSurveysCSV(){
+  if(me&&!isFounder(me)){toast('관리자만 내려받을 수 있어요');return;}
+  const byKey={};
+  Object.values(state.users||{}).forEach(u=>{
+    Object.keys(u.surveys||{}).forEach(k=>{
+      const rec=u.surveys[k];if(!rec||rec._seed||!SURVEYS[k])return;
+      (byKey[k]=byKey[k]||[]).push({u,rec});
+    });
+  });
+  const keys=Object.keys(byKey);
+  if(!keys.length){toast('내려받을 설문 응답이 없어요');return;}
+  const lines=[];
+  keys.forEach(k=>{
+    const S=SURVEYS[k];
+    lines.push(csvCell_('▣ '+S.title));
+    lines.push(['제출시각','이름','ID','직급'].concat(S.q.map(q=>q.q)).map(csvCell_).join(','));
+    byKey[k].sort((a,b)=>(b.rec.t||0)-(a.rec.t||0)).forEach(function(o){
+      const u=o.u,rec=o.rec,a=rec.answers||{};
+      const row=[rec.t?new Date(rec.t).toLocaleString('ko-KR'):'',u.name,u.id,u.role]
+        .concat(S.q.map(q=>{const v=a[q.id];return Array.isArray(v)?v.join(' / '):(v==null?'':v);}));
+      lines.push(row.map(csvCell_).join(','));
+    });
+    lines.push('');
+  });
+  const csv='\uFEFF'+lines.join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='Presence_설문응답_'+TODAY+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast('📥 설문 응답을 내려받았어요 · 엑셀에서 열려요');
 }
 function viewSurvey(uid,key){
   if(me&&!isFounder(me)){toast('설문은 관리자만 열람할 수 있어요');return}
