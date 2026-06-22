@@ -1374,7 +1374,7 @@ body.app-on #ambientBg{opacity:.7}
         <div class="animal-bar"><div class="animal-bar-fill" id="animalBar"></div></div>
         <div class="token-shop" id="tokenShop">
           <div class="coin-row"><span class="coin">P</span><b id="tokenBal">0</b><span class="coin-lbl">먹이 토큰</span></div>
-          <button class="buy-feed-btn" id="buyFeedBtn" onclick="buyFeed()">🌽 먹이 사서 주기 <span class="cost">−1<span class="coin xs">P</span></span></button>
+          <button class="buy-feed-btn" id="buyFeedBtn" onclick="buyFeed()">🌽 먹이 주기 <span class="cost">−1<span class="coin xs">P</span></span></button>
           <div class="token-note">결과(하루 1건↑)를 내면 관리자가 토큰을 1개 줘요 · 토큰으로만 먹이를 살 수 있어요 🪙</div>
         </div>
         <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
@@ -1912,6 +1912,7 @@ let state={
   tokens:{},tokenGrants:{},
   tokenLog:[],
   feedByDay:{},rewards:[],comp:{},
+  feedLog:[],
   extraMembers:[],
   settings:{},
   popupAnnounce:null,
@@ -2174,16 +2175,27 @@ function rcReset(){if(!me||!isFounder(me))return;if(!confirm('이번 달 모든 
 function teamRecruit(){const mk=recruitMonth();const t={bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0,members:[]};Object.values(state.users).forEach(u=>{if(u.status!=='active')return;const r=state.recruit[u.uid];if(r&&r.month===mk&&((+r.bk_g||0)+(+r.su_g||0)+(+r.st_g||0)+(+r.bk_d||0)+(+r.su_d||0)+(+r.st_d||0))>0){t.bk_g+=+r.bk_g||0;t.bk_d+=+r.bk_d||0;t.su_g+=+r.su_g||0;t.su_d+=+r.su_d||0;t.st_g+=+r.st_g||0;t.st_d+=+r.st_d||0;t.members.push({uid:u.uid,name:u.name,role:u.role,r,pct:rcOverall(r)});}});return t;}
 function pullFromSheet(){
   if(!isFounder(me))return;
-  if(!confirm('구글시트의 과거 월별·일별 결과를 앱으로 가져올까요?\n시트에 적힌 값으로 해당 날짜·팀원이 채워집니다.'))return;
+  if(!confirm('구글시트의 과거 월별·일별 결과를 앱으로 가져올까요?\n시트에 적힌 값으로 해당 날짜·팀원이 채워집니다. (이전에 잘못 들어온 인컴 숫자·가짜 이름은 자동 정리돼요)'))return;
   const url=effectiveWebhook();
   if(!url){toast('웹훅 URL이 없어요');return}
   toast('📥 시트에서 가져오는 중…');
   const cb='__sheetPull_'+Date.now();
-  window[cb]=(data)=>{try{importSheetData(data,{silent:false,fillOnly:false});setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();renderDaily();renderScores();renderPerfGauge();renderComp();toast(rm?`📥 가져오기 완료 · 잘못된 ${rm}건 정리했어요`:'📥 가져오기 완료');setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{toast('시트 연결 실패 — 배포(액세스: 모든 사용자) 확인');setSheetSync('err');delete window[cb];const x=document.getElementById(cb);if(x)x.remove();};
   document.body.appendChild(s);
+}
+/* 잘못 들어온 세일즈 청소: 가짜 이름(Gross·DailyTotal·FieldH/C·Avg 등) + 인컴(₩)이 세일즈로 들어온 큰 값 */
+const BAD_NAME=/gross|daily|field|avg|total|net|h\/?c|합계|소계|인컴|리젝|리섭|위크앤드|주간/i;
+function pruneBadSales(){
+  let removed=0;
+  for(const k in state.sales){
+    const e=state.sales[k];const nm=String(e.name||'');
+    const bad = BAD_NAME.test(nm) || (+e.count||0)>300;   // 세일즈 300 초과 = 인컴 오염
+    if(bad){const d=e.date;delete state.sales[k];if(LIVE)DB.set(`sales/${d}/${nk(nm)}`,null);removed++;}
+  }
+  return removed;
 }
 function renderSheetConn(){
   const inp=document.getElementById('webhookUrlInput');if(!inp)return;
@@ -2949,8 +2961,8 @@ function buyFeed(){
   state.tokens[me.name]=myTokens()-1;
   const d=TODAY;state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};state.feedByDay[d][me.name]=(state.feedByDay[d][me.name]||0)+1;
   if(LIVE){DB.set('tokens',state.tokens);DB.set('feedByDay',state.feedByDay);}
-  buyFeedAnim();renderTokenShop();
-  toast('🌽 토큰으로 먹이를 사서 먹였어요! (−1 🪙)');
+  buyFeedAnim();renderTokenShop();renderFeedLog();
+  toast('🌽 닭에게 먹이를 줬어요! (토큰 −1 🪙)');
 }
 function rankRow(i,name,val,ended){
   const win=ended&&i===0;
@@ -2972,11 +2984,17 @@ function renderComp(){
 }
 const WDAY=['일','월','화','수','목','금','토'];
 function fmtMDW(dateStr,ts){let d=dateStr?new Date(dateStr+'T12:00:00'):new Date(ts);if(isNaN(d.getTime()))d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDAY[d.getDay()]})`;}
+function feedEvents(){
+  // 실제로 먹이를 준 행동(토큰 먹이주기) — feedByDay {날짜:{이름:횟수}} 를 한 줄씩 풀어냄
+  const out=[],fbd=state.feedByDay||{};
+  Object.keys(fbd).forEach(date=>{const row=fbd[date]||{};Object.keys(row).forEach(name=>{const c=+row[name]||0;for(let i=0;i<c;i++)out.push({name,role:roleOf(name),date});});});
+  return out.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
 function renderFeedLog(){
   const body=document.getElementById('feedLogBody');if(!body)return;
-  const logs=periodFeeds().log.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.t-a.t);
-  document.getElementById('feedCount').textContent=logs.length;
-  body.innerHTML=logs.length?logs.map(f=>`<div class="feed-item"><span class="fi-av" style="background:${avColor(f.name)}">${avInner(f.name)}</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨어요 🌽</span><span class="fi-t">${fmtMDW(f.date,f.t)}</span></div>`).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이 기록이 없어요</div>';
+  const logs=feedEvents();
+  const fc=document.getElementById('feedCount');if(fc)fc.textContent=logs.length;
+  body.innerHTML=logs.length?logs.map(f=>`<div class="feed-item"><span class="fi-av" style="background:${avColor(f.name)}">${avInner(f.name)}</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨어요 🌽</span><span class="fi-t">${fmtMDW(f.date)}</span></div>`).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이를 준 기록이 없어요 · 컴페티션에서 🌽 먹이 주기를 누르면 여기에 쌓여요</div>';
 }
 function toggleFeedLog(){
   const b=document.getElementById('feedLogBody'),c=document.getElementById('feedCaret');
@@ -3754,7 +3772,8 @@ async function initFirebase(){
   DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
-  DB.on('feedByDay',v=>{state.feedByDay=v||{};});
+  DB.on('feedByDay',v=>{state.feedByDay=v||{};if(document.getElementById('feedLogBody'))renderFeedLog();});
+  DB.on('feedLog',v=>{state.feedLog=Array.isArray(v)?v:(v?Object.values(v):[]);if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
