@@ -1721,6 +1721,7 @@ body.app-on #ambientBg{opacity:.7}
             <div id="tokenGrantLog" class="tok-log"></div></div>
             <button class="gift-all-btn" onclick="openTokenIssue()" style="margin-bottom:8px">🪙 오늘 결과 토큰 발행 (필드 출전자에게 1개씩 · 승인)</button>
             <button class="gift-all-btn" onclick="grantGiftAll()">🎁 (이벤트) 오늘 전원에게 기념 토큰 1개씩 지급</button>
+            <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.16);border-color:rgba(232,71,60,.4)">🧹 오늘 기준으로 토큰 정리 (지급내역 초기화)</button>
             <div class="gift-note">기념일용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 ＋ 로 개별 지급하면 돼요.</div>
           </div>
         </div>
@@ -2518,7 +2519,6 @@ function submitSurvey(){
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
     if(!isTestBot(u)){
-      state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
       sendSignupToSheet(u,authState.draftPw);
       sendSurveyToSheet(u,key,rec);
     }
@@ -4083,19 +4083,32 @@ function tokenIssued(){
   log.forEach(e=>{if(e&&e.name)net[e.name]=(net[e.name]||0)+(e.amt||1);});
   return net;
 }
+function resetTokenBaseline(){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  if(!confirm('오늘 기준으로 토큰을 정리할까요?\n\n· 오늘 전원을 먹이 준 것으로 기록(사용 1)\n· 오늘 필드에서 결과(1건↑) 낸 사람만 보유 1개\n· 그 외에는 보유 0개\n· 아래 지급내역은 초기화\n\n되돌릴 수 없어요.'))return;
+  const roster=rosterMembers().filter(u=>!isAdminName(u.name)&&!isDeparted(u.name));
+  state.feedByDay=state.feedByDay||{};state.feedByDay[TODAY]=state.feedByDay[TODAY]||{};
+  roster.forEach(u=>{state.feedByDay[TODAY][u.name]=1;});            // 오늘 전원 먹이(사용 1)
+  const fld={};todayFielders().forEach(f=>{fld[f.name]=1;});          // 오늘 필드 결과자
+  state.tokens={};roster.forEach(u=>{state.tokens[u.name]=fld[u.name]?1:0;}); // 결과자만 보유 1
+  state.tokenLog=[];state.tokenGrants={};                            // 지급내역 초기화
+  if(LIVE){DB.set('feedByDay',state.feedByDay);DB.set('tokens',state.tokens);DB.set('tokenLog',[]);DB.set('tokenGrants',{});}
+  renderComp();renderTokenAdmin();renderTokenShop();
+  const f=Object.keys(fld).length;
+  toast('🧹 오늘 기준 정리 완료! 전원 사용 1 · 필드 결과 '+f+'명만 보유 1 · 지급내역 초기화');
+}
 function renderTokenAdmin(){
   const body=document.getElementById('tokenAdminBody');if(!body)return;
-  const tokens=state.tokens||{},net=tokenIssued();
-  const issued={};Object.keys(net).forEach(n=>issued[n]=net[n]);
-  rosterMembers().forEach(u=>{if(issued[u.name]===undefined)issued[u.name]=0;});
-  Object.keys(tokens).forEach(n=>{if(issued[n]===undefined)issued[n]=0;});
-  const names=Object.keys(issued).filter(n=>!isDeparted(n)).sort((a,b)=>((tokens[b]||0)-(tokens[a]||0))||(issued[b]-issued[a])||a.localeCompare(b,'ko'));
-  let totGiven=0,totBal=0;names.forEach(n=>{totGiven+=Math.max(0,issued[n]);totBal+=(tokens[n]||0);});
+  const tokens=state.tokens||{};
+  const feeds={};periodFeeds().rank.forEach(r=>{feeds[r.name]=r.days;});  // 사용 = 먹이 준 횟수
+  const seen={};rosterMembers().forEach(u=>seen[u.name]=1);Object.keys(tokens).forEach(n=>seen[n]=1);Object.keys(feeds).forEach(n=>seen[n]=1);
+  const names=Object.keys(seen).filter(n=>!isDeparted(n)&&!isAdminName(n)).sort((a,b)=>((tokens[b]||0)-(tokens[a]||0))||((feeds[b]||0)-(feeds[a]||0))||a.localeCompare(b,'ko'));
+  let totGiven=0,totBal=0,totUsed=0;names.forEach(n=>{const bal=tokens[n]||0,used=feeds[n]||0;totGiven+=used+bal;totBal+=bal;totUsed+=used;});
   const bd=document.getElementById('tokIssuedBadge');if(bd){bd.textContent=totGiven;bd.classList.toggle('zero',totGiven===0);}
-  body.innerHTML=names.length?names.map(n=>{const iss=Math.max(0,issued[n]||0),bal=tokens[n]||0,used=Math.max(0,iss-bal);
+  body.innerHTML=names.length?names.map(n=>{const bal=tokens[n]||0,used=feeds[n]||0,iss=used+bal;
     return `<tr><td><span class="rn">${esc(n)}</span></td><td class="mono">${iss}</td><td class="mono" style="color:var(--muted)">${used}</td><td class="mono"><span class="tok-bal">🪙 ${bal}</span></td><td class="tok-act"><button class="tk-minus" title="회수" onclick="giveToken('${n}',-1)">−</button><button class="tk-plus" title="토큰 지급" onclick="giveToken('${n}',1)">＋</button></td></tr>`;}).join('')
-    +`<tr class="tok-sum"><td><b>합계</b></td><td class="mono"><b>${totGiven}</b></td><td class="mono"><b>${Math.max(0,totGiven-totBal)}</b></td><td class="mono"><b>🪙 ${totBal}</b></td><td></td></tr>`
-    :'<tr><td colspan="5" class="empty-row">아직 지급된 토큰이 없어요</td></tr>';
+    +`<tr class="tok-sum"><td><b>합계</b></td><td class="mono"><b>${totGiven}</b></td><td class="mono"><b>${totUsed}</b></td><td class="mono"><b>🪙 ${totBal}</b></td><td></td></tr>`
+    :'<tr><td colspan="5" class="empty-row">아직 토큰이 없어요</td></tr>';
   const log=document.getElementById('tokenGrantLog');
   if(log){const items=(state.tokenLog||[]).slice().sort((a,b)=>(b.t||0)-(a.t||0)).slice(0,12);
     log.innerHTML=items.length?'<div class="tok-log-h">최근 지급 내역</div>'+items.map(it=>`<div class="tok-log-row"><span>${esc(it.name)}</span><span class="mono">${it.t?new Date(it.t).toLocaleDateString('ko-KR'):''}</span><span class="tlplus">${it.gift?'🎁 기념':(it.amt<0?'↩︎ 회수':'🪙 +1')}</span></div>`).join(''):'';}
