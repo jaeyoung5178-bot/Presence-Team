@@ -1638,6 +1638,14 @@ body.app-on #ambientBg{opacity:.7}
 
     <div class="mpanel" id="m-survey"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>📝 설문</h2><span class="ko">설문 양식 미리보기 · 제출된 응답</span><span class="meta">AOP 전용</span></div>
+      <div class="adm-card" style="margin-bottom:16px">
+        <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🗂️ 웹관리 시트 연동 (가입·설문)</h3><span class="ah-caret">▾</span></div>
+        <div class="adm-body">
+          <div class="sc-note">가입로그·설문응답은 이제 <b>스코어 시트가 아니라 '프레젠스 웹관리' 시트</b>로 따로 기록돼요. 그 시트에 붙인 Apps Script의 <b>/exec 주소</b>를 여기에 넣어주세요. (비우면 가입·설문은 시트에 기록되지 않고 앱에만 저장돼요.)</div>
+          <div class="sc-row"><input id="web2UrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook2()">저장</button></div>
+          <div class="sc-hint">배포 시 <b>액세스: 모든 사용자(Anyone)</b>. 같은 주소 유지하려면 <b>배포 관리 → 연필 → 새 버전 → 배포</b>.</div>
+        </div>
+      </div>
       <div class="adm-grid">
         <div class="adm-card">
           <div class="ah"><h3>설문 양식 미리보기</h3><span class="badge zero">IC·LR·TL</span></div>
@@ -1901,6 +1909,9 @@ function postWebhook(payload){
   const u=effectiveWebhook();if(!u)return;
   try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}
 }
+/* 두 번째 웹훅 — '프레젠스 웹관리' 시트용 (가입로그·설문응답). 세일즈/스코어와 분리 */
+function effectiveWeb(){const w=(typeof state!=='undefined'&&state.settings)?state.settings.webhook2:null;return (typeof w==='string'&&/script\.google\.com/.test(w))?w.trim():'';}
+function postWeb(payload){const u=effectiveWeb();if(!u)return;try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}}
 const FOUNDER = {uid:'admin', name:'관리자', id:'Presence', pw:'0001'};   // 관리자(소유자) 계정 — 항상 로그인 보장
 // 구글 스코어 시트 '팀원 정보' 명단 — 이 명단에 있는 이름만 가입 가능 (없는 사람은 가입 차단)
 let ALLOWED_MEMBERS = ['임재영','윤채영','고윤경','박인선','손예진','간승학','나승찬','김하진','권영웅','최이수','고다연'];
@@ -2234,14 +2245,14 @@ function submitSurvey(){
     me.lastLogin=Date.now();enterApp();toast('설문 완료! 환영해요 🎉');
   }
 }
-/* 가입 → 구글시트 기록 (이름·직급·아이디·비밀번호 — 비번 분실 대비) */
+/* 가입 → '프레젠스 웹관리' 시트 기록 (스코어 시트 아님) */
 function sendSignupToSheet(user,pw){
-  postWebhook({type:'signup',name:user.name,id:user.id,password:pw||'',role:user.role,status:user.status,submittedAt:new Date(user.createdAt).toISOString()});
+  postWeb({type:'signup',name:user.name,id:user.id,password:pw||'',role:user.role,status:user.status,submittedAt:new Date(user.createdAt).toISOString()});
 }
-/* 설문 → 구글시트 자동 기록 (Apps Script 웹훅) */
+/* 설문 → '프레젠스 웹관리' 시트 기록 (스코어 시트 아님) */
 function sendSurveyToSheet(user,key,rec){
   const flat={};const S=SURVEYS[key];S.q.forEach(q=>{const v=rec.answers[q.id];flat[q.q]=Array.isArray(v)?v.join(', '):(v||'')});
-  postWebhook({type:'survey',survey:key,surveyTitle:S.title,name:user.name,id:user.id,role:user.role,submittedAt:new Date(rec.t).toISOString(),answers:flat});
+  postWeb({type:'survey',survey:key,surveyTitle:S.title,name:user.name,id:user.id,role:user.role,submittedAt:new Date(rec.t).toISOString(),answers:flat});
 }
 
 /* enter / leave */
@@ -2345,6 +2356,16 @@ function saveWebhook(){
   setSheetSync('idle');toast('🔗 연동 주소를 저장했어요 · 전 팀원에게 공유됩니다');
   autoPullSheet();
 }
+function saveWebhook2(){
+  if(!isFounder(me)){toast('관리자만 설정할 수 있어요');return;}
+  const inp=document.getElementById('web2UrlInput');if(!inp)return;
+  const url=inp.value.trim();
+  if(url&&!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(url)){toast('Apps Script 웹앱 주소(.../exec)를 정확히 붙여넣어 주세요');return;}
+  state.settings=state.settings||{};state.settings.webhook2=url;
+  if(LIVE)DB.set('settings/webhook2',url||null);
+  toast(url?'🗂️ 웹관리 시트 연동 주소를 저장했어요':'웹관리 연동을 비웠어요 (가입·설문은 앱에만 저장)');
+}
+function renderWeb2Conn(){const inp=document.getElementById('web2UrlInput');if(!inp)return;if(document.activeElement!==inp)inp.value=effectiveWeb()||'';}
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
 function importSheetData(data,opt){
   opt=opt||{};const silent=opt.silent,fillOnly=opt.fillOnly;
@@ -2659,7 +2680,7 @@ function goTab(name){
   if(name==='sale')initSaleEditor();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();}
   if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();}}
-  if(name==='survey'&&isFounder(me))renderSurveyResponses();
+  if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
@@ -3883,8 +3904,18 @@ const FX=(function(){
     resize();window.addEventListener('resize',resize,{passive:true});
     window.addEventListener('pointerdown',onTap,{passive:true});
   }
-  function onTap(e){if(type!=='fireworks'||reduce)return;burst(e.clientX,e.clientY);}
+  function onTap(e){if(!type||reduce)return;clickBurst(type,e.clientX,e.clientY);}
   function burst(x,y){const n=30+((Math.random()*16)|0),c=SPARK[(Math.random()*SPARK.length)|0],c2=SPARK[(Math.random()*SPARK.length)|0];for(let i=0;i<n;i++){const a=R(0,6.2832),sp=R(1.2,4.6);parts.push({k:'spark',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(0,.8),life:0,max:R(46,84),c:Math.random()<.5?c:c2,size:R(1.4,2.9)});}}
+  function clickBurst(t,x,y){
+    if(t==='fireworks'){burst(x,y);return;}
+    if(t==='sakura'){for(let i=0;i<15;i++){const a=R(0,6.2832),sp=R(1.4,4.2);parts.push({k:'cpetal',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(.4,1.4),rot:R(0,6.28),vr:R(-.22,.22),s:R(5,10),c:SAKURA[(Math.random()*SAKURA.length)|0],life:0,max:R(42,72)});}return;}
+    if(t==='leaves'){for(let i=0;i<13;i++){const a=R(0,6.2832),sp=R(1.3,3.6);parts.push({k:'cleaf',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(.3,1.1),rot:R(0,6.28),vr:R(-.3,.3),s:R(6,12),c:LEAF[(Math.random()*LEAF.length)|0],life:0,max:R(38,66)});}return;}
+    if(t==='sun'){parts.push({k:'cring',x,y,r:5,vr:R(2.4,3.2),life:0,max:26,c:'#ffe07a'});for(let i=0;i<16;i++){const a=R(0,6.2832),sp=R(1.3,4.2);parts.push({k:'cspark',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,c:Math.random()<.5?'#ffe07a':'#fff3c4',size:R(1.4,2.8),life:0,max:R(28,52),g:0.01});}return;}
+    if(t==='snow'){parts.push({k:'cstamp',e:'⛄',x,y,sc:R(34,46),life:0,max:78,rise:0.18});for(let i=0;i<9;i++){const a=R(0,6.2832),sp=R(.7,2.3);parts.push({k:'cspark',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,c:'#eaf2ff',size:R(1.2,2.4),life:0,max:R(26,46),g:0.02});}return;}
+    if(t==='xmas'){parts.push({k:'cstamp',e:'🎁',x,y,sc:R(30,42),life:0,max:80,rise:0.16});const LCOL=['#ff5a5a','#5ccb6e','#ffd166','#46b6dd','#b98be6'];for(let i=0;i<11;i++){const a=R(0,6.2832),rd=R(14,42);parts.push({k:'ctwinkle',x:x+Math.cos(a)*rd,y:y+Math.sin(a)*rd,r:R(1.6,3),c:LCOL[(Math.random()*LCOL.length)|0],ph:R(0,6.28),sp:R(.18,.34),life:0,max:R(36,60)});}return;}
+    if(t==='beach'){parts.push({k:'cstamp',e:'🐚',x,y,sc:R(28,40),life:0,max:74,rise:0});parts.push({k:'cspark',x,y:y-4,vx:R(-.4,.4),vy:-R(1.1,2),c:'#fffdf3',size:R(2,3),life:0,max:R(40,58),g:0.03});for(let i=0;i<5;i++){const a=R(-1.2,-1.9),sp=R(1,2.4);parts.push({k:'cspark',x,y:y-6,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,c:'#ffe9c0',size:R(1,2),life:0,max:R(24,40),g:0.04});}return;}
+    if(t==='rain'){parts.push({k:'ccloud',x,y:y-20,life:0,max:62,sc:R(30,42)});for(let i=0;i<5;i++)parts.push({k:'cdrop',x:x+R(-16,16),y:y-8,vy:R(4,7.5),len:R(8,16),life:0,max:R(22,42),op:R(.4,.7)});return;}
+  }
   function resize(){if(!cv||!ctx)return;DPR=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
   function appVisible(){const a=document.getElementById('app');return a&&!a.classList.contains('hidden')&&!document.hidden;}
   function contKind(){return (type==='snow'||type==='xmas')?'snow':type==='rain'?'rain':type==='leaves'?'leaf':type==='sakura'?'petal':type==='sun'?'mote':null;}
@@ -3974,6 +4005,14 @@ const FX=(function(){
       else if(p.k==='stand'){p.ph+=(p.sw||0)*0.03;next.push(p);drawEmoji(p.e,p.x,p.y,p.sc,1,Math.sin(p.ph)*(p.sw?0.05:0));}
       else if(p.k==='float'){p.ph+=p.sp;p.x+=p.vx;if(p.x<-30)p.x=W+20;if(p.x>W+30)p.x=-20;next.push(p);drawEmoji(p.e,p.x,p.y+Math.sin(p.ph)*p.amp,p.sc,1);}
       else if(p.k==='gull'){p.ph+=p.fsp;p.bp+=0.02;p.x+=p.vx;if(p.x<-44)p.x=W+34;if(p.x>W+44)p.x=-34;next.push(p);drawGull(p.x,p.y+Math.sin(p.bp)*p.bob,p.sc,p.ph,p.vx<0?-1:1);}
+      else if(p.k==='cpetal'){p.life++;p.vy+=0.05;p.vx*=0.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.save();ctx.globalAlpha=Math.max(0,a*.95);ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.beginPath();ctx.ellipse(0,0,p.s,p.s*.62,0,0,6.2832);ctx.fill();ctx.restore();}}
+      else if(p.k==='cleaf'){p.life++;p.vy+=0.05;p.vx*=0.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.save();ctx.globalAlpha=Math.max(0,a*.95);ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.beginPath();ctx.moveTo(0,-p.s);ctx.quadraticCurveTo(p.s*.8,0,0,p.s);ctx.quadraticCurveTo(-p.s*.8,0,0,-p.s);ctx.fill();ctx.restore();}}
+      else if(p.k==='cspark'){p.life++;p.vy+=(p.g||0.03);p.vx*=0.98;p.x+=p.vx;p.y+=p.vy;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.globalAlpha=Math.max(0,a);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.size*(0.6+a*0.6),0,6.2832);ctx.fill();}}
+      else if(p.k==='cring'){p.life++;p.r+=p.vr;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.globalAlpha=Math.max(0,a*.7);ctx.strokeStyle=p.c;ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.stroke();}}
+      else if(p.k==='ctwinkle'){p.life++;p.ph+=p.sp;if(p.life<p.max){next.push(p);const fade=1-p.life/p.max,a=fade*(0.45+Math.abs(Math.sin(p.ph))*0.55);ctx.globalAlpha=Math.max(0,a);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();ctx.globalAlpha=Math.max(0,a*.85);ctx.strokeStyle=p.c;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-p.r*2.4,p.y);ctx.lineTo(p.x+p.r*2.4,p.y);ctx.moveTo(p.x,p.y-p.r*2.4);ctx.lineTo(p.x,p.y+p.r*2.4);ctx.stroke();}}
+      else if(p.k==='cstamp'){p.life++;if(p.life<p.max){next.push(p);const t=p.life/p.max;let sc;if(t<0.25)sc=p.sc*(0.3+(t/0.25)*0.85);else if(t<0.4)sc=p.sc*(1.15-((t-0.25)/0.15)*0.15);else sc=p.sc;const a=t>0.72?1-(t-0.72)/0.28:1;const yy=p.y-(p.rise||0)*p.life;ctx.globalAlpha=Math.max(0,a);drawEmoji(p.e,p.x,yy,Math.max(4,sc),1);ctx.globalAlpha=1;}}
+      else if(p.k==='cdrop'){p.life++;p.y+=p.vy;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.globalAlpha=Math.max(0,(p.op||.5)*a);ctx.strokeStyle='#bcd2ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y-p.len);ctx.stroke();}}
+      else if(p.k==='ccloud'){p.life++;if(p.life<p.max){next.push(p);const t=p.life/p.max;const a=(t<0.18?t/0.18:t>0.7?1-(t-0.7)/0.3:1);ctx.globalAlpha=Math.max(0,a);drawEmoji('☁️',p.x,p.y,p.sc,1);ctx.globalAlpha=1;if(p.life%5===0&&t<0.6)next.push({k:'cdrop',x:p.x+R(-p.sc*0.4,p.sc*0.4),y:p.y+p.sc*0.3,vy:R(4,7),len:R(8,15),life:0,max:R(22,38),op:R(.4,.7)});}}
     }
     parts=next;ctx.globalAlpha=1;
   }
@@ -4107,7 +4146,7 @@ async function initFirebase(){
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
-  DB.on('settings',v=>{state.settings=v||{};renderSheetConn();});
+  DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
   DB.on('sales',v=>{
