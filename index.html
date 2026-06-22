@@ -625,6 +625,9 @@ table.scores tr.top1 .big{color:var(--green)}
 .fi-tx b{color:var(--cream)}
 .fi-n{color:var(--green-soft);font-weight:700;font-family:var(--mono);font-size:12px}
 .fi-t{margin-left:auto;font-size:10.5px;color:var(--faint);font-family:var(--mono);flex:0 0 auto}
+.fi-src{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:6px;white-space:nowrap}
+.fi-src.sale{background:rgba(92,188,46,.16);color:var(--green-soft)}
+.fi-src.tok{background:rgba(230,176,82,.16);color:var(--amber)}
 
 /* ===== NOTICES ===== */
 .notice-compose{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
@@ -781,6 +784,25 @@ details[open] .t-open{display:inline;color:var(--muted)}
 @keyframes syncpulse{0%,100%{opacity:1}50%{opacity:.35}}
 .sync-now{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit}
 .daily-datebar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+/* ===== 일일 결과 달력 ===== */
+.daily-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px 14px;margin-bottom:12px}
+.dc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dc-head b{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--cream);flex:1;text-align:center}
+.dc-head button{background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:9px;width:34px;height:34px;font-size:17px;cursor:pointer;flex:0 0 auto}
+.dc-head .dc-today{width:auto;padding:0 12px;font-size:12.5px;font-weight:700}
+.dc-wd{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:5px}
+.dc-wd span{text-align:center;font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+.dc-wd .sun{color:#ff8a8a}.dc-wd .sat{color:#8ab6ff}
+.dc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dc-cell{position:relative;aspect-ratio:1;border:1px solid transparent;background:var(--surface);border-radius:9px;color:var(--cream);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--mono);transition:.12s;padding:0}
+.dc-cell.empty{background:none;border:none;cursor:default}
+.dc-cell:not(.empty):hover{border-color:var(--g2)}
+.dc-cell.sun{color:#ff9d9d}.dc-cell.sat{color:#9dbcff}
+.dc-cell.today{border-color:var(--green)}
+.dc-cell.sel{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 4px 12px -5px rgba(99,102,241,.8)}
+.dc-cell.sel.sun,.dc-cell.sel.sat{color:#fff}
+.dc-dot{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--green-soft)}
+.dc-cell.sel .dc-dot{background:#fff}
 .daily-datebar input[type=date]{flex:1;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:10px;font-family:var(--mono);font-size:14px}
 .daily-datebar button{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;width:42px;height:42px;font-size:18px;cursor:pointer;flex:0 0 auto}
 .daily-datebar .daily-today{width:auto;padding:0 14px;font-size:13px;font-weight:700}
@@ -811,6 +833,9 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .mstat-table td.num{font-family:var(--mono);text-align:right}
 .mstat-table .tot{color:var(--green);font-weight:800}
 .mstat-foot{margin-top:11px;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.mstat-avg{margin-top:8px;padding:11px 14px;background:var(--grad);border-radius:11px;font-size:14px;font-weight:700;color:#fff;font-family:var(--disp);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.mstat-avg b{font-family:var(--mono);font-size:20px;font-weight:800}
+.mstat-avg small{font-family:var(--mono);font-size:10.5px;font-weight:600;color:rgba(255,255,255,.8);margin-left:auto}
 .mstat-foot b{color:var(--green);font-size:14px}
 .dna{font-size:11px!important;font-weight:800;width:auto!important;padding:0 10px!important}
 .dna.on{background:var(--amber)!important;color:#3a2a06!important;border-color:var(--amber)!important}
@@ -991,6 +1016,8 @@ details[open] .t-open{display:inline;color:var(--muted)}
 #fxTint{position:fixed;inset:0;z-index:113;pointer-events:none;opacity:0;transition:opacity .9s ease;background:transparent;will-change:opacity}
 #fxCanvas{position:fixed;inset:0;z-index:115;pointer-events:none}
 .admin-only{display:none}
+.founder-only{display:none}
+body.can-mod .founder-only{display:block}
 body.can-mod .admin-only{display:block}
 .fx-bar{display:flex;flex-wrap:wrap;gap:8px}
 .fx-btn{flex:1 1 auto;min-width:84px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:12px 10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
@@ -1149,6 +1176,17 @@ body.app-on #ambientBg{opacity:.7}
 .rw-none{font-size:12px;color:var(--faint);text-align:center;padding:14px;line-height:1.6}
 .mem-add{display:flex;gap:8px;margin-bottom:12px}
 .mem-add input{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:10px 12px;font-size:13px}
+.mgr-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+.mgr-row.on{border-color:rgba(92,188,46,.45);background:rgba(92,188,46,.07)}
+.mgr-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
+.mgr-av img{width:100%;height:100%;object-fit:cover;display:block}
+.mgr-nm{flex:1;font-weight:700;font-size:13.5px;color:var(--cream)}
+.mgr-nm small{color:var(--muted);font-weight:600;font-size:10.5px}
+.mgr-tag{font-size:11px;font-weight:800;color:var(--green-soft);flex:0 0 auto}
+.mgr-btn{flex:0 0 auto;background:var(--green);color:var(--green-ink);font-weight:800;border:none;border-radius:9px;padding:8px 13px;font-size:12.5px;cursor:pointer}
+.mgr-btn:hover{filter:brightness(1.05)}
+.mgr-btn.off{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.mgr-btn.off:hover{border-color:var(--danger);color:var(--danger)}
 .mem-add button{flex:0 0 auto;background:var(--green);color:var(--green-ink);font-weight:800;border:none;border-radius:9px;padding:0 16px;font-size:13px;cursor:pointer}
 .mem-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
 .mem-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--cream)}
@@ -1385,7 +1423,7 @@ body.app-on #ambientBg{opacity:.7}
         <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
         <button class="preview-btn2" id="animalPreviewBtn" onclick="previewAnimal()">🐥 성장 과정 미리보기</button>
         <button class="reset-btn" id="compResetBtn" onclick="resetComp()" style="display:none;margin-top:10px">🔄 닭 초기화 · 새 알부터</button>
-        <div class="animal-hint" id="animalHint">노제로(하루 1건↑)인 날마다 닭이 먹이 1개를 먹어요 🌽 · 노제로를 가장 오래 유지한 사람이 우승!</div>
+        <div class="animal-hint" id="animalHint">먹이는 <b>하루 한 번</b> — 그날 <b>노제로(1건↑) 결과</b>를 내면 자동으로 먹이가 돼요 🌽 결과가 없는 날(NA·주말 등)엔 관리자가 발행한 <b>기념토큰</b>으로 대신 먹일 수 있어요. <b>먹이를 가장 많이 준 사람이 우승!</b></div>
 
       </div>
       <div class="reward-box">
@@ -1410,18 +1448,40 @@ body.app-on #ambientBg{opacity:.7}
             </div>
             <div class="reward-info">
               <div class="reward-name">여름맞이 텀블러 🥤</div>
-              <p class="reward-crit">일일 결과 또는 기념주화 발급으로 먹이를 구매해 줄 수 있어요. <b>주어진 기간 가장 동물에게 먹이를 많이 주어 성장에 기여한 사람</b>에게는 특별한 보상이 있습니다!</p>
+              <p class="reward-crit">그날 <b>노제로 결과</b>를 내면 자동으로 먹이가 되고, 결과 없는 날엔 <b>기념토큰</b>으로 먹일 수 있어요(하루 한 번). <b>기간 동안 먹이를 가장 많이 준 사람</b>에게 특별한 보상이 있습니다!</p>
             </div>
           </div>
           <div class="reward-lead" id="rewardLead"></div>
         </div>
       <div class="rank-card">
-        <h3>🐔 노제로 순위 <span class="rank-sub">(먹이 일수 = 노제로 일수)</span></h3>
+        <h3>🐔 먹이 순위 <span class="rank-sub">(노제로 결과 + 기념토큰 = 먹이 준 날 수)</span></h3>
         <div id="saleRank"></div>
       </div>
       <div class="feed-log">
         <button class="feed-log-head" onclick="toggleFeedLog()"><span>📋 먹이 기록 <span id="feedCount" class="feed-count">0</span></span><span id="feedCaret" class="caret">▴</span></button>
         <div class="feed-log-body" id="feedLogBody" style="display:block"></div>
+      </div>
+      <div class="founder-only" style="margin-top:22px">
+        <div class="sec-sub">🛠️ 컴페티션 관리 <span style="font-weight:600;color:var(--faint);font-size:11.5px">(관리자 전용)</span></div>
+        <div class="adm-grid" style="margin-top:12px">
+        <div class="adm-card">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span><span class="ah-caret">▾</span></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">노제로 결과를 낸 날은 <b>자동으로 먹이</b>가 돼요. 토큰은 <b>기념일·이벤트</b>에 발행해 주면, 팀원이 결과 없는 날(NA·주말 등)에 <b>먹이 한 번</b>을 보충할 수 있어요. <b>누적 지급</b>=총 지급 · <b>사용</b>=먹이로 쓴 수 · <b>보유</b>=잔액. (− 는 회수)</p>
+            <div class="tok-scroll"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table>
+            <div id="tokenGrantLog" class="tok-log"></div></div>
+            <button class="gift-all-btn" onclick="grantGiftAll()">🎁 오늘 전원에게 기념 토큰 1개씩 지급</button>
+            <div class="gift-note">기념일용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 ＋ 로 개별 지급하면 돼요.</div>
+          </div>
+        </div>
+        <div class="adm-card">
+          <div class="ah"><h3>🏆 우승자 · 보상 지급</h3><span class="badge zero" id="rewardBadge">0</span></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">컴페티션 기간이 끝나면 <b>먹이를 가장 많이 준(노제로 결과+토큰) 우승자</b>가 자동 집계돼 전 팀원에게 공지(폭죽🎆)로 떠요. 우승자에게 보상을 주고 <b>지급완료</b>를 누르면 기록돼요.</p>
+            <div id="rewardAdminBody"></div>
+          </div>
+        </div>
+        </div>
       </div>
     </section></div></div>
 
@@ -1460,10 +1520,11 @@ body.app-on #ambientBg{opacity:.7}
 
     <!-- 일일 결과 입력 (관리자) -->
     <div class="mpanel" id="m-daily"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자</span></div>
-      <div class="daily-datebar"><button onclick="dailyShift(-1)">‹</button><input type="date" id="dailyDate" onchange="renderDaily()" /><button onclick="dailyShift(1)">›</button><button class="daily-today" onclick="dailyToday()">오늘</button></div>
+      <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자 · 매니저</span></div>
+      <div class="daily-cal" id="dailyCal"></div>
+      <input type="date" id="dailyDate" onchange="dailyPick(this.value)" style="display:none" />
       <div class="sheet-sync"><span class="sync-dot idle" id="sheetSyncDot"></span><span id="sheetSyncTxt">대기 중</span><button class="sync-now" onclick="autoPullSheet()">↻ 지금 동기화</button></div>
-      <div class="sheet-conn" id="sheetConn">
+      <div class="sheet-conn founder-only" id="sheetConn">
         <div class="sc-note">⚠️ 앱은 <b>시트 주소가 아니라</b>, 시트에 연결된 <b>Apps Script 웹앱(/exec) 주소</b>로 연동돼요. 그래서 시트 주소를 넣는 칸은 없어요 — Apps Script가 자기가 붙어있는 시트를 알아서 읽거든요. 시트를 바꾸거나 새로 배포했을 때만 아래에 그 <b>/exec 주소</b>를 붙여넣으면 <b>전 팀원에게 공유</b>됩니다.</div>
         <div class="sc-row"><input id="webhookUrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook()">저장</button></div>
         <div class="sc-hint">Apps Script 배포 시 <b>액세스: 모든 사용자(Anyone)</b> 로 해야 가져오기·전송이 됩니다. 같은 주소 유지하려면 <b>배포 관리 → 연필 → 새 버전 → 배포</b>.</div>
@@ -1471,12 +1532,14 @@ body.app-on #ambientBg{opacity:.7}
       <div class="daily-sum" id="dailySum"></div>
       <div id="dailyList"></div>
       <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 검수 완료 · 결과보고 (시트 전송)</button>
-      <button class="btn ghost block" onclick="pullFromSheet()" style="margin-top:8px">📥 시트에서 과거 데이터 가져오기</button>
-      <button class="btn ghost block" onclick="resetAndRepull()" style="margin-top:8px;border-color:rgba(230,176,82,.4);color:var(--amber)">🧹 스코어 싹 지우고 시트에서 다시 가져오기</button>
-      <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">+/− · NA · 랠리로 결과를 입력(검수)하면 <b>앱 보드에는 즉시 저장</b>되지만, <b>구글시트에는 전송되지 않습니다.</b> 다 확인한 뒤 <b>"검수 완료 · 결과보고"</b>를 누르면 그때 시트 월별 탭(이름 × 날짜 칸)으로 <b>한 번에 전송</b>되고, 성공/실패가 바로 표시됩니다. (전송되려면 아래 '연동'이 최신 배포여야 해요.)</p>
+      <button class="btn ghost block founder-only" onclick="pullFromSheet()" style="margin-top:8px">📥 시트에서 과거 데이터 가져오기</button>
+      <button class="btn ghost block founder-only" onclick="resetAndRepull()" style="margin-top:8px;border-color:rgba(230,176,82,.4);color:var(--amber)">🧹 스코어 싹 지우고 시트에서 다시 가져오기</button>
+      <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">위 <b>달력에서 아무 날짜나 눌러</b> 그날 결과를 +/− · NA로 수정·입력하면, <b>앱에 저장됨과 동시에 구글시트 월별 탭(이름 × 날짜 칸)에 자동 반영</b>돼요. (연속으로 누르면 잠깐 뒤 마지막 값만 한 번 전송돼요.) <b>"검수 완료 · 결과보고"</b>는 그 날 전체를 한 번에 다시 보내고 성공/실패를 표로 확인하는 용도예요.</p>
+      <div class="founder-only">
       <div class="sec-sub" style="margin-top:28px">📊 월별 통계</div>
       <div class="month-btns" id="monthBtns"></div>
       <div id="monthStats"></div>
+      </div>
     </section></div></div>
 
     <!-- 기념일 관리 (관리자) -->
@@ -1534,8 +1597,8 @@ body.app-on #ambientBg{opacity:.7}
     </section></div></div>
 
     <!-- ADMIN (admin only) -->
-    <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">승인 · 팀원 · 설문</span><span class="meta">AOP 전용</span></div>
+    <div class="mpanel" id="m-survey"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📝 설문</h2><span class="ko">설문 양식 미리보기 · 제출된 응답</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
         <div class="adm-card">
           <div class="ah"><h3>설문 양식 미리보기</h3><span class="badge zero">IC·LR·TL</span></div>
@@ -1549,26 +1612,22 @@ body.app-on #ambientBg{opacity:.7}
           </div>
         </div>
         <div class="adm-card">
+          <div class="ah"><h3>제출된 설문</h3><span class="badge zero" id="survBadge">0</span></div>
+          <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p><div id="survList"></div></div>
+        </div>
+      </div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">승인 · 팀원 · 설문</span><span class="meta">AOP 전용</span></div>
+      <div class="adm-grid">
+        <div class="adm-card">
           <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
           <div class="adm-body" id="pendList"></div>
         </div>
         <div class="adm-card">
-          <div class="ah"><h3>제출된 설문</h3><span class="badge zero" id="survBadge">0</span></div>
-          <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p><div id="survList"></div></div>
-        </div>
-        <div class="adm-card">
           <div class="ah"><h3>팀원 명단</h3><span class="badge zero" id="rosterBadge">0</span></div>
           <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
-        </div>
-        <div class="adm-card">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span><span class="ah-caret">▾</span></div>
-          <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">일일 결과를 확인·더블체크한 뒤, 결과를 낸 팀원 옆 <b>＋ 버튼</b>으로 직접 토큰을 지급하세요. <b>누적 지급</b> = 지금까지 준 총 개수 · <b>사용</b> = 먹이로 쓴 개수 · <b>보유</b> = 잔액. (− 는 잘못 준 토큰 회수)</p>
-            <div class="tok-scroll"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table>
-            <div id="tokenGrantLog" class="tok-log"></div></div>
-            <button class="gift-all-btn" onclick="grantGiftAll()">🎁 오늘 전원에게 기념 토큰 1개씩 지급</button>
-            <div class="gift-note">첫날 기념용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 결과 낸 사람만 ＋ 로 주시면 돼요.</div>
-          </div>
         </div>
         <div class="adm-card">
           <div class="ah"><h3>📣 팝업 공지</h3></div>
@@ -1580,10 +1639,10 @@ body.app-on #ambientBg{opacity:.7}
           </div>
         </div>
         <div class="adm-card">
-          <div class="ah"><h3>🏆 우승자 · 보상 지급</h3><span class="badge zero" id="rewardBadge">0</span></div>
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">매일 자정 이후 관리자가 접속하면 <b>전날 먹이를 가장 많이 준 우승자</b>가 자동 집계돼 전 팀원에게 공지(폭죽🎆)로 떠요. 우승자에게 텀블러를 주고 <b>지급완료</b>를 누르면 기록돼요.</p>
-            <div id="rewardAdminBody"></div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">매니저는 <b>일일 결과만</b> 자기 화면에서 보고 수정할 수 있어요(수정은 구글시트에 자동 반영). 그 외 관리 기능은 못 봐요. 아래에서 <b>매니저로</b>를 누르면 임명, <b>해제</b>를 누르면 권한이 사라져요.</p>
+            <div id="managerAdminBody"></div>
           </div>
         </div>
         <div class="adm-card">
@@ -1834,6 +1893,8 @@ const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
 const isAdmin=r=>ri(r)>=3;        // AOP+ (역할)
 const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);  // 관리자(소유자) 계정만 편집·관리
+function isManager(u){if(!u)return false;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
+function canDaily(u){return isFounder(u)||isManager(u);}   // 일일 결과 입력·수정 권한 (관리자 + 매니저)
 const SURVEY_EXEMPT=['임재영','관리자'];   // 관리자 본인 — 설문 생략
 function isSurveyExempt(name){return SURVEY_EXEMPT.map(s=>s.replace(/\s/g,'')).includes((name||'').replace(/\s/g,''))}
 const reqSurvey=(r,name)=>{if(name&&isSurveyExempt(name))return null;if(r==='IC')return 'IC';if(r==='LR')return 'LR';if(['TL','AOP','OP','O'].includes(r))return 'TL';return null;};
@@ -1919,6 +1980,7 @@ let state={
   tokenLog:[],
   feedByDay:{},rewards:[],comp:{},
   feedLog:[],
+  managers:[],
   extraMembers:[],
   settings:{},
   popupAnnounce:null,
@@ -2141,6 +2203,7 @@ function enterApp(){
   document.getElementById('app').classList.remove('hidden');
   document.body.classList.add('app-on');
   document.body.classList.toggle('can-mod',isFounder(me));
+  document.body.classList.toggle('can-daily',canDaily(me));
   document.getElementById('mePillNm').textContent=me.name;
   document.getElementById('mePillRole').textContent=me.role;
   paintMePill();renderBell();
@@ -2150,7 +2213,7 @@ function enterApp(){
   buildRail();renderAll();goTab('home');startAutoPull();
   if(isFounder(me))finalizeComp();
   showAnnounceIfNew();
-  if(isFounder(me)){showRewardReminder();pullRoster({});}
+  if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
@@ -2198,7 +2261,7 @@ function pruneBadSales(){
   let removed=0;
   for(const k in state.sales){
     const e=state.sales[k];const nm=String(e.name||'');
-    const bad = BAD_NAME.test(nm) || (+e.count||0)>300;   // 세일즈 300 초과 = 인컴 오염
+    const bad = BAD_NAME.test(nm) || (+e.count||0)>300 || !!e.rally;   // 가짜 이름·인컴 오염·랠리 제거
     if(bad){const d=e.date;delete state.sales[k];if(LIVE)DB.set(`sales/${d}/${nk(nm)}`,null);removed++;}
   }
   return removed;
@@ -2247,8 +2310,7 @@ function importSheetData(data,opt){
       const sval=String(val).trim();let ne=null;
       const slow=sval.toLowerCase();
       if(slow==='na'||slow==='n')ne={name,role,date,count:0,na:true,t};
-      else if(sval==='랠리')ne={name,role,date,count:0,rally:true,t};
-      else{const c=Number(sval);if(!isNaN(c)&&c>0&&c<=300)ne={name,role,date,count:c,t};}  // 300 초과 = 인컴(₩) 오염 → 무시
+      else{const c=Number(sval);if(!isNaN(c)&&c>0&&c<=300)ne={name,role,date,count:c,t};}  // 300 초과 = 인컴(₩) 오염 → 무시 · '랠리'는 무시
       if(!ne)return;
       const cur=state.sales[key];
       if(fillOnly&&cur)return;
@@ -2278,30 +2340,69 @@ function autoPullSheet(){
 }
 function startAutoPull(){if(!me||!isFounder(me))return;autoPullSheet();if(autoPullTimer)clearInterval(autoPullTimer);autoPullTimer=setInterval(autoPullSheet,120000);}
 function dailyDateVal(){const el=document.getElementById('dailyDate');return (el&&el.value)||TODAY;}
-function dailyToday(){const el=document.getElementById('dailyDate');if(el)el.value=TODAY;renderDaily();}
-function dailyShift(n){const el=document.getElementById('dailyDate');const base=(el&&el.value)?new Date(el.value+'T00:00:00'):new Date();base.setDate(base.getDate()+n);const s=base.toISOString().slice(0,10);if(el)el.value=s;renderDaily();}
+function dpad(n){return (n<10?'0':'')+n;}
+let dailyCalYM=null;
+function dailyPick(ds){if(!ds)return;const el=document.getElementById('dailyDate');if(el)el.value=ds;dailyCalYM={y:+ds.slice(0,4),m:+ds.slice(5,7)};renderDaily();}
+function dailyToday(){dailyPick(TODAY);}
+function dailyShift(n){const base=new Date(dailyDateVal()+'T00:00:00');base.setDate(base.getDate()+n);dailyPick(base.toISOString().slice(0,10));}
+function dailyCalShift(n){if(!dailyCalYM){const s=dailyDateVal();dailyCalYM={y:+s.slice(0,4),m:+s.slice(5,7)};}let m=dailyCalYM.m+n,y=dailyCalYM.y;if(m<1){m=12;y--;}if(m>12){m=1;y++;}dailyCalYM={y,m};renderDailyCalendar();}
+function renderDailyCalendar(){
+  const box=document.getElementById('dailyCal');if(!box)return;
+  const sel=dailyDateVal();
+  if(!dailyCalYM)dailyCalYM={y:+sel.slice(0,4),m:+sel.slice(5,7)};
+  const y=dailyCalYM.y,m=dailyCalYM.m,mk=`${y}-${dpad(m)}`;
+  const startDow=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();
+  const has={};for(const k in state.sales){const e=state.sales[k];if(e.date&&e.date.slice(0,7)===mk)has[e.date]=true;}
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+='<div class="dc-cell empty"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=`${mk}-${dpad(d)}`,dow=new Date(y,m-1,d).getDay();
+    cells+=`<button class="dc-cell${ds===sel?' sel':''}${ds===TODAY?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}" onclick="dailyPick('${ds}')">${d}${has[ds]?'<i class="dc-dot"></i>':''}</button>`;
+  }
+  box.innerHTML=`<div class="dc-head"><button onclick="dailyCalShift(-1)" aria-label="이전 달">‹</button><b>${y}년 ${m}월</b><button onclick="dailyCalShift(1)" aria-label="다음 달">›</button><button class="dc-today" onclick="dailyPick('${TODAY}')">오늘</button></div>`+
+    `<div class="dc-wd"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>`+
+    `<div class="dc-grid">${cells}</div>`;
+}
 function membersSorted(){return Object.values(state.users).filter(u=>u.status==='active').sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
 function dailyAdj(name,delta){
-  if(!isFounder(me)||!name)return;
+  if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
   let cnt=(cur&&!cur.na&&!cur.rally)?(+cur.count||0):0;cnt=Math.max(0,cnt+delta);
   state.sales[key]={name,role,date:d,count:cnt,t};
   if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:cnt,t});
-  renderDaily();renderScores();renderPerfGauge();renderComp();
+  renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
 }
 function dailyNA(name){
-  if(!isFounder(me)||!name)return;
+  if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
   if(cur&&cur.na){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
   else{state.sales[key]={name,role,date:d,count:0,na:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,na:true,t});}
-  renderDaily();renderScores();renderPerfGauge();renderComp();
+  renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
 }
 function dailyRally(name){
   if(!isFounder(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
   if(cur&&cur.rally){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
   else{state.sales[key]={name,role,date:d,count:0,rally:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,rally:true,t});}
-  renderDaily();renderScores();renderPerfGauge();renderComp();
+  renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
+}
+/* 편집하면 그 칸을 시트에 자동 반영 (디바운스 — 연속 클릭은 마지막에 1번만 전송) */
+let _cellSyncTimers={};
+function autoSyncCell(date,name){
+  if(!canDaily(me))return;
+  const url=effectiveWebhook();if(!url||!/script\.google\.com/.test(url))return;
+  const key=date+'|'+name;
+  if(_cellSyncTimers[key])clearTimeout(_cellSyncTimers[key]);
+  setSheetSync&&setSheetSync('sync');
+  _cellSyncTimers[key]=setTimeout(()=>{
+    delete _cellSyncTimers[key];
+    const e=state.sales[date+'|'+name];
+    const cv = e ? (e.na?'na':(e.rally?'랠리':(+e.count||0))) : 0;
+    sheetWrite({date,name,role:roleOf(name),count:cv,na:!!(e&&e.na),rally:!!(e&&e.rally)},(res)=>{
+      const ok=res&&res.written;setSheetSync&&setSheetSync(ok?'ok':'err');
+      const tx=document.getElementById('sheetSyncTxt');if(tx&&ok)tx.textContent=`${name} · ${date} 자동 저장 · `+new Date().toLocaleTimeString('ko-KR');
+    });
+  },900);
 }
 /* 시트 쓰기 — pull과 똑같이 JSONP GET으로 보내고 '응답(성공/기록된 칸)'을 받음 → 실제로 들어갔는지 확인 가능 */
 function sheetWrite(payload,onDone){
@@ -2324,7 +2425,7 @@ function sheetWrite(payload,onDone){
   setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),9000);
 }
 function dailyComplete(){
-  if(!isFounder(me)){toast('관리자만 보고할 수 있어요');return;}
+  if(!canDaily(me)){toast('권한이 없어요');return;}
   const d=dailyDateVal();
   const list=rosterMembers().filter(u=>state.sales[`${d}|${u.name}`]);
   if(!list.length){toast('입력된 결과가 없어요 — 먼저 +/− 로 점수를 입력하세요');return;}
@@ -2349,8 +2450,8 @@ function dailyComplete(){
   });
 }
 function renderDaily(){
-  const box=document.getElementById('dailyList');if(!box||!me||!isFounder(me))return;
-  renderSheetConn();
+  const box=document.getElementById('dailyList');if(!box||!me||!canDaily(me))return;
+  renderSheetConn();renderDailyCalendar();
   const d=dailyDateVal(),members=rosterMembers();
   let tot=0,act=0,nac=0;
   box.innerHTML=members.length?members.map(u=>{
@@ -2376,9 +2477,10 @@ function renderMonthStats(mk){
     if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0,days:0,na:0,rally:0};
     if(e.na)agg[e.name].na++;else if(e.rally)agg[e.name].rally++;else{const c=+e.count||0;agg[e.name].sales+=c;if(c>0)agg[e.name].days++;}
   }
-  const rows=Object.values(agg).sort((a,b)=>b.sales-a.sales);let tsales=0;rows.forEach(r=>tsales+=r.sales);
+  const rows=Object.values(agg).sort((a,b)=>b.sales-a.sales);let tsales=0,tdays=0;rows.forEach(r=>{tsales+=r.sales;tdays+=r.days;});
+  const tavg=tdays?(tsales/tdays).toFixed(2):'-';
   const mn=parseInt(mk.slice(5,7),10);
-  box.innerHTML=rows.length?`<table class="mstat-table"><thead><tr><th>이름</th><th style="text-align:right">세일즈</th><th style="text-align:right">활동일</th><th style="text-align:right">AVG</th><th style="text-align:right">휴무</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)} <span style="color:var(--faint);font-size:10px">${esc(r.role)}</span></td><td class="num tot">${r.sales}</td><td class="num">${r.days}</td><td class="num">${r.days?(r.sales/r.days).toFixed(2):'-'}</td><td class="num">${r.na}</td></tr>`).join('')}</tbody></table><div class="mstat-foot">${mn}월 팀 합계 <b>${tsales}</b> · ${rows.length}명</div>`:'<div class="empty-row">이 달의 기록이 없어요</div>';
+  box.innerHTML=rows.length?`<table class="mstat-table"><thead><tr><th>이름</th><th style="text-align:right">세일즈</th><th style="text-align:right">활동일</th><th style="text-align:right">AVG</th><th style="text-align:right">휴무</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)} <span style="color:var(--faint);font-size:10px">${esc(r.role)}</span></td><td class="num tot">${r.sales}</td><td class="num">${r.days}</td><td class="num">${r.days?(r.sales/r.days).toFixed(2):'-'}</td><td class="num">${r.na}</td></tr>`).join('')}</tbody></table><div class="mstat-foot">${mn}월 팀 합계 <b>${tsales}</b> · ${rows.length}명 · 총 활동일 <b>${tdays}</b></div><div class="mstat-avg">📊 ${mn}월 팀 평균(AVG) <b>${tavg}</b> <small>세일즈 ${tsales} ÷ 활동일 ${tdays}</small></div>`:'<div class="empty-row">이 달의 기록이 없어요</div>';
 }
 function renderCalling(){
   const box=document.getElementById('recruitBody');if(!box||!me)return;
@@ -2457,7 +2559,7 @@ const NAV=[
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','training']},
   {k:'lead',e:'🎯',l:'리더',tabs:['recap','calling']},
-  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','events','admin']}
+  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','events','survey','admin']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -2465,8 +2567,9 @@ const TABMETA={
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝',g:()=>isLeader(me.role)},
   recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},
-  daily:{e:'🗓️',l:'일일 결과',g:()=>isFounder(me)},
+  daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'🎉',l:'기념일',g:()=>isFounder(me)},
+  survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -2493,6 +2596,7 @@ function selectGroup(gk){
 function goTab(name){
   if(name==='perf'&&!isLeader(me.role))name='home';
   if(name==='admin'&&!isFounder(me))name='home';
+  if(name==='daily'&&!canDaily(me))name='home';
   if(name==='training'&&!isLeader(me.role))name='home';
   if(name==='recap'&&!isTLplus(me.role))name='home';
   if(name==='calling'&&!isLeader(me.role))name='home';
@@ -2504,7 +2608,8 @@ function goTab(name){
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
   if(name==='sale')initSaleEditor();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();}
-  if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();}
+  if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();}}
+  if(name==='survey'&&isFounder(me))renderSurveyResponses();
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -2725,16 +2830,30 @@ function compEnded(){return Date.now()>=compEnd()}
 function fmtD(ts){const d=new Date(ts);return `${d.getMonth()+1}.${d.getDate()}`}
 function compRange(){return {sd:new Date(state.comp.start).toISOString().slice(0,10),ed:new Date(compEnd()).toISOString().slice(0,10)}}
 function periodFeeds(){
-  // 노제로(하루 1건 이상)인 날마다 먹이 1개 — 먹이수 = 노제로 일수
-  const {sd,ed}=compRange(),by={},log=[];
+  // 먹이 = (그날 노제로 결과) 또는 (기념토큰 사용) · 하루 1회 · 관리자 제외
+  const {sd,ed}=compRange(),byName={};
+  // 1) 노제로 세일즈 결과 = 그날 먹이 (자동)
   for(const k in state.sales){const x=state.sales[k];
-    if((x.count||0)>=1 && x.date>=sd && x.date<=ed){
-      if(!by[x.name])by[x.name]={name:x.name,role:x.role,days:0};
-      by[x.name].days++;
-      log.push({name:x.name,role:x.role,date:x.date,t:x.t||new Date(x.date+'T12:00:00').getTime()});
+    if(x.date>=sd&&x.date<=ed&&!x.na&&!x.rally&&(+x.count||0)>=1&&!isAdminName(x.name)){
+      (byName[x.name]=byName[x.name]||{});
+      if(!byName[x.name][x.date])byName[x.name][x.date]={src:'결과',role:x.role,t:x.t||new Date(x.date+'T12:00:00').getTime()};
     }
   }
-  return {rank:Object.values(by).sort((a,b)=>b.days-a.days),log,total:log.length};
+  // 2) 기념토큰 사용 = 그날 먹이 (노제로 없는 날 보충)
+  const fbd=state.feedByDay||{};
+  Object.keys(fbd).forEach(d=>{ if(d<sd||d>ed)return; const row=fbd[d]||{};
+    Object.keys(row).forEach(nm=>{ if(isAdminName(nm)||(+row[nm]||0)<1)return;
+      (byName[nm]=byName[nm]||{});
+      if(!byName[nm][d])byName[nm][d]={src:'토큰',role:roleOf(nm),t:new Date(d+'T12:00:00').getTime()};
+    });
+  });
+  // 순위(먹이 준 날 수) + 로그(한 날 = 한 줄)
+  const rank=Object.keys(byName).map(n=>({name:n,role:roleOf(n),days:Object.keys(byName[n]).length}))
+    .sort((a,b)=>b.days-a.days||a.name.localeCompare(b.name,'ko'));
+  const log=[];let total=0;
+  Object.keys(byName).forEach(n=>{Object.keys(byName[n]).forEach(d=>{const x=byName[n][d];log.push({name:n,role:x.role,date:d,src:x.src,t:x.t});total++;});});
+  log.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.t||0)-(a.t||0));
+  return {rank,log,total,byName};
 }
 const ANIMAL_MAX=80;   // 실제 성장 상한 (노제로 일수) — 천천히 자라게
 const ANIMAL_STAGES=[{min:0,name:'알'},{min:1,name:'병아리'},{min:10,name:'중병아리'},{min:24,name:'청계'},{min:46,name:'장닭'},{min:70,name:'황금 수탉'}];
@@ -2961,7 +3080,7 @@ function interact(){
   if(previewStage!==null){ previewAnimal(); return; }   // 미리보기 중 탭하면 중지
   const food=realFood();
   if(food<1){ petAnim(); toast('알을 쓰다듬어 줬어요 🥚'); }
-  else if(food<ANIMAL_MAX){ buyFeed(); }        // 먹이는 토큰이 있어야 줄 수 있어요
+  else if(food<ANIMAL_MAX){ if(me&&fedToday(me.name)){petAnim();toast('오늘 먹이는 이미 줬어요 🐔 쓰다듬어 줄게요');} else buyFeed(); }
   else { playAnim(); toast('신나게 놀아줬어요 🎀'); }
 }
 /* ===== 먹이 토큰 (결과 보고 → 발행 → 구매) ===== */
@@ -2978,14 +3097,21 @@ function buyFeedAnim(){
   setTimeout(()=>coin.remove(),720);
   setTimeout(()=>{feedAnimalAnim();bumpAnimal('hop');},420);
 }
+function fedToday(name){
+  const e=state.sales[`${TODAY}|${name}`];
+  const noZero=e&&!e.na&&!e.rally&&(+e.count||0)>=1;
+  const tok=(((state.feedByDay||{})[TODAY]||{})[name]||0)>=1;
+  return noZero||tok;
+}
 function buyFeed(){
   if(!me){toast('로그인이 필요해요');return;}
-  if(myTokens()<1){toast('🪙 토큰이 부족합니다 · 결과(하루 1건↑)를 내면 관리자가 토큰을 줘요');shakeCoin();return;}
+  if(fedToday(me.name)){toast('오늘은 이미 먹이를 줬어요 🐔 (먹이는 하루 한 번이에요)');return;}
+  if(myTokens()<1){toast('🪙 토큰이 없어요 · 노제로 결과를 내면 그날 먹이는 자동! 토큰은 관리자가 기념일에 발행해요');shakeCoin();return;}
   state.tokens[me.name]=myTokens()-1;
-  const d=TODAY;state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};state.feedByDay[d][me.name]=(state.feedByDay[d][me.name]||0)+1;
+  const d=TODAY;state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};state.feedByDay[d][me.name]=1;  // 하루 1회 cap
   if(LIVE){DB.set('tokens',state.tokens);DB.set('feedByDay',state.feedByDay);}
-  buyFeedAnim();renderTokenShop();renderFeedLog();
-  toast('🌽 닭에게 먹이를 줬어요! (토큰 −1 🪙)');
+  buyFeedAnim();renderTokenShop();renderFeedLog();renderComp();
+  toast('🌽 기념토큰으로 먹이를 줬어요! (−1 🪙)');
 }
 function rankRow(i,name,val,ended){
   const win=ended&&i===0;
@@ -3002,7 +3128,7 @@ function renderComp(){
   if(box)box.innerHTML=(me&&isFounder(me))?`<div class="comp-admin"><input id="compLabelIn" value="${esc(state.comp.label)}" placeholder="챌린지 이름" maxlength="24"/><select id="compWeeksIn">${[1,2,3,4].map(w=>`<option value="${w}" ${w===state.comp.weeks?'selected':''}>${w}주</option>`).join('')}</select><button onclick="startComp()">새 기간 등록</button></div>`:'';
   renderAnimal();
   const {rank}=periodFeeds();
-  document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 노제로 기록이 없어요</div>';
+  document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 먹이 기록이 없어요</div>';
   renderFeedLog();
 }
 const WDAY=['일','월','화','수','목','금','토'];
@@ -3015,9 +3141,9 @@ function feedEvents(){
 }
 function renderFeedLog(){
   const body=document.getElementById('feedLogBody');if(!body)return;
-  const logs=feedEvents();
+  const logs=periodFeeds().log;
   const fc=document.getElementById('feedCount');if(fc)fc.textContent=logs.length;
-  body.innerHTML=logs.length?logs.map(f=>`<div class="feed-item"><span class="fi-av" style="background:${avColor(f.name)}">${avInner(f.name)}</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨어요 🌽</span><span class="fi-t">${fmtMDW(f.date)}</span></div>`).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이를 준 기록이 없어요 · 컴페티션에서 🌽 먹이 주기를 누르면 여기에 쌓여요</div>';
+  body.innerHTML=logs.length?logs.map(f=>{const tok=f.src==='토큰';return `<div class="feed-item"><span class="fi-av" style="background:${avColor(f.name)}">${avInner(f.name)}</span><span class="fi-tx"><b>${esc(f.name)} ${esc(f.role)}</b>님이 먹이를 주셨어요 <span class="fi-src ${tok?'tok':'sale'}">${tok?'🪙 토큰':'✅ 결과'}</span></span><span class="fi-t">${fmtMDW(f.date)}</span></div>`;}).join(''):'<div class="rank-empty" style="padding:12px">아직 먹이를 준 기록이 없어요 · 노제로 결과를 내거나 기념토큰으로 먹이를 주면 여기에 쌓여요</div>';
 }
 function toggleFeedLog(){
   const b=document.getElementById('feedLogBody'),c=document.getElementById('feedCaret');
@@ -3313,7 +3439,7 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderMemberAdmin();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -3363,20 +3489,25 @@ function grantGiftAll(){
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
 function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
-function feedTotals(){const t={};const fbd=state.feedByDay||{};Object.keys(fbd).forEach(d=>{const day=fbd[d]||{};Object.keys(day).forEach(n=>{if(isAdminName(n))return;t[n]=(t[n]||0)+(day[n]||0);});});return t;}
+function feedTotals(){const t={};periodFeeds().rank.forEach(r=>{t[r.name]=r.days;});return t;}
 function topFeeder(map){let best=null,bv=0;Object.keys(map||{}).forEach(n=>{if(isAdminName(n))return;if(map[n]>bv){bv=map[n];best=n;}});return best?{name:best,count:bv}:null;}
-function renderRewardLead(){const el=document.getElementById('rewardLead');if(!el)return;const top=topFeeder(feedTotals());el.innerHTML=top?`현재 선두 🥇 <b>${esc(top.name)}</b> · 누적 먹이 <b>${top.count}회</b>로 1위`:'아직 먹이를 준 기록이 없어요 — 첫 주인공이 되어보세요!';}
+function renderRewardLead(){const el=document.getElementById('rewardLead');if(!el)return;const top=topFeeder(feedTotals());el.innerHTML=top?`현재 선두 🥇 <b>${esc(top.name)}</b> · 먹이 준 날 <b>${top.count}일</b>로 1위`:'아직 먹이를 준 기록이 없어요 — 첫 주인공이 되어보세요!';}
 function finalizeComp(){
   if(!me||!isFounder(me))return;
-  const fbd=state.feedByDay||{};
-  const last=(state.comp&&state.comp.lastFinalized)||'';
-  const todo=Object.keys(fbd).filter(d=>d<TODAY&&d>last).sort();
-  if(!todo.length)return;
-  state.rewards=state.rewards||[];let announced=null;
-  todo.forEach(d=>{const top=topFeeder(fbd[d]);if(top&&!state.rewards.some(r=>r.date===d)){state.rewards.push({id:'r'+d,date:d,winner:top.name,count:top.count,prize:'여름맞이 텀블러',given:false});announced={date:d,winner:top.name,count:top.count};}});
-  state.comp=state.comp||{};state.comp.lastFinalized=todo[todo.length-1];
+  if(!compEnded())return;                              // 기간이 끝나야 우승 확정
+  const cid='c'+((state.comp&&state.comp.start)||0);
+  if((state.comp&&state.comp.finalizedFor)===cid)return;
+  const {rank}=periodFeeds();
+  if(!rank.length)return;
+  const top=rank[0];
+  state.rewards=state.rewards||[];
+  if(!state.rewards.some(r=>r.id===cid)){
+    state.rewards.push({id:cid,date:compRange().ed,winner:top.name,count:top.days,prize:'여름맞이 텀블러',given:false});
+    const a={id:'win-'+cid,text:`🏆 이번 컴페티션 우승자는 ${top.name}님!\n기간 동안 먹이를 ${top.days}일 주어 1위예요. (노제로 결과 + 기념토큰 합산) 축하합니다 🎉`,by:'프레젠스 동물농장',t:Date.now(),winner:true};
+    state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);
+  }
+  state.comp=state.comp||{};state.comp.finalizedFor=cid;
   if(LIVE){DB.set('rewards',state.rewards);DB.set('comp',state.comp);}
-  if(announced){const a={id:'win-'+announced.date,text:`이번 동물키우기 우승자는 ${announced.winner}님 입니다! 🏆\n먹이를 ${announced.count}회 주어 동물 성장에 가장 많이 기여했어요. 축하합니다 🎉`,by:'프레젠스 동물농장',t:Date.now(),winner:true};state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);}
   renderRewardAdmin();
 }
 function showRewardReminder(){
@@ -3438,6 +3569,27 @@ function removeMember(name){
   if(LIVE)DB.set('extraMembers',state.extraMembers);
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   toast(`${name}님을 명단에서 뺐어요`);
+}
+function renderManagerAdmin(){
+  const box=document.getElementById('managerAdminBody');if(!box||!me||!isFounder(me))return;
+  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  const mg=state.managers||[];
+  const isMgr=n=>mg.some(x=>String(x||'').replace(/\s/g,'')===String(n||'').replace(/\s/g,''));
+  const bd=document.getElementById('mgrBadge');if(bd){bd.textContent=mg.length;bd.classList.toggle('zero',mg.length===0);}
+  box.innerHTML=mems.length?mems.map(u=>{
+    const on=isMgr(u.name);
+    return `<div class="mgr-row${on?' on':''}"><span class="mgr-av" style="background:${avColor(u.name)}">${avInner(u.name)}</span><span class="mgr-nm">${esc(u.name)}<small> · ${esc(u.role)}</small></span>${on?`<span class="mgr-tag">🧑‍💼 매니저</span><button class="mgr-btn off" onclick="toggleManager('${esc(u.name)}')">해제</button>`:`<button class="mgr-btn" onclick="toggleManager('${esc(u.name)}')">매니저로</button>`}</div>`;
+  }).join(''):'<div class="rank-empty">활성 팀원이 없어요 (가입 완료된 팀원만 임명할 수 있어요)</div>';
+}
+function toggleManager(name){
+  if(!isFounder(me))return;
+  const key=String(name||'').replace(/\s/g,'');
+  let mg=(state.managers||[]).slice();
+  const i=mg.findIndex(x=>String(x||'').replace(/\s/g,'')===key);
+  if(i>=0){mg.splice(i,1);toast(`${name}님 매니저 해제`);}
+  else{mg.push(name);toast(`${name}님을 매니저로 임명했어요 🧑‍💼`);}
+  state.managers=mg;if(LIVE)DB.set('managers',mg);
+  renderManagerAdmin();
 }
 function renderMemberAdmin(){
   const box=document.getElementById('memberAdminBody');if(!box)return;
@@ -3798,6 +3950,7 @@ async function initFirebase(){
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('feedByDay',v=>{state.feedByDay=v||{};if(document.getElementById('feedLogBody'))renderFeedLog();});
+  DB.on('managers',v=>{state.managers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){document.body.classList.toggle('can-daily',canDaily(me));buildRail();if(isFounder(me))renderManagerAdmin();}});
   DB.on('feedLog',v=>{state.feedLog=Array.isArray(v)?v:(v?Object.values(v):[]);if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
