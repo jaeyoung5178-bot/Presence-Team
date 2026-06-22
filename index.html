@@ -1075,6 +1075,26 @@ body.app-on #ambientBg{opacity:.7}
 .tok-log-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 3px;border-bottom:1px solid var(--line-soft);color:var(--cream)}
 .tok-log-row .mono{color:var(--muted)}
 .tok-log-row .tlplus{color:var(--amber);font-weight:700;flex:0 0 auto}
+.gift-all-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,#E8923C,#f5b860);color:#3a2410;font-weight:800;border:none;border-radius:11px;padding:12px;font-size:13.5px;cursor:pointer;transition:.15s}
+.gift-all-btn:hover{filter:brightness(1.05)}
+.gift-all-btn:active{transform:scale(.99)}
+.gift-note{font-size:10.5px;color:var(--faint);line-height:1.5;margin-top:8px;text-align:center}
+.ann-box{text-align:center;max-width:400px}
+.ann-icon{font-size:42px;line-height:1;margin-bottom:6px}
+.ann-title{font-size:17px;font-weight:800;color:var(--cream);margin:0 0 12px}
+.ann-text{font-size:14.5px;line-height:1.7;color:var(--cream);white-space:pre-wrap;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.ann-by{font-size:11px;color:var(--faint);font-family:var(--mono);margin-top:10px}
+.ann-ok{margin-top:18px;width:100%;background:linear-gradient(135deg,var(--green),var(--green-soft));color:#08130c;font-weight:800;border:none;border-radius:11px;padding:13px;font-size:14px;cursor:pointer;transition:.15s}
+.ann-ok:hover{filter:brightness(1.05)}.ann-ok:active{transform:scale(.99)}
+.ann-post-btn{width:100%;margin-top:10px;background:var(--wepair);color:#062330;font-weight:800;border:none;border-radius:10px;padding:11px;font-size:13.5px;cursor:pointer}
+.ann-post-btn:hover{filter:brightness(1.05)}
+.ann-cur{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.ann-cur-lbl{font-size:10px;color:var(--green-soft);font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.ann-cur-tx{font-size:13px;color:var(--cream);line-height:1.6;white-space:pre-wrap}
+.ann-cur-meta{font-size:10.5px;color:var(--faint);margin-top:7px}
+.ann-clear{margin-top:10px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer}
+.ann-clear:hover{border-color:var(--danger);color:var(--danger)}
+.ann-cur-none{margin-top:12px;font-size:12px;color:var(--faint);text-align:center;padding:10px}
 .sheet-conn{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
 .sheet-conn .sc-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:10px}
 .sheet-conn .sc-note b{color:var(--cream)}
@@ -1454,6 +1474,17 @@ body.app-on #ambientBg{opacity:.7}
             <p style="font-size:12px;color:var(--muted);margin-bottom:11px">결과(하루 1건↑)를 보고하면 자동 지급돼요. <b>누적 지급</b> = 지금까지 준 총 개수 · <b>사용</b> = 먹이로 쓴 개수 · <b>보유</b> = 아직 안 쓴 잔액.</p>
             <div style="overflow-x:auto"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th></tr></thead><tbody id="tokenAdminBody"></tbody></table></div>
             <div id="tokenGrantLog" class="tok-log"></div>
+            <button class="gift-all-btn" onclick="grantGiftAll()">🎁 오늘 전원에게 기념 토큰 1개씩 지급</button>
+            <div class="gift-note">첫날 기념용이에요. 내일부터는 결과(하루 1건↑) 보고 시 자동 지급돼요. (오늘 중복 눌러도 한 번만 지급되니 안심하세요.)</div>
+          </div>
+        </div>
+        <div class="adm-card">
+          <div class="ah"><h3>📣 팝업 공지</h3></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b> 버튼을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
+            <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
+            <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
+            <div id="annCurrent"></div>
           </div>
         </div>
       </div>
@@ -1476,6 +1507,13 @@ body.app-on #ambientBg{opacity:.7}
   <div class="acts"><button class="btn ghost" onclick="closeModal('meModal')">닫기</button><button class="btn" id="meLogout" onclick="logout()">로그아웃</button></div>
 </div></div>
 
+<div class="modal" id="annModal"><div class="box ann-box">
+  <div class="ann-icon">📣</div>
+  <h3 class="ann-title">공지</h3>
+  <div class="ann-text" id="annText"></div>
+  <div class="ann-by" id="annBy"></div>
+  <button class="ann-ok" onclick="ackAnnounce()">확인</button>
+</div></div>
 <div class="modal" id="oxfamModal"><div class="box">
   <div class="ox-hero">
     <span class="qico" style="font-size:12px">OXFAM</span>
@@ -1765,6 +1803,7 @@ let state={
   homeFx:null,
   tokens:{},tokenGrants:{},
   settings:{},
+  popupAnnounce:null,
   obj:[
     {q:'이미 다른 곳에 후원하고 있어요',sit:'다른 단체 후원 중이라 거절',ment:'좋은 일 하고 계시네요! 정말 멋지세요. 다만 옥스팜은 긴급구호와 자립을 동시에 다루는 곳이라 결이 조금 달라요. 기존 후원을 줄이시라는 게 아니라, 한 아이의 하루를 더 바꾸는 작은 한 걸음을 더해보시는 건 어떨까요?'},
     {q:'지금은 돈이 없어요 / 여유가 없어요',sit:'경제적 부담을 이유로 거절',ment:'충분히 이해해요. 그래서 부담 없는 금액부터 시작하실 수 있어요. 하루 커피 한 잔보다 적은 금액으로 한 아이의 식수와 교육이 바뀝니다. 큰 금액이 아니라 꾸준함이 만드는 변화예요.'},
@@ -1990,6 +2029,7 @@ function enterApp(){
   // prefill name fields
   
   buildRail();renderAll();goTab('home');startAutoPull();
+  showAnnounceIfNew();
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
@@ -3105,13 +3145,13 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  renderSurveyResponses();renderTokenAdmin();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();updateCounts();
 }
 function renderTokenAdmin(){
   const body=document.getElementById('tokenAdminBody');if(!body)return;
   const grants=state.tokenGrants||{},tokens=state.tokens||{};
   const issued={};let totalIssued=0;
-  Object.keys(grants).forEach(k=>{if(!grants[k])return;const name=k.split('|').slice(1).join('|');if(!name)return;issued[name]=(issued[name]||0)+1;totalIssued++;});
+  Object.keys(grants).forEach(k=>{if(!grants[k])return;const name=k.split('|').pop();if(!name)return;issued[name]=(issued[name]||0)+1;totalIssued++;});
   Object.keys(tokens).forEach(n=>{if(issued[n]===undefined)issued[n]=0;});
   const names=Object.keys(issued).sort((a,b)=>(issued[b]-issued[a])||((tokens[b]||0)-(tokens[a]||0))||a.localeCompare(b));
   const bd=document.getElementById('tokIssuedBadge');if(bd){bd.textContent=totalIssued;bd.classList.toggle('zero',totalIssued===0);}
@@ -3121,8 +3161,51 @@ function renderTokenAdmin(){
     +`<tr class="tok-sum"><td><b>합계</b></td><td class="mono"><b>${totalIssued}</b></td><td class="mono"><b>${Math.max(0,totalIssued-totBal)}</b></td><td class="mono"><b>🪙 ${totBal}</b></td></tr>`
     :'<tr><td colspan="4" class="empty-row">아직 지급된 토큰이 없어요</td></tr>';
   const log=document.getElementById('tokenGrantLog');
-  if(log){const items=Object.keys(grants).filter(k=>grants[k]).map(k=>{const p=k.split('|');return {date:p[0],name:p.slice(1).join('|')};}).sort((a,b)=>a.date<b.date?1:-1).slice(0,12);
-    log.innerHTML=items.length?'<div class="tok-log-h">최근 지급 내역</div>'+items.map(it=>`<div class="tok-log-row"><span>${esc(it.name)}</span><span class="mono">${esc(it.date)}</span><span class="tlplus">🪙 +1</span></div>`).join(''):'';}
+  if(log){const items=Object.keys(grants).filter(k=>grants[k]).map(k=>{const p=k.split('|');return {date:p[0],name:p[p.length-1],gift:k.indexOf('|gift|')>=0};}).sort((a,b)=>a.date<b.date?1:-1).slice(0,12);
+    log.innerHTML=items.length?'<div class="tok-log-h">최근 지급 내역</div>'+items.map(it=>`<div class="tok-log-row"><span>${esc(it.name)}</span><span class="mono">${esc(it.date)}</span><span class="tlplus">${it.gift?'🎁 기념':'🪙 +1'}</span></div>`).join(''):'';}
+}
+function grantGiftAll(){
+  if(!isFounder(me)){toast('관리자만 지급할 수 있어요');return;}
+  const names=rosterMembers().map(u=>u.name);
+  if(!names.length){toast('팀원이 없어요');return;}
+  if(!confirm(`오늘 ${names.length}명 전원에게 기념 토큰 1개씩 지급할까요?`))return;
+  const today=TODAY;let n=0;
+  names.forEach(name=>{const gk=`${today}|gift|${name}`;if(!state.tokenGrants[gk]){state.tokenGrants[gk]=true;state.tokens[name]=(state.tokens[name]||0)+1;n++;}});
+  if(n===0){toast('이미 오늘 전원에게 기념 토큰을 지급했어요 🎁');return;}
+  if(LIVE){DB.set('tokenGrants',state.tokenGrants);DB.set('tokens',state.tokens);}
+  renderTokenAdmin();renderTokenShop();
+  toast(`🎁 ${n}명에게 기념 토큰을 1개씩 지급했어요!`);
+}
+function showAnnounceIfNew(){
+  const a=state.popupAnnounce;if(!a||!a.text)return;
+  if(lsGet('presence_ann_ack')===a.id)return;
+  const tx=document.getElementById('annText');if(tx)tx.textContent=a.text;
+  const by=document.getElementById('annBy');if(by)by.textContent=(a.by?a.by+' · ':'')+(a.t?new Date(a.t).toLocaleDateString('ko-KR'):'');
+  openModal('annModal');
+}
+function ackAnnounce(){const a=state.popupAnnounce;if(a)lsSet('presence_ann_ack',a.id);closeModal('annModal');}
+function postAnnounce(){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  const ta=document.getElementById('annInput'),text=ta?ta.value.trim():'';
+  if(!text){toast('공지 내용을 입력해 주세요');return;}
+  if(!confirm('이 공지를 전 팀원에게 팝업으로 띄울까요?'))return;
+  const a={id:Date.now().toString(),text,by:me.name,t:Date.now()};
+  state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);
+  lsSet('presence_ann_ack',a.id);            // 작성자(관리자)에겐 다시 안 뜨게
+  renderAnnounceAdmin();toast('📣 공지를 띄웠어요 · 팀원이 로그인하면 바로 떠요');
+}
+function clearAnnounce(){
+  if(!isFounder(me))return;
+  if(!confirm('현재 팝업 공지를 내릴까요?'))return;
+  state.popupAnnounce=null;if(LIVE)DB.set('popupAnnounce',null);
+  renderAnnounceAdmin();toast('공지를 내렸어요');
+}
+function renderAnnounceAdmin(){
+  const cur=document.getElementById('annCurrent');if(!cur)return;
+  const a=state.popupAnnounce;
+  cur.innerHTML=(a&&a.text)
+    ?`<div class="ann-cur"><div class="ann-cur-lbl">지금 띄워진 공지</div><div class="ann-cur-tx">${esc(a.text)}</div><div class="ann-cur-meta">${esc(a.by||'')} · ${a.t?new Date(a.t).toLocaleString('ko-KR'):''}</div><button class="ann-clear" onclick="clearAnnounce()">공지 내리기</button></div>`
+    :'<div class="ann-cur-none">지금 띄워진 팝업 공지가 없어요</div>';
 }
 function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓`)}
@@ -3313,7 +3396,7 @@ const FX_AUDIO={
   fireworks:'audio/fireworks.mp3'
 };
 const SND_LABEL={xmas:'캐롤',beach:'파도소리',snow:'눈 소리',sakura:'벚꽃 소리',leaves:'낙엽 소리',fireworks:'폭죽 소리',rain:'빗소리',sun:'햇살 음악'};
-const SND_VOL={xmas:0.55,beach:0.6,snow:0.5,sakura:0.5,leaves:0.5,fireworks:0.55,rain:0.55,sun:0.55};
+const SND_VOL={xmas:0.3,beach:0.3,snow:0.3,sakura:0.3,leaves:0.3,fireworks:0.3,rain:0.3,sun:0.3};
 const SND=(function(){
   let cache={},cur=null;
   function get(t){if(cache[t])return cache[t];var src=FX_AUDIO[t];if(!src)return null;var a=new Audio();a.src=src;a.loop=true;a.preload="none";a.volume=0;cache[t]=a;return a;}
@@ -3411,6 +3494,7 @@ async function initFirebase(){
   DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();});
+  DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
   DB.on('sales',v=>{
     state.sales={};
