@@ -835,6 +835,32 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .mstat-foot{margin-top:11px;font-size:12px;color:var(--muted);font-family:var(--mono)}
 .mstat-avg{margin-top:8px;padding:11px 14px;background:var(--grad);border-radius:11px;font-size:14px;font-weight:700;color:#fff;font-family:var(--disp);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .mstat-avg b{font-family:var(--mono);font-size:20px;font-weight:800}
+/* ===== 팀 세일즈관리 ===== */
+.sm-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:14px}
+.sm-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.sm-table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.sm-table th{background:var(--surface);color:var(--muted);font-family:var(--mono);font-size:10.5px;font-weight:700;padding:10px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.sm-table th:first-child{text-align:left}
+.sm-table td{padding:8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+.sm-table td.sm-nm{text-align:left;font-weight:700;color:var(--cream);white-space:nowrap}
+.sm-table td.sm-nm small{color:var(--faint);font-weight:600;font-size:10px;margin-left:3px}
+.sm-table td.num{font-family:var(--mono);color:var(--cream)}
+.sm-table tr:last-child td{border-bottom:none}
+.sm-in{width:62px;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 8px;font-size:12.5px;font-family:var(--mono);text-align:right}
+.sm-in.wide{width:92px}
+.sm-in:focus{border-color:var(--green);outline:none}
+.bep-pct{font-family:var(--mono);font-weight:800;font-size:12.5px;padding:2px 7px;border-radius:7px}
+.bep-pct.ok{background:rgba(92,188,46,.16);color:var(--green-soft)}
+.bep-pct.mid{background:rgba(230,176,82,.16);color:var(--amber)}
+.bep-pct.low{background:rgba(225,90,90,.16);color:var(--danger)}
+.sm-foot{margin-top:11px;font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.7}
+.sm-foot b{color:var(--cream)}
+.sm-analysis{margin-top:18px;background:linear-gradient(150deg,rgba(99,102,241,.1),rgba(92,188,46,.06));border:1px solid var(--line);border-radius:14px;padding:16px 17px}
+.sm-an-h{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--cream);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sm-an-live{font-family:var(--mono);font-size:9.5px;font-weight:800;color:var(--green-ink);background:var(--green);border-radius:5px;padding:2px 6px;text-transform:uppercase}
+.sm-an-b p{font-size:13px;color:var(--cream);line-height:1.65;margin:0 0 6px}
+.sm-an-b p:last-child{margin-bottom:0}
+.sm-an-b b{color:#fff}
 .mstat-avg small{font-family:var(--mono);font-size:10.5px;font-weight:600;color:rgba(255,255,255,.8);margin-left:auto}
 .mstat-foot b{color:var(--green);font-size:14px}
 .dna{font-size:11px!important;font-weight:800;width:auto!important;padding:0 10px!important}
@@ -1391,9 +1417,9 @@ body.app-on #ambientBg{opacity:.7}
         <div class="sh-month"><span>이번 달 누적 <b id="saleMonth">0</b></span><span>이번 달 AVG <b id="saleAvg">0.0</b></span></div>
       </div>
       <div class="gauge-card">
-        <div class="gauge-top"><span class="lab">이번 달 목표 달성률</span><span class="val"><b id="gMonth">0</b> <span class="tgt">/ <span id="gTarget">60</span></span></span></div>
+        <div class="gauge-top"><span class="lab">이번주 팀 목표 달성률</span><span class="val"><b id="gMonth">0</b> <span class="tgt">/ <span id="gTarget">43</span></span></span></div>
         <div class="gauge-track"><div class="gauge-fill" id="gFill"></div></div>
-        <div class="gauge-sub"><span>이번 달 세일즈</span><span class="gauge-pct" id="gPct">0%</span></div>
+        <div class="gauge-sub"><span>이번주 팀 세일즈 (내 한 건도 여기 올라가요!)</span><span class="gauge-pct" id="gPct">0%</span></div>
       </div>
       <div class="sfeed">
         <div class="sf-h">오늘의 팀 세일즈</div>
@@ -1561,15 +1587,15 @@ body.app-on #ambientBg{opacity:.7}
 
     <!-- PERFORMANCE (leader only) -->
     <div class="mpanel" id="m-perf"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🎯 이번주 목표 달성</h2><span class="ko">주간 목표 = 월 목표 ÷ 주 · 실시간 집계</span><span class="meta">리더 전용</span></div>
+      <div class="sec-head"><h2>📊 이번달 목표 달성</h2><span class="ko">팀 월 목표 달성률 · 한 달 누적 · 실시간</span><span class="meta">리더 전용</span></div>
       <div class="perf-note">🔒 이 화면은 리더(LR 이상)에게만 보입니다. IC에게는 노출되지 않아요.</div>
       <div class="gauge-card" style="margin-top:0;margin-bottom:16px">
-        <div class="gauge-top"><span class="lab" id="tgLab">이번 주 팀 목표</span><span class="val"><b id="tgMonth">0</b> <span class="tgt">/ <span id="tgTarget">54</span></span></span></div>
+        <div class="gauge-top"><span class="lab" id="tgLab">이번 달 팀 목표</span><span class="val"><b id="tgMonth">0</b> <span class="tgt">/ <span id="tgTarget">215</span></span></span></div>
         <div class="gauge-track"><div class="gauge-fill" id="tgFill"></div></div>
-        <div class="gauge-sub"><span>이번 주 팀 합계 세일즈</span><span class="gauge-pct" id="tgPct">0%</span></div>
+        <div class="gauge-sub"><span>이번 달 팀 합계 세일즈</span><span class="gauge-pct" id="tgPct">0%</span></div>
         <div id="tgWeekSub" style="margin-top:7px;font-size:10.5px;color:var(--faint);font-family:var(--mono);line-height:1.5"></div>
         <div style="display:flex;gap:10px;margin-top:14px">
-          <div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px"><div style="font-size:10.5px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">이번 주 팀 AVG</div><div class="big" id="tgAvg" style="font-family:var(--disp);font-weight:700;font-size:20px;color:var(--green-soft)">—</div></div>
+          <div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px"><div style="font-size:10.5px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">월 팀 AVG</div><div class="big" id="tgAvg" style="font-family:var(--disp);font-weight:700;font-size:20px;color:var(--green-soft)">—</div></div>
           <div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px"><div style="font-size:10.5px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">오늘 팀 세일즈</div><div class="big" id="tgIncome" style="font-family:var(--disp);font-weight:700;font-size:20px;color:var(--cream)">—</div></div>
         </div>
       </div>
@@ -1591,13 +1617,25 @@ body.app-on #ambientBg{opacity:.7}
         </div>
       </div>
       <div class="board">
-        <div class="board-top"><span class="sync" id="syncState"><span class="led"></span><span id="syncTxt" >세일즈 버튼 자동 집계</span></span><span class="src">이번 주 · 실시간</span></div>
-        <div class="board-scroll"><table class="scores"><thead><tr><th>팀원</th><th>이번 주 세일즈</th></tr></thead><tbody id="scoreBody"></tbody></table></div>
+        <div class="board-top"><span class="sync" id="syncState"><span class="led"></span><span id="syncTxt" >세일즈 버튼 자동 집계</span></span><span class="src">이번 달 · 실시간</span></div>
+        <div class="board-scroll"><table class="scores"><thead><tr><th>팀원</th><th>이번 달 세일즈</th></tr></thead><tbody id="scoreBody"></tbody></table></div>
         <div class="board-foot" id="boardFoot">— 세일즈 버튼을 누르면 자동으로 집계돼요</div>
       </div>
     </section></div></div>
 
     <!-- ADMIN (admin only) -->
+    <div class="mpanel" id="m-salesmgr"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>💰 팀 세일즈관리</h2><span class="ko">개인별 월간 리뷰 · 리젝률·인컴·BEP · 시트 연동</span><span class="meta">AOP 전용</span></div>
+      <div class="sm-cal">
+        <div class="dc-head"><button onclick="smShift(-1)" aria-label="이전 달">‹</button><b id="smMonthLab">2026년 6월</b><button onclick="smShift(1)" aria-label="다음 달">›</button><button class="dc-today" onclick="smThisMonth()">이번달</button></div>
+        <div class="sheet-sync" style="margin-top:10px"><span class="sync-dot idle" id="smSyncDot"></span><span id="smSyncTxt">대기 중</span><button class="sync-now" onclick="metaPullSheet(true)">↻ 시트에서 리젝·인컴 가져오기</button></div>
+      </div>
+      <div class="sm-scroll"><table class="sm-table"><thead><tr><th>팀원</th><th>세일즈</th><th>활동일</th><th>AVG</th><th>리젝률(%)</th><th>인컴(₩)</th><th>BEP</th><th>BEP충족</th></tr></thead><tbody id="smBody"></tbody></table></div>
+      <div class="sm-foot" id="smFoot"></div>
+      <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">리젝률·인컴·BEP를 여기서 입력하면 <b>구글시트 '메타' 탭(월·이름별)에 자동 반영</b>되고, 반대로 시트 '메타' 탭에서 고치고 <b>↻ 가져오기</b>를 누르면 여기 들어와요. (BEP=손익분기점 · BEP충족 = 인컴 ÷ BEP)</p>
+      <div class="sm-analysis" id="smAnalysis"></div>
+    </section></div></div>
+
     <div class="mpanel" id="m-survey"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>📝 설문</h2><span class="ko">설문 양식 미리보기 · 제출된 응답</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
@@ -1890,7 +1928,7 @@ function teamWeekTarget(){return Math.max(1,Math.round(teamTargetNow()/weeksInMo
 function sumWeek(name){const {sd,ed}=weekRange();let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date>=sd&&e.date<=ed&&(!name||e.name===name)&&!e.na&&!e.rally)s+=(+e.count||0);}return s;}
 function activeWeekDays(){const {sd,ed}=weekRange();const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date>=sd&&e.date<=ed&&(+e.count||0)>0)days.add(e.date);}return days.size||1;}
 function teamTargetNow(){return MONTHLY_TEAM_TARGET[curMonthKey()]||TEAM_TARGET}
-function teamAchievedFor(mk){return (MONTHLY_TEAM_DONE[mk]||0)+sumMonth(null,mk)}
+function teamAchievedFor(mk){const live=sumMonth(null,mk);return live>0?live:(MONTHLY_TEAM_DONE[mk]||0);}  // 앱에 그 달 데이터가 있으면 실데이터, 없으면 과거 폴백 (이중합산 방지)
 /* ============================================================ */
 const LIVE=!!FIREBASE_CONFIG;
 const SESSION_DAYS=3650;        // 로그아웃 전까지 유지 (방문 시마다 갱신)
@@ -1990,6 +2028,7 @@ let state={
   feedByDay:{},rewards:[],comp:{},
   feedLog:[],
   managers:[],
+  salesMeta:{},bep:{},
   extraMembers:[],
   settings:{},
   popupAnnounce:null,
@@ -2568,17 +2607,18 @@ const NAV=[
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','training']},
   {k:'lead',e:'🎯',l:'리더',tabs:['recap','calling']},
-  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','events','survey','admin']}
+  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','admin']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
-  sale:{e:'🔔',l:'세일즈'},comp:{e:'🏆',l:'컴페티션'},perf:{e:'🎯',l:'이번주 목표',g:()=>isLeader(me.role)},
+  sale:{e:'🔔',l:'세일즈'},comp:{e:'🏆',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝',g:()=>isLeader(me.role)},
   recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'🎉',l:'기념일',g:()=>isFounder(me)},
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
+  salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -2605,6 +2645,7 @@ function selectGroup(gk){
 function goTab(name){
   if(name==='perf'&&!isLeader(me.role))name='home';
   if(name==='admin'&&!isFounder(me))name='home';
+  if(name==='salesmgr'&&!isFounder(me))name='home';
   if(name==='daily'&&!canDaily(me))name='home';
   if(name==='training'&&!isLeader(me.role))name='home';
   if(name==='recap'&&!isTLplus(me.role))name='home';
@@ -2619,6 +2660,7 @@ function goTab(name){
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();}
   if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();}}
   if(name==='survey'&&isFounder(me))renderSurveyResponses();
+  if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -3305,7 +3347,8 @@ function renderSaleEditor(){
   document.getElementById('saleNext').textContent=nextTierLabel(saleDraft);
   document.getElementById('saleMonth').textContent=monthBase;
   document.getElementById('saleAvg').textContent=(monthBase/Math.max(activeDays(me.name),1)).toFixed(1);
-  setGauge('gFill','gPct','gMonth','gTarget',monthBase,SALES_TARGET);
+  const teamWeekLive=sumWeek(null)-myTodayCount()+saleDraft;   // 이번 주 팀 합계(내 입력 실시간 반영)
+  setGauge('gFill','gPct','gMonth','gTarget',teamWeekLive,teamWeekTarget());
 }
 function animateTier(tier){
   const fx=document.getElementById('tierFx');
@@ -3332,13 +3375,12 @@ function renderSales(){
 }
 function activeTeamDays(){const m=curMonthKey(),days=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&e.count>0)days.add(e.date)}return days.size||1}
 function renderPerfGauge(){
-  const mk=curMonthKey(),mn=new Date().getMonth()+1,widx=weekIndexInMonth(),wks=weeksInMonth(mk);
-  const wtgt=teamWeekTarget(),wteam=sumWeek(null);
-  setGauge('tgFill','tgPct','tgMonth','tgTarget',wteam,wtgt);
-  const lab=document.getElementById('tgLab');if(lab)lab.textContent=`${mn}월 ${widx}주 팀 목표`;
-  const {sd,ed}=weekRange();
-  const wsub=document.getElementById('tgWeekSub');if(wsub)wsub.textContent=`이번 주 ${sd.slice(5).replace('-','/')}~${ed.slice(5).replace('-','/')} · 월 목표 ${teamTargetNow()} ÷ ${wks}주 = 주 ${wtgt}`;
-  const a=document.getElementById('tgAvg');if(a)a.textContent=(wteam/activeWeekDays()).toFixed(2);
+  const mk=curMonthKey(),mn=new Date().getMonth()+1;
+  const team=teamAchievedFor(mk),tgt=teamTargetNow();
+  setGauge('tgFill','tgPct','tgMonth','tgTarget',team,tgt);
+  const lab=document.getElementById('tgLab');if(lab)lab.textContent=mn+'월 팀 목표';
+  const wsub=document.getElementById('tgWeekSub');if(wsub)wsub.textContent=`${mn}월 팀 목표 ${tgt} · 누적 ${team} · 달성 ${tgt?Math.round(team/tgt*100):0}%`;
+  const a=document.getElementById('tgAvg');if(a)a.textContent=(sumMonth(null,mk)/activeTeamDays()).toFixed(2);
   let todayTeam=0;for(const k in state.sales){const e=state.sales[k];if(e.date===TODAY&&!e.na&&!e.rally)todayTeam+=(+e.count||0);}
   const inc=document.getElementById('tgIncome');if(inc)inc.textContent=todayTeam;
   renderPrevMonth();renderAdminSaleEdit();
@@ -3364,11 +3406,11 @@ function sendSaleToSheet(e){
 
 
 function renderScores(){
-  const {sd,ed}=weekRange(),agg={},rc={AOP:'aop',TL:'tl',LR:'lr'};
-  for(const k in state.sales){const e=state.sales[k];if(e.date>=sd&&e.date<=ed){if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0};if(!e.na&&!e.rally)agg[e.name].sales+=(+e.count||0)}}
+  const m=curMonthKey(),agg={},rc={AOP:'aop',TL:'tl',LR:'lr'};
+  for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)){if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0};if(!e.na&&!e.rally)agg[e.name].sales+=(+e.count||0)}}
   const rows=Object.values(agg).sort((a,b)=>b.sales-a.sales);
   const _sb=document.getElementById('scoreBody');if(!_sb)return;
-  _sb.innerHTML=rows.length?rows.map((r,i)=>`<tr class="${i===0?'top1':''}"><td><span class="nm"><span class="rk">${i+1}</span>${esc(r.name)}<span class="role ${rc[r.role]||''}">${esc(r.role)}</span></span></td><td class="big">${r.sales}</td></tr>`).join(''):'<tr><td colspan="2" style="color:var(--faint);padding:16px;text-align:center">이번 주 세일즈가 아직 없어요</td></tr>';
+  _sb.innerHTML=rows.length?rows.map((r,i)=>`<tr class="${i===0?'top1':''}"><td><span class="nm"><span class="rk">${i+1}</span>${esc(r.name)}<span class="role ${rc[r.role]||''}">${esc(r.role)}</span></span></td><td class="big">${r.sales}</td></tr>`).join(''):'<tr><td colspan="2" style="color:var(--faint);padding:16px;text-align:center">이번 달 세일즈가 아직 없어요</td></tr>';
 }
 async function loadSheets(){if(!SHEETS_CSV_URL)return;try{const txt=await(await fetch(SHEETS_CSV_URL)).text();state.scores=txt.trim().split('\n').slice(1).map(l=>{const c=l.split(',').map(x=>x.replace(/^"|"$/g,'').trim());return{name:c[0],role:c[1]||'IC',avg:c[2]||'-',income:c[3]||'-',rej:c[4]||'-',show:c[5]||'-',cum:c[6]||'-'}}).filter(r=>r.name);renderScores();document.getElementById('syncState').classList.add('live');document.getElementById('syncTxt').textContent='실시간 연동';document.getElementById('boardFoot').textContent='— Google Sheets · '+new Date().toLocaleTimeString('ko-KR')}catch(e){document.getElementById('boardFoot').textContent='— Sheets 연결 실패: 게시 링크/공개 설정 확인'}}
 
@@ -3450,7 +3492,7 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderSalesMgr();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -3580,6 +3622,103 @@ function removeMember(name){
   if(LIVE)DB.set('extraMembers',state.extraMembers);
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   toast(`${name}님을 명단에서 뺐어요`);
+}
+/* ===== 팀 세일즈관리 (개인별 월간 리뷰 · 리젝률·인컴·BEP) ===== */
+let smMonthKey=null;
+function smMK(){return smMonthKey||curMonthKey();}
+function smShift(n){const mk=smMK();let y=+mk.slice(0,4),m=+mk.slice(5,7)+n;if(m<1){m=12;y--;}if(m>12){m=1;y++;}smMonthKey=`${y}-${String(m).padStart(2,'0')}`;renderSalesMgr();}
+function smThisMonth(){smMonthKey=null;renderSalesMgr();}
+function metaRej(mk,name){return (((state.salesMeta||{})[mk]||{})[nk(name)]||{}).rej;}
+function metaIncome(mk,name){return (((state.salesMeta||{})[mk]||{})[nk(name)]||{}).income;}
+function bepOf(name){return (state.bep||{})[nk(name)];}
+function setMeta(mk,name,field,raw){
+  if(!isFounder(me))return;
+  const val=raw===''?'':Math.max(0,Number(raw)||0);
+  if(field==='bep'){state.bep=state.bep||{};state.bep[nk(name)]=val;if(LIVE)DB.set(`bep/${nk(name)}`,val===''?null:val);}
+  else{state.salesMeta=state.salesMeta||{};state.salesMeta[mk]=state.salesMeta[mk]||{};state.salesMeta[mk][nk(name)]=state.salesMeta[mk][nk(name)]||{};state.salesMeta[mk][nk(name)][field]=val;if(LIVE)DB.set(`salesMeta/${mk}/${nk(name)}/${field}`,val===''?null:val);}
+  metaWriteCell(mk,name);
+  renderSalesMgr();
+}
+let _metaTimers={};
+function metaWriteCell(mk,name){
+  const url=effectiveWebhook();if(!url||!/script\.google\.com/.test(url))return;
+  const key=mk+'|'+name;if(_metaTimers[key])clearTimeout(_metaTimers[key]);
+  smSync('sync');
+  _metaTimers[key]=setTimeout(()=>{delete _metaTimers[key];
+    const rej=metaRej(mk,name),income=metaIncome(mk,name),bep=bepOf(name);
+    const cb='__mw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);
+    window[cb]=(res)=>{smSync(res&&res.written?'ok':'err');delete window[cb];const s=document.getElementById(cb);if(s)s.remove();};
+    const q=`action=metawrite&month=${mk}&name=${encodeURIComponent(name)}&rej=${rej===undefined?'':rej}&income=${income===undefined?'':income}&bep=${bep===undefined?'':bep}&callback=${cb}&t=${Date.now()}`;
+    const sc=document.createElement('script');sc.id=cb;sc.src=url+(url.indexOf('?')>=0?'&':'?')+q;sc.onerror=()=>{smSync('err');delete window[cb];};document.body.appendChild(sc);
+  },800);
+}
+function metaPullSheet(manual){
+  const url=effectiveWebhook();if(!url||!/script\.google\.com/.test(url)){if(manual)toast('웹훅 URL이 없어요');return;}
+  smSync('sync');if(manual)toast('↻ 시트 메타 가져오는 중…');
+  const cb='__mp_'+Date.now();
+  window[cb]=(data)=>{try{
+    if(data&&data.rows){data.rows.forEach(r=>{const mk=String(r.month||'').trim(),nm=nk(String(r.name||''));if(!mk||!nm)return;
+      if(r.rej!==''&&r.rej!=null){state.salesMeta[mk]=state.salesMeta[mk]||{};state.salesMeta[mk][nm]=state.salesMeta[mk][nm]||{};state.salesMeta[mk][nm].rej=Number(r.rej);if(LIVE)DB.set(`salesMeta/${mk}/${nm}/rej`,Number(r.rej));}
+      if(r.income!==''&&r.income!=null){state.salesMeta[mk]=state.salesMeta[mk]||{};state.salesMeta[mk][nm]=state.salesMeta[mk][nm]||{};state.salesMeta[mk][nm].income=Number(r.income);if(LIVE)DB.set(`salesMeta/${mk}/${nm}/income`,Number(r.income));}
+      if(r.bep!==''&&r.bep!=null){state.bep[nm]=Number(r.bep);if(LIVE)DB.set(`bep/${nm}`,Number(r.bep));}
+    });smSync('ok');if(manual)toast('✅ 시트 메타를 가져왔어요');renderSalesMgr();}
+    else{smSync('err');}
+  }catch(e){smSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  const sc=document.createElement('script');sc.id=cb;sc.src=url+(url.indexOf('?')>=0?'&':'?')+'action=metapull&callback='+cb+'&t='+Date.now();sc.onerror=()=>{smSync('err');delete window[cb];};document.body.appendChild(sc);
+}
+function smSync(st){const d=document.getElementById('smSyncDot'),t=document.getElementById('smSyncTxt');if(!d)return;d.className='sync-dot '+(st==='ok'?'ok':st==='err'?'err':st==='sync'?'sync':'idle');if(t)t.textContent=st==='ok'?'시트 연동됨 · '+new Date().toLocaleTimeString('ko-KR'):st==='err'?'연동 실패 — 배포 확인':st==='sync'?'동기화 중…':'대기 중';}
+function won(n){n=+n||0;return n.toLocaleString('ko-KR');}
+function activeDaysIn(name,mk){const s=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(mk)&&e.name===name&&!e.na&&!e.rally&&(+e.count||0)>0)s.add(e.date);}return s.size;}
+function renderSalesMgr(){
+  const box=document.getElementById('smBody');if(!box||!me||!isFounder(me))return;
+  const mk=smMK(),mn=+mk.slice(5,7);
+  const lab=document.getElementById('smMonthLab');if(lab)lab.textContent=`${mk.slice(0,4)}년 ${mn}월`;
+  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  let tSales=0,tIncome=0,tBep=0,rejArr=[],bepMet=0,bepHas=0;
+  box.innerHTML=mems.map(u=>{
+    const nm=u.name,sales=sumMonth(nm,mk),days=activeDaysIn(nm,mk),avg=days?(sales/days).toFixed(2):'-';
+    const rej=metaRej(mk,nm),income=metaIncome(mk,nm),bep=bepOf(nm);
+    tSales+=sales;tIncome+=(+income||0);if(bep!==undefined&&bep!=='')tBep+=(+bep||0);
+    if(rej!==undefined&&rej!=='')rejArr.push(+rej||0);
+    let bepCell='—';
+    if(bep&&income!==''&&income!=null&&income!==undefined){const pct=Math.round((+income||0)/(+bep||1)*100);bepHas++;if(pct>=100)bepMet++;bepCell=`<span class="bep-pct ${pct>=100?'ok':pct>=70?'mid':'low'}">${pct}%</span>`;}
+    return `<tr><td class="sm-nm">${esc(nm)}<small> ${esc(u.role)}</small></td>`+
+      `<td class="num">${sales}</td><td class="num">${days}</td><td class="num">${avg}</td>`+
+      `<td><input class="sm-in" type="number" min="0" step="0.1" value="${rej===undefined?'':rej}" placeholder="–" onchange="setMeta('${mk}','${esc(nm)}','rej',this.value)"></td>`+
+      `<td><input class="sm-in wide" type="number" min="0" step="1000" value="${income===undefined?'':income}" placeholder="–" onchange="setMeta('${mk}','${esc(nm)}','income',this.value)"></td>`+
+      `<td><input class="sm-in wide" type="number" min="0" step="1000" value="${bep===undefined?'':bep}" placeholder="–" onchange="setMeta('${mk}','${esc(nm)}','bep',this.value)"></td>`+
+      `<td class="num">${bepCell}</td></tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:16px">팀원이 없어요</td></tr>';
+  const avgRej=rejArr.length?(rejArr.reduce((a,b)=>a+b,0)/rejArr.length).toFixed(1):'–';
+  const foot=document.getElementById('smFoot');
+  if(foot)foot.innerHTML=`${mn}월 팀 세일즈 <b>${tSales}</b> · 팀 인컴 <b>₩${won(tIncome)}</b> · 평균 리젝률 <b>${avgRej}%</b> · 팀 BEP <b>₩${won(tBep)}</b> · BEP 충족 <b>${bepMet}/${bepHas}명</b>`;
+  renderSalesAnalysis(mk);
+}
+function renderSalesAnalysis(mk){
+  const box=document.getElementById('smAnalysis');if(!box)return;
+  const mn=+mk.slice(5,7);
+  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  const rows=mems.map(u=>({name:u.name,role:u.role,sales:sumMonth(u.name,mk),days:activeDaysIn(u.name,mk),income:+metaIncome(mk,u.name)||0,rej:metaRej(mk,u.name),bep:+bepOf(u.name)||0}));
+  const active=rows.filter(r=>r.sales>0||r.income>0);
+  if(!active.length){box.innerHTML=`<div class="sm-an-h">📈 ${mn}월 현황 분석</div><div class="sm-an-b"><p>아직 ${mn}월 데이터가 없어요. 세일즈가 쌓이고 리젝·인컴을 입력하면 여기에 자동으로 분석이 작성돼요.</p></div>`;return;}
+  const tSales=rows.reduce((a,r)=>a+r.sales,0),tIncome=rows.reduce((a,r)=>a+r.income,0),tBep=rows.reduce((a,r)=>a+r.bep,0);
+  const tDays=rows.reduce((a,r)=>a+r.days,0),teamAvg=tDays?(tSales/tDays).toFixed(2):'-';
+  const topSales=[...rows].sort((a,b)=>b.sales-a.sales)[0];
+  const topIncome=[...rows].filter(r=>r.income>0).sort((a,b)=>b.income-a.income)[0];
+  const rejVals=rows.filter(r=>r.rej!==undefined&&r.rej!=='').map(r=>({name:r.name,rej:+r.rej}));
+  const avgRej=rejVals.length?(rejVals.reduce((a,r)=>a+r.rej,0)/rejVals.length).toFixed(1):null;
+  const hiRej=rejVals.length?[...rejVals].sort((a,b)=>b.rej-a.rej)[0]:null;
+  const bepRows=rows.filter(r=>r.bep>0&&r.income>0);
+  const bepMet=bepRows.filter(r=>r.income>=r.bep);
+  const bepBelow=bepRows.filter(r=>r.income<r.bep).sort((a,b)=>(a.income/a.bep)-(b.income/b.bep));
+  let L=[];
+  L.push(`<b>${mn}월 팀 세일즈 ${tSales}건</b> · 활동일 ${tDays}일 · <b>팀 AVG ${teamAvg}</b>.`);
+  if(topSales&&topSales.sales>0)L.push(`세일즈 선두는 <b>${esc(topSales.name)}</b> (${topSales.sales}건${topSales.days?` · AVG ${(topSales.sales/topSales.days).toFixed(2)}`:''}).`);
+  if(tIncome>0)L.push(`팀 인컴 <b>₩${won(tIncome)}</b>${topIncome?` · 최고 인컴 <b>${esc(topIncome.name)}</b> (₩${won(topIncome.income)})`:''}.`);
+  if(avgRej!=null)L.push(`평균 리젝률 <b>${avgRej}%</b>${hiRej&&hiRej.rej>0?` · 최고 ${esc(hiRej.name)} (${hiRej.rej}%) — 리젝 매니징 점검 권장`:''}.`);
+  if(tBep>0)L.push(`팀 BEP 합계 ₩${won(tBep)} 대비 인컴 ₩${won(tIncome)} → <b>${Math.round(tIncome/tBep*100)}% 충족</b>.`);
+  if(bepRows.length)L.push(`BEP 충족 <b>${bepMet.length}/${bepRows.length}명</b>${bepBelow.length?` · 미달: ${bepBelow.slice(0,3).map(r=>`${esc(r.name)}(${Math.round(r.income/r.bep*100)}%)`).join(', ')}${bepBelow.length>3?' 외':''}`:' — 전원 손익분기 달성! 🎉'}.`);
+  box.innerHTML=`<div class="sm-an-h">📈 ${mn}월 현황 자동 분석 <span class="sm-an-live">live</span></div><div class="sm-an-b">${L.map(x=>`<p>• ${x}</p>`).join('')}</div>`;
 }
 function renderManagerAdmin(){
   const box=document.getElementById('managerAdminBody');if(!box||!me||!isFounder(me))return;
@@ -3962,6 +4101,8 @@ async function initFirebase(){
   DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('feedByDay',v=>{state.feedByDay=v||{};if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('managers',v=>{state.managers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){document.body.classList.toggle('can-daily',canDaily(me));buildRail();if(isFounder(me))renderManagerAdmin();}});
+  DB.on('salesMeta',v=>{state.salesMeta=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
+  DB.on('bep',v=>{state.bep=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('feedLog',v=>{state.feedLog=Array.isArray(v)?v:(v?Object.values(v):[]);if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
