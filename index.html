@@ -1069,6 +1069,12 @@ body.app-on #ambientBg{opacity:.7}
 #fxToggle.on{background:rgba(70,182,221,.9);color:#062330;border-color:transparent}
 #fxToggle .fi{font-size:15px;line-height:1}
 .tok-table .tok-bal{font-weight:700;color:var(--amber)}
+.tok-table .tok-act{white-space:nowrap;text-align:right}
+.tok-table .tk-plus,.tok-table .tk-minus{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);font-size:15px;font-weight:800;cursor:pointer;line-height:1;padding:0}
+.tok-table .tk-plus{background:var(--green);color:#08130c;border-color:transparent;margin-left:5px}
+.tok-table .tk-plus:hover{filter:brightness(1.08)}
+.tok-table .tk-minus{background:transparent;color:var(--muted)}
+.tok-table .tk-minus:hover{border-color:var(--danger);color:var(--danger)}
 .tok-table tr.tok-sum td{border-top:2px solid var(--line);background:rgba(255,255,255,.02)}
 .tok-log{margin-top:13px}
 .tok-log-h{font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
@@ -1095,6 +1101,33 @@ body.app-on #ambientBg{opacity:.7}
 .ann-clear{margin-top:10px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer}
 .ann-clear:hover{border-color:var(--danger);color:var(--danger)}
 .ann-cur-none{margin-top:12px;font-size:12px;color:var(--faint);text-align:center;padding:10px}
+/* 보상칸 */
+.reward-box{margin:14px auto 6px;max-width:340px;background:linear-gradient(160deg,rgba(70,182,221,.12),rgba(255,209,107,.1));border:1px solid var(--line);border-radius:16px;padding:15px}
+.reward-head{margin-bottom:10px}
+.reward-tag{font-size:12px;font-weight:800;color:var(--wepair);background:rgba(70,182,221,.16);padding:4px 11px;border-radius:999px}
+.reward-main{display:flex;gap:13px;align-items:center}
+.tumbler-art{flex:0 0 auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+.reward-info{flex:1;min-width:0}
+.reward-name{font-family:var(--disp);font-size:17px;font-weight:800;color:var(--cream);margin-bottom:6px}
+.reward-crit{font-size:11.5px;color:var(--muted);line-height:1.6}
+.reward-crit b{color:var(--amber)}
+.reward-lead{margin-top:11px;text-align:center;font-size:12px;color:var(--cream);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}
+.reward-lead b{color:var(--green-soft)}
+/* 우승 콘페티 */
+.ann-box.winner{background:linear-gradient(165deg,rgba(255,209,107,.16),var(--surface) 60%);border-color:rgba(255,209,107,.5)}
+.ann-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:18px}
+.ann-confetti span{position:absolute;top:-20px;animation:confFall 2.6s linear infinite}
+@keyframes confFall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(360px) rotate(420deg);opacity:0}}
+.ann-box{position:relative}
+/* 보상 행 */
+.rw-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+.rw-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rw-info b{color:var(--cream);font-size:13.5px}
+.rw-meta{font-size:11px;color:var(--faint)}
+.rw-give{flex:0 0 auto;background:linear-gradient(135deg,#E8923C,#f5b860);color:#3a2410;font-weight:800;border:none;border-radius:9px;padding:8px 13px;font-size:12.5px;cursor:pointer}
+.rw-give:hover{filter:brightness(1.05)}
+.rw-done{flex:0 0 auto;font-size:11.5px;color:var(--green-soft);font-weight:700}
+.rw-none{font-size:12px;color:var(--faint);text-align:center;padding:14px;line-height:1.6}
 .sheet-conn{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
 .sheet-conn .sc-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:10px}
 .sheet-conn .sc-note b{color:var(--cream)}
@@ -1319,6 +1352,33 @@ body.app-on #ambientBg{opacity:.7}
           <button class="buy-feed-btn" id="buyFeedBtn" onclick="buyFeed()">🌽 먹이 사서 주기 <span class="cost">−1<span class="coin xs">P</span></span></button>
           <div class="token-note">결과(하루 1건↑)를 내면 관리자가 토큰을 1개 줘요 · 토큰으로만 먹이를 살 수 있어요 🪙</div>
         </div>
+        <div class="reward-box">
+          <div class="reward-head"><span class="reward-tag">🏆 이번 컴페티션 보상</span></div>
+          <div class="reward-main">
+            <div class="tumbler-art">
+              <svg viewBox="0 0 120 150" width="92" height="115" xmlns="http://www.w3.org/2000/svg" aria-label="여름맞이 텀블러">
+                <defs>
+                  <linearGradient id="tbody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fd8e8"/><stop offset="1" stop-color="#3aa6c9"/></linearGradient>
+                  <linearGradient id="tlid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset="1" stop-color="#f0a92e"/></linearGradient>
+                </defs>
+                <ellipse cx="60" cy="142" rx="30" ry="6" fill="rgba(0,0,0,.18)"/>
+                <path d="M30 36 L34 132 Q35 140 44 140 L76 140 Q85 140 86 132 L90 36 Z" fill="url(#tbody)" stroke="#2b8fb0" stroke-width="2"/>
+                <rect x="26" y="26" width="68" height="14" rx="7" fill="url(#tlid)" stroke="#d98e1c" stroke-width="2"/>
+                <rect x="52" y="12" width="16" height="16" rx="4" fill="#ffe08a" stroke="#d98e1c" stroke-width="2"/>
+                <path d="M38 64 Q60 74 82 64" stroke="#fff" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/>
+                <circle cx="52" cy="92" r="7" fill="#fff" opacity=".95"/><circle cx="52" cy="92" r="3" fill="#ff8fab"/>
+                <text x="68" y="100" font-size="15">🌴</text>
+                <text x="44" y="118" font-size="13">🍉</text>
+                <ellipse cx="46" cy="50" rx="5" ry="9" fill="#fff" opacity=".35"/>
+              </svg>
+            </div>
+            <div class="reward-info">
+              <div class="reward-name">여름맞이 텀블러 🥤</div>
+              <p class="reward-crit">일일 결과 또는 기념주화 발급으로 먹이를 구매해 줄 수 있어요. <b>주어진 기간 가장 동물에게 먹이를 많이 주어 성장에 기여한 사람</b>에게는 특별한 보상이 있습니다!</p>
+            </div>
+          </div>
+          <div class="reward-lead" id="rewardLead"></div>
+        </div>
         <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
         <button class="preview-btn2" id="animalPreviewBtn" onclick="previewAnimal()">🐥 성장 과정 미리보기</button>
         <button class="reset-btn" id="compResetBtn" onclick="resetComp()" style="display:none;margin-top:10px">🔄 닭 초기화 · 새 알부터</button>
@@ -1471,11 +1531,11 @@ body.app-on #ambientBg{opacity:.7}
         <div class="adm-card">
           <div class="ah"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span></div>
           <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">결과(하루 1건↑)를 보고하면 자동 지급돼요. <b>누적 지급</b> = 지금까지 준 총 개수 · <b>사용</b> = 먹이로 쓴 개수 · <b>보유</b> = 아직 안 쓴 잔액.</p>
-            <div style="overflow-x:auto"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th></tr></thead><tbody id="tokenAdminBody"></tbody></table></div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px">일일 결과를 확인·더블체크한 뒤, 결과를 낸 팀원 옆 <b>＋ 버튼</b>으로 직접 토큰을 지급하세요. <b>누적 지급</b> = 지금까지 준 총 개수 · <b>사용</b> = 먹이로 쓴 개수 · <b>보유</b> = 잔액. (− 는 잘못 준 토큰 회수)</p>
+            <div style="overflow-x:auto"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table></div>
             <div id="tokenGrantLog" class="tok-log"></div>
             <button class="gift-all-btn" onclick="grantGiftAll()">🎁 오늘 전원에게 기념 토큰 1개씩 지급</button>
-            <div class="gift-note">첫날 기념용이에요. 내일부터는 결과(하루 1건↑) 보고 시 자동 지급돼요. (오늘 중복 눌러도 한 번만 지급되니 안심하세요.)</div>
+            <div class="gift-note">첫날 기념용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 결과 낸 사람만 ＋ 로 주시면 돼요.</div>
           </div>
         </div>
         <div class="adm-card">
@@ -1485,6 +1545,13 @@ body.app-on #ambientBg{opacity:.7}
             <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
             <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
             <div id="annCurrent"></div>
+          </div>
+        </div>
+        <div class="adm-card">
+          <div class="ah"><h3>🏆 우승자 · 보상 지급</h3><span class="badge zero" id="rewardBadge">0</span></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">매일 자정 이후 관리자가 접속하면 <b>전날 먹이를 가장 많이 준 우승자</b>가 자동 집계돼 전 팀원에게 공지(폭죽🎆)로 떠요. 우승자에게 텀블러를 주고 <b>지급완료</b>를 누르면 기록돼요.</p>
+            <div id="rewardAdminBody"></div>
           </div>
         </div>
       </div>
@@ -1508,11 +1575,18 @@ body.app-on #ambientBg{opacity:.7}
 </div></div>
 
 <div class="modal" id="annModal"><div class="box ann-box">
+  <div class="ann-confetti" id="annConfetti"></div>
   <div class="ann-icon">📣</div>
   <h3 class="ann-title">공지</h3>
   <div class="ann-text" id="annText"></div>
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
+</div></div>
+<div class="modal" id="rewardModal"><div class="box">
+  <h3 class="ann-title">🎁 보상 지급 알림</h3>
+  <p style="font-size:12.5px;color:var(--muted);text-align:center;margin-bottom:14px;line-height:1.6">아래 우승자에게 <b>여름맞이 텀블러</b>를 전달한 뒤 <b>지급완료</b>를 눌러주세요. (이 내역은 저장돼서 언제든 다시 확인할 수 있어요.)</p>
+  <div id="rewardModalList"></div>
+  <div class="acts"><button class="btn ghost" onclick="closeModal('rewardModal')">나중에</button></div>
 </div></div>
 <div class="modal" id="oxfamModal"><div class="box">
   <div class="ox-hero">
@@ -1802,6 +1876,8 @@ let state={
   events:[],goodnews:[],
   homeFx:null,
   tokens:{},tokenGrants:{},
+  tokenLog:[],
+  feedByDay:{},rewards:[],comp:{},
   settings:{},
   popupAnnounce:null,
   obj:[
@@ -1995,6 +2071,7 @@ function submitSurvey(){
   const rec={answers:ans,t:Date.now()};
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
+    state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
     sendSignupToSheet(u,authState.draftPw);
     sendSurveyToSheet(u,key,rec);
     authState.draftPw=null;
@@ -2029,7 +2106,9 @@ function enterApp(){
   // prefill name fields
   
   buildRail();renderAll();goTab('home');startAutoPull();
+  if(isFounder(me))finalizeComp();
   showAnnounceIfNew();
+  if(isFounder(me))showRewardReminder();
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
@@ -2138,7 +2217,6 @@ function dailyAdj(name,delta){
   state.sales[key]={name,role,date:d,count:cnt,t};
   if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:cnt,t});
   autoSendSale(d,name);
-  grantTokenIfEarned(d,name);
   renderDaily();renderScores();renderPerfGauge();renderComp();
 }
 function dailyNA(name){
@@ -2174,7 +2252,7 @@ function autoSendSale(d,name){
 function dailyComplete(){
   if(!isFounder(me))return;
   const d=dailyDateVal();let sent=0;
-  rosterMembers().forEach(u=>{const e=state.sales[`${d}|${u.name}`];if(e){const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));postWebhook({type:'sale',date:d,name:u.name,id:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally,at:new Date().toISOString()});grantTokenIfEarned(d,u.name);sent++;}});
+  rosterMembers().forEach(u=>{const e=state.sales[`${d}|${u.name}`];if(e){const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));postWebhook({type:'sale',date:d,name:u.name,id:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally,at:new Date().toISOString()});sent++;}});
   toast(sent?`✅ ${d} 결과 ${sent}명 분을 시트로 전송했어요`:'입력된 결과가 없어요');
 }
 function renderDaily(){
@@ -2677,7 +2755,7 @@ function renderAnimal(){
   document.getElementById('animalLv').textContent='Lv.'+lv+' '+st.name+(preview?' · 미리보기':'');
   document.getElementById('animalFood').textContent=food;
   document.getElementById('animalBar').style.width=Math.min(100,food/ANIMAL_MAX*100)+'%';
-  renderTokenShop();
+  renderTokenShop();renderRewardLead();
   const ib=document.getElementById('interactBtn');
   if(ib){ if(preview){ib.textContent='↩ 실제 상태로 (미리보기 중지)';} else { const a=actionFor(food); ib.textContent=`${a.emo} ${a.label}`; } }
   const pvb=document.getElementById('animalPreviewBtn');
@@ -2794,20 +2872,6 @@ function interact(){
   else { playAnim(); toast('신나게 놀아줬어요 🎀'); }
 }
 /* ===== 먹이 토큰 (결과 보고 → 발행 → 구매) ===== */
-function grantTokenIfEarned(date,name){
-  if(!date||!name)return false;
-  const e=state.sales[date+'|'+name];
-  const cnt=(e&&!e.na&&!e.rally)?(+e.count||0):0;
-  const gk=date+'|'+name;
-  if(cnt>=1 && !state.tokenGrants[gk]){
-    state.tokenGrants[gk]=true;
-    state.tokens[name]=(state.tokens[name]||0)+1;
-    if(LIVE){DB.set('tokenGrants',state.tokenGrants);DB.set('tokens',state.tokens);}
-    renderTokenShop();if(me&&isFounder(me)&&document.getElementById('tokenAdminBody'))renderTokenAdmin();
-    return true;
-  }
-  return false;
-}
 function myTokens(){return me?(state.tokens[me.name]||0):0;}
 function renderTokenShop(){
   const box=document.getElementById('tokenShop');if(!box)return;
@@ -2825,7 +2889,8 @@ function buyFeed(){
   if(!me){toast('로그인이 필요해요');return;}
   if(myTokens()<1){toast('🪙 토큰이 부족합니다 · 결과(하루 1건↑)를 내면 관리자가 토큰을 줘요');shakeCoin();return;}
   state.tokens[me.name]=myTokens()-1;
-  if(LIVE)DB.set('tokens',state.tokens);
+  const d=TODAY;state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};state.feedByDay[d][me.name]=(state.feedByDay[d][me.name]||0)+1;
+  if(LIVE){DB.set('tokens',state.tokens);DB.set('feedByDay',state.feedByDay);}
   buyFeedAnim();renderTokenShop();
   toast('🌽 토큰으로 먹이를 사서 먹였어요! (−1 🪙)');
 }
@@ -3145,42 +3210,105 @@ function renderAdmin(){
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   }).join('');
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();updateCounts();
+}
+function tokenIssued(){
+  const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
+  Object.keys(grants).forEach(k=>{if(!grants[k])return;const nm=k.split('|').pop();if(nm)net[nm]=(net[nm]||0)+1;}); // 레거시 기념지급 호환
+  log.forEach(e=>{if(e&&e.name)net[e.name]=(net[e.name]||0)+(e.amt||1);});
+  return net;
 }
 function renderTokenAdmin(){
   const body=document.getElementById('tokenAdminBody');if(!body)return;
-  const grants=state.tokenGrants||{},tokens=state.tokens||{};
-  const issued={};let totalIssued=0;
-  Object.keys(grants).forEach(k=>{if(!grants[k])return;const name=k.split('|').pop();if(!name)return;issued[name]=(issued[name]||0)+1;totalIssued++;});
+  const tokens=state.tokens||{},net=tokenIssued();
+  const issued={};Object.keys(net).forEach(n=>issued[n]=net[n]);
+  rosterMembers().forEach(u=>{if(issued[u.name]===undefined)issued[u.name]=0;});
   Object.keys(tokens).forEach(n=>{if(issued[n]===undefined)issued[n]=0;});
-  const names=Object.keys(issued).sort((a,b)=>(issued[b]-issued[a])||((tokens[b]||0)-(tokens[a]||0))||a.localeCompare(b));
-  const bd=document.getElementById('tokIssuedBadge');if(bd){bd.textContent=totalIssued;bd.classList.toggle('zero',totalIssued===0);}
-  let totBal=0;names.forEach(n=>totBal+=(tokens[n]||0));
-  body.innerHTML=names.length?names.map(n=>{const iss=issued[n]||0,bal=tokens[n]||0,used=Math.max(0,iss-bal);
-    return `<tr><td><span class="rn">${esc(n)}</span></td><td class="mono">${iss}</td><td class="mono" style="color:var(--muted)">${used}</td><td class="mono"><span class="tok-bal">🪙 ${bal}</span></td></tr>`;}).join('')
-    +`<tr class="tok-sum"><td><b>합계</b></td><td class="mono"><b>${totalIssued}</b></td><td class="mono"><b>${Math.max(0,totalIssued-totBal)}</b></td><td class="mono"><b>🪙 ${totBal}</b></td></tr>`
-    :'<tr><td colspan="4" class="empty-row">아직 지급된 토큰이 없어요</td></tr>';
+  const names=Object.keys(issued).sort((a,b)=>((tokens[b]||0)-(tokens[a]||0))||(issued[b]-issued[a])||a.localeCompare(b,'ko'));
+  let totGiven=0,totBal=0;names.forEach(n=>{totGiven+=Math.max(0,issued[n]);totBal+=(tokens[n]||0);});
+  const bd=document.getElementById('tokIssuedBadge');if(bd){bd.textContent=totGiven;bd.classList.toggle('zero',totGiven===0);}
+  body.innerHTML=names.length?names.map(n=>{const iss=Math.max(0,issued[n]||0),bal=tokens[n]||0,used=Math.max(0,iss-bal);
+    return `<tr><td><span class="rn">${esc(n)}</span></td><td class="mono">${iss}</td><td class="mono" style="color:var(--muted)">${used}</td><td class="mono"><span class="tok-bal">🪙 ${bal}</span></td><td class="tok-act"><button class="tk-minus" title="회수" onclick="giveToken('${n}',-1)">−</button><button class="tk-plus" title="토큰 지급" onclick="giveToken('${n}',1)">＋</button></td></tr>`;}).join('')
+    +`<tr class="tok-sum"><td><b>합계</b></td><td class="mono"><b>${totGiven}</b></td><td class="mono"><b>${Math.max(0,totGiven-totBal)}</b></td><td class="mono"><b>🪙 ${totBal}</b></td><td></td></tr>`
+    :'<tr><td colspan="5" class="empty-row">아직 지급된 토큰이 없어요</td></tr>';
   const log=document.getElementById('tokenGrantLog');
-  if(log){const items=Object.keys(grants).filter(k=>grants[k]).map(k=>{const p=k.split('|');return {date:p[0],name:p[p.length-1],gift:k.indexOf('|gift|')>=0};}).sort((a,b)=>a.date<b.date?1:-1).slice(0,12);
-    log.innerHTML=items.length?'<div class="tok-log-h">최근 지급 내역</div>'+items.map(it=>`<div class="tok-log-row"><span>${esc(it.name)}</span><span class="mono">${esc(it.date)}</span><span class="tlplus">${it.gift?'🎁 기념':'🪙 +1'}</span></div>`).join(''):'';}
+  if(log){const items=(state.tokenLog||[]).slice().sort((a,b)=>(b.t||0)-(a.t||0)).slice(0,12);
+    log.innerHTML=items.length?'<div class="tok-log-h">최근 지급 내역</div>'+items.map(it=>`<div class="tok-log-row"><span>${esc(it.name)}</span><span class="mono">${it.t?new Date(it.t).toLocaleDateString('ko-KR'):''}</span><span class="tlplus">${it.gift?'🎁 기념':(it.amt<0?'↩︎ 회수':'🪙 +1')}</span></div>`).join(''):'';}
+}
+function giveToken(name,amt){
+  if(!isFounder(me)){toast('관리자만 지급할 수 있어요');return;}
+  amt=amt||1;const bal=state.tokens[name]||0;
+  if(amt<0&&bal<=0){toast(`${name}님은 회수할 토큰이 없어요`);return;}
+  state.tokens[name]=Math.max(0,bal+amt);
+  state.tokenLog=state.tokenLog||[];state.tokenLog.push({name,t:Date.now(),by:me.name,amt});
+  if(state.tokenLog.length>500)state.tokenLog=state.tokenLog.slice(-500);
+  if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
+  renderTokenAdmin();renderTokenShop();
+  toast(amt>0?`🪙 ${name}님에게 토큰 1개 지급!`:`↩︎ ${name}님 토큰 1개 회수`);
 }
 function grantGiftAll(){
   if(!isFounder(me)){toast('관리자만 지급할 수 있어요');return;}
   const names=rosterMembers().map(u=>u.name);
   if(!names.length){toast('팀원이 없어요');return;}
-  if(!confirm(`오늘 ${names.length}명 전원에게 기념 토큰 1개씩 지급할까요?`))return;
-  const today=TODAY;let n=0;
-  names.forEach(name=>{const gk=`${today}|gift|${name}`;if(!state.tokenGrants[gk]){state.tokenGrants[gk]=true;state.tokens[name]=(state.tokens[name]||0)+1;n++;}});
-  if(n===0){toast('이미 오늘 전원에게 기념 토큰을 지급했어요 🎁');return;}
-  if(LIVE){DB.set('tokenGrants',state.tokenGrants);DB.set('tokens',state.tokens);}
+  if(!confirm(`${names.length}명 전원에게 기념 토큰 1개씩 지급할까요?`))return;
+  state.tokenLog=state.tokenLog||[];const now=Date.now();
+  names.forEach((name,i)=>{state.tokens[name]=(state.tokens[name]||0)+1;state.tokenLog.push({name,t:now+i,by:me.name,amt:1,gift:true});});
+  if(state.tokenLog.length>500)state.tokenLog=state.tokenLog.slice(-500);
+  if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
   renderTokenAdmin();renderTokenShop();
-  toast(`🎁 ${n}명에게 기념 토큰을 1개씩 지급했어요!`);
+  toast(`🎁 ${names.length}명에게 기념 토큰을 1개씩 지급했어요!`);
+}
+/* ===== 먹이 기여도 · 우승자 · 보상 ===== */
+function feedTotals(){const t={};const fbd=state.feedByDay||{};Object.keys(fbd).forEach(d=>{const day=fbd[d]||{};Object.keys(day).forEach(n=>{t[n]=(t[n]||0)+(day[n]||0);});});return t;}
+function topFeeder(map){let best=null,bv=0;Object.keys(map||{}).forEach(n=>{if(map[n]>bv){bv=map[n];best=n;}});return best?{name:best,count:bv}:null;}
+function renderRewardLead(){const el=document.getElementById('rewardLead');if(!el)return;const top=topFeeder(feedTotals());el.innerHTML=top?`현재 선두 🥇 <b>${esc(top.name)}</b> · 누적 먹이 ${top.count}회`:'아직 먹이를 준 기록이 없어요 — 첫 주인공이 되어보세요!';}
+function finalizeComp(){
+  if(!me||!isFounder(me))return;
+  const fbd=state.feedByDay||{};
+  const last=(state.comp&&state.comp.lastFinalized)||'';
+  const todo=Object.keys(fbd).filter(d=>d<TODAY&&d>last).sort();
+  if(!todo.length)return;
+  state.rewards=state.rewards||[];let announced=null;
+  todo.forEach(d=>{const top=topFeeder(fbd[d]);if(top&&!state.rewards.some(r=>r.date===d)){state.rewards.push({id:'r'+d,date:d,winner:top.name,count:top.count,prize:'여름맞이 텀블러',given:false});announced={date:d,winner:top.name,count:top.count};}});
+  state.comp=state.comp||{};state.comp.lastFinalized=todo[todo.length-1];
+  if(LIVE){DB.set('rewards',state.rewards);DB.set('comp',state.comp);}
+  if(announced){const a={id:'win-'+announced.date,text:`이번 동물키우기 우승자는 ${announced.winner}님 입니다! 🏆\n먹이를 ${announced.count}회 주어 동물 성장에 가장 많이 기여했어요. 축하합니다 🎉`,by:'프레젠스 동물농장',t:Date.now(),winner:true};state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);}
+  renderRewardAdmin();
+}
+function showRewardReminder(){
+  if(!me||!isFounder(me))return;
+  if(!(state.rewards||[]).some(r=>!r.given))return;
+  renderRewardModal();openModal('rewardModal');
+}
+function renderRewardModal(){
+  const box=document.getElementById('rewardModalList');if(!box)return;
+  const pend=(state.rewards||[]).filter(r=>!r.given).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  box.innerHTML=pend.length?pend.map(r=>`<div class="rw-row"><div class="rw-info"><b>🏆 ${esc(r.winner)}</b>님<span class="rw-meta">${esc(r.date)} · 먹이 ${r.count}회 · ${esc(r.prize)}</span></div><button class="rw-give" onclick="markRewardGiven('${r.id}')">🎁 지급완료</button></div>`).join(''):'<div class="rw-none">지급할 보상이 없어요</div>';
+}
+function renderRewardAdmin(){
+  const box=document.getElementById('rewardAdminBody');if(!box)return;
+  const rws=(state.rewards||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const pend=rws.filter(r=>!r.given).length;
+  const bd=document.getElementById('rewardBadge');if(bd){bd.textContent=pend;bd.classList.toggle('zero',pend===0);}
+  box.innerHTML=rws.length?rws.map(r=>`<div class="rw-row"><div class="rw-info"><b>🏆 ${esc(r.winner)}</b><span class="rw-meta">${esc(r.date)} · 먹이 ${r.count}회 · ${esc(r.prize)}</span></div>${r.given?`<span class="rw-done">✓ 지급완료${r.givenAt?' · '+new Date(r.givenAt).toLocaleDateString('ko-KR'):''}</span>`:`<button class="rw-give" onclick="markRewardGiven('${r.id}')">🎁 지급완료</button>`}</div>`).join(''):'<div class="rw-none">아직 우승자 기록이 없어요. 매일 자정 이후 관리자가 접속하면 전날 우승자가 집계돼요.</div>';
+}
+function markRewardGiven(id){
+  if(!isFounder(me))return;
+  const r=(state.rewards||[]).find(x=>x.id===id);if(!r)return;
+  r.given=true;r.givenBy=me.name;r.givenAt=Date.now();
+  if(LIVE)DB.set('rewards',state.rewards);
+  renderRewardModal();renderRewardAdmin();toast(`🎁 ${r.winner}님 보상 지급 완료로 표시했어요`);
 }
 function showAnnounceIfNew(){
   const a=state.popupAnnounce;if(!a||!a.text)return;
   if(lsGet('presence_ann_ack')===a.id)return;
+  const win=!!a.winner;
+  const box=document.querySelector('#annModal .ann-box');if(box)box.classList.toggle('winner',win);
+  const ic=document.querySelector('#annModal .ann-icon');if(ic)ic.textContent=win?'🏆':'📣';
+  const ti=document.querySelector('#annModal .ann-title');if(ti)ti.textContent=win?'🎉 우승자 발표 🎉':'공지';
   const tx=document.getElementById('annText');if(tx)tx.textContent=a.text;
   const by=document.getElementById('annBy');if(by)by.textContent=(a.by?a.by+' · ':'')+(a.t?new Date(a.t).toLocaleDateString('ko-KR'):'');
+  const cf=document.getElementById('annConfetti');if(cf)cf.innerHTML=win?Array.from({length:16}).map((_,i)=>`<span style="left:${(i*6+2)}%;animation-delay:${(i%6)*0.16}s;font-size:${13+(i%4)*5}px">${['🎉','🎆','✨','🎊','🏆','🎇'][i%6]}</span>`).join(''):'';
   openModal('annModal');
 }
 function ackAnnounce(){const a=state.popupAnnounce;if(a)lsSet('presence_ann_ack',a.id);closeModal('annModal');}
@@ -3493,6 +3621,10 @@ async function initFirebase(){
   DB.on('homeFx',v=>{state.homeFx=v||null;applyHomeFx(v&&v.type?v.type:null);});
   DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
+  DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
+  DB.on('feedByDay',v=>{state.feedByDay=v||{};});
+  DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
+  DB.on('comp',v=>{state.comp=v||{};});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
