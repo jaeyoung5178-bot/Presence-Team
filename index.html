@@ -1352,6 +1352,10 @@ body.app-on #ambientBg{opacity:.7}
           <button class="buy-feed-btn" id="buyFeedBtn" onclick="buyFeed()">🌽 먹이 사서 주기 <span class="cost">−1<span class="coin xs">P</span></span></button>
           <div class="token-note">결과(하루 1건↑)를 내면 관리자가 토큰을 1개 줘요 · 토큰으로만 먹이를 살 수 있어요 🪙</div>
         </div>
+        <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
+        <button class="preview-btn2" id="animalPreviewBtn" onclick="previewAnimal()">🐥 성장 과정 미리보기</button>
+        <button class="reset-btn" id="compResetBtn" onclick="resetComp()" style="display:none;margin-top:10px">🔄 닭 초기화 · 새 알부터</button>
+        <div class="animal-hint" id="animalHint">노제로(하루 1건↑)인 날마다 닭이 먹이 1개를 먹어요 🌽 · 노제로를 가장 오래 유지한 사람이 우승!</div>
         <div class="reward-box">
           <div class="reward-head"><span class="reward-tag">🏆 이번 컴페티션 보상</span></div>
           <div class="reward-main">
@@ -1379,10 +1383,7 @@ body.app-on #ambientBg{opacity:.7}
           </div>
           <div class="reward-lead" id="rewardLead"></div>
         </div>
-        <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
-        <button class="preview-btn2" id="animalPreviewBtn" onclick="previewAnimal()">🐥 성장 과정 미리보기</button>
-        <button class="reset-btn" id="compResetBtn" onclick="resetComp()" style="display:none;margin-top:10px">🔄 닭 초기화 · 새 알부터</button>
-        <div class="animal-hint" id="animalHint">노제로(하루 1건↑)인 날마다 닭이 먹이 1개를 먹어요 🌽 · 노제로를 가장 오래 유지한 사람이 우승!</div>
+
       </div>
       <div class="rank-card">
         <h3>🐔 노제로 순위 <span class="rank-sub">(먹이 일수 = 노제로 일수)</span></h3>
@@ -1439,9 +1440,9 @@ body.app-on #ambientBg{opacity:.7}
       </div>
       <div class="daily-sum" id="dailySum"></div>
       <div id="dailyList"></div>
-      <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 완료 처리 · 시트로 전송</button>
+      <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 검수 완료 · 결과보고 (시트 전송)</button>
       <button class="btn ghost block" onclick="pullFromSheet()" style="margin-top:8px">📥 시트에서 과거 데이터 가져오기</button>
-      <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">+/− · NA · 랠리를 누르면 <b>즉시 저장되고, 약 1초 뒤 구글시트 월별 탭(이름 × 날짜 칸)으로 자동 전송</b>됩니다. <b>완료 처리</b>는 이 날짜 전원 결과를 한 번에 다시 전송하는 백업용이에요. (시트에 실제로 써지려면 아래 '연동' 설정이 최신 배포여야 합니다.)</p>
+      <p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:10px">+/− · NA · 랠리로 결과를 입력(검수)하면 <b>앱 보드에는 즉시 저장</b>되지만, <b>구글시트에는 전송되지 않습니다.</b> 다 확인한 뒤 <b>"검수 완료 · 결과보고"</b>를 누르면 그때 시트 월별 탭(이름 × 날짜 칸)으로 <b>한 번에 전송</b>되고, 성공/실패가 바로 표시됩니다. (전송되려면 아래 '연동'이 최신 배포여야 해요.)</p>
       <div class="sec-sub" style="margin-top:28px">📊 월별 통계</div>
       <div class="month-btns" id="monthBtns"></div>
       <div id="monthStats"></div>
@@ -2216,7 +2217,6 @@ function dailyAdj(name,delta){
   let cnt=(cur&&!cur.na&&!cur.rally)?(+cur.count||0):0;cnt=Math.max(0,cnt+delta);
   state.sales[key]={name,role,date:d,count:cnt,t};
   if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:cnt,t});
-  autoSendSale(d,name);
   renderDaily();renderScores();renderPerfGauge();renderComp();
 }
 function dailyNA(name){
@@ -2224,7 +2224,6 @@ function dailyNA(name){
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
   if(cur&&cur.na){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
   else{state.sales[key]={name,role,date:d,count:0,na:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,na:true,t});}
-  autoSendSale(d,name);
   renderDaily();renderScores();renderPerfGauge();renderComp();
 }
 function dailyRally(name){
@@ -2232,28 +2231,52 @@ function dailyRally(name){
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
   if(cur&&cur.rally){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
   else{state.sales[key]={name,role,date:d,count:0,rally:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,rally:true,t});}
-  autoSendSale(d,name);
   renderDaily();renderScores();renderPerfGauge();renderComp();
 }
-const _saleTimers={};
-function autoSendSale(d,name){
-  const key=d+'|'+name;
-  if(_saleTimers[key])clearTimeout(_saleTimers[key]);
-  _saleTimers[key]=setTimeout(()=>{
-    delete _saleTimers[key];
-    const e=state.sales[d+'|'+name],role=roleOf(name);
-    const payload=e
-      ?{type:'sale',date:d,name,id:name,role:e.role||role,count:e.na?'na':(e.rally?'랠리':(+e.count||0)),na:!!e.na,rally:!!e.rally,at:new Date().toISOString()}
-      :{type:'sale',date:d,name,id:name,role,count:0,na:false,rally:false,at:new Date().toISOString()};
-    postWebhook(payload);
-    const ss=document.getElementById('syncTxt');if(ss)ss.textContent='시트로 전송됨 · '+new Date().toLocaleTimeString('ko-KR');
-  },1200);
+/* 시트 쓰기 — pull과 똑같이 JSONP GET으로 보내고 '응답(성공/기록된 칸)'을 받음 → 실제로 들어갔는지 확인 가능 */
+function sheetWrite(payload,onDone){
+  const url=effectiveWebhook();
+  if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'배포 URL 없음'});return;}
+  const cb='__sw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);let done=false;
+  const cleanup=()=>{try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
+  const finish=(r)=>{if(done)return;done=true;onDone&&onDone(r);cleanup();};
+  window[cb]=(res)=>finish(res||{ok:false});
+  const q='action=write&callback='+cb
+    +'&date='+encodeURIComponent(payload.date)
+    +'&name='+encodeURIComponent(payload.name)
+    +'&role='+encodeURIComponent(payload.role||'')
+    +'&count='+encodeURIComponent(payload.count)
+    +'&na='+(payload.na?'1':'0')+'&rally='+(payload.rally?'1':'0')+'&t='+Date.now();
+  const s=document.createElement('script');s.id=cb;
+  s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+  s.onerror=()=>finish({ok:false,error:'연결 실패'});
+  document.body.appendChild(s);
+  setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),9000);
 }
 function dailyComplete(){
-  if(!isFounder(me))return;
-  const d=dailyDateVal();let sent=0;
-  rosterMembers().forEach(u=>{const e=state.sales[`${d}|${u.name}`];if(e){const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));postWebhook({type:'sale',date:d,name:u.name,id:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally,at:new Date().toISOString()});sent++;}});
-  toast(sent?`✅ ${d} 결과 ${sent}명 분을 시트로 전송했어요`:'입력된 결과가 없어요');
+  if(!isFounder(me)){toast('관리자만 보고할 수 있어요');return;}
+  const d=dailyDateVal();
+  const list=rosterMembers().filter(u=>state.sales[`${d}|${u.name}`]);
+  if(!list.length){toast('입력된 결과가 없어요 — 먼저 +/− 로 점수를 입력하세요');return;}
+  const btn=document.getElementById('dailyDoneBtn');if(btn){btn.disabled=true;btn.textContent='📤 시트로 전송 중…';}
+  setSheetSync&&setSheetSync('sync');
+  let done=0,ok=0;const fails=[];
+  list.forEach(u=>{
+    const e=state.sales[`${d}|${u.name}`];
+    const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));
+    sheetWrite({date:d,name:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally},(res)=>{
+      done++;
+      if(res&&res.written)ok++;
+      else fails.push(u.name+(res&&res.note?` (${res.note})`:(res&&res.error?` (${res.error})`:'')));
+      if(done===list.length){
+        if(btn){btn.disabled=false;btn.textContent='✅ 검수 완료 · 결과보고 (시트 전송)';}
+        const ss=document.getElementById('syncTxt');
+        if(ok===list.length){toast(`✅ ${d} 결과 ${ok}명 시트에 기록 완료!`);setSheetSync&&setSheetSync('ok');if(ss)ss.textContent=`${d} · ${ok}명 시트 기록 · `+new Date().toLocaleTimeString('ko-KR');}
+        else if(ok>0){toast(`⚠️ ${ok}명 기록 · 실패 ${fails.length}명: ${fails.slice(0,2).join(', ')}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent=`${ok}/${list.length} 기록 · 일부 실패`;}
+        else{toast(`❌ 시트 기록 실패 — ${fails[0]||'배포/액세스(모든 사용자) 확인'}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent='시트 기록 실패 — 배포 확인 필요';}
+      }
+    });
+  });
 }
 function renderDaily(){
   const box=document.getElementById('dailyList');if(!box||!me||!isFounder(me))return;
