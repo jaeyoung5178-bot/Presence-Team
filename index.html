@@ -345,6 +345,91 @@ body.can-mod .gcard .del{display:flex}
 #cbLightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #cbLightbox.on{display:flex}
 #cbLightbox img{max-width:100%;max-height:100%;border-radius:10px}
+.wadm{margin-top:13px;background:rgba(0,0,0,.20);border:1px solid var(--line);border-radius:13px;padding:13px}
+.wadm-h{font-size:11.5px;font-weight:800;color:var(--amber);letter-spacing:.02em;margin-bottom:10px}
+.wadm-row{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:8px}
+.wadm-row+.wadm-row{border-top:1px solid var(--line-soft)}
+.wadm-row.first{background:linear-gradient(90deg,rgba(245,208,97,.14),transparent)}
+.wadm-rk{width:26px;text-align:center;font-weight:800;font-size:14px}
+.wadm-nm{flex:1;font-size:13px;color:var(--cream);font-weight:700}
+.wadm-cnt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.wadm-empty{font-size:12.5px;color:var(--faint);padding:4px 2px}
+.wadm-gift{margin-top:12px;width:100%;background:linear-gradient(90deg,#E8473C,#5CBC2E);color:#fff;border:none;border-radius:11px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer}
+.wadm-gift:hover{filter:brightness(1.08)}
+.wadm-log{margin-top:13px;border-top:1px dashed var(--line);padding-top:11px}
+.wadm-log-h{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:7px}
+.wadm-log-i{font-size:11.5px;color:var(--faint);line-height:1.8}
+.notif-item.gift{display:flex;gap:13px;align-items:center;background:linear-gradient(135deg,rgba(232,71,60,.12),rgba(92,188,46,.12));border:1px solid var(--line)}
+.gift-box{position:relative;font-size:36px;flex:0 0 auto;animation:giftwiggle 2.6s ease-in-out infinite;transform-origin:50% 60%}
+.gift-q{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-size:15px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.55)}
+.gift-body{display:flex;flex-direction:column;gap:3px}
+.gift-body b{font-size:13.5px;color:var(--cream)}
+.gift-body span{font-size:12px;color:var(--muted);line-height:1.55}
+.gift-exp{color:var(--amber)!important;font-weight:700}
+@keyframes giftwiggle{0%,86%,100%{transform:rotate(0)}89%{transform:rotate(-10deg)}92%{transform:rotate(10deg)}95%{transform:rotate(-6deg)}98%{transform:rotate(3deg)}}
+.wadm-champ{background:linear-gradient(90deg,rgba(245,208,97,.18),transparent);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12.5px;color:var(--cream);margin-bottom:11px;line-height:1.5}
+.wadm-champ b{color:var(--green-soft);font-size:14px}
+.wadm-award{background:linear-gradient(90deg,rgba(232,71,60,.16),transparent);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;color:var(--cream);margin-bottom:10px;line-height:1.5}
+.gift-msg{white-space:normal;line-height:1.6}
+.gift-win-box{text-align:center;max-width:380px}
+.gw-box{font-size:62px;position:relative;display:inline-block;animation:giftwiggle 2.4s ease-in-out infinite;transform-origin:50% 60%;margin-bottom:2px;line-height:1}
+.gw-q{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-size:25px;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.55)}
+.gw-title{font-size:18px;color:var(--cream);margin:6px 0 13px;text-align:center}
+.gw-msg{font-size:13.5px;line-height:1.8;color:var(--cream);background:linear-gradient(135deg,rgba(232,71,60,.10),rgba(92,188,46,.10));border:1px solid var(--line);border-radius:13px;padding:16px 15px;margin-bottom:13px}
+.gw-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:9px}
+.gw-exp{font-size:12.5px;color:var(--amber);font-weight:700;margin-bottom:15px}
+.gh{margin-top:6px;text-align:center}
+.gh-h{font-size:12px;font-weight:800;color:var(--amber);margin-bottom:8px}
+.gh-count{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-bottom:8px}
+.gh-n{font-size:34px;font-weight:900;color:var(--green-soft);font-family:var(--mono);line-height:1}
+.gh-tot{font-size:12px;color:var(--muted)}
+.gh-pile{font-size:15px;line-height:1.5;letter-spacing:1px;max-height:66px;overflow:hidden;margin-bottom:11px;word-break:break-all}
+.gh-more{color:var(--faint)}
+.gh-btn{width:100%;background:linear-gradient(90deg,#E8473C,#43CD7D);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer}
+.gh-btn:disabled{background:var(--card);color:var(--faint);cursor:default;border:1px solid var(--line)}
+.gh-hint{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:9px}
+.gh-admin{margin-top:9px;font-size:11px;color:var(--faint);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:left}
+.gh-admin-h{font-weight:800;color:var(--muted);margin-bottom:5px}
+.gh-admin-i{font-size:11px;color:var(--cream);line-height:1.75}
+.gh-anim{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:8}
+.gh-anim-box{font-size:62px;animation:ghshake .6s ease-in-out}
+.gh-anim.win .gh-anim-box{animation:ghpop .7s cubic-bezier(.2,1.4,.4,1)}
+.gh-anim.miss .gh-anim-box{animation:ghfade .8s ease-out forwards}
+.gh-spark{position:absolute;font-size:26px;animation:ghpop .7s ease-out;white-space:nowrap}
+@keyframes ghshake{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-12deg) scale(1.05)}40%{transform:rotate(12deg) scale(1.08)}60%{transform:rotate(-9deg) scale(1.06)}80%{transform:rotate(9deg) scale(1.04)}}
+@keyframes ghpop{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes ghfade{0%{transform:scale(1);opacity:1}100%{transform:scale(1.4) translateY(-14px);opacity:0}}
+.tree-float{position:absolute;inset:0;pointer-events:none;z-index:6}
+.float-gift{position:absolute;font-size:26px;background:none;border:none;cursor:pointer;pointer-events:auto;padding:0;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4));animation:floatdrift var(--dur,4s) ease-in-out var(--delay,0s) infinite}
+.float-gift:disabled{cursor:default;opacity:.5}
+.float-gift:hover{transform:scale(1.18)}
+@keyframes floatdrift{0%,100%{transform:translate(calc(var(--sw,8px)*-1),0) rotate(-8deg)}50%{transform:translate(var(--sw,8px),-10px) rotate(8deg)}}
+.gh-tap{font-size:12.5px;color:var(--cream);line-height:1.6;margin-bottom:10px;text-align:center}
+#giftOpenScene{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 50% 45%,rgba(20,40,25,.96),rgba(8,10,14,.985));display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .35s}
+#giftOpenScene.on{display:flex;opacity:1}
+.gos-inner{position:relative;text-align:center}
+.gos-gift{font-size:96px;line-height:1;animation:gosIn .4s cubic-bezier(.2,1.5,.4,1)}
+.gos-gift.shake{animation:ghshake .55s ease-in-out infinite}
+.gos-gift.burst{animation:gosBurst .65s cubic-bezier(.2,1.5,.4,1)}
+.gos-hand{font-size:40px;margin-top:-8px;animation:gosHand 1.4s ease-in-out infinite}
+.gos-label{margin-top:14px;font-size:15px;color:var(--cream);font-weight:700}
+.gos-win{color:#F5D061;font-size:20px}
+.gos-miss{color:var(--muted);font-size:16px}
+.gos-spark{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-size:30px;white-space:nowrap;animation:gosBurst .7s ease-out}
+@keyframes gosIn{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes gosBurst{0%{transform:scale(.4);opacity:0}55%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes gosHand{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.grab-hand{position:absolute;font-size:40px;transform:translate(-50%,-50%);z-index:9;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.gos-gift.heartbeat{animation:gosBeat .7s ease-in-out infinite}
+@keyframes gosBeat{0%,100%{transform:scale(1)}30%{transform:scale(1.12)}45%{transform:scale(1)}60%{transform:scale(1.08)}}
+.gos-fw{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fw2{position:absolute;width:0;height:0}
+.fw2-flash{position:absolute;left:-45px;top:-45px;width:90px;height:90px;border-radius:50%;opacity:0;filter:blur(1px);animation:fwFlash .55s ease-out forwards}
+@keyframes fwFlash{0%{transform:scale(.2);opacity:.95}100%{transform:scale(2.4);opacity:0}}
+.fw2-ring{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border:1.5px solid #fff;border-radius:50%;opacity:0;animation:fwRing .75s cubic-bezier(.1,.7,.3,1) forwards}
+@keyframes fwRing{0%{transform:scale(.2);opacity:.9}60%{opacity:.45}100%{transform:scale(8);opacity:0}}
+.fw2 i{position:absolute;left:0;top:0;width:3.5px;height:3.5px;border-radius:50%;opacity:0;animation:fwSpark var(--d,1.3s) cubic-bezier(.12,.6,.22,1) forwards}
+@keyframes fwSpark{0%{transform:translate(0,0) scale(1.4);opacity:1}12%{opacity:1}70%{opacity:.92}88%{opacity:.5}100%{transform:translate(var(--x),calc(var(--y) + var(--g,30px))) scale(.35);opacity:0}}
 .win .who{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .win .who .av{width:25px;height:25px;border-radius:50%;color:var(--green-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
 .win .who .nm{font-weight:700;font-size:13px;color:var(--cream)}
@@ -1420,6 +1505,7 @@ body.app-on #ambientBg{opacity:.7}
             <div class="stage-tag" id="stageTag">씨앗</div>
             <svg id="treeSvg" viewBox="0 0 200 260"></svg>
             <div class="tree-gifts" id="treeGifts"></div>
+            <div class="tree-float" id="treeFloat"></div>
           </div>
           <div class="tree-side">
             <span class="label" id="compLabelHome">🌳 우리 나무 · 12월 트리</span>
@@ -1428,6 +1514,8 @@ body.app-on #ambientBg{opacity:.7}
             <button class="water-btn" id="previewBtn" onclick="previewTree()" style="display:none;background:var(--card);border:1px solid var(--line);color:var(--muted)">🔍 다음 단계 성장 미리보기</button>
             <button class="reset-btn" id="treeResetBtn" onclick="resetTree()" style="display:none">🔄 나무 초기화 · 새 주기 시작</button>
             <div class="water-feed" id="waterFeed"></div>
+            <div id="waterAdmin"></div>
+            <div id="giftHunt"></div>
           </div>
         </div>
       </section>
@@ -1864,6 +1952,21 @@ body.app-on #ambientBg{opacity:.7}
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
+<div class="modal" id="giftWinModal"><div class="box gift-win-box">
+  <div class="gw-box">🎁<span class="gw-q">?</span></div>
+  <h3 class="gw-title" id="gwTitle">🎉 깜짝 선물 쿠폰 도착!</h3>
+  <div class="gw-msg" id="gwMsg"></div>
+  <div class="gw-hint">🔔 상단 <b>벨 아이콘</b>을 누르면 선물을 언제든 다시 확인할 수 있어요</div>
+  <div class="gw-exp" id="gwExp"></div>
+  <button class="ann-ok" onclick="closeGiftWin()">확인</button>
+</div></div>
+<div class="modal" id="giftStartModal"><div class="box gift-win-box">
+  <div class="gw-box">🎄</div>
+  <h3 class="gw-title">크리스마스 선물 열기</h3>
+  <div class="gw-msg">12월 25일부터 <b>2주간</b>, 팀원들이 하루 한 번씩 나무에서 선물을 뜯을 수 있어요.<br>100개의 선물 중 <b>행운의 선물 3개</b>가 숨어 있어요 🍀<br><br>지금 <b>2주간 선물 열기</b>를 시작하시겠습니까?</div>
+  <button class="ann-ok" onclick="startGiftHunt()">🎁 네, 시작할게요</button>
+  <button class="btn ghost" style="margin-top:9px;width:100%" onclick="closeModal('giftStartModal')">나중에</button>
+</div></div>
 <div class="modal" id="rewardModal"><div class="box">
   <h3 class="ann-title">🎁 보상 지급 알림</h3>
   <p style="font-size:12.5px;color:var(--muted);text-align:center;margin-bottom:14px;line-height:1.6">아래 우승자에게 <b>여름맞이 텀블러</b>를 전달한 뒤 <b>지급완료</b>를 눌러주세요. (이 내역은 저장돼서 언제든 다시 확인할 수 있어요.)</p>
@@ -2001,7 +2104,7 @@ body.app-on #ambientBg{opacity:.7}
 <div class="modal" id="surveyViewModal"><div class="box sv-modal">
   <h3 id="svViewTitle">설문 응답</h3><p id="svViewSub"></p>
   <div id="svViewBody" class="sv-view"></div>
-  <div class="acts"><button class="btn ghost" onclick="closeModal('surveyViewModal')">닫기</button></div>
+  <div class="acts"><button class="btn ghost" onclick="closeModal('surveyViewModal')">닫기</button><button class="btn" onclick="exportSurveyPdf()">📄 PDF로 저장</button></div>
 </div></div>
 
 <div class="modal" id="recruitModal"><div class="box">
@@ -2192,6 +2295,8 @@ let state={
   customRooms:[],
   cbMine:{},
   cbAll:{},
+  waterGiftLog:[],
+  giftHunt:{started:false,total:100,opened:0,winSlots:[],winners:[],opens:{}},
   settings:{},
   popupAnnounce:null,
   obj:[
@@ -2431,7 +2536,7 @@ function enterApp(){
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
-  showAnnounceIfNew();
+  showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
@@ -3237,9 +3342,45 @@ function renderWaterFeed(){
     }
   }
   const rb=document.getElementById('treeResetBtn');if(rb)rb.style.display=(me&&isFounder(me))?'block':'none';
+  renderWaterAdmin();renderGiftHunt();
+}
+const GIFT_EXPIRE=new Date(new Date().getFullYear()+1,0,1,23,59,59).getTime();
+const WATER_THANKS='팀 성장에 가장 많이 기여하고 관심을 가지고 Presence 나무에 물을 준 당신에게 진심으로 감사를 표현합니다\n\n- 임재영 OP(진) -';
+const GIFT_HUNT_START=Date.parse(new Date().getFullYear()+'-12-25T00:00:00+09:00');
+const GIFT_HUNT_END=GIFT_HUNT_START+14*86400000;
+const GIFT_VALID_MS=14*86400000;
+const LOA_MSG='행운의 선물을 찾으셨습니다! 🎉\n\n당신은 LOA 왕 👑\n올해도 고생하셨습니다.\n내년도 Let\'s Go Presence!\n\n- 임재영 OP(진) -';
+function topWaterers(){const w=state.waters||{};const arr=[];Object.keys(w).forEach(uid=>{const x=w[uid];if(x&&x.count>0)arr.push({uid,name:x.name,role:x.role,count:x.count,ft:x.firstT||x.t||9e15});});arr.sort((a,b)=>(b.count-a.count)||(a.ft-b.ft));return arr;}
+function renderWaterAdmin(){
+  const el=document.getElementById('waterAdmin');if(!el)return;
+  if(!me||!isFounder(me)){el.innerHTML='';return;}
+  const top=topWaterers();
+  const log=(state.waterGiftLog||[]).slice().sort((a,b)=>b.t-a.t);
+  const logHtml=log.length?'<div class="wadm-log"><div class="wadm-log-h">🎁 선물 발송 기록</div>'+log.map(l=>'<div class="wadm-log-i">'+esc(l.name)+' · '+l.count+'회 · '+new Date(l.t).toLocaleDateString('ko-KR')+'</div>').join('')+'</div>':'';
+  if(!top.length){el.innerHTML='<div class="wadm"><div class="wadm-h">🔒 관리자 전용 · 프레젠스 나무 물주기 순위</div><div class="wadm-empty">아직 물 준 기록이 없어요</div>'+logHtml+'</div>';return;}
+  const medal=['🥇','🥈','🥉'];
+  const rows=top.slice(0,5).map((w,i)=>'<div class="wadm-row'+(i===0?' first':'')+'"><span class="wadm-rk">'+(medal[i]||(i+1)+'.')+'</span><span class="wadm-nm">'+esc(w.name)+'</span><span class="wadm-cnt">'+w.count+'회</span></div>').join('');
+  const champ=top[0];
+  el.innerHTML='<div class="wadm"><div class="wadm-h">🔒 관리자 전용 · 프레젠스 나무 물주기 순위</div>'+((new Date().getMonth()===11&&new Date().getDate()>=24)?'<div class="wadm-award">🏆 오늘은 <b>물주기 수상 발표일(12/24)</b>이에요! 아래에서 챔피언에게 지급하세요.</div>':'')+'<div class="wadm-champ">👑 이번 챔피언 · <b>'+esc(champ.name)+'</b> · '+champ.count+'회 (가장 많이 + 그날 먼저 물준 사람)</div>'+rows+'<button class="wadm-gift" onclick="sendWaterGift()">✅ '+esc(champ.name)+'님 확인 및 지급하기</button>'+logHtml+'</div>';
+}
+function sendWaterGift(){
+  if(!me||!isFounder(me))return;
+  const top=topWaterers();if(!top.length){toast('아직 물 준 사람이 없어요');return;}
+  const champ=top[0];
+  if(!champ.uid||champ.uid==='admin'||isTestBot(state.users[champ.uid])){toast('선물을 보낼 수 있는 팀원 계정이 아니에요');return;}
+  if(!confirm('이번 챔피언 '+champ.name+'님('+champ.count+'회)에게 깜짝 선물을 지급할까요?\n\n· 본인 로그인 시 축하 공지가 떠요\n· 🔔 벨 알림에서 다시 확인할 수 있어요\n· 선물 쿠폰은 받은 날부터 2주 이내 유효'))return;
+  addNotif(champ.uid,{type:'gift',by:'임재영 OP(진)',t:Date.now(),read:false,expire:Date.now()+GIFT_VALID_MS,count:champ.count,msg:WATER_THANKS,popup:true,popupSeen:false});
+  const ann={id:Date.now().toString(),text:'🏆 올해의 물주기 챔피언은 '+champ.name+'님! 프레젠스 나무를 가장 아껴준 '+champ.name+'님께 진심으로 축하를 보내요 🎉 ('+champ.count+'회)',by:'임재영 OP(진)',t:Date.now()};
+  state.popupAnnounce=ann;if(LIVE)DB.set('popupAnnounce',ann);
+  state.waterGiftLog=state.waterGiftLog||[];
+  state.waterGiftLog.push({name:champ.name,uid:champ.uid,count:champ.count,t:Date.now()});
+  if(LIVE)DB.set('waterGiftLog',state.waterGiftLog);
+  renderWaterAdmin();renderBell();
+  toast('🎁 '+champ.name+'님께 선물을 지급했어요! 본인 로그인 시 공지가 떠요');
 }
 function waterTree(){
   if(!me){toast('로그인이 필요해요');return}
+  if(Date.now()>=GIFT_HUNT_START){toast('🎄 물주기는 12월 24일에 마감됐어요 · 이제 홈에서 선물 열기를 즐겨주세요!');return}
   if(treePreviewStep!==null){treePreviewStep=null;}   // 물 주면 미리보기 종료
   seasonAnim();   // 월별 계절 애니메이션 (7~9월 해 / 10월 낙엽 / 11월 산타·루돌프 / 12월 +눈)
   const w=state.waters[me.uid], watered=w&&w.last===TODAY;
@@ -3249,7 +3390,7 @@ function waterTree(){
     toast('오늘은 이미 물을 줬어요 🌱 (내일 또 와요!)');
     return;
   }
-  const record=()=>{if(isTestBot(me))return;const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
+  const record=()=>{if(isTestBot(me))return;const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY,t:Date.now(),firstT:(w&&w.firstT)||Date.now()};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
   wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기 (첫 물주기엔 물이 나옴)
   if(treeEnded()){
     if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
@@ -4354,6 +4495,7 @@ function viewSurvey(uid,key){
     ? '<div class="gf-card"><div class="gf-a empty">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div></div>'
     : S.q.map((q,i)=>`<div class="gf-card"><div class="gf-q"><span class="num">${i+1}</span>${esc(q.q)}</div>${gfAnswerHTML(a[q.id])}</div>`).join('');
   document.getElementById('svViewBody').innerHTML=`<div class="gfr">${header}${body}</div>`;
+  window._svPdfTitle=esc(S.title)+' · '+esc(u.name);
   openModal('surveyViewModal');
 }
 function surveyAnswerHTML(key,rec){if(rec._seed)return '<div style="color:var(--faint);font-size:13px">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div>';const S=SURVEYS[key],a=rec.answers||{};return S.q.map((q,i)=>{const v=a[q.id];let av='';if(Array.isArray(v))av=`<div class="va chips">${v.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`;else av=`<div class="va">${esc(v||'-')}</div>`;return `<div class="vq">${i+1}. ${esc(q.q)}</div>${av}`}).join('')}
@@ -4372,7 +4514,18 @@ function previewSurvey(key){
     return `<div class="gf-card"><div class="gf-q"><span class="num">${i+1}</span>${esc(q.q)}</div>${a}</div>`;
   }).join('');
   document.getElementById('svViewBody').innerHTML=`<div class="gfr">${header}${body}</div>`;
+  window._svPdfTitle=esc(S.title)+' · 양식 미리보기';
   openModal('surveyViewModal');
+}
+function exportSurveyPdf(){
+  const body=document.getElementById('svViewBody');if(!body){toast('내보낼 설문이 없어요');return;}
+  const html=body.innerHTML;const title=window._svPdfTitle||'설문 응답';
+  const st=document.querySelector('style');const css=st?st.innerHTML:'';
+  const w=window.open('','_blank');
+  if(!w){toast('팝업이 차단됐어요 · 팝업 허용 후 다시 시도해 주세요');return;}
+  w.document.open();
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title><link rel="preconnect" href="https://cdn.jsdelivr.net"><link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet"><style>'+css+'\nbody{background:#eef0f4!important;color:#202124!important;margin:0;padding:0}.pdf-wrap{max-width:720px;margin:0 auto;padding:28px 20px}.pdf-hd{text-align:center;font-size:11px;color:#80868b;font-weight:700;letter-spacing:.04em;margin-bottom:16px}@media print{.pdf-wrap{padding:0}@page{margin:13mm}.gf-card{break-inside:avoid;box-shadow:none}}</style></head><body><div class="pdf-wrap"><div class="pdf-hd">PRESENCE · 설문 응답</div><div class="gfr">'+html+'</div></div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.focus();window.print();},500);};</scr'+'ipt></body></html>');
+  w.document.close();
 }
 
 /* ME modal */
@@ -4387,7 +4540,156 @@ function addNotif(uid,n){if(!state.notifs[uid])state.notifs[uid]=[];state.notifs
 function notifyMentions(text,ctx,by){const ms=parseMentions(text);ms.forEach(u=>{if(me&&u.uid===me.uid)return;addNotif(u.uid,{by:by||(me?me.name:'누군가'),ctx,text:(text||'').slice(0,90),t:Date.now(),read:false})});if(ms.length){renderBell();toast('🔔 '+ms.map(u=>u.name).join(', ')+'님에게 알림을 보냈어요')}}
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
-function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
+function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>{if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="notif-item gift${n.read?'':' unread'}"><div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div></div>`;}return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`;}).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
+function giftHuntActive(){const now=Date.now();return now>=GIFT_HUNT_START&&now<GIFT_HUNT_END;}
+function giftRemaining(){const g=state.giftHunt||{};return Math.max(0,(g.total||100)-(g.opened||0));}
+function openedGiftToday(){const g=state.giftHunt||{};return !!(me&&g.opens&&g.opens[TODAY+'|'+me.uid]);}
+function renderGiftHunt(){
+  const el=document.getElementById('giftHunt');if(!el)return;
+  const g=state.giftHunt||{};const wb=document.getElementById('waterBtn');const pb=document.getElementById('previewBtn');
+  const past=Date.now()>=GIFT_HUNT_START;
+  const show=g.started&&giftHuntActive();
+  if(wb)wb.style.display=(show||past)?'none':'';
+  if(pb&&(show||past))pb.style.display='none';
+  if(!show){
+    if(past&&giftHuntActive())el.innerHTML='<div class="gh"><div class="gh-h">🎄 물주기는 12월 24일에 마감됐어요</div><div class="gh-hint">곧 <b>선물 열기</b>가 시작돼요! 🎁'+(isFounder(me)?'<br>관리자 시작 팝업에서 열어주세요.':'')+'</div></div>';
+    else if(past)el.innerHTML='<div class="gh"><div class="gh-h">🎄 물주기는 12월 24일에 마감됐어요</div><div class="gh-hint">올해 물주기·선물 열기 기간이 끝났어요. 내년에 또 만나요!</div></div>';
+    else el.innerHTML='';
+    return;
+  }
+  const rem=giftRemaining();const did=openedGiftToday();
+  paintFloatGifts(rem,did);
+  el.innerHTML='<div class="gh"><div class="gh-h">🎄 크리스마스 선물 열기 · 2주간</div>'
+    +'<div class="gh-tap">'+(did?'오늘은 이미 열었어요 🎁 내일 또 와요!':(rem<=0?'선물이 모두 열렸어요 🎁':'나무 위를 <b>날아다니는 선물</b>을 하나 잡아 열어보세요! 👆'))+'</div>'
+    +'<button class="gh-btn" id="ghBtn" onclick="openGift()"'+((did||rem<=0)?' disabled':'')+'>'+(rem<=0?'🎁 선물이 다 떨어졌어요':(did?'오늘은 이미 열었어요 · 내일 또!':'🎁 선물 열기 (하루 1번)'))+'</button>'
+    +'<div class="gh-hint">전체 100개 중 <b>행운의 선물 3개</b>가 숨어 있어요 🍀 (팀 공용 · 매일 한 번)</div>'
+    +(isFounder(me)?'<div class="gh-admin"><div class="gh-admin-h">🔒 관리자 · 남은 선물 <b style="color:var(--green-soft)">'+rem+'</b> / '+(g.total||100)+'개 · 당첨 '+((g.winners||[]).length)+'/3</div>'+((g.winners||[]).length?(g.winners||[]).map(w=>'<div class="gh-admin-i">🎉 '+esc(w.name)+' · '+w.slot+'번째 선물 · '+new Date(w.t).toLocaleDateString('ko-KR')+'</div>').join(''):'<div class="gh-admin-i" style="color:var(--faint)">아직 당첨자가 없어요</div>')+'</div>':'')
+    +'</div>';
+}
+function paintFloatGifts(rem,did){
+  const el=document.getElementById('treeFloat');if(!el)return;
+  if(rem<=0){el.innerHTML='';return;}
+  const n=Math.min(rem,7);let h='';
+  for(let i=0;i<n;i++){const left=8+Math.random()*78,top=8+Math.random()*64,dur=(3.4+Math.random()*2.6).toFixed(2),delay=(Math.random()*2.2).toFixed(2),sw=(6+Math.random()*10).toFixed(0);
+    h+='<button class="float-gift" '+(did?'disabled':'onclick="grabGift(this)"')+' style="left:'+left.toFixed(1)+'%;top:'+top.toFixed(1)+'%;--dur:'+dur+'s;--delay:'+delay+'s;--sw:'+sw+'px">🎁</button>';}
+  el.innerHTML=h;
+}
+function giftOpenAnim(win){
+  const stage=document.querySelector('#m-home .tree-stage');if(!stage)return;
+  const d=document.createElement('div');d.className='gh-anim';d.innerHTML='<div class="gh-anim-box">🎁</div>';
+  stage.appendChild(d);
+  setTimeout(()=>{const b=d.querySelector('.gh-anim-box');if(b){b.textContent=win?'🎉':'💨';}d.classList.add(win?'win':'miss');if(win){const sp=document.createElement('div');sp.className='gh-spark';sp.textContent='✨🎊🎁🎊✨';d.appendChild(sp);}},620);
+  setTimeout(()=>{try{d.remove();}catch(e){}},win?2300:1500);
+}
+function openGift(){const el=document.querySelector('#m-home #treeFloat .float-gift:not([disabled])');if(el){grabGift(el);}else{doOpenGift();}}
+function grabGift(el){
+  if(window._grabbing)return;
+  const g=state.giftHunt||{};
+  if(!g.started||!giftHuntActive()){toast('지금은 선물 열기 기간이 아니에요');return;}
+  if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return;}
+  if(openedGiftToday()){toast('오늘은 이미 열었어요 🎁 내일 또 와요!');return;}
+  if(giftRemaining()<=0){toast('선물이 다 떨어졌어요');return;}
+  window._grabbing=true;
+  const stage=document.querySelector('#m-home .tree-stage');
+  if(stage&&el){
+    const sr=stage.getBoundingClientRect(),gr=el.getBoundingClientRect();
+    const gx=gr.left-sr.left+gr.width/2, gy=gr.top-sr.top+gr.height/2;
+    const hand=document.createElement('div');hand.className='grab-hand';hand.textContent='🖐️';
+    hand.style.left=gx+'px';hand.style.top=(sr.height+40)+'px';
+    stage.appendChild(hand);
+    requestAnimationFrame(()=>{hand.style.transition='top .5s cubic-bezier(.3,1.2,.4,1),left .5s';hand.style.top=gy+'px';});
+    setTimeout(()=>{hand.textContent='✊';if(el){el.style.transition='transform .25s';el.style.transform='scale(0)';}},560);
+    setTimeout(()=>{hand.style.transition='top .4s,opacity .4s,transform .4s';hand.style.top=(gy-46)+'px';hand.style.opacity='0';hand.style.transform='scale(1.25)';},820);
+    setTimeout(()=>{try{hand.remove();}catch(e){}window._grabbing=false;doOpenGift();},1120);
+  }else{window._grabbing=false;doOpenGift();}
+}
+function doOpenGift(){
+  if(!me)return;const g=state.giftHunt||{};
+  if(!g.started||!giftHuntActive())return;
+  if(isTestBot(me)){toast('👀 관찰 계정은 기록되지 않아요');return;}
+  if(openedGiftToday())return;
+  if(giftRemaining()<=0)return;
+  g.opens=g.opens||{};g.opens[TODAY+'|'+me.uid]=true;g.opened=(g.opened||0)+1;
+  const slot=g.opened;
+  const won=(g.winSlots||[]).includes(slot)&&(g.winners||[]).length<3&&!((g.winners||[]).some(w=>w.uid===me.uid));
+  if(won){g.winners=g.winners||[];g.winners.push({uid:me.uid,name:me.name,slot,t:Date.now()});}
+  state.giftHunt=g;if(LIVE)DB.set('giftHunt',g);
+  renderGiftHunt();
+  playOpenScene(won,()=>{
+    if(won){
+      addNotif(me.uid,{type:'giftwin',by:'임재영 OP(진)',t:Date.now(),read:false,expire:Date.now()+GIFT_VALID_MS,msg:LOA_MSG,popup:true,popupSeen:false});
+      renderBell();window._giftPopupShown=false;maybeShowGiftPopup();
+    }
+  });
+}
+function gosFireworks(host){
+  if(!host)return;
+  const cols=['#FFD86B','#FF8A5B','#5BE7C4','#7AB8FF','#FF9ED8','#FFF2B0','#C9A6FF'];
+  function burst(){
+    const x=12+Math.random()*76, y=12+Math.random()*46;
+    const col=cols[Math.floor(Math.random()*cols.length)];
+    const b=document.createElement('div');b.className='fw2';b.style.left=x+'%';b.style.top=y+'%';
+    const flash=document.createElement('span');flash.className='fw2-flash';flash.style.background='radial-gradient(circle,#fff 0%,'+col+' 38%,transparent 72%)';b.appendChild(flash);
+    const ring=document.createElement('span');ring.className='fw2-ring';ring.style.borderColor=col;ring.style.boxShadow='0 0 10px '+col;b.appendChild(ring);
+    const N=24;
+    for(let i=0;i<N;i++){const ang=(i/N)*Math.PI*2+Math.random()*0.18, dist=44+Math.random()*42;
+      const sp=document.createElement('i');
+      sp.style.setProperty('--x',(Math.cos(ang)*dist).toFixed(1)+'px');
+      sp.style.setProperty('--y',(Math.sin(ang)*dist).toFixed(1)+'px');
+      sp.style.setProperty('--g',(26+Math.random()*22).toFixed(1)+'px');
+      sp.style.setProperty('--d',(1.15+Math.random()*0.55).toFixed(2)+'s');
+      sp.style.background=col;sp.style.boxShadow='0 0 5px '+col+',0 0 11px '+col;
+      b.appendChild(sp);}
+    host.appendChild(b);
+    setTimeout(()=>{try{b.remove();}catch(e){}},2100);
+  }
+  for(let k=0;k<9;k++) setTimeout(burst, k*220+Math.random()*120);
+}
+function playOpenScene(win,cb){
+  let o=document.getElementById('giftOpenScene');
+  if(!o){o=document.createElement('div');o.id='giftOpenScene';document.body.appendChild(o);}
+  o.innerHTML='<div class="gos-fw" id="gosFw"></div><div class="gos-inner"><div class="gos-gift heartbeat" id="gosGift">🎁</div><div class="gos-label" id="gosLabel">두근두근… 선물을 여는 중 💓</div></div>';
+  o.className='gos on';
+  setTimeout(()=>{const gg=document.getElementById('gosGift');if(gg){gg.classList.remove('heartbeat');gg.classList.add('shake');}},900);
+  setTimeout(()=>{
+    const gg=document.getElementById('gosGift'),l=document.getElementById('gosLabel');
+    if(gg){gg.classList.remove('shake');gg.classList.add('burst');gg.textContent=win?'🎉':'😢';}
+    if(l)l.innerHTML=win?'<b class="gos-win">🎊 행운의 선물 당첨! 🎊</b>':'<b class="gos-miss">꽝! 내일 또 도전해요 🎁</b>';
+    if(win)gosFireworks(document.getElementById('gosFw'));
+  },1900);
+  setTimeout(()=>{if(o)o.classList.remove('on');if(cb)cb();},win?4000:2900);
+}
+function startGiftHunt(){
+  if(!isFounder(me))return;
+  const slots=[];while(slots.length<3){const r=1+Math.floor(Math.random()*100);if(slots.indexOf(r)<0)slots.push(r);}
+  const g={started:true,startedAt:Date.now(),total:100,opened:0,winSlots:slots,winners:[],opens:{}};
+  state.giftHunt=g;if(LIVE)DB.set('giftHunt',g);
+  closeModal('giftStartModal');
+  const a={id:Date.now().toString(),text:'🎄 크리스마스 선물 열기가 시작됐어요! 홈 나무에서 하루 한 번 선물을 열어보세요. 100개 중 행운의 선물 3개가 숨어 있어요 🍀 (2주간)',by:'임재영 OP(진)',t:Date.now()};
+  state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);
+  renderGiftHunt();toast('🎁 선물 열기를 시작했어요!');
+}
+function maybeGiftStartPopup(){
+  if(!me||!isFounder(me))return;
+  if(!giftHuntActive())return;
+  if(state.giftHunt&&state.giftHunt.started)return;
+  if(window._giftStartShown)return;window._giftStartShown=true;
+  openModal('giftStartModal');
+}
+function maybeShowGiftPopup(){
+  if(!me||window._giftPopupShown)return;
+  const list=myNotifs();
+  const g=list.find(n=>n&&(n.type==='gift'||n.type==='giftwin')&&n.popup&&!n.popupSeen);
+  if(!g)return;
+  window._giftPopupShown=true;
+  const exp=g.expire?new Date(g.expire):null;
+  const t=document.getElementById('gwTitle');if(t)t.textContent=g.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎉 깜짝 선물 쿠폰 도착!';
+  const m=document.getElementById('gwMsg');if(m)m.innerHTML=(g.msg||'').replace(/\n/g,'<br>');
+  const e=document.getElementById('gwExp');if(e)e.textContent=exp?('🎁 받은 날부터 2주 이내 · '+exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')+'까지 유효'):'';
+  openModal('giftWinModal');
+  g.popupSeen=true;if(LIVE)DB.set('notifs/'+me.uid,list);
+}
+function closeGiftWin(){closeModal('giftWinModal');}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
 function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');openModal('meModal')}
 
@@ -4641,13 +4943,15 @@ async function initFirebase(){
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>fb.set(fb.ref(db,p),v);DB.on=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
   DB.on('pr',v=>{state.pr=(typeof v==='number')?v:0;renderTree()});
   DB.on('waters',v=>{state.waters=v||{};renderWaterFeed()});
+  DB.on('waterGiftLog',v=>{state.waterGiftLog=v?(Array.isArray(v)?v:Object.values(v)):[];if(me&&isFounder(me))renderWaterAdmin();});
+  DB.on('giftHunt',v=>{if(v)state.giftHunt={...(state.giftHunt||{}),...v};if(me){renderGiftHunt();maybeGiftStartPopup();}});
   DB.on('comp',v=>{if(v)state.comp=v;renderComp()});
   DB.on('notices',v=>{state.notices=v?Object.values(v):[];renderNotices()});
   DB.on('gb',v=>{state.gb=v?Object.values(v):[];renderGb()});
   DB.on('net',v=>{state.net=v?Object.values(v):[];renderGallery('net')});
   DB.on('act',v=>{state.act=v?Object.values(v):[];renderGallery('act')});
   DB.on('wins',v=>{state.wins=v?Object.values(v):[];renderWins()});
-  DB.on('notifs',v=>{state.notifs={};if(v){for(const uid in v){state.notifs[uid]=Array.isArray(v[uid])?v[uid]:Object.values(v[uid])}}renderBell();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList()});
+  DB.on('notifs',v=>{state.notifs={};if(v){for(const uid in v){state.notifs[uid]=Array.isArray(v[uid])?v[uid]:Object.values(v[uid])}}renderBell();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();if(me&&document.body.classList.contains('app-on'))maybeShowGiftPopup();});
   DB.on('obj',v=>{const a=Array.isArray(v)?v:(v&&typeof v==='object'?Object.values(v):null);if(a&&a.length)state.obj=a;renderObj();});
   DB.on('links',v=>{state.links=v||{};if(me)renderKakao()});
   DB.on('recaps',v=>{state.recaps=v||{};if(me)renderRecap()});
