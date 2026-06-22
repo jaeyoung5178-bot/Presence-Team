@@ -30,6 +30,7 @@
   --disp:'Space Grotesk','Pretendard',sans-serif;
   --shadow:0 10px 30px -12px rgba(0,0,0,.55);
   --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -111,7 +112,7 @@ input,select,textarea,button{font-family:inherit}
 .status-screen .who{font-weight:700;color:var(--cream)}
 
 /* ====== HEADER / RAIL ====== */
-header.top{position:fixed;top:0;left:0;right:0;z-index:60;background:#13151b;border-bottom:1px solid var(--line-soft);transform:translateZ(0)}
+header.top{position:fixed;top:0;left:0;right:0;z-index:60;background:#13151b;border-bottom:1px solid var(--line-soft);transform:translateZ(0);padding-top:var(--safe-t)}
 .top .bar{display:flex;align-items:center;gap:12px;height:58px}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer}
 .logo .nm{font-family:var(--disp);font-weight:700;font-size:16px}
@@ -719,6 +720,30 @@ table.scores tr.top1 .big{color:var(--green)}
 .sv-view .va{color:var(--cream);line-height:1.5;white-space:pre-wrap}
 .sv-view .va.chips{display:flex;flex-wrap:wrap;gap:6px}
 .sv-view .va .chip{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:3px 9px;font-size:12px}
+/* ===== 설문 응답 리더 (구글폼 스타일 · 밝은 카드) ===== */
+.modal .box.sv-modal{background:#eef0f4;border-color:#d6d9df;max-width:600px;padding:18px}
+.box.sv-modal>h3,.box.sv-modal>p{display:none}
+.box.sv-modal .acts{margin-top:14px}
+.box.sv-modal .acts .btn.ghost{background:#fff;border:1px solid #dadce0;color:#3c4043}
+.box.sv-modal .acts .btn.ghost:hover{background:#f1f3f4}
+.gfr{display:flex;flex-direction:column;gap:12px}
+.gf-card{background:#fff;border:1px solid #e3e5ea;border-radius:12px;padding:20px 22px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.gf-head{border-top:6px solid var(--wepair);border-radius:12px;padding-top:22px}
+.gf-title{font-family:var(--disp);font-size:21px;font-weight:700;color:#202124;letter-spacing:-.01em;line-height:1.25}
+.gf-desc{font-size:13px;color:#5f6368;margin-top:9px;line-height:1.65}
+.gf-resp{display:flex;align-items:center;gap:9px;margin-top:15px;padding-top:14px;border-top:1px solid #ececf0}
+.gf-resp .av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0e1013;flex:0 0 auto;overflow:hidden}
+.gf-resp .av img{width:100%;height:100%;object-fit:cover}
+.gf-resp .nm{font-weight:700;font-size:14px;color:#202124}
+.gf-resp .meta{font-size:11px;color:#80868b;margin-left:auto;font-family:var(--mono);text-align:right}
+.gf-q{font-size:14.5px;font-weight:600;color:#202124;line-height:1.5;margin-bottom:15px}
+.gf-q .num{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;background:var(--wepair);color:#fff;border-radius:6px;font-size:11.5px;font-weight:800;margin-right:9px;font-family:var(--mono);vertical-align:middle;padding:0 5px}
+.gf-a{display:block;font-size:14px;color:#3c4043;line-height:1.7;padding:2px 2px 9px;border-bottom:2px solid var(--wepair);white-space:pre-wrap;word-break:break-word}
+.gf-a.empty{color:#b4b8bd;border-bottom-color:#dadce0;font-style:italic}
+.gf-chips{display:flex;flex-wrap:wrap;gap:9px}
+.gf-chip{display:inline-flex;align-items:center;gap:8px;background:#f1f3f4;border:1px solid #e3e6ea;border-radius:999px;padding:7px 14px;font-size:13px;color:#3c4043;font-weight:500}
+.gf-chip::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--wepair);flex:0 0 auto}
+.gf-note{font-size:11.5px;color:#80868b;margin-top:9px}
 
 /* modal / footer / toast */
 .modal{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(4px);z-index:120;display:none;align-items:center;justify-content:center;padding:18px}
@@ -1669,7 +1694,10 @@ body.app-on #ambientBg{opacity:.7}
       <div class="sheet-conn" style="margin-top:14px">
         <div class="sc-note">🗂️ <b>프레젠스 웹관리 시트</b> · 가입로그·설문응답 (스코어 시트와 분리)</div>
         <div class="sc-row"><input id="web2UrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook2()">저장</button></div>
+        <div class="sc-hint" id="web2Status" style="margin-top:8px;font-weight:700"></div>
         <div class="sc-hint">비우면 가입·설문은 시트에 기록되지 않고 앱에만 저장돼요. 가입로그에 비밀번호가 들어가니, 이 시트는 <b>관리자만 보도록</b> 공유 범위를 제한하세요.</div>
+        <button class="btn ghost block" onclick="backupAllToWeb()" style="margin-top:12px">📤 지금까지 쌓인 가입·설문 전체 백업</button>
+        <p style="font-size:11px;color:var(--faint);line-height:1.55;margin-top:8px">자동 백업은 주소를 연결한 <b>이후 제출분</b>부터예요. 연결 전에 쌓인 데이터는 위 버튼으로 한 번 내보내면 시트에 채워져요.</p>
       </div>
     </section></div></div>
 
@@ -1869,7 +1897,7 @@ body.app-on #ambientBg{opacity:.7}
   <div class="acts"><button class="btn ghost" onclick="closeModal('photoModal')">취소</button><button class="btn" onclick="submitPhoto()">올리기</button></div>
 </div></div>
 
-<div class="modal" id="surveyViewModal"><div class="box">
+<div class="modal" id="surveyViewModal"><div class="box sv-modal">
   <h3 id="svViewTitle">설문 응답</h3><p id="svViewSub"></p>
   <div id="svViewBody" class="sv-view"></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('surveyViewModal')">닫기</button></div>
@@ -2375,7 +2403,35 @@ function saveWebhook2(){
   if(LIVE)DB.set('settings/webhook2',url||null);
   toast(url?'🗂️ 웹관리 시트 연동 주소를 저장했어요':'웹관리 연동을 비웠어요 (가입·설문은 앱에만 저장)');
 }
-function renderWeb2Conn(){const inp=document.getElementById('web2UrlInput');if(!inp)return;if(document.activeElement!==inp)inp.value=effectiveWeb()||'';}
+function renderWeb2Conn(){
+  const inp=document.getElementById('web2UrlInput');
+  if(inp&&document.activeElement!==inp)inp.value=effectiveWeb()||'';
+  const st=document.getElementById('web2Status');
+  if(st){const on=!!effectiveWeb();st.innerHTML=on?'🟢 연결됨 — 새 가입·설문이 웹관리 시트에 자동 백업돼요.':'⚪ 미연결 — 주소를 저장하면 자동 백업이 시작돼요. (지금은 앱에만 저장)';st.style.color=on?'var(--green-soft)':'var(--faint)';}
+}
+/* 지금까지 쌓인 가입·설문을 웹관리 시트로 한 번에 내보내기 */
+function backupAllToWeb(){
+  if(!isFounder(me)){toast('관리자만 백업할 수 있어요');return;}
+  if(!effectiveWeb()){toast('먼저 웹관리 시트 주소(/exec)를 저장해 주세요');return;}
+  const jobs=[];let nSignup=0,nSurvey=0;
+  Object.values(state.users||{}).forEach(u=>{
+    if(!u||u.uid==='admin')return;
+    jobs.push({type:'signup',name:u.name,id:u.id,password:'',role:u.role,status:u.status,submittedAt:new Date(u.createdAt||Date.now()).toISOString()});nSignup++;
+    const sv=u.surveys||{};
+    Object.keys(sv).forEach(key=>{
+      const rec=sv[key];if(!rec||rec._seed)return;const S=SURVEYS[key];if(!S)return;
+      const flat={};S.q.forEach(q=>{const v=(rec.answers||{})[q.id];flat[q.q]=Array.isArray(v)?v.join(', '):(v||'')});
+      jobs.push({type:'survey',survey:key,surveyTitle:S.title,name:u.name,id:u.id,role:u.role,submittedAt:new Date(rec.t||Date.now()).toISOString(),answers:flat});nSurvey++;
+    });
+  });
+  if(!jobs.length){toast('백업할 가입·설문 데이터가 없어요');return;}
+  if(!confirm(`지금까지 쌓인 가입 ${nSignup}건 · 설문 ${nSurvey}건을 웹관리 시트로 내보낼까요?\n\n· 비밀번호는 보안상 해시로만 저장돼 과거 비번은 빈칸으로 나가요.\n· 같은 내용을 또 누르면 시트에 중복으로 쌓일 수 있으니 한 번만 실행하세요.`))return;
+  let i=0,sent=0;toast('📤 백업 시작…');
+  (function next(){
+    if(i>=jobs.length){toast(`✅ 백업 전송 완료 · ${sent}건 (시트에서 확인해 주세요)`);return;}
+    postWeb(jobs[i]);sent++;i++;setTimeout(next,350);
+  })();
+}
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
 function importSheetData(data,opt){
   opt=opt||{};const silent=opt.silent,fillOnly=opt.fillOnly;
@@ -3879,20 +3935,40 @@ function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
 function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
-function viewSurvey(uid,key){if(me&&!isFounder(me)){toast('설문은 관리자만 열람할 수 있어요');return}const u=state.users[uid];if(!u||!u.surveys[key]){toast('해당 설문 응답이 없어요');return}document.getElementById('svViewTitle').textContent=`${u.name} · ${SURVEYS[key].title}`;document.getElementById('svViewSub').textContent=u.surveys[key]._seed?'(데모 시드 — 실제 응답 아님)':new Date(u.surveys[key].t).toLocaleString('ko-KR');document.getElementById('svViewBody').innerHTML=surveyAnswerHTML(key,u.surveys[key]);openModal('surveyViewModal')}
+function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
+function gfAnswerHTML(v){
+  if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
+  if(Array.isArray(v))return `<div class="gf-chips">${v.map(x=>`<span class="gf-chip">${esc(String(x))}</span>`).join('')}</div>`;
+  return `<div class="gf-a">${esc(String(v))}</div>`;
+}
+function viewSurvey(uid,key){
+  if(me&&!isFounder(me)){toast('설문은 관리자만 열람할 수 있어요');return}
+  const u=state.users[uid];if(!u||!u.surveys[key]||!SURVEYS[key]){toast('해당 설문 응답이 없어요');return}
+  const S=SURVEYS[key],rec=u.surveys[key],a=rec.answers||{};
+  const meta=rec._seed?'데모 시드 · 실제 응답 아님':(rec.t?new Date(rec.t).toLocaleString('ko-KR'):'');
+  const header=`<div class="gf-card gf-head"><div class="gf-title">${esc(S.title)}</div>${S.intro?`<div class="gf-desc">${esc(S.intro)}</div>`:''}<div class="gf-resp">${gfAvatarHTML(u.name)}<span class="nm">${esc(u.name)} <span style="color:#80868b;font-weight:600">· ${esc(u.role)}</span></span><span class="meta">${esc(meta)}</span></div></div>`;
+  const body=rec._seed
+    ? '<div class="gf-card"><div class="gf-a empty">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div></div>'
+    : S.q.map((q,i)=>`<div class="gf-card"><div class="gf-q"><span class="num">${i+1}</span>${esc(q.q)}</div>${gfAnswerHTML(a[q.id])}</div>`).join('');
+  document.getElementById('svViewBody').innerHTML=`<div class="gfr">${header}${body}</div>`;
+  openModal('surveyViewModal');
+}
 function surveyAnswerHTML(key,rec){if(rec._seed)return '<div style="color:var(--faint);font-size:13px">데모용 시드 데이터입니다. 실제 배포 후 작성된 응답이 여기에 표시됩니다.</div>';const S=SURVEYS[key],a=rec.answers||{};return S.q.map((q,i)=>{const v=a[q.id];let av='';if(Array.isArray(v))av=`<div class="va chips">${v.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`;else av=`<div class="va">${esc(v||'-')}</div>`;return `<div class="vq">${i+1}. ${esc(q.q)}</div>${av}`}).join('')}
 
 /* survey preview (admin) */
 function previewSurvey(key){
-  const S=SURVEYS[key];
-  document.getElementById('svViewTitle').textContent=S.title+' · 미리보기';
-  document.getElementById('svViewSub').textContent=`총 ${S.q.length}문항 · 팀원이 작성하게 될 양식`;
-  document.getElementById('svViewBody').innerHTML=S.q.map((q,i)=>{
-    let a='';
-    if(q.type==='multi'||q.type==='single')a=`<div class="va chips">${q.options.map(o=>`<span class="chip">${esc(o)}</span>`).join('')}</div>`+(q.type==='multi'?`<div style="font-size:11px;color:var(--faint);margin-top:4px">복수선택${q.max?` · 최대 ${q.max}개`:''}</div>`:'<div style="font-size:11px;color:var(--faint);margin-top:4px">단일선택</div>');
-    else a=`<div class="va" style="color:var(--faint)">${q.type==='long'?'장문 입력':(q.type==='date'?'📅 달력 선택':'단답 입력')}${q.sub?' · '+esc(q.sub):''}</div>`;
-    return `<div class="vq">${i+1}. ${esc(q.q)}</div>${a}`;
+  const S=SURVEYS[key];if(!S)return;
+  const header=`<div class="gf-card gf-head"><div class="gf-title">${esc(S.title)}</div>${S.intro?`<div class="gf-desc">${esc(S.intro)}</div>`:''}<div class="gf-resp"><span class="meta" style="margin-left:0">미리보기 · 총 ${S.q.length}문항 · 팀원이 작성할 양식</span></div></div>`;
+  const body=S.q.map((q,i)=>{
+    let a;
+    if(q.type==='multi'||q.type==='single'){
+      a=`<div class="gf-chips">${q.options.map(o=>`<span class="gf-chip">${esc(o)}</span>`).join('')}</div><div class="gf-note">${q.type==='multi'?('복수선택'+(q.max?` · 최대 ${q.max}개`:'')):'단일선택'}${q.sub?' · '+esc(q.sub):''}</div>`;
+    }else{
+      a=`<div class="gf-a empty">${q.type==='long'?'장문 입력란':(q.type==='date'?'📅 날짜 선택':'단답 입력란')}</div>${q.sub?`<div class="gf-note">${esc(q.sub)}</div>`:''}`;
+    }
+    return `<div class="gf-card"><div class="gf-q"><span class="num">${i+1}</span>${esc(q.q)}</div>${a}</div>`;
   }).join('');
+  document.getElementById('svViewBody').innerHTML=`<div class="gfr">${header}${body}</div>`;
   openModal('surveyViewModal');
 }
 
