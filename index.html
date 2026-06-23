@@ -3757,6 +3757,16 @@ function rankRow(i,name,val,ended){
   const win=ended&&i===0;
   return `<div class="rank-row${win?' win':''}"><span class="rank-no">${i+1}</span><span class="rank-av" style="background:${avColor(name)}">${avInner(name)}</span><span class="rank-nm">${esc(name)}${win?'<span class="win-crown">👑</span>':''}</span><span class="rank-val">${val}일</span></div>`;
 }
+function refreshCompLive(){
+  const c=document.getElementById('m-comp');
+  if(c&&c.classList.contains('active')){
+    if(typeof renderComp==='function')renderComp();
+    if(me&&isFounder(me)&&typeof renderTokenAdmin==='function')renderTokenAdmin();
+  }else{
+    if(typeof renderFeedLog==='function'&&document.getElementById('feedLogBody'))renderFeedLog();
+    if(typeof renderRewardLead==='function')renderRewardLead();
+  }
+}
 function renderComp(){
   if(!document.getElementById('compTitle'))return;
   document.getElementById('compTitle').textContent=state.comp.label;
@@ -5094,11 +5104,11 @@ async function initFirebase(){
   DB.on('events',v=>{state.events=v?(Array.isArray(v)?v:Object.values(v)):[];renderCelebrations();if(me)renderEvents();});
   DB.on('goodnews',v=>{state.goodnews=v?(Array.isArray(v)?v:Object.values(v)):[];renderCelebrations();if(me)renderGnAdmin();});
   DB.on('homeFx',v=>{state.homeFx=v||null;applyHomeFx(v&&v.type?v.type:null);});
-  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
+  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();if(typeof renderRewardLead==='function')renderRewardLead();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenIssueDays',v=>{state.tokenIssueDays=v||{};});
   DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
-  DB.on('feedByDay',v=>{state.feedByDay=v||{};if(document.getElementById('feedLogBody'))renderFeedLog();});
+  DB.on('feedByDay',v=>{state.feedByDay=v||{};refreshCompLive();});
   DB.on('managers',v=>{state.managers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){document.body.classList.toggle('can-daily',canDaily(me));buildRail();if(isFounder(me))renderManagerAdmin();}});
   DB.on('salesMeta',v=>{state.salesMeta=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('bep',v=>{state.bep=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
