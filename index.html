@@ -187,6 +187,32 @@ main{padding-bottom:40px}
 @media(max-width:760px){.tree-wrap{grid-template-columns:1fr}}
 .tree-stage{position:relative;min-height:340px;display:flex;align-items:flex-end;justify-content:center;padding:22px;border-right:1px solid var(--line);background:radial-gradient(130% 100% at 50% 110%,rgba(92,188,46,.12),transparent 62%)}
 @media(max-width:760px){.tree-stage{border-right:none;border-bottom:1px solid var(--line);min-height:300px}}
+/* 생일 주인공 캐릭터 (생일 효과 켤 때만 보임) */
+.bday-buddy{position:absolute;left:10px;bottom:38px;z-index:7;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;max-width:62%;pointer-events:none}
+.bbuddy{display:flex;flex-direction:column;align-items:center;gap:3px}
+.bb-figure{position:relative;width:64px;height:84px;transform-origin:50% 92%;animation:bbwaddle 1.05s ease-in-out infinite}
+@keyframes bbwaddle{0%,100%{transform:rotate(-5deg)}25%{transform:rotate(0deg) translateY(-2px)}50%{transform:rotate(5deg)}75%{transform:rotate(0deg) translateY(-2px)}}
+.bb-acc{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:15px;z-index:3;line-height:1}
+.bb-head{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background-size:cover;background-position:center 42%;border:2.5px solid #fff;box-shadow:0 2px 7px rgba(0,0,0,.28);z-index:2;background-color:#e9edf0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.bb-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:62px;height:56px}
+.bbuddy-f .bb-dress{fill:#ff7eb3}.bbuddy-m .bb-dress{fill:#4aa3ff}
+.bb-cake{position:relative;font-size:26px;line-height:1;animation:bbbob 1.7s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+@keyframes bbbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.bb-flame{position:absolute;top:-8px;left:50%;width:6px;height:10px;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;background:radial-gradient(circle at 50% 72%,#fff4b0,#ffba33 58%,#ff7a18);box-shadow:0 0 9px 2px rgba(255,170,50,.75);transform-origin:50% 100%;animation:bbflame .26s ease-in-out infinite alternate}
+@keyframes bbflame{from{transform:translateX(-50%) scaleY(1) rotate(-4deg);opacity:.88}to{transform:translateX(-52%) scaleY(1.28) rotate(4deg);opacity:1}}
+.bb-name{font-size:10.5px;font-weight:800;color:#fff;background:rgba(232,71,60,.9);padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+/* 생일 캐릭터 사진 설정 모달 */
+.bset-person{border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:12px;background:var(--card)}
+.bset-top{display:flex;align-items:center;gap:12px}
+.bset-prev{width:74px;height:74px;border-radius:50%;flex:0 0 74px;background-size:cover;background-position:center 42%;background-color:#eef1f3;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden}
+.bset-ctrls{flex:1;min-width:0}
+.bset-nm{font-weight:800;font-size:14px;margin-bottom:6px}
+.bset-gender{display:flex;gap:7px;margin:7px 0}
+.bset-gender button{flex:1;padding:7px;border-radius:9px;border:1px solid var(--line);background:none;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.bset-gender button.on{background:var(--green);color:var(--green-ink);border-color:var(--green)}
+.bset-row{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.bset-row input[type=range]{flex:1}
+.bset-file{font-size:12px;margin-top:4px}
 .tree-stage .ground{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px dashed rgba(92,188,46,.22)}
 #treeSvg{position:relative;z-index:2;width:min(270px,76%);height:auto}
 .tree-counter{position:absolute;top:20px;left:22px;z-index:3}
@@ -822,6 +848,8 @@ table.scores tr.top1 .big{color:var(--green)}
 .adm-card .ah .badge.zero{background:var(--card);color:var(--faint)}
 .adm-body{padding:14px 16px}
 .pend{display:flex;align-items:center;gap:11px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;flex-wrap:wrap}
+.pend.off{border:1.5px solid rgba(232,71,60,.55);background:rgba(232,71,60,.06)}
+.pend-alert{background:rgba(232,71,60,.1);border:1px solid rgba(232,71,60,.4);color:var(--red);border-radius:11px;padding:10px 13px;margin-bottom:10px;font-size:12.5px;line-height:1.55}
 .pend .pav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--green-ink);flex:0 0 auto}
 .pend .pinfo{flex:1;min-width:120px}
 .pend .pn{font-weight:700;font-size:14px}
@@ -1533,6 +1561,7 @@ body.app-on #ambientBg{opacity:.7}
             <svg id="treeSvg" viewBox="0 0 200 260"></svg>
             <div class="tree-gifts" id="treeGifts"></div>
             <div class="tree-float" id="treeFloat"></div>
+            <div class="bday-buddy" id="bdayBuddy" style="display:none"></div>
           </div>
           <div class="tree-side">
             <span class="label" id="compLabelHome">🌳 우리 나무 · 12월 트리</span>
@@ -1568,9 +1597,11 @@ body.app-on #ambientBg{opacity:.7}
           <button class="fx-btn" data-fx="xmas" onclick="setHomeFx('xmas')">🎄 크리스마스</button>
           <button class="fx-btn" data-fx="beach" onclick="setHomeFx('beach')">🏖️ 여름휴가</button>
           <button class="fx-btn" data-fx="fireworks" onclick="setHomeFx('fireworks')">🎆 폭죽</button>
+          <button class="fx-btn" data-fx="bday" onclick="setHomeFx('bday')">🎂 생일</button>
           <button class="fx-btn off" data-fx="" onclick="setHomeFx(null)">✨ 효과 끄기</button>
         </div>
-        <p class="fx-hint">봄 🌸 → 여름 ☀️ → 비 🌧️ → 가을 🍂 → 겨울 ❄️ → 🎄 크리스마스(트리·조명·별·루돌프·산타) → 🏖️ 여름휴가(야자수·파도·수박) → 🎆 폭죽(화면을 탭하면 터져요). 누르면 전 팀원 홈에 실시간 적용돼요.</p>
+        <p class="fx-hint">봄 🌸 → 여름 ☀️ → 비 🌧️ → 가을 🍂 → 겨울 ❄️ → 🎄 크리스마스(트리·조명·별·루돌프·산타) → 🏖️ 여름휴가(야자수·파도·수박) → 🎆 폭죽(화면을 탭하면 터져요) → 🎂 생일(케이크 강하·폭죽·색종이·축하곡, 탭하면 촛불이 켜졌다 꺼져요). 누르면 전 팀원 홈에 실시간 적용돼요.</p>
+        <button class="fx-btn" style="margin-top:4px" onclick="openBdaySetup()">🎂 생일 캐릭터 사진 설정 (오늘 생일자)</button>
       </section>
     </div></div>
 
@@ -1731,7 +1762,7 @@ body.app-on #ambientBg{opacity:.7}
             <div class="tok-date-row">📅 기준 날짜 <input type="date" id="tokWorkDate" onchange="renderTokenAdmin()"><span class="tok-date-hint">자정 넘으면 어제 날짜로 바꿔서 처리</span></div>
             <button class="gift-all-btn" onclick="openTokenIssue()" style="margin-bottom:8px">🪙 선택 날짜 결과 토큰 발행 (필드 출전자 1개씩 · 승인)</button>
             <button class="gift-all-btn" onclick="grantGiftAll()">🎁 (이벤트) 오늘 전원에게 기념 토큰 1개씩 지급</button>
-            <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.16);border-color:rgba(232,71,60,.4)">🧹 선택 날짜 기준으로 토큰 정리 (지급내역 초기화)</button>
+            <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.18);border:1px solid rgba(232,71,60,.6);color:#ffd6cf;text-shadow:0 1px 2px rgba(0,0,0,.4)">🧹 선택 날짜 기준으로 토큰 정리 (지급내역 초기화)</button>
             <div class="gift-note">기념일용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 ＋ 로 개별 지급하면 돼요.</div>
           </div>
         </div>
@@ -2320,6 +2351,7 @@ let state={
   notifs:{},
   events:[],goodnews:[],
   homeFx:null,
+  bdayChars:{},
   tokens:{},tokenGrants:{},tokenIssueDays:{},
   tokenLog:[],
   feedByDay:{},rewards:[],comp:{},
@@ -2411,7 +2443,7 @@ state.users={
 };
 let me=null;  // logged-in user object (reference into state.users)
 /* sales: key `${date}|${uid}` -> {uid,name,role,date,count,t} */
-const TODAY=new Date().toISOString().slice(0,10);
+const TODAY=(function(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
 const PREVD=(function(){const d=new Date();d.setDate(d.getDate()-2);return d.toISOString().slice(0,10)})();
 state.sales={};   // 실데이터만 — 데모 세일즈 없음
 
@@ -2493,11 +2525,11 @@ function doLogin(){
 function submitSignup(){
   const name=document.getElementById('suName').value.trim(),id=document.getElementById('suId').value.trim(),pw=document.getElementById('suPw').value,pw2=document.getElementById('suPw2').value;
   if(!name||!id||!pw){authMsg('모든 항목을 입력해 주세요','err');return}
-  if(!isTestName_(name)&&!isAllowedName(name)){authMsg('구글 시트 팀원 명단에 없는 이름이에요. 관리자에게 문의해 주세요','err');return}
+  const _offRoster=!isTestName_(name)&&!isAllowedName(name);   // 명단에 없는 이름 → 차단하지 않고 관리자 승인 단계에서 확인
   if(pw.length<4){authMsg('비밀번호는 4자 이상으로 해주세요','err');return}
   if(pw!==pw2){authMsg('비밀번호가 일치하지 않아요','err');return}
   if(findUserById(id)){authMsg('이미 사용 중인 아이디예요','err');return}
-  authState.draft={uid:'u'+Date.now().toString(36),name,id,pwHash:hash(pw),role:'IC',status:'pending',surveys:{},createdAt:Date.now(),lastLogin:0,test:isTestName_(name)};
+  authState.draft={uid:'u'+Date.now().toString(36),name,id,pwHash:hash(pw),role:'IC',status:'pending',surveys:{},createdAt:Date.now(),lastLogin:0,test:isTestName_(name),offRoster:_offRoster};
   authState.draftPw=pw;
   authState.view='survey';authState.surveyKey='IC';authState.surveyCtx='signup';authState.sel={};renderAuth();
 }
@@ -3199,7 +3231,7 @@ function goTab(name){
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
   if(name==='sale')initSaleEditor();
-  if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();}
+  if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{renderBdayBuddy();maybeBdayCharPrompt();}catch(e){}}
   if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();setTimeout(maybeTokenIssuePrompt,500);}}
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();}
@@ -3757,16 +3789,6 @@ function rankRow(i,name,val,ended){
   const win=ended&&i===0;
   return `<div class="rank-row${win?' win':''}"><span class="rank-no">${i+1}</span><span class="rank-av" style="background:${avColor(name)}">${avInner(name)}</span><span class="rank-nm">${esc(name)}${win?'<span class="win-crown">👑</span>':''}</span><span class="rank-val">${val}일</span></div>`;
 }
-function refreshCompLive(){
-  const c=document.getElementById('m-comp');
-  if(c&&c.classList.contains('active')){
-    if(typeof renderComp==='function')renderComp();
-    if(me&&isFounder(me)&&typeof renderTokenAdmin==='function')renderTokenAdmin();
-  }else{
-    if(typeof renderFeedLog==='function'&&document.getElementById('feedLogBody'))renderFeedLog();
-    if(typeof renderRewardLead==='function')renderRewardLead();
-  }
-}
 function renderComp(){
   if(!document.getElementById('compTitle'))return;
   document.getElementById('compTitle').textContent=state.comp.label;
@@ -3838,9 +3860,10 @@ function viewImg(src){const el=document.getElementById('imgLightboxImg');if(el){
 /* ===== 기념일 · 굳뉴스 ===== */
 function bdayMD(u){if(!u||!u.surveys)return null;for(const k in u.surveys){const a=u.surveys[k]&&u.surveys[k].answers;if(a&&a.birth6&&/^\d{4}-\d{2}-\d{2}/.test(a.birth6))return a.birth6.slice(5,10);}return null;}
 function todayMD(){return TODAY.slice(5,10);}
-function tomorrowMD(){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+1);return d.toISOString().slice(5,10);}
+function _md(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function tomorrowMD(){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+1);return _md(d);}
 function birthdaysOn(md){return Object.values(state.users).filter(u=>u.status==='active'&&bdayMD(u)===md).map(u=>u.name);}
-function upcomingBdays(days){const out=[];for(let i=0;i<days;i++){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+i);const md=d.toISOString().slice(5,10);birthdaysOn(md).forEach(nm=>out.push({name:nm,md,in:i}));}return out;}
+function upcomingBdays(days){const out=[];for(let i=0;i<days;i++){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+i);const md=_md(d);birthdaysOn(md).forEach(nm=>out.push({name:nm,md,in:i}));}return out;}
 function confettiBurst(){const host=document.getElementById('app')||document.body;const colors=['#E8473C','#F5D061','#5CBC2E','#46B6DD','#7c3aed','#ff8ad0','#fff'];for(let i=0;i<64;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=colors[i%colors.length];c.style.animationDelay=(Math.random()*0.7)+'s';c.style.animationDuration=(1.8+Math.random()*1.5)+'s';if(Math.random()<0.3)c.style.borderRadius='50%';host.appendChild(c);setTimeout(()=>c.remove(),3800);}}
 function gnCard(g){const photos=(g.photos||[]);const thumbs=photoSlides(photos);const cm=isFounder(me);return `<div class="gn-card">${cm?`<button class="gn-del" onclick="delGoodnews('${g.id}')">✕</button>`:''}<div class="gn-title">🎉 ${esc(g.title||'굳뉴스')}</div>${g.body?`<p class="gn-body">${fmtMentions(g.body)}</p>`:''}${thumbs}<div class="gn-by">by ${esc(g.by||'관리자')} · ${ago(g.t)}</div></div>`;}
 function renderCelebrations(){
@@ -4095,7 +4118,9 @@ function renderAdmin(){
   const users=Object.values(state.users);
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
-  document.getElementById('pendList').innerHTML=pend.length?pend.map(u=>`<div class="pend"><span class="pav" style="background:${avColor(u.name)}">${avInner(u.name)}</span><div class="pinfo"><div class="pn">${esc(u.name)} <span style="font-size:11px;color:var(--muted)">· ${ROLE_LABEL[u.role]}</span></div><div class="pid">@${esc(u.id)}</div></div><div class="pacts"><button class="vbtn view" onclick="viewSurvey('${u.uid}','${u.role}')">설문</button><button class="vbtn ok" onclick="approve('${u.uid}')">승인</button><button class="vbtn no" onclick="reject('${u.uid}')">거절</button></div></div>`).join(''):'<div class="empty-row">승인 대기 중인 가입 신청이 없어요</div>';
+  const offN=pend.filter(u=>u.offRoster||!isAllowedName(u.name)).length;
+  const offBanner=offN?`<div class="pend-alert">⚠️ <b>명단에 없는 가입 신청 ${offN}건</b>이 있어요. 본인이 맞으면 <b>[명단추가+승인]</b>, 아니면 <b>[거절]</b> 하세요.</div>`:'';
+  document.getElementById('pendList').innerHTML=pend.length?offBanner+pend.map(u=>{const off=u.offRoster||!isAllowedName(u.name);return `<div class="pend${off?' off':''}"><span class="pav" style="background:${avColor(u.name)}">${avInner(u.name)}</span><div class="pinfo"><div class="pn">${esc(u.name)} <span style="font-size:11px;color:var(--muted)">· ${ROLE_LABEL[u.role]}</span></div><div class="pid">@${esc(u.id)}</div>${off?'<div class="pid" style="color:var(--red);font-weight:700">⚠️ 명단에 없는 팀원</div>':''}</div><div class="pacts"><button class="vbtn view" onclick="viewSurvey('${u.uid}','${u.role}')">설문</button>${off?`<button class="vbtn ok" onclick="approveAndRoster('${u.uid}')">명단추가+승인</button>`:`<button class="vbtn ok" onclick="approve('${u.uid}')">승인</button>`}<button class="vbtn no" onclick="reject('${u.uid}')">거절</button></div></div>`;}).join(''):'<div class="empty-row">승인 대기 중인 가입 신청이 없어요</div>';
   const rb=document.getElementById('rosterBadge');rb.textContent=users.length;rb.classList.remove('zero');
   document.getElementById('rosterBody').innerHTML=users.sort((a,b)=>ri(b.role)-ri(a.role)).map(u=>{
     const done=Object.keys(u.surveys||{});
@@ -4164,27 +4189,31 @@ function grantGiftAll(){
   renderTokenAdmin();renderTokenShop();
   toast(`🎁 ${names.length}명에게 기념 토큰을 1개씩 지급했어요!`);
 }
-/* ===== 오늘 먹이 출석부 (관리자가 오늘 먹이 준 사람 체크 → 공동 1위·로그 반영) ===== */
+/* ===== 먹이 출석부 (관리자가 그날 먹이 준 사람 체크 → 먹이 순위·로그 반영 · 달력으로 과거도 수정) ===== */
+function feedAttendDate(){const el=document.getElementById('feedAttendDate');return (el&&el.value)?el.value:TODAY;}
 function renderFeedAttend(){
   const box=document.getElementById('feedAttendBox');if(!box)return;
   if(!me||!isFounder(me)){box.innerHTML='';return;}
-  const fed=((state.feedByDay||{})[TODAY])||{};
+  const d=feedAttendDate(),isToday=(d===TODAY);
+  const fed=((state.feedByDay||{})[d])||{};
   const mem=rosterMembers().filter(u=>!isAdminName(u.name));
   const onCnt=mem.filter(u=>(+fed[u.name]||0)>=1).length;
-  box.innerHTML='<div class="fa-card"><div class="fa-h">🌽 오늘 먹이 출석부 <small>· '+TODAY+'</small></div>'
-    +'<div class="fa-sub">오늘 먹이 준 사람을 탭해서 켜세요. 켠 사람은 먹이 순위·로그에 <b>오늘 먹이(공동 1위)</b>로 올라가요. <b>'+onCnt+'명</b> 체크됨</div>'
+  box.innerHTML='<div class="fa-card"><div class="fa-h">🌽 먹이 출석부'+(isToday?' <small>· 오늘</small>':' <small>· 지난 날 수정</small>')+'</div>'
+    +'<div class="tok-date-row">📅 날짜 <input type="date" id="feedAttendDate" value="'+d+'" max="'+TODAY+'" onchange="renderFeedAttend()"><span class="tok-date-hint">'+(isToday?'오늘':'과거 날짜')+' · 칩을 탭해 켜고 끄면 그날 기록이 바뀌어요</span></div>'
+    +'<div class="fa-sub"><b>'+esc(d)+'</b>에 먹이 준 사람을 탭해서 켜세요. 켠 사람은 먹이 순위·로그에 그날 먹이로 올라가요. <b>'+onCnt+'명</b> 체크됨</div>'
     +'<div class="fa-chips">'+mem.map(u=>{const on=(+fed[u.name]||0)>=1;return '<button class="fa-chip'+(on?' on':'')+'" onclick="toggleFeedAttend(\''+u.name+'\')">'+(on?'✅ ':'')+esc(u.name)+'</button>';}).join('')+'</div></div>';
 }
 function toggleFeedAttend(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
-  state.feedByDay=state.feedByDay||{};state.feedByDay[TODAY]=state.feedByDay[TODAY]||{};
+  const d=feedAttendDate();
+  state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};
   state.tokens=state.tokens||{};
-  const cur=(+state.feedByDay[TODAY][name]||0)>=1;
-  if(cur){delete state.feedByDay[TODAY][name];state.tokens[name]=(state.tokens[name]||0)+1;}      // 먹이 취소 → 토큰 환급
-  else{state.feedByDay[TODAY][name]=1;state.tokens[name]=Math.max(0,(state.tokens[name]||0)-1);}    // 먹이 = 토큰 1 소모
+  const cur=(+state.feedByDay[d][name]||0)>=1;
+  if(cur){delete state.feedByDay[d][name];state.tokens[name]=(state.tokens[name]||0)+1;}      // 먹이 취소 → 토큰 환급
+  else{state.feedByDay[d][name]=1;state.tokens[name]=Math.max(0,(state.tokens[name]||0)-1);}    // 먹이 = 토큰 1 소모
   if(LIVE){DB.set('feedByDay',state.feedByDay);DB.set('tokens',state.tokens);}
   renderComp();renderTokenAdmin();renderTokenShop();
-  toast(cur?(name+'님 먹이 취소 · 토큰 +1 환급'):('🌽 '+name+'님 먹이 기록 · 토큰 −1 사용'));
+  toast(cur?(name+'님 '+d+' 먹이 취소 · 토큰 +1 환급'):('🌽 '+name+'님 '+d+' 먹이 기록 · 토큰 −1 사용'));
 }
 /* ===== 오늘의 기념주화 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
 function tokWorkDate(){const el=document.getElementById('tokWorkDate');return (el&&el.value)?el.value:TODAY;}
@@ -4231,9 +4260,32 @@ function confirmTokenIssue(){
   toast('🪙 '+f.length+'명에게 '+d+' 기념주화를 1개씩 발행했어요!');
 }
 function holdTokenIssue(){closeModal('tokenIssueModal');toast('⏸️ 발행을 보류했어요 · 토큰 현황의 [오늘 결과 토큰 발행]에서 다시 발행할 수 있어요');}
+function pendingTokenDays(lookback){
+  lookback=lookback||4;                                    // 최근 며칠까지 미처리분을 챙길지
+  const today=new Date(TODAY+'T00:00:00'),days={},out=[];
+  Object.keys(state.sales||{}).forEach(k=>{const e=state.sales[k];if(e&&e.date)days[e.date]=1;});
+  Object.keys(days).forEach(d=>{
+    const dd=new Date(d+'T00:00:00'),diff=Math.round((today-dd)/86400000);
+    if(diff<0||diff>lookback)return;                        // 미래·너무 오래된 날 제외
+    if(tokensIssuedOn(d))return;                            // 이미 발행한 날 제외
+    if(!fieldersOn(d).length)return;                        // 그날 필드 결과(1건↑) 없으면 제외
+    out.push(d);
+  });
+  return out.sort();                                        // 오래된 날부터
+}
 function maybeTokenIssuePrompt(){
   if(!me||!isFounder(me))return;
-  if(new Date().getHours()>=22 && !tokensIssuedOn(TODAY) && fieldersOn(TODAY).length){const el=document.getElementById('tokWorkDate');if(el)el.value=TODAY;openTokenIssue();}
+  {const tim=document.getElementById('tokenIssueModal');if(tim&&tim.classList.contains('on'))return;}
+  const pend=pendingTokenDays(4);
+  if(!pend.length)return;
+  // 지난 날(미처리)은 시간과 무관하게 바로 묻고, '오늘' 건만 밤 10시 이후에 자동으로 묻는다 (낮에 안 귀찮게)
+  const past=pend.filter(d=>d!==TODAY);
+  let target=null;
+  if(past.length)target=past[0];                            // 가장 오래된 미처리 지난 날 먼저
+  else if(pend.indexOf(TODAY)>=0 && new Date().getHours()>=22)target=TODAY;
+  if(!target)return;
+  const el=document.getElementById('tokWorkDate');if(el)el.value=target;
+  openTokenIssue();
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
 function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
@@ -4578,6 +4630,12 @@ function renderAnnounceAdmin(){
 }
 function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓`)}
+function approveAndRoster(uid){const u=state.users[uid];if(!u)return;
+  if(!isAllowedName(u.name)){state.extraMembers=state.extraMembers||[];state.extraMembers.push(u.name);if(LIVE)DB.set('extraMembers',state.extraMembers);try{sheetAddMember(u.name);}catch(e){}}
+  u.offRoster=false;if(LIVE)DB.set('users/'+uid+'/offRoster',false);
+  u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');
+  renderAdmin();if(document.getElementById('dailyList'))renderDaily();
+  toast(`✅ ${u.name}님을 팀원 명단에 추가하고 가입을 승인했어요`);}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
 function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
@@ -4847,7 +4905,7 @@ function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();re
 /* ============================================================
    HOME MOOD FX — 관리자 토글 · 전팀 실시간 동기화
    ============================================================ */
-const FX_LABEL={sakura:'벚꽃 🌸',sun:'햇빛 ☀️',rain:'비 🌧️',leaves:'낙엽 🍂',snow:'눈 ❄️',xmas:'크리스마스 🎄',beach:'여름휴가 🏖️',fireworks:'폭죽 🎆'};
+const FX_LABEL={sakura:'벚꽃 🌸',sun:'햇빛 ☀️',rain:'비 🌧️',leaves:'낙엽 🍂',snow:'눈 ❄️',xmas:'크리스마스 🎄',beach:'여름휴가 🏖️',fireworks:'폭죽 🎆',bday:'생일 🎂'};
 const FX_TINT={
   sakura:'radial-gradient(130% 80% at 50% -15%,rgba(255,150,200,.24),transparent 60%),linear-gradient(180deg,rgba(255,140,190,.10),transparent 46%)',
   sun:'radial-gradient(120% 95% at 80% -12%,rgba(255,216,110,.34),transparent 52%),linear-gradient(180deg,rgba(255,184,70,.12),transparent 46%)',
@@ -4856,7 +4914,8 @@ const FX_TINT={
   snow:'radial-gradient(130% 80% at 50% -15%,rgba(120,170,255,.22),transparent 60%),linear-gradient(180deg,rgba(80,130,210,.10),transparent 42%)',
   xmas:'radial-gradient(120% 80% at 50% -12%,rgba(120,170,255,.20),transparent 58%),radial-gradient(120% 70% at 50% 116%,rgba(205,40,60,.18),transparent 55%)',
   beach:'radial-gradient(130% 80% at 82% -8%,rgba(255,222,120,.28),transparent 48%),linear-gradient(180deg,rgba(60,170,215,.16),transparent 32%,transparent 64%,rgba(20,120,180,.34))',
-  fireworks:'radial-gradient(130% 95% at 50% 115%,rgba(124,58,200,.30),transparent 58%),radial-gradient(130% 90% at 50% -15%,rgba(18,16,38,.55),transparent 55%)'
+  fireworks:'radial-gradient(130% 95% at 50% 115%,rgba(124,58,200,.30),transparent 58%),radial-gradient(130% 90% at 50% -15%,rgba(18,16,38,.55),transparent 55%)',
+  bday:'radial-gradient(120% 85% at 50% -12%,rgba(255,140,190,.26),transparent 56%),radial-gradient(120% 80% at 50% 116%,rgba(255,205,90,.22),transparent 55%),linear-gradient(180deg,rgba(255,150,200,.10),transparent 44%)'
 };
 const FX=(function(){
   let cv,ctx,W=0,H=0,DPR=1,parts=[],type=null,raf=null,started=false,reduce=false,lastBurst=0,waveT=0;
@@ -4874,6 +4933,7 @@ const FX=(function(){
   function onTap(e){if(!type||reduce)return;clickBurst(type,e.clientX,e.clientY);}
   function burst(x,y){const n=30+((Math.random()*16)|0),c=SPARK[(Math.random()*SPARK.length)|0],c2=SPARK[(Math.random()*SPARK.length)|0];for(let i=0;i<n;i++){const a=R(0,6.2832),sp=R(1.2,4.6);parts.push({k:'spark',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(0,.8),life:0,max:R(46,84),c:Math.random()<.5?c:c2,size:R(1.4,2.9)});}}
   function clickBurst(t,x,y){
+    if(t==='bday'){burst(x,y);parts.push({k:'ccake',x,y,sc:R(38,46),life:0,max:100});for(let i=0;i<12;i++){const a=R(0,6.2832),sp=R(1.3,4);parts.push({k:'cconf',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(.5,1.6),rot:R(0,6.28),vr:R(-.35,.35),w:R(4,8),h:R(6,12),c:SPARK[(Math.random()*SPARK.length)|0],life:0,max:R(48,82)});}return;}
     if(t==='fireworks'){burst(x,y);return;}
     if(t==='sakura'){for(let i=0;i<15;i++){const a=R(0,6.2832),sp=R(1.4,4.2);parts.push({k:'cpetal',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(.4,1.4),rot:R(0,6.28),vr:R(-.22,.22),s:R(5,10),c:SAKURA[(Math.random()*SAKURA.length)|0],life:0,max:R(42,72)});}return;}
     if(t==='leaves'){for(let i=0;i<13;i++){const a=R(0,6.2832),sp=R(1.3,3.6);parts.push({k:'cleaf',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-R(.3,1.1),rot:R(0,6.28),vr:R(-.3,.3),s:R(6,12),c:LEAF[(Math.random()*LEAF.length)|0],life:0,max:R(38,66)});}return;}
@@ -4885,8 +4945,8 @@ const FX=(function(){
   }
   function resize(){if(!cv||!ctx)return;DPR=Math.min(1.5,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
   function appVisible(){const a=document.getElementById('app');return a&&!a.classList.contains('hidden')&&!document.hidden;}
-  function contKind(){return (type==='snow'||type==='xmas')?'snow':type==='rain'?'rain':type==='leaves'?'leaf':type==='sakura'?'petal':type==='sun'?'mote':null;}
-  function contTarget(){const a=W*H,k=contKind();if(k==='snow')return Math.min(type==='xmas'?140:170,Math.round(a/14000));if(k==='rain')return Math.min(230,Math.round(a/9000));if(k==='leaf')return Math.min(34,Math.round(W/42));if(k==='petal')return Math.min(58,Math.round(W/24));if(k==='mote')return Math.min(70,Math.round(a/24000));return 0;}
+  function contKind(){return (type==='snow'||type==='xmas')?'snow':type==='rain'?'rain':type==='leaves'?'leaf':type==='sakura'?'petal':type==='sun'?'mote':type==='bday'?'confetti':null;}
+  function contTarget(){const a=W*H,k=contKind();if(k==='snow')return Math.min(type==='xmas'?140:170,Math.round(a/14000));if(k==='rain')return Math.min(230,Math.round(a/9000));if(k==='leaf')return Math.min(34,Math.round(W/42));if(k==='petal')return Math.min(58,Math.round(W/24));if(k==='mote')return Math.min(70,Math.round(a/24000));if(k==='confetti')return Math.min(66,Math.round(a/22000));return 0;}
   function spawnCont(top){
     const k=contKind();
     if(k==='snow'){const r=R(1.4,3.6);parts.push({k:'snow',x:R(0,W),y:top?R(-H,0):-4,r,vy:r*0.5+R(.3,.9),sw:R(.4,1.3),ph:R(0,6.28),sp:R(.01,.03),op:R(.45,.95)});}
@@ -4894,6 +4954,7 @@ const FX=(function(){
     else if(k==='leaf'){parts.push({k:'leaf',x:R(0,W),y:top?R(-H,0):-22,s:R(8,14),vy:R(.7,1.6),vx:R(-.4,.4),rot:R(0,6.28),vr:R(-.04,.04),sw:R(.6,1.6),ph:R(0,6.28),sp:R(.012,.03),c:LEAF[(Math.random()*LEAF.length)|0]});}
     else if(k==='petal'){parts.push({k:'petal',x:R(0,W),y:top?R(-H,0):-16,s:R(5,10),vy:R(.6,1.4),vx:R(-.5,.5),rot:R(0,6.28),vr:R(-.05,.05),sw:R(.8,2),ph:R(0,6.28),sp:R(.015,.035),c:SAKURA[(Math.random()*SAKURA.length)|0]});}
     else if(k==='mote'){parts.push({k:'mote',x:R(0,W),y:top?R(0,H):H+6,vy:-R(.2,.7),r:R(1,2.6),op:R(.22,.62),ph:R(0,6.28),sp:R(.01,.025),sw:R(.3,1)});}
+    else if(k==='confetti'){const cs=['#FF6B6B','#FFD061','#5CBC2E','#46B6DD','#B98BE6','#FF8AD0','#ff9ec7','#ffd700'];parts.push({k:'confetti',x:R(0,W),y:top?R(-H,0):-12,vy:R(1.1,2.6),vx:R(-.5,.5),rot:R(0,6.28),vr:R(-.12,.12),w:R(5,9),h:R(7,13),c:cs[(Math.random()*cs.length)|0],ph:R(0,6.28),sp:R(.02,.06),sw:R(.4,1.2)});}
   }
   function buildScene(){
     if(type==='xmas'){
@@ -4924,6 +4985,11 @@ const FX=(function(){
       // 🕊️ 갈매기 (하늘을 날갯짓하며 가로질러요)
       const ng=Math.max(2,Math.round(W/340));
       for(let i=0;i<ng;i++){const dir=Math.random()<.5?1:-1;parts.push({k:'gull',x:R(0,W),y:R(H*.08,H*.34),vx:dir*R(.4,.95),sc:R(10,17),ph:R(0,6.28),fsp:R(.12,.2),bob:R(4,9),bp:R(0,6.28)});}
+    }else if(type==='bday'){
+      const bal=['🎈','🎈','🎈','🎉','🎁'],nb=Math.max(4,Math.round(W/220));
+      for(let i=0;i<nb;i++){parts.push({k:'float',e:bal[i%bal.length],x:R(0,W),y:R(H*.16,H*.62),vx:R(-.18,.18),sc:R(26,40),ph:R(0,6.28),amp:R(5,12),sp:R(.008,.022)});}
+      parts.push({k:'cakedrop',x:W*0.5,ty:H*0.24,sc:R(54,64),life:0,max:210});
+      burst(W*0.3,H*0.22);burst(W*0.7,H*0.2);
     }
   }
   function drawGull(x,y,s,flap,dir){
@@ -4958,6 +5024,7 @@ const FX=(function(){
     const ck=contKind();
     if(ck){let live=0;for(const p of parts)if(p.k===ck)live++;let add=Math.min(4,contTarget()-live);while(add-->0)spawnCont(false);}
     if(type==='fireworks'){const now=performance.now();if(now-lastBurst>R(700,1500)){lastBurst=now;burst(R(W*.18,W*.82),R(H*.14,H*.46));}}
+    if(type==='bday'){const now=performance.now();if(now-lastBurst>R(900,1900)){lastBurst=now;burst(R(W*.16,W*.84),R(H*.12,H*.42));}}
     if(type==='beach')drawSea();
     const next=[];
     for(const p of parts){
@@ -4980,6 +5047,10 @@ const FX=(function(){
       else if(p.k==='cstamp'){p.life++;if(p.life<p.max){next.push(p);const t=p.life/p.max;let sc;if(t<0.25)sc=p.sc*(0.3+(t/0.25)*0.85);else if(t<0.4)sc=p.sc*(1.15-((t-0.25)/0.15)*0.15);else sc=p.sc;const a=t>0.72?1-(t-0.72)/0.28:1;const yy=p.y-(p.rise||0)*p.life;ctx.globalAlpha=Math.max(0,a);drawEmoji(p.e,p.x,yy,Math.max(4,sc),1);ctx.globalAlpha=1;}}
       else if(p.k==='cdrop'){p.life++;p.y+=p.vy;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.globalAlpha=Math.max(0,(p.op||.5)*a);ctx.strokeStyle='#bcd2ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y-p.len);ctx.stroke();}}
       else if(p.k==='ccloud'){p.life++;if(p.life<p.max){next.push(p);const t=p.life/p.max;const a=(t<0.18?t/0.18:t>0.7?1-(t-0.7)/0.3:1);ctx.globalAlpha=Math.max(0,a);drawEmoji('☁️',p.x,p.y,p.sc,1);ctx.globalAlpha=1;if(p.life%5===0&&t<0.6)next.push({k:'cdrop',x:p.x+R(-p.sc*0.4,p.sc*0.4),y:p.y+p.sc*0.3,vy:R(4,7),len:R(8,15),life:0,max:R(22,38),op:R(.4,.7)});}}
+      else if(p.k==='confetti'){p.ph+=p.sp;p.rot+=p.vr;p.x+=p.vx+Math.sin(p.ph)*(p.sw||0);p.y+=p.vy;if(p.y>H+14){p.y=-12;p.x=R(0,W);}next.push(p);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=.92;ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}
+      else if(p.k==='cconf'){p.life++;p.vy+=0.06;p.vx*=0.99;p.rot+=p.vr;p.x+=p.vx;p.y+=p.vy;if(p.life<p.max){next.push(p);const a=1-p.life/p.max;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=Math.max(0,a*.95);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();}}
+      else if(p.k==='cakedrop'){p.life++;if(p.life<p.max){next.push(p);const t=p.life;let y;if(t<34){y=p.ty-(34-t)*9;}else if(t<46){y=p.ty+Math.sin((t-34)/12*Math.PI)*11;}else{y=p.ty;}const ain=Math.min(1,t/12),aout=p.life>p.max-34?(p.max-p.life)/34:1,a=Math.max(0,Math.min(ain,aout));ctx.globalAlpha=a;drawEmoji('🎂',p.x,y,p.sc,1);if(t>40&&p.life<p.max-34){drawEmoji('🎉',p.x-p.sc*0.95,y-p.sc*0.15,p.sc*0.55,1);drawEmoji('🎉',p.x+p.sc*0.95,y-p.sc*0.15,p.sc*0.55,-1);}ctx.globalAlpha=1;}}
+      else if(p.k==='ccake'){p.life++;if(p.life<p.max){next.push(p);const t=p.life/p.max;let sc=p.sc||40;if(t<0.2)sc=sc*(0.4+t/0.2*0.7);const a=t>0.82?1-(t-0.82)/0.18:1;ctx.globalAlpha=Math.max(0,a);drawEmoji('🎂',p.x,p.y,Math.max(6,sc),1);if(t<0.55){const fl=0.6+Math.abs(Math.sin(p.life*0.6))*0.4,fy=p.y-sc*0.62;ctx.globalAlpha=a*fl;const g=ctx.createRadialGradient(p.x,fy,0,p.x,fy,sc*0.18);g.addColorStop(0,'#fff6c0');g.addColorStop(.5,'#ffcf4d');g.addColorStop(1,'rgba(255,140,40,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(p.x,fy,sc*0.085,sc*0.16*fl,0,0,6.2832);ctx.fill();}else if(t<0.74){ctx.globalAlpha=a*(0.74-t)/0.19;drawEmoji('💨',p.x,p.y-sc*0.72,sc*0.5,1);}ctx.globalAlpha=1;}}
     }
     parts=next;ctx.globalAlpha=1;
   }
@@ -5004,22 +5075,60 @@ const FX_AUDIO={
   snow:'audio/snow.mp3',
   xmas:'audio/carol.mp3',
   beach:'audio/waves.mp3',
-  fireworks:'audio/fireworks.mp3'
+  fireworks:'audio/fireworks.mp3',
+  bday:'audio/birthday.mp3'
 };
-const SND_LABEL={xmas:'캐롤',beach:'파도소리',snow:'눈 소리',sakura:'벚꽃 소리',leaves:'낙엽 소리',fireworks:'폭죽 소리',rain:'빗소리',sun:'햇살 음악'};
-const SND_VOL={xmas:0.3,beach:0.3,snow:0.3,sakura:0.3,leaves:0.3,fireworks:0.3,rain:0.3,sun:0.3};
+const SND_LABEL={xmas:'캐롤',beach:'파도소리',snow:'눈 소리',sakura:'벚꽃 소리',leaves:'낙엽 소리',fireworks:'폭죽 소리',rain:'빗소리',sun:'햇살 음악',bday:'생일축하곡'};
+const SND_VOL={xmas:0.3,beach:0.3,snow:0.3,sakura:0.3,leaves:0.3,fireworks:0.3,rain:0.3,sun:0.3,bday:0.32};
+/* 생일 축하곡 — 공개 저작물 멜로디를 Web Audio로 합성 재생 (외부 음원 없이 자동 반복) */
+const BdaySong=(function(){
+  let ac=null,master=null,timer=null,playing=false;
+  const G4=392.00,A4=440.00,B4=493.88,C5=523.25,D5=587.33,E5=659.25,F5=698.46,G5=783.99;
+  const NOTES=[
+    [G4,.75],[G4,.25],[A4,1],[G4,1],[C5,1],[B4,1.75],[0,.25],
+    [G4,.75],[G4,.25],[A4,1],[G4,1],[D5,1],[C5,1.75],[0,.25],
+    [G4,.75],[G4,.25],[G5,1],[E5,1],[C5,1],[B4,1],[A4,1.75],[0,.25],
+    [F5,.75],[F5,.25],[E5,1],[C5,1],[D5,1],[C5,2],[0,1]
+  ];
+  const BEAT=0.46;
+  function note(t,freq,dur){
+    if(freq<=0)return;
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type='triangle';o.frequency.value=freq;o.connect(g);g.connect(master);
+    const atk=0.02,rel=Math.min(0.18,dur*0.4),peak=0.5;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(peak,t+atk);
+    g.gain.setValueAtTime(peak,t+Math.max(atk,dur-rel));
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    o.start(t);o.stop(t+dur+0.02);
+  }
+  function scheduleLoop(startT){let t=startT,total=0;NOTES.forEach(n=>{const d=n[1]*BEAT;note(t,n[0],d*0.92);t+=d;total+=d;});return total;}
+  function start(){
+    try{
+      if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ac=new AC();master=ac.createGain();master.gain.value=0;master.connect(ac.destination);}
+      if(ac.state==='suspended'){try{ac.resume();}catch(e){}}
+      if(playing)return;playing=true;
+      master.gain.cancelScheduledValues(ac.currentTime);
+      master.gain.setValueAtTime(0,ac.currentTime);
+      master.gain.linearRampToValueAtTime(SND_VOL.bday||0.32,ac.currentTime+0.6);
+      const tick=()=>{if(!playing)return;const dur=scheduleLoop(ac.currentTime+0.05);timer=setTimeout(tick,(dur+1.4)*1000);};tick();
+    }catch(e){}
+  }
+  function stop(){playing=false;if(timer){clearTimeout(timer);timer=null;}try{if(ac&&master){master.gain.cancelScheduledValues(ac.currentTime);master.gain.linearRampToValueAtTime(0,ac.currentTime+0.4);}}catch(e){}}
+  return {start:start,stop:stop};
+})();
 const SND=(function(){
   let cache={},cur=null;
   function get(t){if(cache[t])return cache[t];var src=FX_AUDIO[t];if(!src)return null;var a=new Audio();a.src=src;a.loop=true;a.preload="none";a.volume=0;cache[t]=a;return a;}
   function fadeTo(a,target,ms){if(!a)return;var s=a.volume,t0=performance.now();(function tick(){var k=Math.min(1,(performance.now()-t0)/ms);a.volume=Math.max(0,Math.min(1,s+(target-s)*k));if(k<1)requestAnimationFrame(tick);else if(target===0){try{a.pause()}catch(e){}}})();}
-  function play(t){if(!t||!FX_AUDIO[t]){stop();return;}cur=t;Object.keys(cache).forEach(function(k){if(k!==t)fadeTo(cache[k],0,300);});var a=get(t);if(a){var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});fadeTo(a,SND_VOL[t]||0.5,700);}}
-  function stop(){cur=null;Object.keys(cache).forEach(function(k){fadeTo(cache[k],0,400);});}
+  function play(t){if(!t||!FX_AUDIO[t]){stop();return;}cur=t;Object.keys(cache).forEach(function(k){if(k!==t)fadeTo(cache[k],0,300);});BdaySong.stop();var a=get(t);if(a){if(t==='bday')a.onerror=function(){BdaySong.start();};var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});fadeTo(a,SND_VOL[t]||0.5,700);}}
+  function stop(){cur=null;BdaySong.stop();Object.keys(cache).forEach(function(k){fadeTo(cache[k],0,400);});}
   function unlock(){}
   return {play:play,stop:stop,unlock:unlock,get cur(){return cur;}};
 })();
 function sndOn(){return lsGet('presence_fx_sound')===true;}
 function fxOnLocal(){return lsGet('presence_fx_on')!==false;}
-function fxHasSound(t){return (t&&FX_AUDIO[t])?t:null;}
+function fxHasSound(t){return (t&&(FX_AUDIO[t]||t==='bday'))?t:null;}
 function updateSndToggle(t){
   const b=document.getElementById('sndToggle');if(!b)return;
   const kind=fxHasSound(t);
@@ -5059,6 +5168,7 @@ function applyHomeFx(t){
   if(kind&&sndOn())SND.play(kind);else SND.stop();
   updateSndToggle(kind);
   updateFxToggle(t);
+  try{renderBdayBuddy();}catch(e){}
 }
 function setHomeFx(t){
   if(!me||!isFounder(me)){toast('관리자만 변경할 수 있어요');return;}
@@ -5067,6 +5177,79 @@ function setHomeFx(t){
   if(LIVE)DB.set('homeFx',payload);
   applyHomeFx(t||null);
   toast(t?`홈 분위기: ${FX_LABEL[t]} 적용 ✨`:'홈 효과를 껐어요');
+  if(t==='bday'){const ppl=bdayPeopleToday(),chars=state.bdayChars||{},miss=ppl.filter(nm=>!(chars[nm]&&chars[nm].photo));if(miss.length)setTimeout(openBdaySetup,400);}
+}
+/* ===== 생일 주인공 캐릭터 (생일 효과 켤 때만 나무 옆에 표시) ===== */
+function bdaySvgBody(){return '<svg class="bb-body" viewBox="0 0 62 56" xmlns="http://www.w3.org/2000/svg">'
+  +'<rect x="22" y="42" width="6" height="13" rx="3" fill="#f1c9a5"/><rect x="34" y="42" width="6" height="13" rx="3" fill="#f1c9a5"/>'
+  +'<ellipse cx="24" cy="54" rx="5.5" ry="3" fill="#5a4632"/><ellipse cx="38" cy="54" rx="5.5" ry="3" fill="#5a4632"/>'
+  +'<path class="bb-dress" d="M15 21 Q31 13 47 21 L51 46 Q31 53 11 46 Z"/>'
+  +'<rect class="bb-dress" x="7" y="23" width="9" height="6.5" rx="3.2"/><rect class="bb-dress" x="46" y="23" width="9" height="6.5" rx="3.2"/>'
+  +'<circle cx="8" cy="26" r="3.4" fill="#f1c9a5"/><circle cx="54" cy="26" r="3.4" fill="#f1c9a5"/>'
+  +'<ellipse cx="31" cy="20" rx="9.5" ry="4" fill="#fff"/>'
+  +'<circle cx="26" cy="34" r="1.5" fill="rgba(255,255,255,.7)"/><circle cx="36" cy="34" r="1.5" fill="rgba(255,255,255,.7)"/>'
+  +'</svg>';}
+function bdayPeopleToday(){try{return birthdaysOn(todayMD());}catch(e){return [];}}
+function renderBdayBuddy(){
+  const box=document.getElementById('bdayBuddy');if(!box)return;
+  const on=(state._fxType==='bday')&&fxOnLocal();
+  const people=bdayPeopleToday();
+  if(!on||!people.length){box.style.display='none';box.innerHTML='';return;}
+  const chars=state.bdayChars||{};
+  box.innerHTML=people.map(nm=>{
+    const c=chars[nm]||{};const gender=c.gender==='m'?'m':'f';const acc=gender==='m'?'🧢':'🎀';
+    const head=c.photo
+      ? `<div class="bb-head" style="background-image:url('${c.photo}');background-size:${c.zoom||120}%;background-position:${c.ox==null?50:c.ox}% ${c.oy==null?42:c.oy}%"></div>`
+      : `<div class="bb-head">🙂</div>`;
+    return `<div class="bbuddy bbuddy-${gender}"><div class="bb-figure"><span class="bb-acc">${acc}</span>${head}${bdaySvgBody()}</div><div class="bb-cake">🎂<span class="bb-flame"></span></div><div class="bb-name">🎉 ${esc(nm)} 🎉</div></div>`;
+  }).join('');
+  box.style.display='flex';
+}
+let bdayTmp={};
+function ensureBdayModal(){
+  if(document.getElementById('bdayModal'))return;
+  const m=document.createElement('div');m.className='modal';m.id='bdayModal';
+  m.innerHTML='<div class="box"><h3>🎂 생일 캐릭터 사진 설정</h3><p style="font-size:12px;color:var(--muted);margin:6px 0 12px;line-height:1.6">오늘 생일인 팀원의 <b>얼굴 사진</b>을 올리고 <b>성별</b>을 골라주세요. 확대·위치로 얼굴만 동그랗게 맞추면, 생일 효과를 켰을 때 나무 옆에 캐릭터로 나타나요.</p><div id="bdayModalBody"></div><div class="acts"><button class="btn ghost" onclick="closeModal(\'bdayModal\')">닫기</button><button class="btn" onclick="bsetSave()">저장</button></div></div>';
+  document.body.appendChild(m);
+}
+function openBdaySetup(){
+  if(!isFounder(me)){toast('관리자만 가능해요');return;}
+  const people=bdayPeopleToday();
+  if(!people.length){toast('오늘 생일인 팀원이 없어요');return;}
+  ensureBdayModal();
+  bdayTmp={};const chars=state.bdayChars||{};
+  people.forEach(nm=>{const c=chars[nm]||{};bdayTmp[nm]={photo:c.photo||'',gender:c.gender==='m'?'m':'f',zoom:c.zoom||120,ox:c.ox==null?50:c.ox,oy:c.oy==null?42:c.oy};});
+  renderBdayModalBody();
+  openModal('bdayModal');
+}
+function renderBdayModalBody(){
+  const body=document.getElementById('bdayModalBody');if(!body)return;
+  body.innerHTML=Object.keys(bdayTmp).map((nm,i)=>{
+    const t=bdayTmp[nm];
+    const prevStyle=t.photo?`background-image:url('${t.photo}');background-size:${t.zoom}%;background-position:${t.ox}% ${t.oy}%`:'';
+    return `<div class="bset-person"><div class="bset-nm">🎂 ${esc(nm)}</div><div class="bset-top"><div class="bset-prev" id="bsetPrev${i}" style="${prevStyle}">${t.photo?'':'🙂'}</div><div class="bset-ctrls"><input class="bset-file" type="file" accept="image/*" onchange="bsetPhoto('${esc(nm)}',this,${i})"><div class="bset-gender"><button class="${t.gender==='f'?'on':''}" onclick="bsetGender('${esc(nm)}','f',${i})">👧 여아</button><button class="${t.gender==='m'?'on':''}" onclick="bsetGender('${esc(nm)}','m',${i})">👦 남아</button></div><div class="bset-row">🔍 확대 <input type="range" min="100" max="260" value="${t.zoom}" oninput="bsetAdjust('${esc(nm)}',${i},'zoom',this.value)"></div><div class="bset-row">↔ 좌우 <input type="range" min="0" max="100" value="${t.ox}" oninput="bsetAdjust('${esc(nm)}',${i},'ox',this.value)"></div><div class="bset-row">↕ 상하 <input type="range" min="0" max="100" value="${t.oy}" oninput="bsetAdjust('${esc(nm)}',${i},'oy',this.value)"></div></div></div></div>`;
+  }).join('');
+}
+function bsetRefresh(nm,i){const t=bdayTmp[nm],el=document.getElementById('bsetPrev'+i);if(!el)return;if(t.photo){el.style.backgroundImage=`url('${t.photo}')`;el.style.backgroundSize=t.zoom+'%';el.style.backgroundPosition=t.ox+'% '+t.oy+'%';el.textContent='';}else{el.style.backgroundImage='';el.textContent='🙂';}}
+function bsetPhoto(nm,input,i){const f=input.files&&input.files[0];if(!f)return;compressImg(f,d=>{bdayTmp[nm].photo=d;bsetRefresh(nm,i);});}
+function bsetGender(nm,g,i){bdayTmp[nm].gender=g;renderBdayModalBody();}
+function bsetAdjust(nm,i,key,val){bdayTmp[nm][key]=+val;bsetRefresh(nm,i);}
+function bsetSave(){
+  if(!isFounder(me))return;
+  state.bdayChars=state.bdayChars||{};
+  Object.keys(bdayTmp).forEach(nm=>{const t=bdayTmp[nm];if(t.photo)state.bdayChars[nm]={photo:t.photo,gender:t.gender,zoom:t.zoom,ox:t.ox,oy:t.oy};});
+  if(LIVE)DB.set('bdayChars',state.bdayChars);
+  renderBdayBuddy();closeModal('bdayModal');toast('🎂 생일 캐릭터를 저장했어요!');
+}
+function maybeBdayCharPrompt(){
+  if(!me||!isFounder(me))return;
+  const people=bdayPeopleToday();if(!people.length)return;
+  const chars=state.bdayChars||{};
+  const missing=people.filter(nm=>!(chars[nm]&&chars[nm].photo));
+  if(!missing.length)return;
+  if(lsGet('bday_prompt_seen')===TODAY)return;
+  lsSet('bday_prompt_seen',TODAY);
+  toast('🎂 오늘은 '+missing.join(', ')+'님 생일! [🎨 홈 분위기]의 🎂 생일 캐릭터 사진에서 사진을 올려주세요');
 }
 
 /* ============================================================
@@ -5104,11 +5287,12 @@ async function initFirebase(){
   DB.on('events',v=>{state.events=v?(Array.isArray(v)?v:Object.values(v)):[];renderCelebrations();if(me)renderEvents();});
   DB.on('goodnews',v=>{state.goodnews=v?(Array.isArray(v)?v:Object.values(v)):[];renderCelebrations();if(me)renderGnAdmin();});
   DB.on('homeFx',v=>{state.homeFx=v||null;applyHomeFx(v&&v.type?v.type:null);});
-  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();if(typeof renderRewardLead==='function')renderRewardLead();});
+  DB.on('bdayChars',v=>{state.bdayChars=v||{};renderBdayBuddy();});
+  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenIssueDays',v=>{state.tokenIssueDays=v||{};});
   DB.on('tokenLog',v=>{state.tokenLog=Array.isArray(v)?v:(v?Object.values(v):[]);renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();});
-  DB.on('feedByDay',v=>{state.feedByDay=v||{};refreshCompLive();});
+  DB.on('feedByDay',v=>{state.feedByDay=v||{};if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('managers',v=>{state.managers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){document.body.classList.toggle('can-daily',canDaily(me));buildRail();if(isFounder(me))renderManagerAdmin();}});
   DB.on('salesMeta',v=>{state.salesMeta=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('bep',v=>{state.bep=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
