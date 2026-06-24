@@ -1271,11 +1271,13 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .founder-only{display:none}
 body.can-mod .founder-only{display:block}
 body.can-mod .admin-only{display:block}
-.fx-bar{display:flex;flex-wrap:wrap;gap:8px}
-.fx-btn{flex:1 1 auto;min-width:84px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:12px 10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.fx-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fx-btn{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:12px 8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center}
 .fx-btn:hover{border-color:var(--g2);color:#a5b4fc;transform:translateY(-1px)}
 .fx-btn.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 6px 16px -8px rgba(99,102,241,.7)}
-.fx-btn.off{flex:0 0 100%}
+.fx-btn.off,.fx-btn.bset{grid-column:1/-1}
+.fx-btn.bset{background:rgba(255,140,190,.12);border-color:rgba(255,140,190,.4);color:#ffd0e2;margin-top:2px}
+@media(max-width:440px){.fx-btn{font-size:11.5px;padding:11px 4px}}
 .fx-hint{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.55}
 
 /* ===== HOME CELEB (always-on) ===== */
@@ -1599,9 +1601,9 @@ body.app-on #ambientBg{opacity:.7}
           <button class="fx-btn" data-fx="fireworks" onclick="setHomeFx('fireworks')">🎆 폭죽</button>
           <button class="fx-btn" data-fx="bday" onclick="setHomeFx('bday')">🎂 생일</button>
           <button class="fx-btn off" data-fx="" onclick="setHomeFx(null)">✨ 효과 끄기</button>
+          <button class="fx-btn bset" onclick="openBdaySetup()">🎂 생일 캐릭터 사진 설정 (오늘 생일자)</button>
         </div>
-        <p class="fx-hint">봄 🌸 → 여름 ☀️ → 비 🌧️ → 가을 🍂 → 겨울 ❄️ → 🎄 크리스마스(트리·조명·별·루돌프·산타) → 🏖️ 여름휴가(야자수·파도·수박) → 🎆 폭죽(화면을 탭하면 터져요) → 🎂 생일(케이크 강하·폭죽·색종이·축하곡, 탭하면 촛불이 켜졌다 꺼져요). 누르면 전 팀원 홈에 실시간 적용돼요.</p>
-        <button class="fx-btn" style="margin-top:4px" onclick="openBdaySetup()">🎂 생일 캐릭터 사진 설정 (오늘 생일자)</button>
+        <p class="fx-hint">계절·기념 무드예요. <b>같은 버튼을 다시 누르면 꺼져요(언제든 온/오프).</b> 🎂 생일은 케이크 강하·폭죽·색종이·축하곡이 나오고 화면을 탭하면 촛불이 켜졌다 꺼져요. 누르면 전 팀원 홈에 실시간 적용돼요.</p>
       </section>
     </div></div>
 
@@ -5172,6 +5174,8 @@ function applyHomeFx(t){
 }
 function setHomeFx(t){
   if(!me||!isFounder(me)){toast('관리자만 변경할 수 있어요');return;}
+  const curFx=state.homeFx&&state.homeFx.type;
+  if(t&&t===curFx)t=null;                 // 같은 무드를 다시 누르면 끄기 (언제든 온/오프)
   const payload=t?{type:t,by:me.name,t:Date.now()}:null;
   state.homeFx=payload;
   if(LIVE)DB.set('homeFx',payload);
