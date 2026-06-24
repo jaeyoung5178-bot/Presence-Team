@@ -1169,7 +1169,12 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .ev-d{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:2px 8px;flex:0 0 auto}
 .ev-d.soon{color:var(--green-ink);background:var(--amber);border-color:var(--amber);font-weight:800}
 .ev-md{font-family:var(--mono);font-size:12px;color:var(--muted);flex:0 0 auto}
-.ev-nm{flex:1;font-weight:600;color:var(--cream)}
+.ev-nm{flex:1;font-weight:600;color:var(--cream);display:flex;align-items:center;gap:7px;min-width:0}
+.celeb-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#0e1013;flex:0 0 auto;overflow:hidden}
+.celeb-av img{width:100%;height:100%;object-fit:cover;display:block}
+.ev-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#0e1013;flex:0 0 auto;overflow:hidden}
+.ev-av img{width:100%;height:100%;object-fit:cover;display:block}
+.celeb-role{font-family:var(--mono);font-size:10.5px;font-weight:800;color:var(--amber);background:rgba(232,176,82,.16);border-radius:6px;padding:1px 6px;margin-left:3px}
 .ev-del{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;font-size:12px;flex:0 0 auto}
 .ev-in{width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;margin-bottom:8px;display:block;box-sizing:border-box}
 .gn-upload button{width:100%;background:var(--surface);border:1px dashed var(--line);color:var(--muted);border-radius:10px;padding:11px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:8px}
@@ -3873,14 +3878,14 @@ function renderCelebrations(){
   sec.style.display='';
   const tMD=todayMD(),mMD=tomorrowMD(),todayB=birthdaysOn(tMD),tomoB=birthdaysOn(mMD),todayEv=(state.events||[]).filter(e=>e.md===tMD);
   let banner='';
-  if(todayB.length)banner+=`<div class="celeb-card bday"><span class="celeb-emo">🎂</span><div class="celeb-tx"><b>오늘은 ${esc(todayB.join(', '))}님 생일입니다!</b><span>다같이 축하해요 🎉🎈</span></div></div>`;
-  if(tomoB.length)banner+=`<div class="celeb-card bday2"><span class="celeb-emo">🎈</span><div class="celeb-tx"><b>내일은 ${esc(tomoB.join(', '))}님 생일입니다</b><span>미리 마음을 준비해요 🎁</span></div></div>`;
+  if(todayB.length)banner+=todayB.map(nm=>`<div class="celeb-card bday"><span class="celeb-av" style="background:${avColor(nm)}">${avInner(nm)}</span><div class="celeb-tx"><b>🎂 오늘은 ${esc(nm)} <span class="celeb-role">${esc(roleOf(nm))}</span>님 생일입니다!</b><span>다같이 축하해요 🎉🎈</span></div></div>`).join('');
+  if(tomoB.length)banner+=tomoB.map(nm=>`<div class="celeb-card bday2"><span class="celeb-av" style="background:${avColor(nm)}">${avInner(nm)}</span><div class="celeb-tx"><b>🎈 내일은 ${esc(nm)} <span class="celeb-role">${esc(roleOf(nm))}</span>님 생일입니다</b><span>미리 마음을 준비해요 🎁</span></div></div>`).join('');
   todayEv.forEach(e=>{banner+=`<div class="celeb-card ev"><span class="celeb-emo">📌</span><div class="celeb-tx"><b>${esc(e.title)}</b><span>오늘의 기념일</span></div></div>`;});
   document.getElementById('celebBanner').innerHTML=banner;
   const gn=(state.goodnews||[]).slice().sort((a,b)=>b.t-a.t);
   document.getElementById('goodnewsHome').innerHTML=gn.length?`<div class="gn-head">📣 굳뉴스</div>`+gn.map(g=>gnCard(g)).join(''):'';
   const rows=[
-    ...upcomingBdays(14).filter(x=>x.in>=2).map(x=>({in:x.in,md:x.md,html:`🎂 ${esc(x.name)}님 생일`})),
+    ...upcomingBdays(14).filter(x=>x.in>=2).map(x=>({in:x.in,md:x.md,html:`<span class="ev-av" style="background:${avColor(x.name)}">${avInner(x.name)}</span><span>🎂 ${esc(x.name)} <span class="celeb-role">${esc(roleOf(x.name))}</span> 생일</span>`})),
     ...upcomingEvents(30).filter(x=>x.in>=1).map(x=>({in:x.in,md:x.md,html:`📌 ${esc(x.title)}`}))
   ].sort((a,b)=>a.in-b.in).slice(0,6);
   const up=document.getElementById('celebUpcoming');
@@ -3896,7 +3901,7 @@ function addEvent(){if(!isFounder(me))return;const dt=document.getElementById('e
 function delEvent(id){if(!isFounder(me))return;const arr=(state.events||[]).filter(e=>e.id!==id);state.events=arr;if(LIVE)DB.set('events',arr);renderEvents();renderCelebrations();}
 function renderEvents(){
   const wb=document.getElementById('weekBdays');
-  if(wb){const up=upcomingBdays(7);wb.innerHTML=up.length?up.map(x=>`<div class="ev-row"><span class="ev-d ${x.in<=1?'soon':''}">${x.in===0?'오늘':x.in===1?'내일':'D-'+x.in}</span><span class="ev-md">${x.md}</span><span class="ev-nm">🎂 ${esc(x.name)}님 생일</span></div>`).join(''):'<div class="empty-row">다음 7일간 생일인 팀원이 없어요</div>';}
+  if(wb){const up=upcomingBdays(7);wb.innerHTML=up.length?up.map(x=>`<div class="ev-row"><span class="ev-d ${x.in<=1?'soon':''}">${x.in===0?'오늘':x.in===1?'내일':'D-'+x.in}</span><span class="ev-md">${x.md}</span><span class="ev-nm"><span class="ev-av" style="background:${avColor(x.name)}">${avInner(x.name)}</span><span>🎂 ${esc(x.name)} <span class="celeb-role">${esc(roleOf(x.name))}</span> 생일</span></span></div>`).join(''):'<div class="empty-row">다음 7일간 생일인 팀원이 없어요</div>';}
   const el=document.getElementById('evList');
   if(el){const evs=(state.events||[]).slice().sort((a,b)=>a.md.localeCompare(b.md));el.innerHTML=evs.length?evs.map(e=>`<div class="ev-row"><span class="ev-md">${e.md}</span><span class="ev-nm">📌 ${esc(e.title)}</span><button class="ev-del" onclick="delEvent('${e.id}')">✕</button></div>`).join(''):'<div class="empty-row">등록한 기념일이 없어요</div>';}
 }
