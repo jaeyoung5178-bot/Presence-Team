@@ -189,22 +189,25 @@ main{padding-bottom:40px}
 @media(max-width:760px){.tree-stage{border-right:none;border-bottom:1px solid var(--line);min-height:300px}}
 /* 생일 주인공 캐릭터 (생일 효과 켤 때만 보임) */
 .bday-buddy{position:absolute;left:10px;bottom:38px;z-index:7;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;max-width:62%;pointer-events:none}
-.bbuddy{display:flex;flex-direction:column;align-items:center;gap:3px}
+.bbuddy{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bb-stage{display:flex;align-items:flex-end;gap:7px}
 .bb-figure{position:relative;width:64px;height:84px;transform-origin:50% 92%;animation:bbwaddle 1.05s ease-in-out infinite}
 @keyframes bbwaddle{0%,100%{transform:rotate(-5deg)}25%{transform:rotate(0deg) translateY(-2px)}50%{transform:rotate(5deg)}75%{transform:rotate(0deg) translateY(-2px)}}
-.bb-acc{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:15px;z-index:3;line-height:1}
-.bb-head{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background-size:cover;background-position:center 42%;border:2.5px solid #fff;box-shadow:0 2px 7px rgba(0,0,0,.28);z-index:2;background-color:#e9edf0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.bb-hat{position:absolute;top:-21px;left:50%;width:30px;height:36px;transform:translateX(-62%) rotate(-15deg);z-index:4;pointer-events:none}
+.bb-head{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:50px;height:50px;border-radius:50%;background-size:cover;background-position:center 40%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;background-color:#e9edf0;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
 .bb-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:62px;height:56px}
 .bbuddy-f .bb-dress{fill:#ff7eb3}.bbuddy-m .bb-dress{fill:#4aa3ff}
-.bb-cake{position:relative;font-size:26px;line-height:1;animation:bbbob 1.7s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.bb-cake-deco{width:60px;flex:0 0 auto;animation:bbbob 1.7s ease-in-out infinite}
+.bb-cake-svg{width:100%;height:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
 @keyframes bbbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.bb-flame{position:absolute;top:-8px;left:50%;width:6px;height:10px;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;background:radial-gradient(circle at 50% 72%,#fff4b0,#ffba33 58%,#ff7a18);box-shadow:0 0 9px 2px rgba(255,170,50,.75);transform-origin:50% 100%;animation:bbflame .26s ease-in-out infinite alternate}
-@keyframes bbflame{from{transform:translateX(-50%) scaleY(1) rotate(-4deg);opacity:.88}to{transform:translateX(-52%) scaleY(1.28) rotate(4deg);opacity:1}}
+.bb-cflame{transform-box:fill-box;transform-origin:50% 100%;animation:bbcflame .42s ease-in-out infinite alternate}
+.bb-cflame2{animation-delay:.14s}.bb-cflame3{animation-delay:.28s}
+@keyframes bbcflame{from{transform:scaleY(.82) scaleX(1.05);opacity:.82}to{transform:scaleY(1.2) translateY(-1px);opacity:1}}
 .bb-name{font-size:10.5px;font-weight:800;color:#fff;background:rgba(232,71,60,.9);padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.28)}
 /* 생일 캐릭터 사진 설정 모달 */
 .bset-person{border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:12px;background:var(--card)}
 .bset-top{display:flex;align-items:center;gap:12px}
-.bset-prev{width:74px;height:74px;border-radius:50%;flex:0 0 74px;background-size:cover;background-position:center 42%;background-color:#eef1f3;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden}
+.bset-prev{width:92px;height:92px;border-radius:50%;flex:0 0 92px;background-size:cover;background-position:center 40%;background-color:#eef1f3;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;font-size:34px;overflow:hidden}
 .bset-ctrls{flex:1;min-width:0}
 .bset-nm{font-weight:800;font-size:14px;margin-bottom:6px}
 .bset-gender{display:flex;gap:7px;margin:7px 0}
@@ -5181,6 +5184,7 @@ function setHomeFx(t){
   if(!me||!isFounder(me)){toast('관리자만 변경할 수 있어요');return;}
   const curFx=state.homeFx&&state.homeFx.type;
   if(t&&t===curFx)t=null;                 // 같은 무드를 다시 누르면 끄기 (언제든 온/오프)
+  if(t&&fxHasSound(t))lsSet('presence_fx_sound',true);   // 소리 있는 무드(생일 등)를 켜면 음악도 자동으로 같이 켜기
   const payload=t?{type:t,by:me.name,t:Date.now()}:null;
   state.homeFx=payload;
   if(LIVE)DB.set('homeFx',payload);
@@ -5198,6 +5202,31 @@ function bdaySvgBody(){return '<svg class="bb-body" viewBox="0 0 62 56" xmlns="h
   +'<ellipse cx="31" cy="20" rx="9.5" ry="4" fill="#fff"/>'
   +'<circle cx="26" cy="34" r="1.5" fill="rgba(255,255,255,.7)"/><circle cx="36" cy="34" r="1.5" fill="rgba(255,255,255,.7)"/>'
   +'</svg>';}
+function bdayHatSvg(gender){
+  var c1=gender==='m'?'#5bb0ff':'#ff6fae', c2=gender==='m'?'#2f7fe0':'#ff2f86', id='hg_'+gender;
+  return '<svg class="bb-hat" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">'
+    +'<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'
+    +'<path d="M20 5 L34 44 L6 44 Z" fill="url(#'+id+')" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>'
+    +'<circle cx="13" cy="33" r="2.4" fill="#fff" opacity=".95"/><circle cx="23" cy="25" r="2.2" fill="#ffe14d"/><circle cx="18" cy="40" r="2.3" fill="#7CF2C8"/><circle cx="25" cy="38" r="1.8" fill="#fff" opacity=".9"/>'
+    +'<circle cx="20" cy="5" r="5" fill="#ffe14d" stroke="#fff" stroke-width="1.2"/>'
+    +'</svg>';}
+function bdayCakeSvg(){
+  return '<svg class="bb-cake-svg" viewBox="0 0 76 88" xmlns="http://www.w3.org/2000/svg">'
+    +'<ellipse cx="38" cy="83" rx="33" ry="5" fill="rgba(0,0,0,.18)"/>'
+    +'<rect x="5" y="74" width="66" height="8" rx="4" fill="#d4dbe2"/><rect x="5" y="74" width="66" height="3" rx="1.5" fill="#eef2f6"/>'
+    +'<rect x="11" y="50" width="54" height="26" rx="7" fill="#ffd1e3"/>'
+    +'<path d="M11 57 q6.75 10 13.5 0 q6.75 10 13.5 0 q6.75 10 13.5 0 q6.75 10 13.5 0 L65 50 L11 50 Z" fill="#fff"/>'
+    +'<circle cx="23" cy="67" r="2.1" fill="#ff8fc2"/><circle cx="38" cy="70" r="2.1" fill="#9be0ff"/><circle cx="53" cy="67" r="2.1" fill="#ffd24d"/>'
+    +'<rect x="22" y="34" width="32" height="19" rx="6" fill="#c9a7ff"/>'
+    +'<path d="M22 40 q5.3 8 10.6 0 q5.3 8 10.6 0 q5.3 8 10.6 0 L54 34 L22 34 Z" fill="#fff"/>'
+    +'<circle cx="38" cy="33" r="3.2" fill="#ff4d6d"/><rect x="36.6" y="26" width="2.8" height="6" rx="1.4" fill="#5cbf6a"/>'
+    +'<rect x="29" y="20" width="3.6" height="15" rx="1.3" fill="#ff7eb3"/><rect x="29" y="24" width="3.6" height="3" fill="#fff" opacity=".8"/>'
+    +'<rect x="36.2" y="17" width="3.6" height="18" rx="1.3" fill="#7cc6ff"/><rect x="36.2" y="22" width="3.6" height="3" fill="#fff" opacity=".8"/>'
+    +'<rect x="43.4" y="20" width="3.6" height="15" rx="1.3" fill="#ffd24d"/><rect x="43.4" y="24" width="3.6" height="3" fill="#fff" opacity=".8"/>'
+    +'<g class="bb-cflame"><ellipse cx="30.8" cy="16" rx="2.5" ry="4" fill="#ffba33"/><ellipse cx="30.8" cy="16.8" rx="1.2" ry="2.2" fill="#fff4b0"/></g>'
+    +'<g class="bb-cflame bb-cflame2"><ellipse cx="38" cy="13" rx="2.5" ry="4" fill="#ffba33"/><ellipse cx="38" cy="13.8" rx="1.2" ry="2.2" fill="#fff4b0"/></g>'
+    +'<g class="bb-cflame bb-cflame3"><ellipse cx="45.2" cy="16" rx="2.5" ry="4" fill="#ffba33"/><ellipse cx="45.2" cy="16.8" rx="1.2" ry="2.2" fill="#fff4b0"/></g>'
+    +'</svg>';}
 function bdayPeopleToday(){try{return birthdaysOn(todayMD());}catch(e){return [];}}
 function renderBdayBuddy(){
   const box=document.getElementById('bdayBuddy');if(!box)return;
@@ -5206,11 +5235,11 @@ function renderBdayBuddy(){
   if(!on||!people.length){box.style.display='none';box.innerHTML='';return;}
   const chars=state.bdayChars||{};
   box.innerHTML=people.map(nm=>{
-    const c=chars[nm]||{};const gender=c.gender==='m'?'m':'f';const acc=gender==='m'?'🧢':'🎀';
+    const c=chars[nm]||{};const gender=c.gender==='m'?'m':'f';
     const head=c.photo
       ? `<div class="bb-head" style="background-image:url('${c.photo}');background-size:${c.zoom||120}%;background-position:${c.ox==null?50:c.ox}% ${c.oy==null?42:c.oy}%"></div>`
       : `<div class="bb-head">🙂</div>`;
-    return `<div class="bbuddy bbuddy-${gender}"><div class="bb-figure"><span class="bb-acc">${acc}</span>${head}${bdaySvgBody()}</div><div class="bb-cake">🎂<span class="bb-flame"></span></div><div class="bb-name">🎉 ${esc(nm)} 🎉</div></div>`;
+    return `<div class="bbuddy bbuddy-${gender}"><div class="bb-stage"><div class="bb-figure">${bdayHatSvg(gender)}${head}${bdaySvgBody()}</div><div class="bb-cake-deco">${bdayCakeSvg()}</div></div><div class="bb-name">🎉 ${esc(nm)} 🎉</div></div>`;
   }).join('');
   box.style.display='flex';
 }
@@ -5236,11 +5265,38 @@ function renderBdayModalBody(){
   body.innerHTML=Object.keys(bdayTmp).map((nm,i)=>{
     const t=bdayTmp[nm];
     const prevStyle=t.photo?`background-image:url('${t.photo}');background-size:${t.zoom}%;background-position:${t.ox}% ${t.oy}%`:'';
-    return `<div class="bset-person"><div class="bset-nm">🎂 ${esc(nm)}</div><div class="bset-top"><div class="bset-prev" id="bsetPrev${i}" style="${prevStyle}">${t.photo?'':'🙂'}</div><div class="bset-ctrls"><input class="bset-file" type="file" accept="image/*" onchange="bsetPhoto('${esc(nm)}',this,${i})"><div class="bset-gender"><button class="${t.gender==='f'?'on':''}" onclick="bsetGender('${esc(nm)}','f',${i})">👧 여아</button><button class="${t.gender==='m'?'on':''}" onclick="bsetGender('${esc(nm)}','m',${i})">👦 남아</button></div><div class="bset-row">🔍 확대 <input type="range" min="100" max="260" value="${t.zoom}" oninput="bsetAdjust('${esc(nm)}',${i},'zoom',this.value)"></div><div class="bset-row">↔ 좌우 <input type="range" min="0" max="100" value="${t.ox}" oninput="bsetAdjust('${esc(nm)}',${i},'ox',this.value)"></div><div class="bset-row">↕ 상하 <input type="range" min="0" max="100" value="${t.oy}" oninput="bsetAdjust('${esc(nm)}',${i},'oy',this.value)"></div></div></div></div>`;
+    return `<div class="bset-person"><div class="bset-nm">🎂 ${esc(nm)}</div><div class="bset-top"><div class="bset-prev" id="bsetPrev${i}" style="${prevStyle}">${t.photo?'':'🙂'}</div><div class="bset-ctrls"><input class="bset-file" type="file" accept="image/*" onchange="bsetPhoto('${esc(nm)}',this,${i})"><div class="bset-gender"><button class="${t.gender==='f'?'on':''}" onclick="bsetGender('${esc(nm)}','f',${i})">👧 여아</button><button class="${t.gender==='m'?'on':''}" onclick="bsetGender('${esc(nm)}','m',${i})">👦 남아</button></div><div class="bset-row">🔍 확대 <input type="range" min="100" max="340" value="${t.zoom}" oninput="bsetAdjust('${esc(nm)}',${i},'zoom',this.value)"></div><div class="bset-row">↔ 좌우 <input type="range" min="0" max="100" value="${t.ox}" oninput="bsetAdjust('${esc(nm)}',${i},'ox',this.value)"></div><div class="bset-row">↕ 상하 <input type="range" min="0" max="100" value="${t.oy}" oninput="bsetAdjust('${esc(nm)}',${i},'oy',this.value)"></div></div></div></div>`;
   }).join('');
 }
 function bsetRefresh(nm,i){const t=bdayTmp[nm],el=document.getElementById('bsetPrev'+i);if(!el)return;if(t.photo){el.style.backgroundImage=`url('${t.photo}')`;el.style.backgroundSize=t.zoom+'%';el.style.backgroundPosition=t.ox+'% '+t.oy+'%';el.textContent='';}else{el.style.backgroundImage='';el.textContent='🙂';}}
-function bsetPhoto(nm,input,i){const f=input.files&&input.files[0];if(!f)return;compressImg(f,d=>{bdayTmp[nm].photo=d;bsetRefresh(nm,i);});}
+function autoFaceCrop(dataUrl,cb){
+  var img=new Image();
+  img.onload=function(){
+    var w0=img.naturalWidth||1,h0=img.naturalHeight||1;
+    var coverP=100*Math.max(1,w0/h0);
+    function fallback(){cb({zoom:Math.round(Math.max(coverP*1.18,150)),ox:50,oy:30});}
+    if(typeof window.FaceDetector!=='function'){fallback();return;}
+    var fd;try{fd=new window.FaceDetector({fastMode:true,maxDetectedFaces:1});}catch(e){fallback();return;}
+    fd.detect(img).then(function(faces){
+      if(!faces||!faces.length){fallback();return;}
+      var b=faces[0].boundingBox||faces[0];
+      var bx=(b.x!=null?b.x:b.left),by=(b.y!=null?b.y:b.top),bw=b.width,bh=b.height;
+      if(bw==null||bh==null){fallback();return;}
+      var ex=bw*0.40,eTop=bh*0.55,eBot=bh*0.28;       // 머리/턱 여유
+      var fx=bx-ex,fy=by-eTop,fw=bw+2*ex,fh=bh+eTop+eBot;
+      var fcx=(fx+fw/2)/w0,fcy=(fy+fh/2)/h0,T=0.96;     // 얼굴(+여유)이 원을 채우는 비율
+      var P=100*T*(w0/fw);                              // 가로 기준 배율
+      P=Math.max(P,coverP);P=Math.max(112,Math.min(340,P));
+      var Ws=P/100,Hs=(P/100)*(h0/w0);
+      var ox=(Ws>1)?(0.5-fcx*Ws)/(1-Ws):0.5, oy=(Hs>1)?(0.5-fcy*Hs)/(1-Hs):0.5;
+      ox=Math.max(0,Math.min(1,ox))*100; oy=Math.max(0,Math.min(1,oy))*100;
+      cb({zoom:Math.round(P),ox:Math.round(ox),oy:Math.round(oy)});
+    }).catch(fallback);
+  };
+  img.onerror=function(){cb({zoom:150,ox:50,oy:30});};
+  img.src=dataUrl;
+}
+function bsetPhoto(nm,input,i){const f=input.files&&input.files[0];if(!f)return;compressImg(f,d=>{bdayTmp[nm].photo=d;toast('🙂 얼굴에 맞춰 자동 조정 중…');autoFaceCrop(d,function(cr){bdayTmp[nm].zoom=cr.zoom;bdayTmp[nm].ox=cr.ox;bdayTmp[nm].oy=cr.oy;renderBdayModalBody();});});}
 function bsetGender(nm,g,i){bdayTmp[nm].gender=g;renderBdayModalBody();}
 function bsetAdjust(nm,i,key,val){bdayTmp[nm][key]=+val;bsetRefresh(nm,i);}
 function bsetSave(){
