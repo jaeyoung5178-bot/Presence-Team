@@ -4331,15 +4331,13 @@ function rehireMember(name){
   toast('🔄 '+name+'님 재입사 — 이번 달부터 다시 명단에 포함돼요');
 }
 /* ===== 신입 → 현재 달 시트 자동 등록 ===== */
-function syncMemberToSheet(name,role){
-  if(!name)return;
-  postWebhook({type:'member',action:'add',name:name,role:role||'IC',month:curMonthKey(),at:new Date().toISOString()});
-}
+function syncMemberToSheet(name){ if(name&&typeof sheetAddMember==='function')sheetAddMember(name); }  // .gs의 addmember(JSONP) 사용
 function syncRosterToSheet(){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
-  const ms=rosterMembers().filter(u=>!isAdminName(u.name)&&!isDeparted(u.name)).map(u=>({name:u.name,role:u.role}));
-  postWebhook({type:'roster',month:curMonthKey(),members:ms,at:new Date().toISOString()});
-  toast('📋 '+curMonthKey()+' 시트에 명단 '+ms.length+'명 동기화 요청을 보냈어요');
+  const names=rosterMembers().filter(u=>!isAdminName(u.name)&&!isDeparted(u.name)).map(u=>u.name);
+  if(!names.length){toast('동기화할 팀원이 없어요');return;}
+  toast('📋 시트에 명단 '+names.length+'명 동기화 중… (없던 사람만 추가돼요)');
+  names.forEach((n,i)=>setTimeout(()=>sheetAddMember(n), i*450));  // 순차 호출(시트 동시쓰기 충돌 방지)
 }
 /* ===== 팀원 명단 관리 (시트/앱 동기화) ===== */
 function addMember(name){
@@ -4348,7 +4346,7 @@ function addMember(name){
   if(isAllowedName(name)){toast(`${name}님은 이미 명단에 있어요`);return;}
   state.extraMembers=state.extraMembers||[];state.extraMembers.push(name);
   if(LIVE)DB.set('extraMembers',state.extraMembers);
-  miSetJoin(name);syncMemberToSheet(name,'IC');
+  miSetJoin(name);
   const inp=document.getElementById('newMemberIn');if(inp)inp.value='';
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   toast(`✅ ${name}님을 명단에 추가했어요 — 이제 가입할 수 있어요`);
