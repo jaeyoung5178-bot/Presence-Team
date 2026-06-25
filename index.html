@@ -2840,20 +2840,20 @@ function dailyComplete(){
   if(!list.length){toast('입력된 결과가 없어요 — 먼저 +/− 로 점수를 입력하세요');return;}
   const btn=document.getElementById('dailyDoneBtn');if(btn){btn.disabled=true;btn.textContent='📤 시트로 전송 중…';}
   setSheetSync&&setSheetSync('sync');
-  let done=0,ok=0;const fails=[];
+  let done=0,ok=0;const fails=[],needRow=[];
   list.forEach(u=>{
     const e=state.sales[`${d}|${u.name}`];
     const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));
     sheetWrite({date:d,name:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally},(res)=>{
       done++;
       if(res&&res.written)ok++;
-      else fails.push(u.name+(res&&res.note?` (${res.note})`:(res&&res.error?` (${res.error})`:'')));
+      else{const note=(res&&res.note)||(res&&res.error)||'';if(/매칭 실패/.test(note)&&typeof sheetAddMember==='function'){needRow.push(u.name);sheetAddMember(u.name);}fails.push(u.name+(note?` (${note})`:''));}
       if(done===list.length){
         if(btn){btn.disabled=false;btn.textContent='✅ 검수 완료 · 결과보고 (시트 전송)';}
         const ss=document.getElementById('syncTxt');
         if(ok===list.length){toast(`✅ ${d} 결과 ${ok}명 시트에 기록 완료!`);setSheetSync&&setSheetSync('ok');if(ss)ss.textContent=`${d} · ${ok}명 시트 기록 · `+new Date().toLocaleTimeString('ko-KR');}
-        else if(ok>0){toast(`⚠️ ${ok}명 기록 · 실패 ${fails.length}명: ${fails.slice(0,2).join(', ')}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent=`${ok}/${list.length} 기록 · 일부 실패`;}
-        else{toast(`❌ 시트 기록 실패 — ${fails[0]||'배포/액세스(모든 사용자) 확인'}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent='시트 기록 실패 — 배포 확인 필요';}
+        else if(ok>0){toast(`⚠️ ${ok}명 기록 · 실패 ${fails.length}명: ${fails.slice(0,2).join(', ')}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent=`${ok}/${list.length} 기록 · 일부 실패`;if(needRow.length)setTimeout(()=>toast(`📋 시트에 행이 없던 ${needRow.join(', ')} 자동 추가했어요 — 잠시 후 [완료]를 다시 누르면 기록돼요`),1800);}
+        else{toast(`❌ 시트 기록 실패 — ${fails[0]||'배포/액세스(모든 사용자) 확인'}`);setSheetSync&&setSheetSync('err');if(ss)ss.textContent='시트 기록 실패 — 배포 확인 필요';if(needRow.length)setTimeout(()=>toast(`📋 ${needRow.join(', ')} 시트에 자동 추가했어요 — 잠시 후 [완료]를 다시 누르면 기록돼요`),1800);}
       }
     });
   });
