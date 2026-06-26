@@ -2067,6 +2067,7 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .ms-nb-row .nb-nm{color:var(--cream);font-weight:700;font-size:13.5px}
         #m-sites .ms-nb-row .nb-meta{color:var(--green-soft);font-size:12px;font-family:var(--mono);flex:none}
         #m-sites .ms-nb-empty{font-size:12px;color:var(--muted);padding:8px 2px;line-height:1.6}
+        #m-sites .ms-roadview{height:300px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
       </style>
 
       <div class="ft-subnav">
@@ -2113,8 +2114,15 @@ body.app-on #ambientBg{opacity:.7}
           <div id="msMap" class="ms-map" style="margin-top:10px"></div>
           <div class="ms-mapbtns">
             <button class="ms-mini" id="msSatBtn" onclick="msToggleSat()">🛰️ 위성</button>
-            <button class="ms-mini" onclick="openRoadview('naver')">🟢 네이버뷰</button>
+            <button class="ms-mini" onclick="openNaverPano()">🟢 네이버 거리뷰</button>
             <button class="ms-mini" onclick="openRoadview('kakao')">🟡 카카오뷰</button>
+          </div>
+          <div id="msPanoWrap" style="display:none;margin-top:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--green-soft);font-weight:700">🟢 네이버 거리뷰 · 드래그로 둘러보기</span>
+              <button class="ms-mini" style="flex:none;min-width:auto;padding:6px 12px" onclick="closeNaverPano()">✕ 닫기</button>
+            </div>
+            <div id="msPano" class="ms-roadview"></div>
           </div>
           <div id="msNearby" class="ms-nearby"></div>
           <div class="ft-note" style="margin-top:8px">검색 후 지도에서 <b>핀을 끌어</b> 정확한 부스 자리에 놓으세요. 그늘은 핀 위치 기준으로 계산됩니다. (지도를 눌러도 핀이 이동해요)</div>
@@ -6492,7 +6500,8 @@ function closeInstall(){ var m=document.getElementById('installModal'); if(m)m.c
 var DEV_DEFAULTS={
   github:'https://github.com/jaeyoung5178-bot/Presence-Team',
   firebase:'https://console.firebase.google.com/project/presence-team/database/presence-team-default-rtdb/data',
-  kakao:''
+  kakao:'',
+  naver:''
 };
 function devVal(k){ var d=state.devLinks||{}; return (d[k]!=null&&d[k]!=='')?d[k]:DEV_DEFAULTS[k]; }
 function renderDevLinks(){
@@ -6504,6 +6513,8 @@ function renderDevLinks(){
     '<label class="kedit-row"><span>🔥 Firebase 콘솔</span><input id="dl-firebase" value="'+E(devVal("firebase"))+'" placeholder="https://console.firebase.google.com/..."/></label>'+
     '<label class="kedit-row"><span>🔑 카카오 검색 키</span><input id="dl-kakao" value="'+E(devVal("kakao"))+'" placeholder="카카오 JavaScript 키 (장소 검색용)"/></label>'+
     '<p style="font-size:11px;color:var(--muted);margin:6px 0 2px;line-height:1.6">🔑 장소 그늘 검색을 <b>네이버급</b>으로 정확하게 하려면 카카오 키가 필요해요. <b>developers.kakao.com</b> → 앱 생성 → <b>JavaScript 키</b> 복사 → 플랫폼에 <b>github.io 도메인 등록</b> 후 여기 붙여넣고 저장하세요.</p>'+
+    '<label class="kedit-row"><span>🟢 네이버 Client ID</span><input id="dl-naver" value="'+E(devVal("naver"))+'" placeholder="네이버 클라우드 Client ID (거리뷰용)"/></label>'+
+    '<p style="font-size:11px;color:var(--muted);margin:6px 0 2px;line-height:1.6">🟢 앱 안에서 <b>네이버 거리뷰</b>를 보려면 필요해요. ncloud.com → Maps → Application(Dynamic Map) → <b>Web 서비스 URL에 github.io 등록</b> → Client ID 복사. 일별 한도를 걸면 무료로 써요.</p>'+
     '<button class="btn block" onclick="openGhUpload()" style="margin-top:12px;font-size:15px;padding:14px;font-weight:800">⬆️ 파일 업로드 화면 열기</button>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn ghost" onclick="openGhEdit()">📝 바로 편집</button>'+
@@ -6518,7 +6529,8 @@ function saveDevLinks(){
   var g=(document.getElementById('dl-github').value||'').trim();
   var fbx=(document.getElementById('dl-firebase').value||'').trim();
   var kk=(document.getElementById('dl-kakao')?document.getElementById('dl-kakao').value:'').trim();
-  state.devLinks={github:g,firebase:fbx,kakao:kk};
+  var nv=(document.getElementById('dl-naver')?document.getElementById('dl-naver').value:'').trim();
+  state.devLinks={github:g,firebase:fbx,kakao:kk,naver:nv};
   if(LIVE)DB.set('devLinks',state.devLinks);
   if(typeof toast==='function')toast(kk?'저장 완료! 카카오 검색이 켜졌어요 🔑':'연동 링크를 저장했어요 🔗');
 }
@@ -6561,6 +6573,48 @@ function showConnInfo(){
   var msg=(ok?'🟢 실시간 연결됨':'🔴 연결 끊김')+' · 🛠️ 빌드 '+BUILD_TS;
   if(typeof toast==='function')toast(msg); else alert(msg);
 }
+
+/* ════════════════════════════════════════════
+   🟢 네이버 거리뷰 (앱 안 파노라마)
+   ════════════════════════════════════════════ */
+function naverKey(){ return (state.devLinks&&state.devLinks.naver)?String(state.devLinks.naver).trim():''; }
+var _naverLoading=false;
+function ensureNaver(cb){
+  if(window.naver&&naver.maps&&naver.maps.Panorama){cb(true);return;}
+  var key=naverKey(); if(!key){cb(false);return;}
+  if(_naverLoading){ var t=setInterval(function(){ if(window.naver&&naver.maps&&naver.maps.Panorama){clearInterval(t);cb(true);} },200); setTimeout(function(){clearInterval(t);},9000); return; }
+  _naverLoading=true;
+  var s=document.createElement('script');
+  s.src='https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId='+encodeURIComponent(key)+'&submodules=panorama';
+  s.onload=function(){
+    try{
+      if(window.naver&&naver.maps&&naver.maps.Panorama){cb(true);return;}
+      if(window.naver&&naver.maps){ naver.maps.onJSContentLoaded=function(){cb(true);}; setTimeout(function(){ if(window.naver&&naver.maps&&naver.maps.Panorama)cb(true); },1800); }
+      else cb(false);
+    }catch(e){cb(false);}
+  };
+  s.onerror=function(){_naverLoading=false;cb(false);};
+  document.head.appendChild(s);
+}
+var msPano=null;
+function openNaverPano(){
+  if(typeof msLat==='undefined'||msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
+  if(!naverKey()){ if(typeof toast==='function')toast('관리 탭에서 네이버 Client ID를 먼저 저장하세요'); return; }
+  if(typeof toast==='function')toast('네이버 거리뷰 불러오는 중…');
+  ensureNaver(function(ok){
+    if(!ok){ if(typeof toast==='function')toast('거리뷰 로딩 실패 — Client ID·도메인(github.io) 등록을 확인하세요'); return; }
+    var wrap=document.getElementById('msPanoWrap'); if(wrap)wrap.style.display='';
+    var cont=document.getElementById('msPano'); if(!cont)return;
+    try{
+      var pos=new naver.maps.LatLng(msLat,msLng);
+      if(!msPano){ msPano=new naver.maps.Panorama(cont,{position:pos,pov:{pan:0,tilt:0,fov:100}}); }
+      else { msPano.setPosition(pos); }
+      setTimeout(function(){ try{msPano.setSize(new naver.maps.Size(cont.clientWidth||320,300));}catch(e){} },180);
+    }catch(e){ if(typeof toast==='function')toast('이 위치엔 거리뷰가 없을 수 있어요. 핀을 도로 쪽으로 옮겨보세요'); }
+    setTimeout(function(){ if(cont)cont.scrollIntoView({behavior:'smooth',block:'center'}); },220);
+  });
+}
+function closeNaverPano(){ var w=document.getElementById('msPanoWrap'); if(w)w.style.display='none'; }
 
 /* ============================================================
    BOOT
