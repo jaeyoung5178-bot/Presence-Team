@@ -2044,7 +2044,7 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .summ{font-size:12.5px;color:var(--muted);margin-top:9px}#m-sites .summ b{color:var(--cream)}
         #m-sites .badge2{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;margin-left:8px;background:rgba(92,188,46,.18);color:var(--green-soft);font-family:var(--mono)}
         #m-sites .rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;margin-left:auto}
-        #m-sites .ms-map{height:260px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
+        #m-sites .ms-map{height:clamp(320px,50vh,460px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
         #m-sites .ms-searchbar{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid #CFE8C2;border-radius:15px;padding:0 7px 0 17px;box-shadow:0 2px 6px rgba(0,0,0,.22);transition:border-color .15s,box-shadow .15s}
         #m-sites .ms-searchbar:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.18)}
         #m-sites .ms-sicon{flex:none;display:flex;align-items:center}
@@ -2087,7 +2087,7 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .ms-nb-row .nb-nm{color:var(--cream);font-weight:700;font-size:13.5px}
         #m-sites .ms-nb-row .nb-meta{color:var(--green-soft);font-size:12px;font-family:var(--mono);flex:none}
         #m-sites .ms-nb-empty{font-size:12px;color:var(--muted);padding:8px 2px;line-height:1.6}
-        #m-sites .ms-roadview{height:300px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
+        #m-sites .ms-roadview{height:clamp(360px,58vh,520px);border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
       </style>
 
       <div class="ft-subnav">
@@ -2247,6 +2247,24 @@ body.app-on #ambientBg{opacity:.7}
   .dev-status .ds-st{font-size:12px;font-weight:700;font-family:var(--mono)}
   .dev-status .ds-st.on{color:var(--green-soft)}
   .dev-status .ds-st.off{color:var(--faint)}
+  body.pdf-open{overflow:hidden}
+  #pdfOverlay{position:fixed;inset:0;z-index:99999;background:#eef0f4;display:flex;flex-direction:column}
+  #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
+  #pdfOverlay .pdf-ttl{flex:1;min-width:0;text-align:center;font-size:14px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #pdfOverlay .pdf-x{flex:none;background:#f1f3f4;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#202124;cursor:pointer;font-family:inherit}
+  #pdfOverlay .pdf-print{flex:none;background:#5CBC2E;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
+  #pdfOverlay .pdf-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+  #pdfOverlay .pdf-wrap{max-width:720px;margin:0 auto;padding:24px 18px;color:#202124}
+  #pdfOverlay .pdf-hd{text-align:center;font-size:11px;color:#80868b;font-weight:700;letter-spacing:.04em;margin-bottom:16px}
+  @media print{
+    body.pdf-printing>*:not(#pdfOverlay){display:none!important}
+    body.pdf-printing #pdfOverlay{position:static;background:#fff;height:auto}
+    body.pdf-printing #pdfOverlay .pdf-topbar{display:none!important}
+    body.pdf-printing #pdfOverlay .pdf-scroll{overflow:visible;height:auto}
+    body.pdf-printing #pdfOverlay .pdf-wrap{padding:0;max-width:none}
+    @page{margin:13mm}
+    .gf-card{break-inside:avoid;box-shadow:none}
+  }
   @keyframes connpulse{0%{box-shadow:0 0 0 0 rgba(92,188,46,.55)}70%{box-shadow:0 0 0 7px rgba(92,188,46,0)}100%{box-shadow:0 0 0 0 rgba(92,188,46,0)}}
   .inst-modal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:18px}
   .inst-modal.on{display:flex}
@@ -5211,13 +5229,20 @@ function previewSurvey(key){
 function exportSurveyPdf(){
   const body=document.getElementById('svViewBody');if(!body){toast('내보낼 설문이 없어요');return;}
   const html=body.innerHTML;const title=window._svPdfTitle||'설문 응답';
-  const st=document.querySelector('style');const css=st?st.innerHTML:'';
-  const w=window.open('','_blank');
-  if(!w){toast('팝업이 차단됐어요 · 팝업 허용 후 다시 시도해 주세요');return;}
-  w.document.open();
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title><link rel="preconnect" href="https://cdn.jsdelivr.net"><link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet"><style>'+css+'\nbody{background:#eef0f4!important;color:#202124!important;margin:0;padding:0}.pdf-wrap{max-width:720px;margin:0 auto;padding:28px 20px}.pdf-hd{text-align:center;font-size:11px;color:#80868b;font-weight:700;letter-spacing:.04em;margin-bottom:16px}@media print{.pdf-wrap{padding:0}@page{margin:13mm}.gf-card{break-inside:avoid;box-shadow:none}}</style></head><body><div class="pdf-wrap"><div class="pdf-hd">PRESENCE · 설문 응답</div><div class="gfr">'+html+'</div></div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.focus();window.print();},500);};</scr'+'ipt></body></html>');
-  w.document.close();
+  const E=(typeof esc==='function')?esc:function(x){return x;};
+  closePdfOverlay();
+  var ov=document.createElement('div'); ov.id='pdfOverlay';
+  ov.innerHTML='<div class="pdf-topbar">'+
+    '<button class="pdf-x" onclick="closePdfOverlay()">✕ 닫기</button>'+
+    '<span class="pdf-ttl">'+E(title)+'</span>'+
+    '<button class="pdf-print" onclick="printPdfOverlay()">🖨️ PDF 저장</button>'+
+    '</div>'+
+    '<div class="pdf-scroll"><div class="pdf-wrap"><div class="pdf-hd">PRESENCE · 설문 응답</div><div class="gfr">'+html+'</div></div></div>';
+  document.body.appendChild(ov);
+  document.body.classList.add('pdf-open');
 }
+function closePdfOverlay(){ var o=document.getElementById('pdfOverlay'); if(o)o.remove(); document.body.classList.remove('pdf-open'); }
+function printPdfOverlay(){ document.body.classList.add('pdf-printing'); setTimeout(function(){ try{window.print();}catch(e){} setTimeout(function(){ document.body.classList.remove('pdf-printing'); },400); },120); }
 
 /* ME modal */
 function paintMePill(){const av=document.getElementById('mePillAv');if(!av)return;if(me&&me.photo){av.innerHTML=`<img src="${me.photo}" alt="">`;av.style.background='transparent'}else{av.innerHTML=esc((me&&me.name&&me.name[0])||'?');av.style.background=avColor(me?me.name:'?')}}
@@ -6704,7 +6729,8 @@ function openNaverPano(){
       if(!msPano){ msPano=new naver.maps.Panorama(cont,{position:pos,pov:{pan:0,tilt:0,fov:100}});
         naver.maps.Event.addListener(msPano,'pano_changed',function(){ try{var loc=msPano.getLocation(); setRvDate(loc&&loc.photodate);}catch(e){} });
       } else { msPano.setPosition(pos); }
-      setTimeout(function(){ try{msPano.setSize(new naver.maps.Size(cont.clientWidth||320,300));}catch(e){} },180);
+      var _fit=function(){ try{ msPano.setSize(new naver.maps.Size(cont.clientWidth||cont.offsetWidth||360, cont.clientHeight||cont.offsetHeight||400)); }catch(e){} };
+      setTimeout(_fit,180); setTimeout(_fit,560);
     }catch(e){ if(typeof toast==='function')toast('이 위치엔 거리뷰가 없을 수 있어요. 핀을 도로 쪽으로'); }
     scrollToRv();
   });
@@ -6727,6 +6753,7 @@ function openKakaoRv(){
       msKvObj.setPanoId(panoId,pos);
       var dt=document.getElementById('msRvDate'); if(dt)dt.textContent='촬영월 미제공 · 네이버 권장';
       setTimeout(function(){try{msKvObj.relayout();}catch(e){}},150);
+      setTimeout(function(){try{msKvObj.relayout();}catch(e){}},560);
     });
     scrollToRv();
   });
