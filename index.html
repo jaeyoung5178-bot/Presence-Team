@@ -2045,13 +2045,13 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .badge2{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;margin-left:8px;background:rgba(92,188,46,.18);color:var(--green-soft);font-family:var(--mono)}
         #m-sites .rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;margin-left:auto}
         #m-sites .ms-map{height:260px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
-        #m-sites .ms-searchbar{display:flex;align-items:center;gap:8px;background:var(--ink);border:1.5px solid var(--line);border-radius:13px;padding:4px 4px 4px 13px;transition:border-color .15s}
-        #m-sites .ms-searchbar:focus-within{border-color:var(--green)}
-        #m-sites .ms-sicon{font-size:15px;opacity:.65;flex:none}
-        #m-sites .ms-sinput{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--cream);font-size:14.5px;font-family:inherit;padding:10px 0}
-        #m-sites .ms-sinput::placeholder{color:var(--faint)}
-        #m-sites .ms-sbtn{flex:none;background:var(--green);color:var(--green-ink);border:0;border-radius:10px;padding:10px 17px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
-        #m-sites .ms-sbtn:active{transform:scale(.97)}
+        #m-sites .ms-searchbar{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid #CFE8C2;border-radius:15px;padding:0 7px 0 17px;box-shadow:0 2px 6px rgba(0,0,0,.22);transition:border-color .15s,box-shadow .15s}
+        #m-sites .ms-searchbar:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.18)}
+        #m-sites .ms-sicon{flex:none;display:flex;align-items:center}
+        #m-sites .ms-sinput{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#1c1f23;font-size:15px;font-family:inherit;padding:15px 0;font-weight:500}
+        #m-sites .ms-sinput::placeholder{color:#9aa0a6;font-weight:400}
+        #m-sites .ms-sbtn{flex:none;background:var(--green);color:#fff;border:0;border-radius:11px;padding:10px 17px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+        #m-sites .ms-sbtn:active{transform:scale(.96)}
         #m-sites .ms-results{display:flex;flex-direction:column;gap:7px;margin-top:11px}
         #m-sites .ms-rhead{font-size:11.5px;color:var(--muted);font-weight:600;padding:1px 2px 3px}
         #m-sites .ms-res{display:flex;align-items:center;gap:11px;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:11px 13px;cursor:pointer;font-family:inherit;transition:border-color .12s,background .12s;width:100%}
@@ -2129,8 +2129,8 @@ body.app-on #ambientBg{opacity:.7}
           <div class="ft-row">
             <div class="ft-f" style="flex:1;min-width:200px"><label>장소 검색 (이름·주소)</label>
               <div class="ms-searchbar">
-                <span class="ms-sicon">🔍</span>
-                <input class="ms-sinput" id="msQuery" placeholder="장소·주소 검색 (예: 구월동 다이소)" onkeydown="if(event.key==='Enter')msSearch()">
+                <span class="ms-sicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16.5" y2="16.5"/></svg></span>
+                <input class="ms-sinput" id="msQuery" placeholder="장소·주소 검색" onkeydown="if(event.key==='Enter')msSearch()">
                 <button class="ms-sbtn" onclick="msSearch()">검색</button>
               </div>
             </div>
@@ -6191,22 +6191,41 @@ function kakaoKey(){ return (state.devLinks&&state.devLinks.kakao)?String(state.
 var _kakaoLoading=false;
 function ensureKakao(cb){
   if(window.kakao&&window.kakao.maps&&window.kakao.maps.services){cb(true);return;}
-  var key=kakaoKey(); if(!key){cb(false);return;}
-  if(_kakaoLoading){ var t=setInterval(function(){ if(window.kakao&&window.kakao.maps&&window.kakao.maps.services){clearInterval(t);cb(true);} },200); setTimeout(function(){clearInterval(t);},6000); return; }
+  var key=kakaoKey(); if(!key){cb(false,'nokey');return;}
+  if(_kakaoLoading){ var n=0; var t=setInterval(function(){ n++; if(window.kakao&&window.kakao.maps&&window.kakao.maps.services){clearInterval(t);cb(true);} else if(n>30){clearInterval(t);cb(false,'timeout');} },200); return; }
   _kakaoLoading=true;
   var s=document.createElement('script');
   s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+encodeURIComponent(key)+'&libraries=services&autoload=false';
-  s.onload=function(){ try{ kakao.maps.load(function(){ cb(true); }); }catch(e){ cb(false); } };
-  s.onerror=function(){ _kakaoLoading=false; cb(false); };
+  console.log('[Presence] 카카오 SDK 로드 시도 →', s.src, '| 현재 origin:', location.origin);
+  s.onload=function(){
+    try{
+      if(typeof kakao==='undefined'||!kakao.maps){ _kakaoLoading=false; console.error('[Presence] 카카오 객체 없음 — 도메인/키 거절'); cb(false,'rejected'); return; }
+      kakao.maps.load(function(){
+        if(window.kakao&&kakao.maps&&kakao.maps.services){ console.log('[Presence] 카카오 SDK 로드 성공 ✓'); cb(true); }
+        else { console.error('[Presence] services 모듈 없음'); cb(false,'noservices'); }
+      });
+    }catch(e){ _kakaoLoading=false; console.error('[Presence] 카카오 예외',e); cb(false,'exception'); }
+  };
+  s.onerror=function(){ _kakaoLoading=false; console.error('[Presence] 카카오 SDK 스크립트 로드 실패 — 401/도메인 거절 가능'); cb(false,'loaderror'); };
   document.head.appendChild(s);
 }
 function msSearch(){
   var q=(document.getElementById('msQuery').value||'').trim(); if(!q)return;
   var box=document.getElementById('msResults'); box.innerHTML='<div class="ms-loading">🔍 검색 중…</div>';
-  ensureKakao(function(ok){
+  ensureKakao(function(ok,reason){
     if(ok && window.kakao && kakao.maps && kakao.maps.services){ msKakaoSearch(q,box,false); return; }
-    msOsmSearch(q,box);
+    msKakaoFail(q,box,reason);
   });
+}
+function msKakaoFail(q,box,reason){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  if(reason==='nokey'){ msOsmSearch(q,box); return; } // 키 자체가 없으면 기본검색
+  var why = (reason==='loaderror')?'카카오 서버가 요청을 거절했어요 (도메인·키 불일치 또는 카카오맵 미활성).'
+          : (reason==='rejected')?'카카오 SDK 인증이 거절됐어요 (도메인 등록·카카오맵 활성 확인).'
+          : (reason==='noservices')?'검색(services) 모듈이 로드되지 않았어요.'
+          : (reason==='timeout')?'카카오 응답이 지연돼요 (네트워크·도메인 확인).'
+          : '카카오 검색을 사용할 수 없어요.';
+  box.innerHTML='<div class="ms-err">⚠️ <b>'+why+'</b><br>아래 2가지를 확인하세요.<br>① 카카오 개발자 → 내 앱 → <b>제품 설정 → 카카오맵</b>을 <b>ON(활성화)</b><br>② <b>플랫폼 키 → JavaScript 키 → JavaScript SDK 도메인</b>에 아래 주소가 등록돼 있는지<br><div class="ms-origin">'+E(location.origin)+'</div><small>※ 위 주소가 지금 접속한 주소예요. 카카오에 등록한 주소와 정확히 같아야 하고, 방금 저장했다면 1~2분 뒤 다시 시도하세요.</small></div>';
 }
 function msKakaoSearch(q,box,noBias){
   var E=(typeof esc==='function')?esc:function(x){return x;};
