@@ -2114,15 +2114,17 @@ body.app-on #ambientBg{opacity:.7}
           <div id="msMap" class="ms-map" style="margin-top:10px"></div>
           <div class="ms-mapbtns">
             <button class="ms-mini" id="msSatBtn" onclick="msToggleSat()">🛰️ 위성</button>
-            <button class="ms-mini" onclick="openNaverPano()">🟢 네이버 거리뷰</button>
-            <button class="ms-mini" onclick="openRoadview('kakao')">🟡 카카오뷰</button>
+            <button class="ms-mini" onclick="openNaverPano()"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버 거리뷰</button>
+            <button class="ms-mini" onclick="openKakaoRv()"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오 로드뷰</button>
           </div>
-          <div id="msPanoWrap" style="display:none;margin-top:10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <span style="font-size:12px;color:var(--green-soft);font-weight:700">🟢 네이버 거리뷰 · 드래그로 둘러보기</span>
-              <button class="ms-mini" style="flex:none;min-width:auto;padding:6px 12px" onclick="closeNaverPano()">✕ 닫기</button>
+          <div id="msRvWrap" style="display:none;margin-top:10px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+              <span id="msRvLabel" style="font-size:12px;color:var(--green-soft);font-weight:700"></span>
+              <span id="msRvDate" style="font-size:11.5px;color:var(--amber);font-family:var(--mono)"></span>
+              <button class="ms-mini" style="flex:none;min-width:auto;padding:6px 12px;margin-left:auto" onclick="closeRv()">✕ 닫기</button>
             </div>
             <div id="msPano" class="ms-roadview"></div>
+            <div id="msKv" class="ms-roadview" style="display:none"></div>
           </div>
           <div id="msNearby" class="ms-nearby"></div>
           <div class="ft-note" style="margin-top:8px">검색 후 지도에서 <b>핀을 끌어</b> 정확한 부스 자리에 놓으세요. 그늘은 핀 위치 기준으로 계산됩니다. (지도를 눌러도 핀이 이동해요)</div>
@@ -2213,6 +2215,13 @@ body.app-on #ambientBg{opacity:.7}
   .conn-dot{width:11px;height:11px;border-radius:50%;border:none;padding:0;margin:0 6px 0 2px;cursor:pointer;background:#6B7280;flex:none;align-self:center}
   .conn-dot.on{background:#5CBC2E;animation:connpulse 2.2s infinite}
   .conn-dot.off{background:#FF6B6B}
+  .dev-status{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  .dev-status .ds-h{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px}
+  .dev-status .ds-row{display:flex;align-items:center;gap:7px;padding:5px 0;font-size:13.5px;color:var(--cream)}
+  .dev-status .ds-nm{flex:1}
+  .dev-status .ds-st{font-size:12px;font-weight:700;font-family:var(--mono)}
+  .dev-status .ds-st.on{color:var(--green-soft)}
+  .dev-status .ds-st.off{color:var(--faint)}
   @keyframes connpulse{0%{box-shadow:0 0 0 0 rgba(92,188,46,.55)}70%{box-shadow:0 0 0 7px rgba(92,188,46,0)}100%{box-shadow:0 0 0 0 rgba(92,188,46,0)}}
   .inst-modal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:18px}
   .inst-modal.on{display:flex}
@@ -2358,8 +2367,8 @@ body.app-on #ambientBg{opacity:.7}
     <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">승인 · 팀원 · 설문</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
-        <div class="adm-card">
-          <div class="ah"><h3>🔗 개발 연동 · 바로가기</h3></div>
+        <div class="adm-card adm-collapsed">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🔗 개발 연동 · 바로가기</h3><span class="ah-caret">▾</span></div>
           <div class="adm-body" id="devLinksBody"></div>
         </div>
         <div class="adm-card">
@@ -6508,12 +6517,13 @@ function renderDevLinks(){
   var box=document.getElementById('devLinksBody'); if(!box)return;
   var E=(typeof esc==='function')?esc:function(x){return x;};
   box.innerHTML=
+    devStatusHTML()+
     '<p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">코드 수정·배포는 <b>GitHub</b>에서, 데이터 확인은 <b>Firebase 콘솔</b>에서 해요. 주소를 저장해두면 버튼으로 바로 열려요.</p>'+
     '<label class="kedit-row"><span>🐙 GitHub 저장소</span><input id="dl-github" value="'+E(devVal("github"))+'" placeholder="https://github.com/사용자/저장소"/></label>'+
     '<label class="kedit-row"><span>🔥 Firebase 콘솔</span><input id="dl-firebase" value="'+E(devVal("firebase"))+'" placeholder="https://console.firebase.google.com/..."/></label>'+
-    '<label class="kedit-row"><span>🔑 카카오 검색 키</span><input id="dl-kakao" value="'+E(devVal("kakao"))+'" placeholder="카카오 JavaScript 키 (장소 검색용)"/></label>'+
+    '<label class="kedit-row"><span>'+LOGO_KAKAO+'카카오 검색 키</span><input id="dl-kakao" value="'+E(devVal("kakao"))+'" placeholder="카카오 JavaScript 키 (장소 검색용)"/></label>'+
     '<p style="font-size:11px;color:var(--muted);margin:6px 0 2px;line-height:1.6">🔑 장소 그늘 검색을 <b>네이버급</b>으로 정확하게 하려면 카카오 키가 필요해요. <b>developers.kakao.com</b> → 앱 생성 → <b>JavaScript 키</b> 복사 → 플랫폼에 <b>github.io 도메인 등록</b> 후 여기 붙여넣고 저장하세요.</p>'+
-    '<label class="kedit-row"><span>🟢 네이버 Client ID</span><input id="dl-naver" value="'+E(devVal("naver"))+'" placeholder="네이버 클라우드 Client ID (거리뷰용)"/></label>'+
+    '<label class="kedit-row"><span>'+LOGO_NAVER+'네이버 Client ID</span><input id="dl-naver" value="'+E(devVal("naver"))+'" placeholder="네이버 클라우드 Client ID (거리뷰용)"/></label>'+
     '<p style="font-size:11px;color:var(--muted);margin:6px 0 2px;line-height:1.6">🟢 앱 안에서 <b>네이버 거리뷰</b>를 보려면 필요해요. ncloud.com → Maps → Application(Dynamic Map) → <b>Web 서비스 URL에 github.io 등록</b> → Client ID 복사. 일별 한도를 걸면 무료로 써요.</p>'+
     '<button class="btn block" onclick="openGhUpload()" style="margin-top:12px;font-size:15px;padding:14px;font-weight:800">⬆️ 파일 업로드 화면 열기</button>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
@@ -6532,7 +6542,9 @@ function saveDevLinks(){
   var nv=(document.getElementById('dl-naver')?document.getElementById('dl-naver').value:'').trim();
   state.devLinks={github:g,firebase:fbx,kakao:kk,naver:nv};
   if(LIVE)DB.set('devLinks',state.devLinks);
-  if(typeof toast==='function')toast(kk?'저장 완료! 카카오 검색이 켜졌어요 🔑':'연동 링크를 저장했어요 🔗');
+  var _on=[]; if(kk)_on.push('카카오 검색'); if(nv)_on.push('네이버 거리뷰');
+  if(typeof toast==='function')toast(_on.length?('저장 완료 ✓ '+_on.join(' · ')+' 연동됨'):'저장 완료 — 키를 넣으면 검색·거리뷰가 켜져요');
+  try{renderDevLinks();}catch(e){}
 }
 function openDev(k){
   var inp=document.getElementById('dl-'+k);
@@ -6597,24 +6609,77 @@ function ensureNaver(cb){
   document.head.appendChild(s);
 }
 var msPano=null;
+/* ════════════════════════════════════════════
+   🟢🟡 앱 안 거리뷰 (네이버·카카오) + 촬영월 + 로고
+   ════════════════════════════════════════════ */
+var LOGO_NAVER='<svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:4px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>';
+var LOGO_KAKAO='<svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:4px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/><path d="M14 23.5 C13 26 12.3 27.4 12 28.2 C11.85 28.7 12.2 28.9 12.6 28.65 L18 25.3 Z" fill="#3A1D1D"/></svg>';
+var msPano=null, msKvObj=null, msKvClient=null, _rvProvider=null;
+function showRv(p){
+  _rvProvider=p;
+  var wrap=document.getElementById('msRvWrap'); if(wrap)wrap.style.display='';
+  var pn=document.getElementById('msPano'), kv=document.getElementById('msKv');
+  if(pn)pn.style.display=(p==='naver')?'':'none';
+  if(kv)kv.style.display=(p==='kakao')?'':'none';
+  var lab=document.getElementById('msRvLabel'); if(lab)lab.innerHTML=(p==='naver'?LOGO_NAVER+'네이버 거리뷰':LOGO_KAKAO+'카카오 로드뷰')+' · 드래그로 둘러보기';
+  var dt=document.getElementById('msRvDate'); if(dt)dt.textContent='';
+}
+function setRvDate(pd){
+  var el=document.getElementById('msRvDate'); if(!el)return;
+  if(pd){ var s=String(pd); var m=s.match(/(\d{4})[-.\/]?\s?(\d{1,2})/); el.textContent = m?('📅 '+m[1]+'.'+('0'+m[2]).slice(-2)+' 촬영'):('📅 '+s.slice(0,7)+' 촬영'); }
+  else el.textContent='';
+}
+function closeRv(){ var w=document.getElementById('msRvWrap'); if(w)w.style.display='none'; }
+function scrollToRv(){ setTimeout(function(){ var c=document.getElementById('msRvWrap'); if(c)c.scrollIntoView({behavior:'smooth',block:'center'}); },230); }
 function openNaverPano(){
   if(typeof msLat==='undefined'||msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
   if(!naverKey()){ if(typeof toast==='function')toast('관리 탭에서 네이버 Client ID를 먼저 저장하세요'); return; }
   if(typeof toast==='function')toast('네이버 거리뷰 불러오는 중…');
   ensureNaver(function(ok){
-    if(!ok){ if(typeof toast==='function')toast('거리뷰 로딩 실패 — Client ID·도메인(github.io) 등록을 확인하세요'); return; }
-    var wrap=document.getElementById('msPanoWrap'); if(wrap)wrap.style.display='';
+    if(!ok){ if(typeof toast==='function')toast('네이버 거리뷰 로딩 실패 — Client ID·도메인(github.io) 등록 확인'); return; }
+    showRv('naver');
     var cont=document.getElementById('msPano'); if(!cont)return;
     try{
       var pos=new naver.maps.LatLng(msLat,msLng);
-      if(!msPano){ msPano=new naver.maps.Panorama(cont,{position:pos,pov:{pan:0,tilt:0,fov:100}}); }
-      else { msPano.setPosition(pos); }
+      if(!msPano){ msPano=new naver.maps.Panorama(cont,{position:pos,pov:{pan:0,tilt:0,fov:100}});
+        naver.maps.Event.addListener(msPano,'pano_changed',function(){ try{var loc=msPano.getLocation(); setRvDate(loc&&loc.photodate);}catch(e){} });
+      } else { msPano.setPosition(pos); }
       setTimeout(function(){ try{msPano.setSize(new naver.maps.Size(cont.clientWidth||320,300));}catch(e){} },180);
-    }catch(e){ if(typeof toast==='function')toast('이 위치엔 거리뷰가 없을 수 있어요. 핀을 도로 쪽으로 옮겨보세요'); }
-    setTimeout(function(){ if(cont)cont.scrollIntoView({behavior:'smooth',block:'center'}); },220);
+    }catch(e){ if(typeof toast==='function')toast('이 위치엔 거리뷰가 없을 수 있어요. 핀을 도로 쪽으로'); }
+    scrollToRv();
   });
 }
-function closeNaverPano(){ var w=document.getElementById('msPanoWrap'); if(w)w.style.display='none'; }
+function openKakaoRv(){
+  if(typeof msLat==='undefined'||msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
+  if(!kakaoKey()){ if(typeof toast==='function')toast('관리 탭에서 카카오 키를 먼저 저장하세요'); return; }
+  if(typeof toast==='function')toast('카카오 로드뷰 불러오는 중…');
+  ensureKakao(function(ok){
+    if(!ok){ if(typeof toast==='function')toast('카카오 로드뷰 로딩 실패 — 키·도메인 등록 확인'); return; }
+    if(typeof kakao==='undefined'||!kakao.maps||!kakao.maps.Roadview){ if(typeof toast==='function')toast('카카오 로드뷰 모듈 로딩 실패'); return; }
+    showRv('kakao');
+    var cont=document.getElementById('msKv'); if(!cont)return;
+    if(!msKvObj){ msKvObj=new kakao.maps.Roadview(cont); msKvClient=new kakao.maps.RoadviewClient();
+      kakao.maps.event.addListener(msKvObj,'init',function(){ setTimeout(function(){try{msKvObj.relayout();}catch(e){}},80); });
+    }
+    var pos=new kakao.maps.LatLng(msLat,msLng);
+    msKvClient.getNearestPanoId(pos,120,function(panoId){
+      if(panoId===null){ if(typeof toast==='function')toast('이 위치엔 카카오 로드뷰가 없어요. 핀을 도로 쪽으로'); return; }
+      msKvObj.setPanoId(panoId,pos);
+      var dt=document.getElementById('msRvDate'); if(dt)dt.textContent='촬영월 미제공 · 네이버 권장';
+      setTimeout(function(){try{msKvObj.relayout();}catch(e){}},150);
+    });
+    scrollToRv();
+  });
+}
+function devStatusHTML(){
+  function row(logo,name,onb){ return '<div class="ds-row">'+logo+'<span class="ds-nm">'+name+'</span><span class="ds-st '+(onb?'on':'off')+'">'+(onb?'연동됨':'미연동')+'</span></div>'; }
+  return '<div class="dev-status"><div class="ds-h">🔌 현재 연동 상태</div>'+
+    row(LOGO_KAKAO,'카카오 장소검색',!!devVal('kakao'))+
+    row(LOGO_NAVER,'네이버 거리뷰',!!devVal('naver'))+
+    row('🐙','GitHub 저장소',!!devVal('github'))+
+    row('🔥','Firebase 콘솔',!!devVal('firebase'))+
+    '</div>';
+}
 
 /* ============================================================
    BOOT
