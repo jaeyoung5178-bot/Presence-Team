@@ -2056,6 +2056,17 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .srow .fbcount{font-size:11.5px;color:var(--green-soft);margin-top:6px;font-family:var(--mono)}
         #m-sites .ms-res b{font-weight:700}
         #m-sites .ms-res small{display:block;color:var(--faint);font-size:11.5px;margin-top:2px;font-weight:400}
+        #m-sites .ms-mapbtns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+        #m-sites .ms-mini{min-width:90px}
+        #m-sites .ms-mini{flex:1;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+        #m-sites .ms-mini:hover{border-color:var(--green)}
+        #m-sites .ms-nearby{margin-top:12px}
+        #m-sites .ms-nb-h{font-size:12px;color:var(--green-soft);font-weight:700;margin-bottom:7px}
+        #m-sites .ms-nb-row{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;font-family:inherit}
+        #m-sites .ms-nb-row:hover{border-color:var(--green)}
+        #m-sites .ms-nb-row .nb-nm{color:var(--cream);font-weight:700;font-size:13.5px}
+        #m-sites .ms-nb-row .nb-meta{color:var(--green-soft);font-size:12px;font-family:var(--mono);flex:none}
+        #m-sites .ms-nb-empty{font-size:12px;color:var(--muted);padding:8px 2px;line-height:1.6}
       </style>
 
       <div class="ft-subnav">
@@ -2100,6 +2111,12 @@ body.app-on #ambientBg{opacity:.7}
           </div>
           <div id="msResults" class="ms-results"></div>
           <div id="msMap" class="ms-map" style="margin-top:10px"></div>
+          <div class="ms-mapbtns">
+            <button class="ms-mini" id="msSatBtn" onclick="msToggleSat()">🛰️ 위성</button>
+            <button class="ms-mini" onclick="openRoadview('naver')">🟢 네이버뷰</button>
+            <button class="ms-mini" onclick="openRoadview('kakao')">🟡 카카오뷰</button>
+          </div>
+          <div id="msNearby" class="ms-nearby"></div>
           <div class="ft-note" style="margin-top:8px">검색 후 지도에서 <b>핀을 끌어</b> 정확한 부스 자리에 놓으세요. 그늘은 핀 위치 기준으로 계산됩니다. (지도를 눌러도 핀이 이동해요)</div>
           <div class="obst" style="margin-top:12px">
             <div class="chk">건물 방향 <select id="msDir"><option>없음</option><option>북</option><option>북동</option><option>동</option><option>남동</option><option>남</option><option>남서</option><option>서</option><option>북서</option></select></div>
@@ -6125,7 +6142,7 @@ function msSetMarker(lat,lng){
   msLat=+lat; msLng=+lng;
   if(!msMap)return;
   if(!msMarker){ msMarker=L.marker([msLat,msLng],{draggable:true,icon:msPinIcon()}).addTo(msMap);
-    msMarker.on('dragend',function(){var p=msMarker.getLatLng();msLat=p.lat;msLng=p.lng;}); }
+    msMarker.on('dragend',function(){var p=msMarker.getLatLng();msLat=p.lat;msLng=p.lng;try{msRecommend(msLat,msLng);}catch(e){}}); }
   else msMarker.setLatLng([msLat,msLng]);
 }
 function kakaoKey(){ return (state.devLinks&&state.devLinks.kakao)?String(state.devLinks.kakao).trim():''; }
@@ -6152,11 +6169,11 @@ function msSearch(){
         ps.keywordSearch(q,function(data,status){
           if(status===kakao.maps.services.Status.OK && data && data.length){
             window._msResults=data.map(function(p){return {lat:+p.y,lng:+p.x,name:p.place_name,addr:(p.road_address_name||p.address_name||'')};});
-            box.innerHTML=window._msResults.slice(0,8).map(function(r,i){
+            box.innerHTML=window._msResults.slice(0,15).map(function(r,i){
               return '<button class="ms-res" onclick="msPickIdx('+i+')">📍 <b>'+E(r.name)+'</b>'+(r.addr?'<small>'+E(r.addr)+'</small>':'')+'</button>';
             }).join('');
           } else {
-            box.innerHTML='<div class="ms-empty">결과 없음 — 다른 키워드로 검색하거나 지도를 눌러 직접 핀을 놓으세요.</div>';
+            box.innerHTML='<div class="ms-empty">결과 없음 — 띄어쓰기를 바꾸거나 동 이름을 함께 넣어보세요 (예: 운서 다이소). 또는 지도를 눌러 직접 핀.</div>';
           }
         });
       }catch(e){ box.innerHTML='<div class="ms-empty">검색 오류 — 관리 탭에서 카카오 키와 도메인 등록을 확인하세요.</div>'; }
@@ -6178,7 +6195,47 @@ function msPick(lat,lng,label){
   if(msMap)msMap.setView([lat,lng],17);
   document.getElementById('msResults').innerHTML='';
   var k=document.getElementById('msKakao'); if(k&&label)k.value=label;
+  try{msRecommend(lat,lng);}catch(e){}
 }
+/* ════════════════════════════════════════════
+   📍 근처 검증 그늘 추천 + 🛰️ 위성 + 🚶 로드뷰
+   ════════════════════════════════════════════ */
+function msHaversine(a,b,c,d){
+  var R=6371000,p=Math.PI/180;
+  var dLat=(c-a)*p,dLng=(d-b)*p;
+  var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*p)*Math.cos(c*p)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+function msRecommend(lat,lng){
+  var box=document.getElementById('msNearby'); if(!box)return;
+  var s=state.shadeSites||{}, arr=[];
+  Object.keys(s).forEach(function(id){var x=s[id]; if(x&&x.lat&&x.lng){arr.push({id:id,x:x,dist:msHaversine(+lat,+lng,+x.lat,+x.lng)});}});
+  arr=arr.filter(function(o){return o.dist<=2000;}).sort(function(a,b){return a.dist-b.dist;}).slice(0,5);
+  if(!arr.length){ box.innerHTML='<div class="ms-nb-empty">이 근처(2km)엔 아직 검증된 그늘 사이트가 없어요. 🛰️ 위성·🚶 로드뷰로 직접 보고 좋으면 아래 <b>검증목록에 추가</b>해 주세요. 추가할수록 다음에 자동 추천돼요 🌳</div>'; return; }
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  box.innerHTML='<div class="ms-nb-h">📍 이 근처 검증된 그늘 사이트 '+arr.length+'곳 (가까운 순)</div>'+arr.map(function(o){
+    var pct=(o.x.hotTot?Math.round((o.x.shHot/o.x.hotTot)*100):0);
+    var dtxt=o.dist<1000?Math.round(o.dist)+'m':(o.dist/1000).toFixed(1)+'km';
+    return '<button class="ms-nb-row" onclick="openFb(\''+o.id+'\',\'shade\')"><span class="nb-nm">'+E(o.x.name||'')+'</span><span class="nb-meta">그늘 '+pct+'% · '+dtxt+'</span></button>';
+  }).join('');
+}
+var msSatLayer=null, msSatOn=false;
+function msToggleSat(){
+  if(!msMap){if(typeof toast==='function')toast('지도 로딩 대기 중');return;}
+  if(!msSatLayer){ msSatLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}); }
+  msSatOn=!msSatOn;
+  var btn=document.getElementById('msSatBtn');
+  if(msSatOn){ msSatLayer.addTo(msMap); try{msSatLayer.bringToFront();}catch(e){} if(msMarker&&msMarker.bringToFront)try{msMarker.bringToFront();}catch(e){} if(btn)btn.textContent='🗺️ 지도'; }
+  else { try{msMap.removeLayer(msSatLayer);}catch(e){} if(btn)btn.textContent='🛰️ 위성'; }
+}
+function openRoadview(provider){
+  if(typeof msLat==='undefined'||msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
+  var url;
+  if(provider==='naver'){ url='https://map.naver.com/p/?c='+msLng+','+msLat+',18,0,0,0,dh'; if(typeof toast==='function')toast('네이버 지도에서 거리뷰(노란 사람) 아이콘을 눌러보세요'); }
+  else { url='https://map.kakao.com/link/roadview/'+msLat+','+msLng; }
+  window.open(url,'_blank','noopener');
+}
+
 function msAnalyze(){
   if(msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
   if(typeof SunCalc==='undefined'){if(typeof toast==='function')toast('태양 계산 로딩 대기 중');return;}
