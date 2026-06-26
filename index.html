@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
-<title>Presence · 머물고 싶은 자리</title>
+<title>Presence · 머물고 싶은 팀</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314161B'/%3E%3Cpath d='M20 74 L37 36 Q39 32 41 36 L44 50 L52 34 Q54 30 56 34 L80 74 Z' fill='%235CBC2E'/%3E%3Cpath d='M52 34 Q54 30 56 34 L80 74 L60 74 Z' fill='%238AE05C'/%3E%3C/svg%3E" />
 <!-- 홈 화면(아이폰/안드로이드) 앱 아이콘 — 같은 폴더에 icon.png(512x512 권장) 올리면 적용됨 -->
 <link rel="apple-touch-icon" href="icon.png" />
@@ -117,10 +117,11 @@ input,select,textarea,button{font-family:inherit}
 /* ====== HEADER / RAIL ====== */
 header.top{position:fixed;top:0;left:0;right:0;z-index:60;background:#13151b;border-bottom:1px solid var(--line-soft);transform:translateZ(0);padding-top:var(--safe-t)}
 .top .bar{display:flex;align-items:center;gap:12px;height:58px}
-.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
-.logo .nm{font-family:var(--disp);font-weight:700;font-size:16px}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0}
+.logo>span:not(.logo-chip){display:flex;flex-direction:column;justify-content:center;line-height:1.18;min-width:0}
+.logo .nm{font-family:var(--disp);font-weight:700;font-size:16px;white-space:nowrap}
 .logo .nm b{color:var(--green)}
-.logo .tag{font-size:10px;color:var(--muted);margin-top:-2px}
+.logo .tag{font-size:10px;color:var(--muted);margin-top:0;white-space:nowrap}
 .top .spacer{flex:1}
 .me-pill{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 11px;cursor:pointer;transition:.15s;background:transparent}
 .me-pill:hover{border-color:var(--green)}
@@ -1533,7 +1534,7 @@ body.app-on #ambientBg{opacity:.7}
     <div class="wrap bar">
       <div class="logo" onclick="goTab('home')">
         <span class="logo-chip"><img src="data:image/png;base64,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" alt="Presence" style="height:22px;width:auto;display:block" /></span>
-        <span><span class="nm">Presence<b>.</b></span><span class="tag">머물고 싶은 자리</span></span>
+        <span><span class="nm">Presence<b>.</b></span><span class="tag">머물고 싶은 팀</span></span>
       </div>
       <span class="spacer"></span>
       <button class="conn-dot off" id="connDot" onclick="showConnInfo()" aria-label="연결 상태"></button>
@@ -2053,6 +2054,8 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .map-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--card);border:none;color:var(--cream);padding:13px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
         #m-sites .srow .info{cursor:pointer}
         #m-sites .srow .fbcount{font-size:11.5px;color:var(--green-soft);margin-top:6px;font-family:var(--mono)}
+        #m-sites .ms-res b{font-weight:700}
+        #m-sites .ms-res small{display:block;color:var(--faint);font-size:11.5px;margin-top:2px;font-weight:400}
       </style>
 
       <div class="ft-subnav">
@@ -6125,26 +6128,56 @@ function msSetMarker(lat,lng){
     msMarker.on('dragend',function(){var p=msMarker.getLatLng();msLat=p.lat;msLng=p.lng;}); }
   else msMarker.setLatLng([msLat,msLng]);
 }
+function kakaoKey(){ return (state.devLinks&&state.devLinks.kakao)?String(state.devLinks.kakao).trim():''; }
+var _kakaoLoading=false;
+function ensureKakao(cb){
+  if(window.kakao&&window.kakao.maps&&window.kakao.maps.services){cb(true);return;}
+  var key=kakaoKey(); if(!key){cb(false);return;}
+  if(_kakaoLoading){ var t=setInterval(function(){ if(window.kakao&&window.kakao.maps&&window.kakao.maps.services){clearInterval(t);cb(true);} },200); setTimeout(function(){clearInterval(t);},6000); return; }
+  _kakaoLoading=true;
+  var s=document.createElement('script');
+  s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+encodeURIComponent(key)+'&libraries=services&autoload=false';
+  s.onload=function(){ try{ kakao.maps.load(function(){ cb(true); }); }catch(e){ cb(false); } };
+  s.onerror=function(){ _kakaoLoading=false; cb(false); };
+  document.head.appendChild(s);
+}
 function msSearch(){
   var q=(document.getElementById('msQuery').value||'').trim(); if(!q)return;
   var box=document.getElementById('msResults'); box.innerHTML='<div class="ms-loading">검색 중…</div>';
-  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}})
-    .then(function(r){return r.json();})
-    .then(function(list){
-      if(!list||!list.length){box.innerHTML='<div class="ms-empty">결과 없음 — 지도를 눌러 직접 핀을 놓아보세요.</div>';return;}
-      box.innerHTML=list.map(function(p){
-        var label=(p.display_name||'').split(',').slice(0,3).join(', ');
-        var safe=label.replace(/'/g,'’');
-        return '<button class="ms-res" onclick="msPick('+p.lat+','+p.lon+',\''+safe+'\')">📍 '+label+'</button>';
-      }).join('');
-    })
-    .catch(function(){box.innerHTML='<div class="ms-empty">검색 실패 — 잠시 후 다시 시도하거나 지도를 눌러 직접 핀을 놓으세요.</div>';});
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  ensureKakao(function(ok){
+    if(ok){
+      try{
+        var ps=new kakao.maps.services.Places();
+        ps.keywordSearch(q,function(data,status){
+          if(status===kakao.maps.services.Status.OK && data && data.length){
+            window._msResults=data.map(function(p){return {lat:+p.y,lng:+p.x,name:p.place_name,addr:(p.road_address_name||p.address_name||'')};});
+            box.innerHTML=window._msResults.slice(0,8).map(function(r,i){
+              return '<button class="ms-res" onclick="msPickIdx('+i+')">📍 <b>'+E(r.name)+'</b>'+(r.addr?'<small>'+E(r.addr)+'</small>':'')+'</button>';
+            }).join('');
+          } else {
+            box.innerHTML='<div class="ms-empty">결과 없음 — 다른 키워드로 검색하거나 지도를 눌러 직접 핀을 놓으세요.</div>';
+          }
+        });
+      }catch(e){ box.innerHTML='<div class="ms-empty">검색 오류 — 관리 탭에서 카카오 키와 도메인 등록을 확인하세요.</div>'; }
+      return;
+    }
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(list){
+        if(!list||!list.length){box.innerHTML='<div class="ms-empty">결과 없음 — 더 정확한 한국 검색을 원하면 관리 탭에서 <b>카카오 검색 키</b>를 등록하세요. 또는 지도를 눌러 직접 핀.</div>';return;}
+        window._msResults=list.map(function(p){return {lat:+p.lat,lng:+p.lon,name:(p.display_name||'').split(',').slice(0,2).join(', '),addr:''};});
+        box.innerHTML=window._msResults.map(function(r,i){return '<button class="ms-res" onclick="msPickIdx('+i+')">📍 '+E(r.name)+'</button>';}).join('')+'<div class="ms-empty" style="margin-top:4px">🔑 더 정확한 검색은 관리 탭 → 카카오 검색 키 등록</div>';
+      })
+      .catch(function(){box.innerHTML='<div class="ms-empty">검색 실패 — 지도를 눌러 직접 핀을 놓으세요.</div>';});
+  });
 }
+function msPickIdx(i){ var r=(window._msResults||[])[i]; if(!r)return; msPick(r.lat,r.lng,r.name); }
 function msPick(lat,lng,label){
   msSetMarker(lat,lng);
   if(msMap)msMap.setView([lat,lng],17);
   document.getElementById('msResults').innerHTML='';
-  var k=document.getElementById('msKakao'); if(k&&!k.value&&label)k.value=label;
+  var k=document.getElementById('msKakao'); if(k&&label)k.value=label;
 }
 function msAnalyze(){
   if(msLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
@@ -6362,7 +6395,7 @@ function closeLightbox(){ var lb=document.getElementById('phLightbox'); if(lb)lb
     var icons=[];
     if(typeof PRESENCE_MARK_SVG!=='undefined')icons.push({src:PRESENCE_MARK_SVG,sizes:"any",type:"image/svg+xml",purpose:"any"});
     if(typeof PRESENCE_ICON!=='undefined'){icons.push({src:PRESENCE_ICON,sizes:"128x128",type:"image/png",purpose:"any"});icons.push({src:PRESENCE_ICON,sizes:"192x192",type:"image/png",purpose:"maskable"});}
-    var mani={name:"Presence · 머물고 싶은 자리",short_name:"Presence",start_url:".",scope:".",display:"standalone",orientation:"portrait",background_color:"#0E1013",theme_color:"#0E1013",icons:icons};
+    var mani={name:"Presence · 머물고 싶은 팀",short_name:"Presence",start_url:".",scope:".",display:"standalone",orientation:"portrait",background_color:"#0E1013",theme_color:"#0E1013",icons:icons};
     var blob=new Blob([JSON.stringify(mani)],{type:'application/manifest+json'});
     var l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(blob);
     document.head.appendChild(l);
@@ -6401,7 +6434,8 @@ function closeInstall(){ var m=document.getElementById('installModal'); if(m)m.c
 /* ── 개발 링크 (관리자) ── */
 var DEV_DEFAULTS={
   github:'https://github.com/jaeyoung5178-bot/Presence-Team',
-  firebase:'https://console.firebase.google.com/project/presence-team/database/presence-team-default-rtdb/data'
+  firebase:'https://console.firebase.google.com/project/presence-team/database/presence-team-default-rtdb/data',
+  kakao:''
 };
 function devVal(k){ var d=state.devLinks||{}; return (d[k]!=null&&d[k]!=='')?d[k]:DEV_DEFAULTS[k]; }
 function renderDevLinks(){
@@ -6411,6 +6445,8 @@ function renderDevLinks(){
     '<p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">코드 수정·배포는 <b>GitHub</b>에서, 데이터 확인은 <b>Firebase 콘솔</b>에서 해요. 주소를 저장해두면 버튼으로 바로 열려요.</p>'+
     '<label class="kedit-row"><span>🐙 GitHub 저장소</span><input id="dl-github" value="'+E(devVal("github"))+'" placeholder="https://github.com/사용자/저장소"/></label>'+
     '<label class="kedit-row"><span>🔥 Firebase 콘솔</span><input id="dl-firebase" value="'+E(devVal("firebase"))+'" placeholder="https://console.firebase.google.com/..."/></label>'+
+    '<label class="kedit-row"><span>🔑 카카오 검색 키</span><input id="dl-kakao" value="'+E(devVal("kakao"))+'" placeholder="카카오 JavaScript 키 (장소 검색용)"/></label>'+
+    '<p style="font-size:11px;color:var(--muted);margin:6px 0 2px;line-height:1.6">🔑 장소 그늘 검색을 <b>네이버급</b>으로 정확하게 하려면 카카오 키가 필요해요. <b>developers.kakao.com</b> → 앱 생성 → <b>JavaScript 키</b> 복사 → 플랫폼에 <b>github.io 도메인 등록</b> 후 여기 붙여넣고 저장하세요.</p>'+
     '<button class="btn block" onclick="openGhUpload()" style="margin-top:12px;font-size:15px;padding:14px;font-weight:800">⬆️ 파일 업로드 화면 열기</button>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn ghost" onclick="openGhEdit()">📝 바로 편집</button>'+
@@ -6424,9 +6460,10 @@ function renderDevLinks(){
 function saveDevLinks(){
   var g=(document.getElementById('dl-github').value||'').trim();
   var fbx=(document.getElementById('dl-firebase').value||'').trim();
-  state.devLinks={github:g,firebase:fbx};
+  var kk=(document.getElementById('dl-kakao')?document.getElementById('dl-kakao').value:'').trim();
+  state.devLinks={github:g,firebase:fbx,kakao:kk};
   if(LIVE)DB.set('devLinks',state.devLinks);
-  if(typeof toast==='function')toast('연동 링크를 저장했어요 🔗');
+  if(typeof toast==='function')toast(kk?'저장 완료! 카카오 검색이 켜졌어요 🔑':'연동 링크를 저장했어요 🔗');
 }
 function openDev(k){
   var inp=document.getElementById('dl-'+k);
