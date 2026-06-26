@@ -2045,10 +2045,30 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .badge2{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;margin-left:8px;background:rgba(92,188,46,.18);color:var(--green-soft);font-family:var(--mono)}
         #m-sites .rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;margin-left:auto}
         #m-sites .ms-map{height:260px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
-        #m-sites .ms-results{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-        #m-sites .ms-res{text-align:left;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:9px 11px;font-size:13px;cursor:pointer;font-family:inherit}
-        #m-sites .ms-res:hover{border-color:var(--green)}
-        #m-sites .ms-loading,#m-sites .ms-empty{font-size:12.5px;color:var(--muted);padding:8px 2px}
+        #m-sites .ms-searchbar{display:flex;align-items:center;gap:8px;background:var(--ink);border:1.5px solid var(--line);border-radius:13px;padding:4px 4px 4px 13px;transition:border-color .15s}
+        #m-sites .ms-searchbar:focus-within{border-color:var(--green)}
+        #m-sites .ms-sicon{font-size:15px;opacity:.65;flex:none}
+        #m-sites .ms-sinput{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--cream);font-size:14.5px;font-family:inherit;padding:10px 0}
+        #m-sites .ms-sinput::placeholder{color:var(--faint)}
+        #m-sites .ms-sbtn{flex:none;background:var(--green);color:var(--green-ink);border:0;border-radius:10px;padding:10px 17px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+        #m-sites .ms-sbtn:active{transform:scale(.97)}
+        #m-sites .ms-results{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+        #m-sites .ms-rhead{font-size:11.5px;color:var(--muted);font-weight:600;padding:1px 2px 3px}
+        #m-sites .ms-res{display:flex;align-items:center;gap:11px;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:11px 13px;cursor:pointer;font-family:inherit;transition:border-color .12s,background .12s;width:100%}
+        #m-sites .ms-res:hover,#m-sites .ms-res:active{border-color:var(--green);background:var(--card-2)}
+        #m-sites .ms-rico{font-size:17px;flex:none;line-height:1}
+        #m-sites .ms-rmain{flex:1;min-width:0}
+        #m-sites .ms-rname{display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:700;color:var(--cream)}
+        #m-sites .ms-cat{font-size:10.5px;font-weight:600;color:var(--green-soft);background:rgba(92,188,46,.13);border-radius:5px;padding:1px 6px;flex:none}
+        #m-sites .ms-raddr{display:block;color:var(--muted);font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        #m-sites .ms-rsub{display:block;color:var(--faint);font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        #m-sites .ms-rgo{flex:none;font-size:11.5px;font-weight:700;color:var(--green);align-self:center}
+        #m-sites .ms-loading,#m-sites .ms-empty{font-size:12.5px;color:var(--muted);padding:10px 2px;line-height:1.7}
+        #m-sites .ms-empty small{color:var(--faint)}
+        #m-sites .ms-err{font-size:12.5px;color:var(--cream);background:rgba(230,176,82,.1);border:1px solid var(--amber);border-radius:11px;padding:12px 14px;line-height:1.75;margin-top:9px}
+        #m-sites .ms-err b{color:var(--amber)}
+        #m-sites .ms-err small{display:block;color:var(--faint);font-size:11px;margin-top:6px;line-height:1.5}
+        #m-sites .ms-origin{font-family:var(--mono);font-size:12px;color:var(--green-soft);background:var(--ink);border-radius:7px;padding:7px 10px;margin:7px 0 2px;word-break:break-all;user-select:all}
         .ms-pin{background:none;border:none}
         .leaflet-container{font-family:inherit;background:#0c120e}
         #m-sites .map-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--card);border:none;color:var(--cream);padding:13px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
@@ -2107,8 +2127,13 @@ body.app-on #ambientBg{opacity:.7}
         <div class="ft-card"><div class="ft-h">검증된 그늘 사이트</div><div class="slist" id="shadeList"></div></div>
         <div class="ft-card" id="shadeAnalyzeCard"><div class="ft-h">새 장소 그늘 분석</div>
           <div class="ft-row">
-            <div class="ft-f" style="flex:1;min-width:200px"><label>장소 검색 (이름·주소)</label><input class="ft-in" id="msQuery" placeholder="예: 부평역, 구월동 다이소" onkeydown="if(event.key==='Enter')msSearch()"></div>
-            <button class="ft-btn" onclick="msSearch()">검색</button>
+            <div class="ft-f" style="flex:1;min-width:200px"><label>장소 검색 (이름·주소)</label>
+              <div class="ms-searchbar">
+                <span class="ms-sicon">🔍</span>
+                <input class="ms-sinput" id="msQuery" placeholder="장소·주소 검색 (예: 구월동 다이소)" onkeydown="if(event.key==='Enter')msSearch()">
+                <button class="ms-sbtn" onclick="msSearch()">검색</button>
+              </div>
+            </div>
           </div>
           <div id="msResults" class="ms-results"></div>
           <div id="msMap" class="ms-map" style="margin-top:10px"></div>
@@ -6177,34 +6202,50 @@ function ensureKakao(cb){
 }
 function msSearch(){
   var q=(document.getElementById('msQuery').value||'').trim(); if(!q)return;
-  var box=document.getElementById('msResults'); box.innerHTML='<div class="ms-loading">검색 중…</div>';
-  var E=(typeof esc==='function')?esc:function(x){return x;};
+  var box=document.getElementById('msResults'); box.innerHTML='<div class="ms-loading">🔍 검색 중…</div>';
   ensureKakao(function(ok){
-    if(ok){
-      try{
-        var ps=new kakao.maps.services.Places();
-        ps.keywordSearch(q,function(data,status){
-          if(status===kakao.maps.services.Status.OK && data && data.length){
-            window._msResults=data.map(function(p){return {lat:+p.y,lng:+p.x,name:p.place_name,addr:(p.road_address_name||p.address_name||'')};});
-            box.innerHTML=window._msResults.slice(0,15).map(function(r,i){
-              return '<button class="ms-res" onclick="msPickIdx('+i+')">📍 <b>'+E(r.name)+'</b>'+(r.addr?'<small>'+E(r.addr)+'</small>':'')+'</button>';
-            }).join('');
-          } else {
-            box.innerHTML='<div class="ms-empty">결과 없음 — 띄어쓰기를 바꾸거나 동 이름을 함께 넣어보세요 (예: 운서 다이소). 또는 지도를 눌러 직접 핀.</div>';
-          }
-        });
-      }catch(e){ box.innerHTML='<div class="ms-empty">검색 오류 — 관리 탭에서 카카오 키와 도메인 등록을 확인하세요.</div>'; }
+    if(ok && window.kakao && kakao.maps && kakao.maps.services){ msKakaoSearch(q,box,false); return; }
+    msOsmSearch(q,box);
+  });
+}
+function msKakaoSearch(q,box,noBias){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  var ps=new kakao.maps.services.Places();
+  var opts={size:15};
+  if(!noBias && typeof msMap!=='undefined' && msMap){ try{ var c=msMap.getCenter(); opts.location=new kakao.maps.LatLng(c.lat,c.lng); opts.radius=20000; opts.sort=kakao.maps.services.SortBy.DISTANCE; }catch(e){} }
+  ps.keywordSearch(q,function(data,status){
+    var S=kakao.maps.services.Status;
+    if(status===S.OK && data && data.length){ msRenderResults(data,box,E); return; }
+    if(status===S.ZERO_RESULT){
+      if(!noBias){ msKakaoSearch(q,box,true); return; } // 인천 밖일 수 있으니 전국 재검색
+      box.innerHTML='<div class="ms-empty">\u2018'+E(q)+'\u2019 결과가 없어요. 상호를 더 정확히(예: <b>다이소 구월점</b>) 쓰거나, 지도를 눌러 직접 핀을 놓으세요.</div>';
       return;
     }
-    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}})
-      .then(function(r){return r.json();})
-      .then(function(list){
-        if(!list||!list.length){box.innerHTML='<div class="ms-empty">결과 없음 — 더 정확한 한국 검색을 원하면 관리 탭에서 <b>카카오 검색 키</b>를 등록하세요. 또는 지도를 눌러 직접 핀.</div>';return;}
-        window._msResults=list.map(function(p){return {lat:+p.lat,lng:+p.lon,name:(p.display_name||'').split(',').slice(0,2).join(', '),addr:''};});
-        box.innerHTML=window._msResults.map(function(r,i){return '<button class="ms-res" onclick="msPickIdx('+i+')">📍 '+E(r.name)+'</button>';}).join('')+'<div class="ms-empty" style="margin-top:4px">🔑 더 정확한 검색은 관리 탭 → 카카오 검색 키 등록</div>';
-      })
-      .catch(function(){box.innerHTML='<div class="ms-empty">검색 실패 — 지도를 눌러 직접 핀을 놓으세요.</div>';});
-  });
+    // ERROR 등 → 키는 있으나 호출 차단(대부분 도메인 미등록)
+    box.innerHTML='<div class="ms-err">⚠️ <b>카카오 검색이 차단됐어요</b><br>키는 등록됐지만 <b>도메인 등록</b>이 빠졌어요.<br>① developers.kakao.com → 내 애플리케이션 → <b>앱 설정 · 플랫폼 · Web</b><br>② 사이트 도메인에 아래 주소를 <b>그대로</b> 추가 후 저장<br><div class="ms-origin">'+E(location.origin)+'</div><small>※ 위 주소가 지금 접속한 주소예요. 카카오에 등록된 주소와 다르면 검색이 막혀요.</small></div>';
+  },opts);
+}
+function msRenderResults(data,box,E){
+  window._msResults=data.map(function(p){return {lat:+p.y,lng:+p.x,name:p.place_name,addr:(p.road_address_name||p.address_name||''),jibun:(p.address_name||''),cat:(p.category_group_name||''),catFull:(p.category_name||'')};});
+  var rows=window._msResults.slice(0,15).map(function(r,i){
+    var cat=r.cat?'<span class="ms-cat">'+E(r.cat)+'</span>':'';
+    var sub=r.catFull?'<span class="ms-rsub">'+E(r.catFull.split('>').pop().trim())+'</span>':'';
+    var addr=r.addr?'<span class="ms-raddr">'+E(r.addr)+'</span>':'';
+    return '<button class="ms-res" onclick="msPickIdx('+i+')"><span class="ms-rico">📍</span><span class="ms-rmain"><span class="ms-rname">'+E(r.name)+cat+'</span>'+addr+sub+'</span><span class="ms-rgo">선택 ›</span></button>';
+  }).join('');
+  box.innerHTML='<div class="ms-rhead">검색 결과 '+window._msResults.length+'곳 · 탭하면 지도에 표시돼요</div>'+rows;
+}
+function msOsmSearch(q,box){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=8&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(list){
+      if(!list||!list.length){box.innerHTML='<div class="ms-empty">결과가 없어요. 지도를 눌러 직접 핀을 놓으세요.<br><small>더 정확한 한국 장소 검색은 관리 탭에서 <b>카카오 검색 키</b>를 등록하면 켜져요.</small></div>';return;}
+      window._msResults=list.map(function(p){return {lat:+p.lat,lng:+p.lon,name:(p.display_name||'').split(',').slice(0,2).join(', '),addr:'',cat:'',catFull:''};});
+      var rows=window._msResults.map(function(r,i){return '<button class="ms-res" onclick="msPickIdx('+i+')"><span class="ms-rico">📍</span><span class="ms-rmain"><span class="ms-rname">'+E(r.name)+'</span></span><span class="ms-rgo">선택 ›</span></button>';}).join('');
+      box.innerHTML='<div class="ms-rhead">기본 검색 결과 · 더 정확하려면 카카오 키 등록</div>'+rows;
+    })
+    .catch(function(){box.innerHTML='<div class="ms-empty">검색 실패 — 지도를 눌러 직접 핀을 놓으세요.</div>';});
 }
 function msPickIdx(i){ var r=(window._msResults||[])[i]; if(!r)return; msPick(r.lat,r.lng,r.name); }
 function msPick(lat,lng,label){
