@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
-<title>Presence · 머물고 싶은 팀</title>
+<title>업무 효율을 도와주는 Presence work book</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314161B'/%3E%3Cpath d='M20 74 L37 36 Q39 32 41 36 L44 50 L52 34 Q54 30 56 34 L80 74 Z' fill='%235CBC2E'/%3E%3Cpath d='M52 34 Q54 30 56 34 L80 74 L60 74 Z' fill='%238AE05C'/%3E%3C/svg%3E" />
 <!-- 홈 화면(아이폰/안드로이드) 앱 아이콘 — 같은 폴더에 icon.png(512x512 권장) 올리면 적용됨 -->
 <link rel="apple-touch-icon" href="icon.png" />
@@ -7535,7 +7535,7 @@ function closeLightbox(){ var lb=document.getElementById('phLightbox'); if(lb)lb
     var icons=[];
     if(typeof PRESENCE_MARK_SVG!=='undefined')icons.push({src:PRESENCE_MARK_SVG,sizes:"any",type:"image/svg+xml",purpose:"any"});
     if(typeof PRESENCE_ICON!=='undefined'){icons.push({src:PRESENCE_ICON,sizes:"128x128",type:"image/png",purpose:"any"});icons.push({src:PRESENCE_ICON,sizes:"192x192",type:"image/png",purpose:"maskable"});}
-    var mani={name:"Presence · 머물고 싶은 팀",short_name:"Presence",start_url:".",scope:".",display:"standalone",orientation:"portrait",background_color:"#0E1013",theme_color:"#0E1013",icons:icons};
+    var mani={name:"Presence",short_name:"Presence",start_url:".",scope:".",display:"standalone",orientation:"portrait",background_color:"#0E1013",theme_color:"#0E1013",icons:icons};
     var blob=new Blob([JSON.stringify(mani)],{type:'application/manifest+json'});
     var l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(blob);
     document.head.appendChild(l);
