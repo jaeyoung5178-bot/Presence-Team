@@ -1500,6 +1500,79 @@ body.app-on #ambientBg{opacity:.7}
   .today-h{font-size:19px}
 }
 </style>
+<style id="polish-css">
+/* ════════════════════════════════════════════════════
+   ✨ PROFESSIONAL POLISH — 가독성·일관성·모바일 밀도 보정
+   (맨 마지막 캐스케이드 · 기존 규칙 위에 덮어쓰기만 함)
+   ════════════════════════════════════════════════════ */
+
+/* 1) 더 또렷한 텍스트 렌더링 (다크 배경에서 특히 선명) */
+body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+
+/* 2) 키보드 포커스 링 — 접근성 + 의도된 완성도 */
+#app .btn:focus-visible,#app .mtab:focus-visible,#app .ft-btn:focus-visible,
+#app .ms-sbtn:focus-visible,#app .sfb-form button:focus-visible,#app .ft-sb:focus-visible,
+#app .botbar button:focus-visible,#app .me-pill:focus-visible,#app .bell-btn:focus-visible,
+#app .sfb-mb:focus-visible{outline:2px solid var(--green-soft);outline-offset:2px;border-radius:10px}
+#app input:focus-visible,#app textarea:focus-visible,#app select:focus-visible{
+  outline:2px solid rgba(92,188,46,.55);outline-offset:1px}
+
+/* 3) 스크롤 영역: 배경 스크롤 전이·고무줄 현상 차단 (모바일 모달 안정감) */
+.sfb-scroll,.rail .row,.sfb-modal,.ph-lightbox{overscroll-behavior:contain}
+
+/* 4) 탭 가능한 행: 눌림 피드백 (앱 같은 반응감) — 터치기기만 */
+@media(hover:none){
+  .srow .info:active,.today-item:active,.notif-item:active,
+  .ms-res:active,.ms-nb-row:active,.gb-item:active{transform:scale(.985);transition:transform .08s}
+}
+
+/* ════════ 📱 모바일 (≤620px) ════════ */
+@media(max-width:620px){
+  /* 4-1) iOS 입력 확대(zoom) 방지 — 폼 글자 16px↑ 강제
+         (작은 칸 누르면 화면이 확대됐다 안 돌아오던 문제 해결) */
+  #app input:not([type=range]):not([type=checkbox]):not([type=radio]),
+  #app select,#app textarea{font-size:16px!important}
+
+  /* 4-2) 섹션 세로 리듬 정리 — 빼곡함 완화 + 일관 간격 */
+  .sec{padding:22px 0}
+  .sec-head{margin-bottom:14px}
+
+  /* 4-3) 본문 가독성 — 줄간격 살짝 키움 */
+  .intro{font-size:13.5px;line-height:1.66}
+  .gb-msg,.sfb-item .tx,.notif-top{line-height:1.55}
+
+  /* 4-4) 터치 타깃 최소 높이 — 작은 버튼 누르기 쉽게 */
+  .ft-sb,.ms-mini,.sfb-mb,.btn.sm{min-height:42px}
+  .today-item{padding:12px}
+
+  /* 4-5) 그늘 분석 컨트롤 줄바꿈 정리 */
+  #m-sites .obst{gap:10px 16px;padding:11px 12px}
+
+  /* 4-6) 좁은 화면 입력 그리드 겹침 방지 */
+  #m-sites .site-head .nm{width:100%}
+}
+
+/* ════════ 📱 아주 좁은 화면 (≤380px) ════════ */
+@media(max-width:380px){
+  .sfb-th{width:84px;height:84px}
+  #m-sites .ns-ph{width:74px;height:74px}
+  .sec-head h2{font-size:17px}
+}
+
+/* ════════ 빈 상태(empty state) 통일 — 흩어진 클래스를 한 룩(점선 카드)으로 ════════
+   ※ .gcard .ph .empty(이미지 자리표시)·검색 인라인 메시지는 의도적으로 제외 */
+.rank-empty,.empty-row,.sfb-empty,#m-sites .empty,.celeb-empty{
+  text-align:center;color:var(--muted);font-size:13px;line-height:1.65;
+  padding:24px 18px;border:1.5px dashed var(--line);border-radius:14px;background:var(--surface)
+}
+.celeb-empty{margin-top:12px}
+
+/* ════════ 🖥️ 데스크탑 와이드 활용 — 사이트·그늘 목록 2열 ════════
+   각 행(.srow)이 독립 카드라 안전. 목록이 길어질 때 공간 활용 ↑ */
+@media(min-width:980px){
+  #m-sites .slist{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
+}
+</style>
 </head>
 
 <body>
