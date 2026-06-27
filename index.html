@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
 <style>
 :root{
   --ink:#0E1013; --surface:#1B1E25; --card:#232730; --card-2:#2A2F39;
@@ -73,7 +74,7 @@ input,select,textarea,button{font-family:inherit}
 .foot-chip img{display:block;height:28px}
 
 /* ====== AUTH GATE ====== */
-#authGate{position:fixed;inset:0;z-index:200;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(24px,6vh) 18px 40px;
+#authGate{position:fixed;inset:0;z-index:var(--z-overlay);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(24px,6vh) 18px 40px;
   background:
     radial-gradient(120% 80% at 12% 0%,rgba(139,92,246,.8),transparent 55%),
     radial-gradient(120% 90% at 90% 100%,rgba(34,211,238,.62),transparent 55%),
@@ -115,7 +116,7 @@ input,select,textarea,button{font-family:inherit}
 .status-screen .who{font-weight:700;color:var(--cream)}
 
 /* ====== HEADER / RAIL ====== */
-header.top{position:fixed;top:0;left:0;right:0;z-index:60;background:#13151b;border-bottom:1px solid var(--line-soft);transform:translateZ(0);padding-top:var(--safe-t)}
+header.top{position:fixed;top:0;left:0;right:0;z-index:var(--z-header);background:#13151b;border-bottom:1px solid var(--line-soft);transform:translateZ(0);padding-top:var(--safe-t)}
 .top .bar{display:flex;align-items:center;gap:12px;height:58px}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0}
 .logo>span:not(.logo-chip){display:flex;flex-direction:column;justify-content:center;line-height:1.18;min-width:0}
@@ -141,7 +142,7 @@ header.top{position:fixed;top:0;left:0;right:0;z-index:60;background:#13151b;bor
 .notif-prev{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
 .notif-t{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:4px}
 
-nav.rail{position:fixed;left:0;right:0;top:58px;z-index:55;background:#13151b;border-bottom:1px solid var(--line);transform:translateZ(0)}
+nav.rail{position:fixed;left:0;right:0;top:58px;z-index:var(--z-rail);background:#13151b;border-bottom:1px solid var(--line);transform:translateZ(0)}
 .rail .row{display:flex;gap:1px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .rail .row::-webkit-scrollbar{display:none}
 .mtab{position:relative;flex:0 0 auto;font-size:13px;font-weight:600;color:var(--muted);padding:11px 13px 9px;cursor:pointer;border:none;background:none;white-space:nowrap;transition:color .18s;display:flex;align-items:center;gap:5px}
@@ -346,7 +347,7 @@ body.can-mod .gcard .del{display:flex}
 .cb-text{font-size:13.5px;line-height:1.7;color:var(--cream);white-space:pre-wrap}
 .cb-del{position:absolute;top:10px;right:10px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;width:24px;height:24px;cursor:pointer;font-size:12px}
 .cb-del:hover{color:var(--danger);border-color:var(--danger)}
-#cbLightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+#cbLightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:var(--z-cblightbox);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #cbLightbox.on{display:flex}
 #cbLightbox img{max-width:100%;max-height:100%;border-radius:10px}
 .wadm{margin-top:13px;background:rgba(0,0,0,.20);border:1px solid var(--line);border-radius:13px;padding:13px}
@@ -441,7 +442,7 @@ body.can-mod .gcard .del{display:flex}
 .float-gift:hover{transform:scale(1.18)}
 @keyframes floatdrift{0%,100%{transform:translate(calc(var(--sw,8px)*-1),0) rotate(-8deg)}50%{transform:translate(var(--sw,8px),-10px) rotate(8deg)}}
 .gh-tap{font-size:12.5px;color:var(--cream);line-height:1.6;margin-bottom:10px;text-align:center}
-#giftOpenScene{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 50% 45%,rgba(20,40,25,.96),rgba(8,10,14,.985));display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .35s}
+#giftOpenScene{position:fixed;inset:0;z-index:var(--z-gift);background:radial-gradient(circle at 50% 45%,rgba(20,40,25,.96),rgba(8,10,14,.985));display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .35s}
 #giftOpenScene.on{display:flex;opacity:1}
 .gos-inner{position:relative;text-align:center}
 .gos-gift{font-size:96px;line-height:1;animation:gosIn .4s cubic-bezier(.2,1.5,.4,1)}
@@ -661,7 +662,7 @@ table.scores tr.top1 .big{color:var(--green)}
 .sf-row .cnt{margin-left:auto;font-family:var(--disp);font-weight:700;font-size:18px;color:var(--green-soft)}
 
 /* tier burst animation */
-#tierFx{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#tierFx{position:fixed;inset:0;z-index:var(--z-tierfx);display:flex;align-items:center;justify-content:center;pointer-events:none}
 .tier-burst{position:relative;display:flex;flex-direction:column;align-items:center;animation:tierPop 1.25s ease forwards}
 .tier-burst .emj{font-size:96px;line-height:1;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4))}
 .tier-burst .word{font-family:var(--disp);font-weight:800;font-size:40px;margin-top:6px;background:var(--grad-soft);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.04em}
@@ -906,7 +907,7 @@ table.scores tr.top1 .big{color:var(--green)}
 .gf-note{font-size:11.5px;color:#80868b;margin-top:9px}
 
 /* modal / footer / toast */
-.modal{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(4px);z-index:120;display:none;align-items:center;justify-content:center;padding:18px}
+.modal{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(4px);z-index:var(--z-modal-base);display:none;align-items:center;justify-content:center;padding:18px}
 .modal.on{display:flex}
 .modal .box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:460px;width:100%;animation:pop .25s ease;box-shadow:var(--shadow);max-height:88vh;overflow-y:auto}
 @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
@@ -918,7 +919,7 @@ table.scores tr.top1 .big{color:var(--green)}
 footer{border-top:1px solid var(--line);margin-top:24px;padding:30px 0 calc(44px + var(--safe-b));text-align:center;color:var(--muted);font-size:12px}
 footer .punch{font-family:var(--disp);font-size:16px;color:var(--cream);font-weight:600;margin-bottom:6px}
 footer .punch b{color:var(--green)}
-.toast{position:fixed;bottom:calc(22px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--green-ink);font-weight:700;font-size:13.5px;padding:12px 20px;border-radius:12px;z-index:200;opacity:0;transition:.3s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:calc(22px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--green-ink);font-weight:700;font-size:13.5px;padding:12px 20px;border-radius:12px;z-index:var(--z-overlay);opacity:0;transition:.3s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .kgroup-tit{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);margin:0 2px 8px;text-transform:uppercase}
@@ -1157,7 +1158,7 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .gn-pthumb{position:relative;display:inline-block}
 .gn-pthumb img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
 .gn-pthumb button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:none;background:var(--danger,#e85a5a);color:#fff;cursor:pointer;font-size:12px}
-.confetti{position:fixed;top:-14px;width:9px;height:14px;z-index:300;pointer-events:none;animation:confFall linear forwards}
+.confetti{position:fixed;top:-14px;width:9px;height:14px;z-index:var(--z-confetti);pointer-events:none;animation:confFall linear forwards}
 @keyframes confFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(108vh) rotate(620deg);opacity:.85}}
 
 /* ===== HOME QUICK LINKS (Oxfam · WePair) ===== */
@@ -1246,8 +1247,8 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .oxg-foot{font-size:11px;color:var(--faint);margin-top:6px;line-height:1.5;font-family:var(--mono)}
 
 /* ===== HOME MOOD FX ===== */
-#fxTint{position:fixed;inset:0;z-index:113;pointer-events:none;opacity:0;transition:opacity .9s ease;background:transparent;will-change:opacity}
-#fxCanvas{position:fixed;inset:0;z-index:115;pointer-events:none}
+#fxTint{position:fixed;inset:0;z-index:var(--z-fx1);pointer-events:none;opacity:0;transition:opacity .9s ease;background:transparent;will-change:opacity}
+#fxCanvas{position:fixed;inset:0;z-index:var(--z-fx2);pointer-events:none}
 .admin-only{display:none}
 .founder-only{display:none}
 body.can-mod .founder-only{display:block}
@@ -1328,11 +1329,11 @@ body.app-on #ambientBg{opacity:.7}
 .pslider .gx-nav.prev{left:8px}.pslider .gx-nav.next{right:8px}
 @media(hover:none){.pslider .gx-nav{display:none}}
 .psingle{width:100%;border-radius:12px;display:block;margin-top:8px;cursor:zoom-in;max-height:440px;object-fit:cover}
-#sndToggle{position:fixed;right:14px;bottom:78px;z-index:130;display:none;align-items:center;gap:7px;background:rgba(14,16,19,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);color:#eef2f7;border-radius:999px;padding:9px 14px 9px 12px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:.18s}
+#sndToggle{position:fixed;right:14px;bottom:78px;z-index:var(--z-float);display:none;align-items:center;gap:7px;background:rgba(14,16,19,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);color:#eef2f7;border-radius:999px;padding:9px 14px 9px 12px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:.18s}
 #sndToggle:hover{border-color:rgba(255,255,255,.3)}
 #sndToggle.on{background:rgba(67,205,125,.9);color:#08130c;border-color:transparent}
 #sndToggle .si{font-size:15px;line-height:1}
-#fxToggle{position:fixed;right:14px;bottom:122px;z-index:130;display:none;align-items:center;gap:7px;background:rgba(14,16,19,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);color:#eef2f7;border-radius:999px;padding:9px 14px 9px 12px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:.18s}
+#fxToggle{position:fixed;right:14px;bottom:122px;z-index:var(--z-float);display:none;align-items:center;gap:7px;background:rgba(14,16,19,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);color:#eef2f7;border-radius:999px;padding:9px 14px 9px 12px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:.18s}
 #fxToggle:hover{border-color:rgba(255,255,255,.3)}
 #fxToggle.on{background:rgba(70,182,221,.9);color:#062330;border-color:transparent}
 #fxToggle .fi{font-size:15px;line-height:1}
@@ -1513,7 +1514,7 @@ body.app-on #ambientBg{opacity:.7}
 .botbar{display:none}
 @media(max-width:979px){
   nav.rail .row#rail{display:none}
-  .botbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:65;background:#13151b;border-top:1px solid var(--line);justify-content:space-around;align-items:stretch;padding:6px 2px calc(14px + var(--safe-b))}
+  .botbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:var(--z-botbar);background:#13151b;border-top:1px solid var(--line);justify-content:space-around;align-items:stretch;padding:6px 2px calc(14px + var(--safe-b))}
   .botbar button{flex:1;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;padding:5px 2px;cursor:pointer;font-family:inherit;border-radius:10px}
   .botbar button.active{color:var(--green-soft)}
   .botbar .em{font-size:21px;line-height:1}
@@ -1706,6 +1707,110 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
             <div class="water-feed" id="waterFeed"></div>
             <div id="waterAdmin"></div>
             <div id="giftHunt"></div>
+          </div>
+        </div>
+      </section>
+      <section class="sec coop-sec">
+        <div class="sec-head"><h2>🐔 우리 닭장</h2><span class="ko">물 주고 먹이도 잊지 말기!</span><button class="coop-toggle" id="coopToggle" onclick="toggleCoop()" aria-expanded="true" aria-label="닭장 접기·펼치기"><span class="coop-tg-ar">▾</span></button></div>
+        <div class="coop-card" id="coopCard">
+          <div class="coop-inner">
+          <div class="coop-scene">
+            <svg class="coop-svg" viewBox="0 0 340 188" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="cpSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7E8FF"/><stop offset="1" stop-color="#EAF7EC"/></linearGradient>
+                <linearGradient id="cpGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7BD04C"/><stop offset="1" stop-color="#54B528"/></linearGradient>
+                <linearGradient id="cpWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CD8A4F"/><stop offset="1" stop-color="#A2622F"/></linearGradient>
+                <radialGradient id="cpSunG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF3B0"/><stop offset=".65" stop-color="#FFD84D"/><stop offset="1" stop-color="#FFD84D" stop-opacity="0"/></radialGradient>
+                <!-- 암탉 -->
+                <g id="ckHen">
+                  <rect x="-4.5" y="7" width="2.6" height="13" rx="1.3" fill="#EE9A2A"/><rect x="2" y="7" width="2.6" height="13" rx="1.3" fill="#EE9A2A"/>
+                  <path d="M-12 0 q-7 -5 -3 6 q-5 -1 -1 5 q4 -1 6 -5 z" fill="#EFE4C8"/>
+                  <ellipse cx="0" cy="3" rx="14.5" ry="13" fill="#FFFDF6"/>
+                  <path d="M-13 6 a13 11 0 0 0 26 0 z" fill="#F2E7CD" opacity=".55"/>
+                  <path d="M-3 1 q10 -3 9 8 q-6 5 -10 -1 z" fill="#F0E4C8"/>
+                  <circle cx="9" cy="-9" r="8.4" fill="#FFFDF6"/>
+                  <g fill="#FF5C5C"><circle cx="6.5" cy="-15.5" r="2.6"/><circle cx="10" cy="-17" r="3"/><circle cx="13.2" cy="-15.5" r="2.6"/></g>
+                  <ellipse cx="6" cy="-6" rx="2.4" ry="1.5" fill="#FFB3AD" opacity=".75"/>
+                  <circle cx="11" cy="-10" r="1.95" fill="#2B2420"/><circle cx="11.7" cy="-10.8" r=".7" fill="#fff"/>
+                  <path d="M16.5 -9.5 l6.5 2.2 l-6.5 2.2 z" fill="#FAA62C"/>
+                  <path d="M16 -5 q2.4 3.2 .2 5.4 q-2.2 -1 -1.6 -5.2 z" fill="#FF6B6B"/>
+                </g>
+                <!-- 수탉 -->
+                <g id="ckRoo">
+                  <rect x="-5" y="9" width="3" height="15" rx="1.5" fill="#E98B1E"/><rect x="2.5" y="9" width="3" height="15" rx="1.5" fill="#E98B1E"/>
+                  <path d="M-12 5 q-15 -1 -23 -15 q-1 11 6 15 q-8 1 -5 9 q10 2 16 -6 q4 -3 6 -5z" fill="#2FB39A"/>
+                  <path d="M-12 6 q-12 0 -18 -9 q6 0 9 3 q-7 -6 -8 -13 q6 4 9 10 q3 5 8 7z" fill="#3FD0A6" opacity=".92"/>
+                  <path d="M-11 4 q-8 -6 -10 -14 q6 4 8 10 q2 3 5 5z" fill="#5CBC2E"/>
+                  <ellipse cx="0" cy="3" rx="16" ry="14.5" fill="#FFFDF6"/>
+                  <path d="M-14 6 a14 12 0 0 0 28 0 z" fill="#F2E7CD" opacity=".5"/>
+                  <path d="M-3 1 q11 -3 10 9 q-7 5 -11 -1z" fill="#F0E4C8"/>
+                  <circle cx="10" cy="-11" r="9.2" fill="#FFFDF6"/>
+                  <g fill="#FF4F4F"><circle cx="5.5" cy="-19" r="2.4"/><circle cx="9" cy="-21.5" r="2.8"/><circle cx="12.5" cy="-21" r="2.7"/><circle cx="15.5" cy="-18.5" r="2.3"/></g>
+                  <ellipse cx="7" cy="-8" rx="2.6" ry="1.6" fill="#FFB3AD" opacity=".75"/>
+                  <circle cx="12.5" cy="-12" r="2.1" fill="#2B2420"/><circle cx="13.3" cy="-12.9" r=".8" fill="#fff"/>
+                  <path d="M18 -11.5 l7.5 2.5 l-7.5 2.5z" fill="#F89A1E"/>
+                  <path d="M17 -7 q3 5 0 8 q-3 -1 -2.4 -8z" fill="#FF5050"/><path d="M21 -7 q2.5 4 .4 6.5 q-2.2 -.8 -1.8 -6z" fill="#FF6B6B"/>
+                </g>
+                <!-- 병아리 -->
+                <g id="ckChick">
+                  <rect x="-2.6" y="5.5" width="1.9" height="7" rx="1" fill="#F4972A"/><rect x="1" y="5.5" width="1.9" height="7" rx="1" fill="#F4972A"/>
+                  <ellipse cx="0" cy="2.5" rx="8.6" ry="8" fill="#FFD63D"/>
+                  <circle cx="2" cy="-5.5" r="6.4" fill="#FFD63D"/>
+                  <path d="M-2 1 q5 -1 6 5 q-4 3 -7 -2z" fill="#FCC81F"/>
+                  <path d="M0 -12 q1 -2.5 2 0 M3 -12.5 q1 -2.5 2 0" stroke="#FCC81F" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                  <ellipse cx="5" cy="-4.5" rx="1.7" ry="1.1" fill="#FFB0A8" opacity=".8"/>
+                  <circle cx="4" cy="-6.5" r="1.6" fill="#2B2420"/><circle cx="4.6" cy="-7.1" r=".55" fill="#fff"/>
+                  <path d="M8 -6 l4.5 1.6 l-4.5 1.6z" fill="#FF8A2B"/>
+                </g>
+              </defs>
+
+              <rect x="0" y="0" width="340" height="188" fill="url(#cpSky)"/>
+              <g class="cp-sun"><circle cx="298" cy="38" r="30" fill="url(#cpSunG)"/><circle cx="298" cy="38" r="15" fill="#FFE269"/></g>
+              <g class="cp-cloud cl1" fill="#FFFFFF" opacity=".92"><ellipse cx="60" cy="36" rx="20" ry="11"/><ellipse cx="78" cy="40" rx="15" ry="9"/><ellipse cx="44" cy="41" rx="13" ry="8"/></g>
+              <g class="cp-cloud cl2" fill="#FFFFFF" opacity=".8"><ellipse cx="182" cy="26" rx="16" ry="9"/><ellipse cx="198" cy="29" rx="12" ry="7"/></g>
+
+              <path d="M0 128 Q90 116 175 124 T340 122 V188 H0 Z" fill="url(#cpGrass)"/>
+              <path d="M0 128 Q90 116 175 124 T340 122" fill="none" stroke="#8FE061" stroke-width="3" opacity=".5"/>
+
+              <g class="cp-house">
+                <path d="M70 150 L96 132 L104 132 L84 152 Z" fill="#B98A55"/>
+                <rect x="34" y="92" width="74" height="44" rx="4" fill="url(#cpWood)" stroke="#8A521F" stroke-width="1.5"/>
+                <line x1="34" y1="106" x2="108" y2="106" stroke="#8A521F" stroke-width="1" opacity=".4"/>
+                <line x1="34" y1="120" x2="108" y2="120" stroke="#8A521F" stroke-width="1" opacity=".4"/>
+                <path d="M26 96 L71 56 L116 96 Z" fill="#B05E30" stroke="#7E3F1C" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M71 56 L116 96 L108 96 L71 64 Z" fill="#7E3F1C" opacity=".25"/>
+                <path d="M58 136 V112 a13 13 0 0 1 26 0 V136 Z" fill="#5A3A20"/><path d="M61 136 V113 a10 10 0 0 1 20 0 V136 Z" fill="#3C2615"/>
+                <rect x="44" y="100" width="13" height="13" rx="2" fill="#FFE9A8" stroke="#7E3F1C" stroke-width="1.4"/>
+                <line x1="50.5" y1="100" x2="50.5" y2="113" stroke="#7E3F1C" stroke-width="1.2"/><line x1="44" y1="106.5" x2="57" y2="106.5" stroke="#7E3F1C" stroke-width="1.2"/>
+                <g transform="translate(71,84)"><path d="M0 3 C -3 -2 -8 0 -6 4 C -4.5 7 0 9 0 9 C 0 9 4.5 7 6 4 C 8 0 3 -2 0 3 Z" fill="#FF6B6B"/></g>
+              </g>
+
+              <g class="cp-fence" stroke="#C79A63" stroke-width="1" fill="#E0BC88">
+                <rect x="250" y="138" width="5" height="30" rx="2"/><rect x="278" y="138" width="5" height="30" rx="2"/><rect x="306" y="138" width="5" height="30" rx="2"/>
+                <rect x="246" y="146" width="70" height="5" rx="2.5"/><rect x="246" y="158" width="70" height="5" rx="2.5"/>
+              </g>
+
+              <g class="cp-feed">
+                <ellipse cx="188" cy="158" rx="22" ry="6" fill="#1c3a0c" opacity=".12"/>
+                <path d="M170 150 q18 12 36 0 q-3 9 -18 9 q-15 0 -18 -9Z" fill="#E48E3B" stroke="#B96A22" stroke-width="1.4"/>
+                <ellipse cx="188" cy="150" rx="18" ry="5.5" fill="#C9761F"/>
+                <circle cx="183" cy="148" r="2.1" fill="#FFD23F"/><circle cx="189" cy="147" r="2.1" fill="#FFC721"/><circle cx="194" cy="149" r="2.1" fill="#FFD23F"/><circle cx="186" cy="150" r="2" fill="#FFB300"/><circle cx="191" cy="150.5" r="2" fill="#FFD23F"/>
+              </g>
+              <g fill="#E8B84A"><circle cx="150" cy="160" r="1.5"/><circle cx="220" cy="158" r="1.5"/><circle cx="205" cy="165" r="1.4"/><circle cx="165" cy="167" r="1.4"/></g>
+              <g stroke="#3F9E1E" stroke-width="2" stroke-linecap="round" fill="none" opacity=".8">
+                <path d="M26 170 v-7 M30 170 v-9 M34 170 v-6"/><path d="M300 176 v-7 M304 176 v-9 M308 176 v-6"/><path d="M128 168 v-6 M132 168 v-8"/>
+              </g>
+
+              <g class="ck" transform="translate(142,121)" style="cursor:pointer;--rng:20px;--wd:22s;--wdel:0s;--wadd:1.6s;--bob:.92s" onclick="chickPoke(event,this)"><g class="poke"><g class="walk"><g class="face"><g class="waddle"><g class="nod n-a"><g class="bob"><use href="#ckRoo"/></g></g></g></g></g></g></g>
+              <g class="ck" transform="translate(184,130)" style="cursor:pointer;--rng:12px;--wd:20s;--wdel:1.5s;--wadd:1.45s;--bob:.85s" onclick="chickPoke(event,this)"><g class="poke"><g class="walk"><g class="face"><g class="waddle"><g class="nod n-b"><g class="bob"><use href="#ckHen"/></g></g></g></g></g></g></g>
+              <g class="ck" transform="translate(232,126)" style="cursor:pointer;--rng:22px;--wd:21s;--wdel:2.4s;--wadd:1.5s;--bob:.82s" onclick="chickPoke(event,this)"><g class="poke"><g class="walk"><g class="face"><g class="waddle"><g class="nod n-c"><g class="bob"><use href="#ckHen"/></g></g></g></g></g></g></g>
+              <g class="ck" transform="translate(206,142)" style="cursor:pointer;--rng:10px;--wd:16s;--wdel:.8s;--wadd:1.2s;--bob:.72s" onclick="chickPoke(event,this)"><g class="poke"><g class="walk"><g class="face"><g class="waddle"><g class="nod n-d"><g class="bob"><use href="#ckChick"/></g></g></g></g></g></g></g>
+              <g class="ck" transform="translate(268,140)" style="cursor:pointer;--rng:26px;--wd:18s;--wdel:1.8s;--wadd:1.3s;--bob:.75s" onclick="chickPoke(event,this)"><g class="poke"><g class="walk"><g class="face"><g class="waddle"><g class="nod n-e"><g class="bob"><use href="#ckChick"/></g></g></g></g></g></g></g>
+            </svg>
+            <div class="coop-bubble">배고파요! 🌽</div>
+            <div class="coop-burst" id="coopBurst"></div>
+          </div>
+          <button class="coop-cta" onclick="goFeed()" aria-label="먹이주러 바로가기 · 컴페티션 열기"><span class="coop-cta-em">🌽</span><span class="coop-cta-tx">먹이주러 바로가기</span><span class="coop-up"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M6 15 L12 8 L18 15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
           </div>
         </div>
       </section>
@@ -2328,7 +2433,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     </section></div></div>
 
     <style>
-  .sfb-modal{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+  .sfb-modal{position:fixed;inset:0;z-index:var(--z-overlay);display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
   .sfb-modal.on{display:flex}
   .sfb-box{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:calc(8px + var(--safe-b))}
   .sfb-hd{display:flex;align-items:center;gap:10px;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
@@ -2377,11 +2482,11 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .sfb-form button{background:var(--green);color:var(--green-ink);border:none;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;font-family:inherit}
   .sfb-cam{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card-2);border:1px solid var(--line);border-radius:10px;width:54px;height:46px;font-size:17px;cursor:pointer;flex:none;line-height:1;gap:1px}
   .sfb-cam small{font-size:8px;color:var(--green-soft);font-weight:700}
-  .ph-lightbox{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);padding:18px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .ph-lightbox{position:fixed;inset:0;z-index:var(--z-lightbox);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);padding:18px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   .ph-lightbox.on{display:flex}
   .ph-lightbox img{max-width:100%;max-height:100%;border-radius:10px}
   .ph-close{position:absolute;top:calc(12px + var(--safe-t,0px));right:16px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:21px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-  .ff-modal{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:22px}
+  .ff-modal{position:fixed;inset:0;z-index:var(--z-ff);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:22px}
   .ff-modal.on{display:flex}
   .ff-box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;text-align:center}
   .ff-emoji{font-size:38px}
@@ -2392,7 +2497,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .ff-save{width:100%;padding:13px;border-radius:11px;background:var(--green);border:none;color:var(--green-ink);font-weight:800;font-size:14.5px;cursor:pointer;font-family:inherit}
   .ff-later{width:100%;padding:10px;margin-top:8px;border:none;background:transparent;color:var(--faint);font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline}
   .bot-promo{display:none}
-  body.is-bot .bot-promo{display:inline-flex;align-items:center;gap:6px;position:fixed;right:14px;bottom:calc(18px + var(--safe-b,0px));z-index:140;background:var(--green);color:var(--green-ink);border:1px solid rgba(0,0,0,.22);border-radius:999px;padding:11px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 10px 22px -8px rgba(0,0,0,.65);white-space:nowrap}
+  body.is-bot .bot-promo{display:inline-flex;align-items:center;gap:6px;position:fixed;right:14px;bottom:calc(18px + var(--safe-b,0px));z-index:var(--z-promo);background:var(--green);color:var(--green-ink);border:1px solid rgba(0,0,0,.22);border-radius:999px;padding:11px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 10px 22px -8px rgba(0,0,0,.65);white-space:nowrap}
   body.is-bot .bot-promo:active{transform:scale(.96)}
   @media(min-width:620px){ .sfb-modal{align-items:center} .sfb-box{border-radius:18px} .sfb-top{flex-direction:row} }
 </style>
@@ -2470,7 +2575,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 <div id="memberPrint" aria-hidden="true"></div>
 
 <style id="member-card-css">
-  .mb-modal{position:fixed;inset:0;z-index:210;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+  .mb-modal{position:fixed;inset:0;z-index:var(--z-overlay-2);display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
   .mb-modal.on{display:flex}
   .mb-box{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;padding-bottom:calc(6px + var(--safe-b))}
   .mb-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:13px}
@@ -2567,7 +2672,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .dev-status .ds-st.on{color:var(--green-soft)}
   .dev-status .ds-st.off{color:var(--faint)}
   body.pdf-open{overflow:hidden}
-  #pdfOverlay{position:fixed;inset:0;z-index:99999;background:#eef0f4;display:flex;flex-direction:column}
+  #pdfOverlay{position:fixed;inset:0;z-index:var(--z-pdf);background:#eef0f4;display:flex;flex-direction:column}
   #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
   #pdfOverlay .pdf-ttl{flex:1;min-width:0;text-align:center;font-size:14px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #pdfOverlay .pdf-x{flex:none;background:#f1f3f4;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#202124;cursor:pointer;font-family:inherit}
@@ -2585,7 +2690,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     .gf-card{break-inside:avoid;box-shadow:none}
   }
   @keyframes connpulse{0%{box-shadow:0 0 0 0 rgba(92,188,46,.55)}70%{box-shadow:0 0 0 7px rgba(92,188,46,0)}100%{box-shadow:0 0 0 0 rgba(92,188,46,0)}}
-  .inst-modal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:18px}
+  .inst-modal{position:fixed;inset:0;z-index:var(--z-overlay-3);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:18px}
   .inst-modal.on{display:flex}
   .inst-box{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:430px;width:100%;overflow:hidden}
   .inst-hd{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:800;font-size:16px;color:var(--cream)}
@@ -2737,26 +2842,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
           <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
           <div class="adm-body" id="pendList"></div>
         </div>
-        <div class="adm-card">
-          <div class="ah"><h3>팀원 명단</h3><span class="badge zero" id="rosterBadge">0</span></div>
-          <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
-        </div>
-        <div class="adm-card">
-          <div class="ah"><h3>📣 팝업 공지</h3></div>
-          <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b> 버튼을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
-            <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
-            <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
-            <div id="annCurrent"></div>
-          </div>
-        </div>
-        <div class="adm-card">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
-          <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">매니저는 <b>일일 결과만</b> 자기 화면에서 보고 수정할 수 있어요(수정은 구글시트에 자동 반영). 그 외 관리 기능은 못 봐요. 아래에서 <b>매니저로</b>를 누르면 임명, <b>해제</b>를 누르면 권한이 사라져요.</p>
-            <div id="managerAdminBody"></div>
-          </div>
-        </div>
         <div class="adm-card adm-collapsed">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👥 팀원 명단</h3><span class="ah-caret">▾</span></div>
           <div class="adm-body">
@@ -2778,6 +2863,26 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
             <div class="exp-tools"><button class="exp-mini" onclick="expSelectAll(true)">전체선택</button><button class="exp-mini" onclick="expSelectAll(false)">해제</button><label class="exp-dep"><input type="checkbox" id="expIncDep" onchange="renderExportPanel()"> 퇴사자 포함</label></div>
             <div id="exportList" class="exp-list"></div>
             <button class="exp-btn primary block" style="margin-top:10px" onclick="exportSelectedPDF()">📄 선택한 팀원 PDF</button>
+          </div>
+        </div>
+        <div class="adm-card adm-collapsed">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪪 가입 계정 · 직급 관리</h3><span class="badge zero" id="rosterBadge">0</span><span class="ah-caret">▾</span></div>
+          <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
+        </div>
+        <div class="adm-card">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">매니저는 <b>일일 결과만</b> 자기 화면에서 보고 수정할 수 있어요(수정은 구글시트에 자동 반영). 그 외 관리 기능은 못 봐요. 아래에서 <b>매니저로</b>를 누르면 임명, <b>해제</b>를 누르면 권한이 사라져요.</p>
+            <div id="managerAdminBody"></div>
+          </div>
+        </div>
+        <div class="adm-card">
+          <div class="ah"><h3>📣 팝업 공지</h3></div>
+          <div class="adm-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b> 버튼을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
+            <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
+            <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
+            <div id="annCurrent"></div>
           </div>
         </div>
         <div class="adm-card">
@@ -4027,12 +4132,12 @@ const NAV=[
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
   {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','recap','calling','field']},
-  {k:'sector',e:'🗺️',l:'섹터리더',tabs:['sites']},
+  {k:'sector',e:'🗺️',l:'섹터',tabs:['sites']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
-  sale:{e:'🔔',l:'세일즈'},comp:{e:'🏆',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
+  sale:{e:'🔔',l:'세일즈'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성'},topics:{e:'🗂️',l:'토픽자료'},
@@ -4088,18 +4193,9 @@ function selectGroup(gk){
   if(tabs.length)goTab(tabs[0]);
 }
 function goTab(name){
-  if(name==='perf'&&!isLeader(me.role))name='home';
-  if(name==='admin'&&!isFounder(me))name='home';
-  if(name==='salesmgr'&&!isFounder(me))name='home';
-  if(name==='gsheet'&&!isFounder(me))name='home';
-  if(name==='daily'&&!canDaily(me))name='home';
-  if(name==='training'&&!isLeader(me.role))name='home';
-  if(name==='cod'&&!isLeader(me.role))name='home';
-  if(name==='recap'&&!isTLplus(me.role))name='home';
-  if(name==='calling'&&!isLeader(me.role))name='home';
-  if(name==='cbjournal'&&!(isFounder(me)||isLeader(me.role)))name='home';
-  if(name==='field'&&!isLeader(me.role))name='home';
-  if(name==='sites'&&!(isSectorLeader(me)||isFounder(me)))name='home';
+  /* 권한 가드 단일 출처 — TABMETA[].g 만 보면 됨 (기존 12줄 하드코딩 제거).
+     보이지 않아야 할 탭이면 홈으로. 정의 안 된 탭 이름도 안전하게 홈 처리. */
+  if(!tabVisible(name))name='home';
   curTab=name;const gk=groupFor(name);
   if(gk!==curGroup){curGroup=gk;buildRail();}else buildSubRail();
   document.querySelectorAll('#rail .gtab').forEach(t=>t.classList.toggle('active',t.dataset.group===curGroup));
@@ -7762,6 +7858,365 @@ function devStatusHTML(){
   window.addEventListener('resize',()=>{try{syncTopOffset();}catch(e){}});
   setInterval(()=>{if(me){renderWaterFeed();renderGb();renderWins()}},60000);
 })();
+</script>
+<style id="polish-css-2">
+/* ════════════════════════════════════════════════════════════
+   ✨ POLISH v2 — 데스크탑 정렬 · 모바일 밀도 · 토큰 일원화
+   (최후 캐스케이드 · 덮어쓰기 전용 · 기존 규칙 비파괴)
+   ════════════════════════════════════════════════════════════ */
+
+/* 0) 크롬(헤더/레일/하단바) 색을 토큰 1개로 일원화
+   — 기존엔 #13151b 가 4곳에 하드코딩돼 있었음. 색은 동일, 관리만 단일화 */
+:root{ --chrome:#13151B; }
+header.top, nav.rail, .botbar{ background:var(--chrome); }
+@media(min-width:980px){ nav.rail{ background:var(--chrome); } }
+
+/* 0-1) z-index 레이어 단일 출처
+   — 기존 55~99999 (약 18종)을 상대 순서 그대로 정상 범위로 압축.
+     새 오버레이 추가 시 아래 토큰만 보면 어디에 끼울지 즉시 판단됨. */
+:root{
+  --z-rail:100; --z-header:110; --z-botbar:120;   /* 화면 크롬 */
+  --z-fx1:200; --z-fx2:210;                         /* 홈 분위기 FX(크롬 위) */
+  --z-modal-base:300;                               /* 기본 .modal */
+  --z-float:400; --z-promo:410; --z-tierfx:420;     /* 플로팅 버튼·티어 연출 */
+  --z-overlay:500; --z-overlay-2:510; --z-overlay-3:520; /* 시트/프로필/설치 모달 */
+  --z-confetti:600;                                 /* 컨페티 */
+  --z-ff:700; --z-lightbox:800;                     /* 풀스크린 뷰어 */
+  --z-gift:900; --z-cblightbox:910; --z-pdf:1000;   /* 최상위 연출·PDF */
+}
+
+/* 1) 가로 레이아웃 시프트 제거 — 모달로 스크롤 잠길 때 폭이 안 흔들림 */
+html{ scrollbar-gutter:stable; }
+
+/* 1-A) 레이아웃 첫 페인트 안정화
+   — 기존엔 main 위치를 100% JS(syncTopOffset)가 잡아, 로드 첫 프레임에 콘텐츠가
+     헤더 밑으로 잠깐 들어갔다 튀는 현상이 있었음. CSS 기본값을 먼저 주고 JS가
+     정밀 보정하게 함(JS 인라인이 우선이라 충돌 없음). 풀 sticky 전환 대비 위험 0. */
+#app main{ padding-top:108px; }
+@media(min-width:980px){ #app main{ margin-left:232px; padding-top:58px; } }
+
+/* ════════ 🖥️ 데스크탑(≥980px) ════════ */
+@media(min-width:980px){
+  /* 1-1) [핵심 정렬 버그 수정]
+     기존: 헤더 .wrap 은 '전체 화면' 중앙정렬, 본문 .wrap 은 '사이드바 제외 영역' 중앙정렬
+            → 두 중심축이 달라 로고와 본문 좌측선이 어긋났음.
+     수정: 앱쉘 표준 레이아웃 — 로고는 사이드바 위 좌측 고정, 계정·알림은 우상단 고정.
+            (중앙정렬 충돌 자체를 제거) */
+  header.top .wrap{ max-width:none; margin:0; padding-left:24px; padding-right:28px; }
+
+  /* 1-2) 이름 잘림 완화 — 데스크탑은 공간이 충분하니 84px→160px */
+  .me-pill .mnm{ max-width:160px; }
+
+  /* 1-3) 사이드바 활성 탭 좌측 액센트 바 — 어느 탭인지 즉시 인지 */
+  nav.rail .mtab.active{ box-shadow:inset 3px 0 0 var(--green); }
+
+  /* 1-4) 본문 가독성 — 카드형이 아닌 긴 본문(공지/매뉴얼 등) 줄길이 상한 */
+  .intro{ max-width:680px; }
+}
+
+/* ════════ 📱 모바일 헤더 폭 안전(≤400px) ════════
+   connDot + 🔔 + 계정칩이 좁은 화면에서 줄넘침 없이 한 줄 유지 */
+@media(max-width:400px){
+  .top .bar{ gap:8px; }
+  .me-pill{ padding:4px 5px 4px 9px; gap:6px; }
+  .me-pill .mnm{ max-width:64px; font-size:12px; }
+  .bell-btn{ width:34px; height:34px; }
+}
+
+/* ════════ 📱 하단 탭바 견고화 ════════ */
+@media(max-width:979px){
+  /* 2-1) 라벨 줄넘침 차단(긴 그룹명도 안전) + 글자 살짝 정리 */
+  .botbar button{ min-width:0; overflow:hidden; }
+  .botbar button>:not(.em){ max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* 2-2) 활성 표시를 색상 + 상단 인디케이터로 이중화(색약 대비 + 명료) */
+  .botbar button{ position:relative; }
+  .botbar button.active::before{
+    content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:22px; height:3px; border-radius:0 0 3px 3px; background:var(--grad);
+  }
+}
+/* 2-3) founder처럼 그룹이 6개↑로 붐빌 때만 라벨 폭 압축 */
+@media(max-width:380px){ .botbar .em{ font-size:20px; } .botbar button{ font-size:9.5px; } }
+</style>
+<style id="coop-css">
+/* ════════ 🐔 닭장 위젯 — 홈 빠른 먹이주기 통로 ════════ */
+.coop-card{position:relative;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .22s,border-color .22s;-webkit-tap-highlight-color:transparent}
+.coop-card:hover{border-color:rgba(92,188,46,.55);box-shadow:0 18px 40px -18px rgba(92,188,46,.55)}
+.coop-card:active{transform:scale(.992)}
+.coop-card:focus-visible{outline:2px solid var(--green-soft);outline-offset:3px}
+.coop-scene{position:relative;width:100%;aspect-ratio:340/188;min-height:170px;border-bottom:1px solid var(--line);overflow:hidden}
+.coop-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.coop-scene::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 -20px 34px -20px rgba(60,30,10,.32),inset 0 10px 22px -16px rgba(255,255,255,.5)}
+
+/* 해·구름 */
+.cp-sun{animation:cp-sun 6s ease-in-out infinite}
+@keyframes cp-sun{0%,100%{opacity:.9}50%{opacity:1}}
+.cp-cloud{animation:cp-cloud linear infinite}
+.cl1{animation-duration:26s}.cl2{animation-duration:34s}
+@keyframes cp-cloud{0%{transform:translateX(-6px)}50%{transform:translateX(22px)}100%{transform:translateX(-6px)}}
+
+/* 닭 — 3중첩 그룹(이동·쪼기·까딱) 충돌 없이 분리 */
+.ck .bob{transform-box:fill-box;animation:cp-bob 1.6s ease-in-out infinite}
+.ck .nod{transform-box:fill-box;transform-origin:50% 100%}
+.ck .wander{transform-box:fill-box}
+@keyframes cp-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes cp-nod{0%,58%,100%{transform:rotate(0)}70%{transform:rotate(13deg)}82%{transform:rotate(0)}}
+@keyframes cp-wander{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+.n-a{animation:cp-nod 3.4s ease-in-out infinite}
+.n-b{animation:cp-nod 2.6s ease-in-out .6s infinite}
+.n-c{animation:cp-nod 3s ease-in-out 1.1s infinite}
+.n-d{animation:cp-nod 2.2s ease-in-out .3s infinite}
+.n-e{animation:cp-nod 2.4s ease-in-out .9s infinite}
+.w-a{animation:cp-wander 5s ease-in-out infinite}
+.w-b{animation:cp-wander 4.2s ease-in-out .5s infinite}
+.w-c{animation:cp-wander 4.6s ease-in-out 1s infinite}
+.w-d{animation:cp-wander 3.4s ease-in-out .2s infinite}
+.w-e{animation:cp-wander 3.8s ease-in-out .7s infinite}
+.b-a{animation-duration:1.8s}.b-b{animation-duration:1.5s}.b-c{animation-duration:1.7s}.b-d{animation-duration:1.2s;animation-delay:.3s}.b-e{animation-duration:1.3s;animation-delay:.5s}
+/* 마우스 올리면 신나서 더 빨리 쪼아댐 */
+.coop-card:hover .ck .nod{animation-duration:1.05s!important}
+
+/* 말풍선 넛지 */
+.coop-bubble{position:absolute;left:40%;top:13%;transform:translateX(-50%);background:#fff;color:#2b2420;font-weight:800;font-size:11.5px;padding:5px 10px;border-radius:12px;box-shadow:0 8px 16px -7px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none;animation:cp-bubble 7s ease-in-out infinite}
+.coop-bubble::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+@keyframes cp-bubble{0%,72%,100%{opacity:0;transform:translateX(-50%) translateY(4px) scale(.85)}80%,92%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.coop-card:hover .coop-bubble{animation-duration:2.6s}
+
+/* CTA 바 */
+.coop-cta{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;font-weight:800;font-size:14.5px;color:#173309;background:linear-gradient(180deg,#9fe06a,#5CBC2E)}
+.coop-cta .coop-arrow{transition:transform .2s}
+.coop-card:hover .coop-cta .coop-arrow{transform:translateX(5px)}
+.coop-cta-em{display:inline-block;animation:cp-corn 2.4s ease-in-out infinite}
+@keyframes cp-corn{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-2px) rotate(6deg)}}
+
+/* 클릭 시 옥수수 흩뿌리기 */
+.coop-burst{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.coop-burst .corn{position:absolute;top:54%;font-size:16px;will-change:transform,opacity;animation:cp-fly .55s ease-out forwards}
+@keyframes cp-fly{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(.5)}100%{opacity:0;transform:translate(-50%,calc(var(--d,55px)*-1)) rotate(var(--a,90deg)) scale(1.15)}}
+
+@media(max-width:560px){ .coop-bubble{font-size:11px} .coop-cta{font-size:13.5px} }
+</style>
+<style id="coop-css-2">
+/* ════════ 🐔 닭장 v2 — 접기 토글 · 둥글둥글 CTA · 닭 클릭 반응 ════════ */
+
+/* 원래 큰 사이즈 복구(폭 제한 없음) + 가변 높이도 부드럽게 접히는 grid-rows 방식 */
+.coop-card{overflow:hidden;cursor:default;display:grid;grid-template-rows:1fr;
+  transition:grid-template-rows .42s ease,opacity .3s ease,border-color .2s,box-shadow .22s}
+.coop-inner{overflow:hidden;min-height:0}
+.coop-card:active{transform:none}
+.coop-card.collapsed{grid-template-rows:0fr;opacity:0;border-color:transparent;box-shadow:none;pointer-events:none}
+
+/* 헤더 우측 접기 버튼 */
+.coop-toggle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;padding:0;transition:.15s}
+.coop-toggle:hover{border-color:var(--green);color:var(--green-soft)}
+.coop-toggle:focus-visible{outline:2px solid var(--green-soft);outline-offset:2px}
+.coop-tg-ar{font-size:14px;line-height:1;transition:transform .3s ease}
+.coop-toggle[aria-expanded="false"] .coop-tg-ar{transform:rotate(-90deg)}
+
+/* 닭 클릭 반응 — 신나서 통통(happy) · 배고파서 푸드덕(flee) */
+.ck .poke{transform-box:fill-box;transform-origin:50% 100%}
+@keyframes ck-flee{0%{transform:translate(0,0) rotate(0)}14%{transform:translate(1px,-7px) rotate(-7deg)}30%{transform:translate(-6px,-3px) rotate(5deg)}46%{transform:translate(6px,-8px) rotate(-6deg)}62%{transform:translate(-4px,-2px) rotate(4deg)}80%{transform:translate(2px,-4px) rotate(-2deg)}100%{transform:translate(0,0) rotate(0)}}
+@keyframes ck-happy{0%,100%{transform:translateY(0)}28%{transform:translateY(-9px)}52%{transform:translateY(0)}70%{transform:translateY(-4px)}}
+.ck .poke.flee{animation:ck-flee .75s ease-in-out}
+.ck .poke.happy{animation:ck-happy .62s ease-out}
+
+/* 하트 · 말풍선 fx */
+.coop-pokefx{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:6}
+.poke-heart{position:absolute;font-size:16px;transform:translate(-50%,-50%);animation:poke-heart 1.15s ease-out forwards}
+@keyframes poke-heart{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}22%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-180%) scale(1.15)}}
+.poke-bubble{position:absolute;transform:translate(-50%,-50%);background:#fff;color:#E2483B;font-weight:400;
+  font-family:'Jua',var(--disp);font-size:13px;padding:4px 11px;border-radius:13px;white-space:nowrap;
+  box-shadow:0 7px 15px -6px rgba(0,0,0,.45);animation:poke-bub 1.2s ease-out forwards}
+.poke-bubble::after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#fff;border-bottom:0}
+@keyframes poke-bub{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-60%) scale(1)}78%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-100%) scale(.95)}}
+.coop-bubble{font-family:'Jua',var(--disp);font-weight:400;font-size:13px}
+
+/* ── 귀여운 CTA (둥글둥글 Jua + 네모 위화살표 통통) ── */
+.coop-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:none;cursor:pointer;
+  padding:14px;font-family:'Jua',var(--disp);font-weight:400;color:#173309;
+  background:linear-gradient(180deg,#A7E879,#6BC93A);border-top:1px solid rgba(255,255,255,.4);transition:filter .15s}
+.coop-cta:hover{filter:brightness(1.05)}
+.coop-cta:active{filter:brightness(.96)}
+.coop-cta:focus-visible{outline:2px solid var(--green-ink);outline-offset:-3px}
+.coop-cta-tx{font-family:'Jua',var(--disp);font-size:19.5px;letter-spacing:.01em;line-height:1;padding-top:3px}
+.coop-cta-em{display:inline-block;font-size:19px;animation:cp-corn 2.4s ease-in-out infinite}
+.coop-up{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:10px;
+  background:rgba(255,255,255,.92);color:#2F8F12;box-shadow:0 3px 0 rgba(20,60,10,.18),0 6px 12px -5px rgba(0,0,0,.3);
+  animation:coop-up 1.15s ease-in-out infinite}
+.coop-up svg{display:block}
+@keyframes coop-up{0%,100%{transform:translateY(3px)}50%{transform:translateY(-3px)}}
+.coop-card:hover .coop-up{animation-duration:.7s}
+@media(max-width:560px){ .coop-cta-tx{font-size:18.5px} }
+
+/* ── 진짜 걷는 느낌 — 가는 방향으로 몸 돌리고(방향전환) + 뒤뚱뒤뚱 + 발걸음 통통 ──
+   레이어: .walk(좌우 왕복) · .face(진행방향으로 스케일 뒤집기) · .waddle(좌우 흔들) · .bob(스텝 바운스)
+   walk와 face는 같은 --wd/--wdel 로 동기화 → 끝점에서 멈칫하고 돌아서 걸어옴 */
+.ck .walk{animation:ck-walk var(--wd,5s) ease-in-out var(--wdel,0s) infinite}
+.ck .face{animation:ck-face var(--wd,5s) ease-in-out var(--wdel,0s) infinite}
+.ck .waddle{transform-box:fill-box;transform-origin:50% 100%;animation:ck-waddle var(--wadd,.6s) ease-in-out infinite}
+.ck .bob{animation:ck-step var(--bob,.32s) ease-in-out infinite!important}
+@keyframes ck-walk{0%{transform:translateX(calc(var(--rng,16px)*-1))}50%{transform:translateX(var(--rng,16px))}100%{transform:translateX(calc(var(--rng,16px)*-1))}}
+@keyframes ck-face{0%{transform:scaleX(1)}48%{transform:scaleX(1)}50%{transform:scaleX(-1)}98%{transform:scaleX(-1)}100%{transform:scaleX(1)}}
+@keyframes ck-waddle{0%,100%{transform:rotate(-2.8deg)}50%{transform:rotate(2.8deg)}}
+@keyframes ck-step{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.4px)}}
+
+/* ── 쪼기(peck): JS가 불규칙 간격으로 1회씩 트리거 · 한 번이 부드럽게 ── */
+.ck .nod{animation:none!important}
+.ck .nod.pecking{animation:ck-peck .92s cubic-bezier(.42,0,.4,1)!important}
+@keyframes ck-peck{0%{transform:rotate(0)}26%{transform:rotate(6deg)}46%{transform:rotate(10deg)}57%{transform:rotate(10deg)}76%{transform:rotate(4deg)}100%{transform:rotate(0)}}
+
+/* 마우스 올리면 살짝 더 신나게 종종걸음 */
+.coop-card:hover .ck .waddle{animation-duration:calc(var(--wadd,.6s)*.8)}
+.coop-card:hover .ck .bob{animation-duration:calc(var(--bob,.32s)*.8)!important}
+
+/* ── 쪼을 때 옥수수 톡! 튀어오르기 (JS가 닭 위치에서 생성) ── */
+.coop-cornpop{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:5}
+.cornpop{position:absolute;width:var(--sz,7px);height:calc(var(--sz,7px)*1.08);border-radius:50% 50% 48% 48%;
+  background:radial-gradient(circle at 36% 28%, #FFF3B8 0%, var(--c,#FFC721) 52%, #E59600 100%);
+  box-shadow:0 1px 2px rgba(120,70,0,.4), inset 0 -1px 1px rgba(180,110,0,.5);
+  transform:translate(-50%,-50%) scale(.4);will-change:transform,opacity;
+  animation:cp-kernel var(--dur,.62s) cubic-bezier(.33,.66,.45,1) forwards}
+@keyframes cp-kernel{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0deg)}
+  16%{opacity:1}
+  46%{transform:translate(calc(-50% + var(--dx,0px)*.45), calc(-50% - var(--h,38px))) scale(1) rotate(var(--rot,140deg))}
+  72%{transform:translate(calc(-50% + var(--dx,0px)*.82), calc(-50% - var(--h,38px)*.34)) scale(.96)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)), calc(-50% + 8px)) scale(.82) rotate(calc(var(--rot,140deg)*1.4))}
+}
+</style>
+<script>
+/* 🐔 닭장 → 컴페티션 먹이주기 바로가기 (옥수수 흩뿌림 후 이동) */
+function goFeed(){
+  try{
+    var b=document.getElementById('coopBurst');
+    if(b){
+      b.innerHTML='';
+      for(var i=0;i<8;i++){
+        var s=document.createElement('span');
+        s.className='corn'; s.textContent=(i%2)?'🌽':'🌾';
+        s.style.left=(40+Math.random()*20)+'%';
+        s.style.setProperty('--a',(Math.random()*200-100)+'deg');
+        s.style.setProperty('--d',(42+Math.random()*46)+'px');
+        b.appendChild(s);
+      }
+    }
+  }catch(e){}
+  setTimeout(function(){ try{ if(typeof goTab==='function')goTab('comp'); }catch(e){} },250);
+}
+
+/* 🐔 닭 클릭 → 신나서 통통+하트 / 배고파서 푸드덕+말풍선 (이동 안 함) */
+function chickPoke(ev,el){
+  try{ ev.stopPropagation(); }catch(e){}
+  try{
+    var scene=el.closest('.coop-scene'); if(!scene)return;
+    var hungry=Math.random()<0.5;
+    var pk=el.querySelector('.poke');
+    if(pk){
+      pk.classList.remove('flee','happy');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ pk.classList.add(hungry?'flee':'happy'); }); });
+      pk.addEventListener('animationend',function h(){ pk.classList.remove('flee','happy'); pk.removeEventListener('animationend',h); });
+    }
+    var r=el.getBoundingClientRect(), sr=scene.getBoundingClientRect();
+    var cx=r.left-sr.left+r.width/2, cy=r.top-sr.top+r.height*0.42;
+    var layer=scene.querySelector('.coop-pokefx');
+    if(!layer){ layer=document.createElement('div'); layer.className='coop-pokefx'; scene.appendChild(layer); }
+    if(hungry){
+      var b=document.createElement('div'); b.className='poke-bubble'; b.textContent='배고파요!';
+      b.style.left=cx+'px'; b.style.top=cy+'px'; layer.appendChild(b);
+      setTimeout(function(){ b.remove(); },1250);
+    }else{
+      for(var i=0;i<3;i++){
+        var hh=document.createElement('div'); hh.className='poke-heart'; hh.textContent=(i===1?'💚':'💛');
+        hh.style.left=(cx+(Math.random()*22-11))+'px'; hh.style.top=cy+'px';
+        hh.style.setProperty('--dx',(Math.random()*26-13)+'px'); hh.style.animationDelay=(i*0.07)+'s';
+        layer.appendChild(hh);
+        (function(node){ setTimeout(function(){ node.remove(); },1300); })(hh);
+      }
+    }
+  }catch(e){}
+}
+
+/* 🐔 닭장 접기/펼치기 (기본 펼침 · 선택 기억) */
+function toggleCoop(){
+  var card=document.getElementById('coopCard'), btn=document.getElementById('coopToggle');
+  if(!card)return;
+  var collapsed=card.classList.toggle('collapsed');
+  if(btn)btn.setAttribute('aria-expanded', collapsed?'false':'true');
+  try{ localStorage.setItem('coopCollapsed', collapsed?'1':'0'); }catch(e){}
+}
+/* 🌽 쪼을 때마다 옥수수 톡! — 각 닭의 peck(.nod) 반복마다 닭 앞에서 옥수수 튀어오름 */
+function initCoopCorn(){
+  try{
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches)return; /* 모션 최소화 사용자는 제외 */
+    var scene=document.querySelector('.coop-scene'); if(!scene)return;
+    if(scene.dataset.cornInit)return; scene.dataset.cornInit='1';
+    var layer=scene.querySelector('.coop-cornpop');
+    if(!layer){ layer=document.createElement('div'); layer.className='coop-cornpop'; scene.appendChild(layer); }
+    var chickens=Array.prototype.slice.call(scene.querySelectorAll('.ck'));
+    function vis(ck){ return ck.getBoundingClientRect().width>0; }
+
+    /* 쪼기 — 닭마다 독립 스케줄 · 매번 랜덤 간격(잦고 불규칙) · 한 번이 부드럽게 */
+    chickens.forEach(function(ck){
+      var nod=ck.querySelector('.nod'); if(!nod)return;
+      (function peckLoop(){
+        var d=850 + Math.random()*2300; /* 0.85~3.15s 불규칙 */
+        setTimeout(function(){
+          if(vis(ck)){
+            nod.classList.add('pecking');
+            setTimeout(function(){ nod.classList.remove('pecking'); }, 960);
+          }
+          peckLoop();
+        }, d);
+      })();
+    });
+
+    /* 옥수수 — 전체 1개 스케줄 · 긴 랜덤 간격(드물고 불규칙) · 랜덤 닭 위치에서 톡 */
+    (function cornLoop(){
+      var d=3200 + Math.random()*4800; /* 3.2~8s 불규칙(길게) */
+      setTimeout(function(){
+        var on=chickens.filter(vis);
+        if(on.length) popKernelsAt(scene,layer,on[(Math.random()*on.length)|0]);
+        cornLoop();
+      }, d);
+    })();
+  }catch(e){}
+}
+function popKernelsAt(scene,layer,ck){
+  try{
+    var r=ck.getBoundingClientRect(), sr=scene.getBoundingClientRect();
+    if(!r.width)return;
+    var baseX=r.left-sr.left+r.width/2, baseY=r.top-sr.top+r.height*0.72;
+    var n=(Math.random()<0.3)?2:1; /* 가끔 두 알, 시차를 두고 */
+    for(var i=0;i<n;i++){
+      (function(idx){
+        setTimeout(function(){ spawnKernel(layer, baseX+(Math.random()*20-10), baseY+(Math.random()*5-2)); }, idx*120 + Math.random()*130);
+      })(i);
+    }
+  }catch(e){}
+}
+var CORN_COLS=['#FFD23F','#FFC721','#FFB300','#FFDE57','#FFCB2E'];
+function spawnKernel(layer,cx,cy){
+  try{
+    var s=document.createElement('span'); s.className='cornpop';
+    s.style.left=cx+'px'; s.style.top=cy+'px';
+    s.style.setProperty('--dx',(Math.random()*34-17).toFixed(0)+'px');   /* 좌우 드리프트 */
+    s.style.setProperty('--h',(24+Math.random()*34).toFixed(0)+'px');    /* 튀는 높이 */
+    s.style.setProperty('--sz',(5+Math.random()*3).toFixed(1)+'px');     /* 알갱이 크기 */
+    s.style.setProperty('--dur',(0.5+Math.random()*0.4).toFixed(2)+'s'); /* 비행 시간 */
+    s.style.setProperty('--rot',(Math.random()*240-120).toFixed(0)+'deg');
+    s.style.setProperty('--c',CORN_COLS[(Math.random()*CORN_COLS.length)|0]);
+    layer.appendChild(s);
+    setTimeout(function(){ s.remove(); },1100);
+  }catch(e){}
+}
+
+(function(){ try{
+  if(localStorage.getItem('coopCollapsed')==='1'){
+    var c=document.getElementById('coopCard'), b=document.getElementById('coopToggle');
+    if(c){ c.classList.add('collapsed'); if(b)b.setAttribute('aria-expanded','false'); }
+  }
+}catch(e){} initCoopCorn(); })();
 </script>
 </body>
 </html>
