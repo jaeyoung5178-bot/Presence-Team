@@ -2713,6 +2713,27 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   #m-leaderhit .lh-note{font-size:12.5px;color:var(--muted);line-height:1.6}
   #m-leaderhit .lh-note b{color:var(--cream)}
   #m-leaderhit .lh-empty{font-size:13px;color:var(--muted);padding:18px 4px;text-align:center;line-height:1.7}
+  /* 리더힛 승급가능성·개입 */
+  #m-leaderhit .lh-coach{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  #m-leaderhit .lh-coach-h{font-size:14px;font-weight:800;color:var(--cream)}
+  #m-leaderhit .lh-coach-sub{font-size:11.5px;color:var(--muted);margin:2px 0 12px}
+  #m-leaderhit .lhc{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:9px}
+  #m-leaderhit .lhc.t-now{border-left-color:var(--green)}
+  #m-leaderhit .lhc.t-skill{border-left-color:var(--amber)}
+  #m-leaderhit .lhc.t-help{border-left-color:var(--wepair)}
+  #m-leaderhit .lhc.t-low{border-left-color:var(--danger)}
+  #m-leaderhit .lhc-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  #m-leaderhit .lhc-nm{font-size:14.5px;font-weight:700;color:var(--cream)}
+  #m-leaderhit .lhc-tag{font-size:10.5px;font-weight:700;border-radius:6px;padding:2px 7px;border:1px solid var(--line);color:var(--muted)}
+  #m-leaderhit .lhc-tag.t-now{color:var(--green-ink);background:var(--green);border-color:var(--green)}
+  #m-leaderhit .lhc-tag.t-skill{color:var(--amber);border-color:var(--amber)}
+  #m-leaderhit .lhc-tag.t-help{color:var(--wepair);border-color:var(--wepair)}
+  #m-leaderhit .lhc-tag.t-low{color:var(--danger);border-color:var(--danger)}
+  #m-leaderhit .lhc-prob{margin-left:auto;font-size:11.5px;color:var(--muted)}
+  #m-leaderhit .lhc-prob b{color:var(--cream)}
+  #m-leaderhit .lhc-bar{height:6px;background:var(--card-2);border-radius:99px;overflow:hidden;margin:8px 0}
+  #m-leaderhit .lhc-bar i{display:block;height:100%;border-radius:99px}
+  #m-leaderhit .lhc-act{font-size:12px;color:var(--muted);line-height:1.6}
   body.pdf-open{overflow:hidden}
   #pdfOverlay{position:fixed;inset:0;z-index:var(--z-pdf);background:#eef0f4;display:flex;flex-direction:column}
   #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
@@ -3169,7 +3190,7 @@ const FOUNDER = {uid:'admin', name:'임재영', id:'Presence', pw:'0001'};   // 
    test1(testbot1): IC 역할 — 설문 화면을 보되 ‘설문 생략’ 가능
    test2(testbot2): 리더(LR) 역할 — 설문 화면을 보되 ‘설문 생략’ 가능
    test3(testbot3): 옵저베이션 — 생략 없이 전 과정 체험 + 입장 후 ‘봇 승급’으로 관리자 모드 빼고 전부 열람 */
-const TEST_BOTS=['testbot1','testbot2','testbot3','test1','test2','test3'];
+const TEST_BOTS=['testbot1','testbot2','testbot3','test1','test2','test3','테스터','테스트','tester'];
 function isTestName_(s){s=(s||'').toLowerCase().replace(/\s/g,'');return TEST_BOTS.includes(s);}
 function isTestBot(u){return !!(u&&(u.test===true||isTestName_(u.name)||isTestName_(u.id)));}
 function meIsBot(){return isTestBot(me);}
@@ -3201,7 +3222,14 @@ function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMem
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
 function roleOf(name){if(typeof isAdminName==='function'&&isAdminName(name))return 'AOP';const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
 function isDeparted(name){const k=String(name||'').replace(/\s/g,'');if(!k)return false;if(DEPARTED_MEMBERS.some(n=>String(n).replace(/\s/g,'')===k))return true;return ((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).some(n=>String(n||'').replace(/\s/g,'')===k);}
-function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
+function joinKey(name){
+  if(typeof isAdminName==='function'&&isAdminName(name))return '0000-00-00';   // 재영(팀 시작) 항상 맨 위
+  var d=''; try{ d=(miInfo(name)||{}).join||''; }catch(e){}
+  if(!d){ try{ var u=Object.values(state.users).find(x=>x.name===name); if(u)d=firstFieldOf(u)||''; }catch(e){} }
+  return d||'9999-12-31';   // 첫 필드 미기록 → 맨 아래
+}
+function joinSort(a,b){var ja=joinKey(a.name),jb=joinKey(b.name);return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));}
+function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)&&!isAdminName(n)&&!isTestName_(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort(joinSort);}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
 const TEAM_TARGET  = 215;    // 폴백 기본값
 const MONTHLY_TEAM_TARGET = {'2026-05':215,'2026-06':215,'2026-07':215,'2026-08':215,'2026-09':215,'2026-10':215,'2026-11':215,'2026-12':215}; // 🎯 타겟 탭 연동 전 폴백. 연동되면 시트값으로 자동 대체
@@ -3803,7 +3831,7 @@ function renderDailyCalendar(){
     `<div class="dc-wd"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>`+
     `<div class="dc-grid">${cells}</div>`;
 }
-function membersSorted(){return Object.values(state.users).filter(u=>u.status==='active').sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
+function membersSorted(){return Object.values(state.users).filter(u=>u.status==='active').sort(joinSort);}
 function dailyAdj(name,delta){
   if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
@@ -8240,15 +8268,51 @@ function inMyDownline(name){
 }
 function myScopeICs(){
   return rosterMembers().filter(function(u){
+    if(isAdminName(u.name)) return false;                       // 관리자(임재영) 제외
+    if(typeof isTestName_==='function' && isTestName_(u.name)) return false;  // 테스터·테스트 이름 제외
     var uu=Object.values(state.users).find(function(x){return x.name===u.name;});
-    if(uu&&typeof isTestBot==='function'&&isTestBot(uu)) return false;
-    return u.role==='IC' && !isAdminName(u.name) && !isDeparted(u.name) && (isFounder(me)||inMyDownline(u.name));
+    if(uu&&typeof isTestBot==='function'&&isTestBot(uu)) return false;        // 테스트봇 계정 제외
+    return u.role==='IC' && !isDeparted(u.name) && (isFounder(me)||inMyDownline(u.name));
   });
 }
 function leaderhitVisible(){
   if(!me) return false;
   if(!(isFounder(me)||isLeader(me.role))) return false;
   try{ return myScopeICs().length>0; }catch(e){ return false; }
+}
+function lhCoach(x){
+  var target=LH_TARGET, win=LH_WINDOW;
+  var pace = x.curDays? x.curSum/x.curDays : 0;
+  var full = x.curDays>=win;
+  var remain = Math.max(0, target - x.curSum);
+  var reqPace, proj, need;
+  if(full){ reqPace=target/win; proj=pace*win; need=reqPace; }
+  else { need = x.daysLeft>0 ? remain/x.daysLeft : (remain>0?Infinity:0); reqPace=need; proj=x.curSum+pace*x.daysLeft; }
+  var ratio = reqPace>0 ? pace/reqPace : (remain===0?2:0);
+  var prob = remain===0?100 : (reqPace===Infinity?0 : Math.max(0,Math.min(100,Math.round(ratio*70+(proj>=target?30:0)))));
+  var type,tag,act;
+  if(prob>=100||(remain<=2&&ratio>=1&&!full&&x.daysLeft<=2)){type='now';tag='리더 임박';act='긴 필드 시간 + A급(유동 많은) 사이트 우선 배정. 이번 5일 안에 마무리하게.';}
+  else if(ratio>=1.1){type='skill';tag='스킬 충분';act='페이스는 충분해요. 좋은 사이트만 받쳐주면 닿아요 — A급 셋업 우선.';}
+  else if(ratio>=0.85){type='skill';tag='경합권';act='한 끗 차이. A급 사이트 + 가벼운 클로징 코칭이면 넘어가요.';}
+  else if(pace>0){type='help';tag='지원 필요';act='페이스 미달. 스킬 코칭 + 동행 셋업, 사이트는 쉬운 곳부터 자신감 회복.';}
+  else {type='low';tag='케어 우선';act='결과가 멈춤. 숫자보다 멘탈·태도 1:1부터. 동행으로 0 끊어주기.';}
+  return {prob:prob,type:type,tag:tag,act:act,pace:pace,remain:remain};
+}
+function lhCoachHTML(list){
+  if(!list.length) return '';
+  var rows=list.map(function(x){var c=lhCoach(x);c.name=x.name;return c;});
+  var order={now:0,skill:1,help:2,low:3};
+  rows.sort(function(a,b){return (order[a.type]-order[b.type])||(b.prob-a.prob);});
+  var col={now:'var(--green)',skill:'var(--amber)',help:'var(--wepair)',low:'var(--danger)'};
+  var body=rows.map(function(r){
+    return '<div class="lhc t-'+r.type+'">'+
+      '<div class="lhc-top"><span class="lhc-nm">'+esc(r.name)+'</span><span class="lhc-tag t-'+r.type+'">'+r.tag+'</span>'+
+      '<span class="lhc-prob">리더 도달 <b>'+r.prob+'%</b> · 페이스 '+r.pace.toFixed(1)+'/일</span></div>'+
+      '<div class="lhc-bar"><i style="width:'+r.prob+'%;background:'+col[r.type]+'"></i></div>'+
+      '<div class="lhc-act">'+r.act+'</div></div>';
+  }).join('');
+  return '<div class="lh-coach"><div class="lh-coach-h">🚀 승급 가능성 · 개입 우선순위</div>'+
+         '<div class="lh-coach-sub">리더가 될 가능성이 높은 순 · 누구를 먼저 챙기고 어떤 사이트를 줄지</div>'+body+'</div>';
 }
 function renderLeaderHit(){
   var box=document.getElementById('leaderhitBody'); if(!box) return;
@@ -8280,7 +8344,7 @@ function renderLeaderHit(){
       '<div class="lh-note">'+coach+'</div></div>';
   }).join('');
   if(!list.length){ cards='<div class="lh-empty">🎉 현재 우리 팀 IC 전원 리더힛 달성! 새 IC가 들어오면 여기서 다시 추적돼요.</div>'; }
-  box.innerHTML=head+'<div class="lh-list">'+cards+'</div>';
+  box.innerHTML=head+'<div class="lh-list">'+cards+'</div>'+lhCoachHTML(list);
 }
 
 /* ─────────── 인컴 위크엔딩(일요일) 달력 + 주차별 저장 ─────────── */
