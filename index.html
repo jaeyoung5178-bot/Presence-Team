@@ -130,11 +130,17 @@ header.top{position:fixed;top:0;left:0;right:0;z-index:var(--z-header);backgroun
 .me-pill .mrole{font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;background:var(--grad);border-radius:5px;padding:1px 5px}
 .me-pill .mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--green-ink)}
 .bell-btn{position:relative;background:transparent;border:1px solid var(--line);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--cream);flex:0 0 auto}
+.hdr-install{background:transparent;border:1px solid var(--line);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--cream);flex:0 0 auto}
+.hdr-install:hover{border-color:var(--green)}
 .bell-btn:hover{border-color:var(--green)}
 .bell-badge{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center;font-family:var(--mono)}
 .bell-badge.show{display:flex}
 .mention{color:var(--wepair);font-weight:700;background:rgba(70,182,221,.13);border-radius:5px;padding:0 3px}
-.notif-item{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+.notif-item{position:relative;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 36px 11px 13px;margin-bottom:8px}
+.notif-x{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--card-2);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.notif-x:hover{border-color:var(--danger);color:var(--danger);background:rgba(232,71,60,.1)}
+.notif-clear{width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+.notif-clear:hover{border-color:var(--danger);color:var(--danger)}
 .notif-item.unread{border-color:var(--green);background:rgba(92,188,46,.06)}
 .notif-top{font-size:13px;color:var(--cream);line-height:1.4}
 .notif-top b{color:var(--green-soft)}
@@ -1676,6 +1682,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       </div>
       <span class="spacer"></span>
       <button class="conn-dot off" id="connDot" onclick="showConnInfo()" aria-label="연결 상태"></button>
+      <button class="hdr-install" id="installBtn" onclick="installApp()" style="display:none" aria-label="앱 설치" title="앱으로 설치 · 바탕화면에 추가"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="9.5 10 12 12.5 14.5 10"/><line x1="12" y1="7" x2="12" y2="12.5"/></svg></button>
       <button class="bell-btn" id="bellBtn" onclick="openNotifs()" aria-label="알림">🔔<span class="bell-badge" id="bellBadge"></span></button>
       <button class="me-pill" onclick="openMe()">
         <span class="mnm" id="mePillNm">—</span>
@@ -1695,7 +1702,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <div class="greet" id="greet">안녕하세요 👋</div>
         <p class="stmt">우리는 보이는 곳과 보이지 않는 모든 곳에서<br><em>존재를 드러내고</em> 영향력을 끼치는 사람들.</p>
         <div class="chant"><span class="spark"></span><span class="lab">Team Chant</span><span class="txt">Are You Ready Let's Go <b>Presence!</b></span></div>
-        <button class="install-btn" id="installBtn" onclick="installApp()" style="display:none"><span class="app-ic">app</span>앱으로 설치 · 바탕화면에 추가</button>
         <div class="values">
           <div class="val"><span class="emj">😊</span><span class="en">Happiness</span><span class="ko">행복</span><p>세상에서 가장 행복한 마음을 지닌 사람들의 모임.</p></div>
           <div class="val"><span class="emj">🤝</span><span class="en">Together</span><span class="ko">함께</span><p>혼자 가면 빨리, 함께 가면 더 멀리.</p></div>
@@ -2722,6 +2728,12 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   #m-leaderhit .lhc.t-skill{border-left-color:var(--amber)}
   #m-leaderhit .lhc.t-help{border-left-color:var(--wepair)}
   #m-leaderhit .lhc.t-low{border-left-color:var(--danger)}
+  #m-leaderhit .lhc.t-drop{border-left-color:#FF8A4C}
+  #m-leaderhit .lhc.t-longlow{border-left-color:var(--danger)}
+  #m-leaderhit .lhc.t-new{border-left-color:var(--muted)}
+  #m-leaderhit .lhc-met{font-size:11px;color:var(--faint);font-family:var(--mono);margin:6px 0 2px}
+  #m-leaderhit .lhc-train{margin:7px 0 2px;font-size:12px;color:var(--green-soft);background:rgba(92,188,46,.1);border:1px solid rgba(92,188,46,.25);border-radius:8px;padding:7px 10px;line-height:1.5}
+  #m-leaderhit .lhc-train b{color:var(--cream)}
   #m-leaderhit .lhc-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   #m-leaderhit .lhc-nm{font-size:14.5px;font-weight:700;color:var(--cream)}
   #m-leaderhit .lhc-tag{font-size:10.5px;font-weight:700;border-radius:6px;padding:2px 7px;border:1px solid var(--line);color:var(--muted)}
@@ -2729,11 +2741,18 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   #m-leaderhit .lhc-tag.t-skill{color:var(--amber);border-color:var(--amber)}
   #m-leaderhit .lhc-tag.t-help{color:var(--wepair);border-color:var(--wepair)}
   #m-leaderhit .lhc-tag.t-low{color:var(--danger);border-color:var(--danger)}
+  #m-leaderhit .lhc-tag.t-drop{color:#FF8A4C;border-color:#FF8A4C}
+  #m-leaderhit .lhc-tag.t-longlow{color:var(--danger);border-color:var(--danger)}
+  #m-leaderhit .lhc-tag.t-new{color:var(--muted);border-color:var(--line)}
   #m-leaderhit .lhc-prob{margin-left:auto;font-size:11.5px;color:var(--muted)}
   #m-leaderhit .lhc-prob b{color:var(--cream)}
   #m-leaderhit .lhc-bar{height:6px;background:var(--card-2);border-radius:99px;overflow:hidden;margin:8px 0}
   #m-leaderhit .lhc-bar i{display:block;height:100%;border-radius:99px}
+  #m-leaderhit .lhc-dx{font-size:12px;color:var(--cream);line-height:1.6;margin-bottom:5px}
   #m-leaderhit .lhc-act{font-size:12px;color:var(--muted);line-height:1.6}
+  #m-leaderhit .lhc-lbl{display:inline-block;font-size:9.5px;font-weight:800;border-radius:5px;padding:1px 6px;margin-right:6px;vertical-align:1px;font-family:var(--mono)}
+  #m-leaderhit .lhc-lbl.dx{background:var(--card-2);color:var(--muted);border:1px solid var(--line)}
+  #m-leaderhit .lhc-lbl.do{background:rgba(92,188,46,.15);color:var(--green-soft);border:1px solid rgba(92,188,46,.3)}
   body.pdf-open{overflow:hidden}
   #pdfOverlay{position:fixed;inset:0;z-index:var(--z-pdf);background:#eef0f4;display:flex;flex-direction:column}
   #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
@@ -2985,6 +3004,8 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
 <div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">환영합니다!</h3><div class="wc-msg" id="wcMsg"></div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>기념주화 1개</b>가 지급되었어요!</div><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
+<div class="modal" id="obNudgeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title" id="obNudgeName">첫 필드 축하!</h3><div class="wc-msg" id="obNudgeMsg"></div><div class="wc-token" id="obNudgeTrain" style="text-align:left;line-height:1.7"></div><button class="ann-ok" onclick="closeModal('obNudgeModal')">화이팅! 💪</button></div></div>
+<div class="modal" id="ldNudgeModal"><div class="box welcome-box"><div class="wc-icon">🌱</div><h3 class="wc-title">신입이 왔어요!</h3><div class="wc-msg" id="ldNudgeBody"></div><button class="ann-ok" onclick="closeModal('ldNudgeModal')">교육 준비할게요 💪</button></div></div>
 <div class="modal" id="giftWinModal"><div class="box gift-win-box">
   <div class="gw-box">🎁<span class="gw-q">?</span></div>
   <h3 class="gw-title" id="gwTitle">🎉 깜짝 선물 쿠폰 도착!</h3>
@@ -3642,6 +3663,7 @@ function enterApp(){
   showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
   setTimeout(maybeAskFirstField,1100);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
+  setTimeout(function(){try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},900);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
@@ -3687,11 +3709,12 @@ function pullFromSheet(){
 }
 /* 잘못 들어온 세일즈 청소: 가짜 이름(Gross·DailyTotal·FieldH/C·Avg 등) + 인컴(₩)이 세일즈로 들어온 큰 값 */
 const BAD_NAME=/gross|daily|field|avg|total|net|h\/?c|합계|소계|인컴|리젝|리섭|위크앤드|주간/i;
+function isValidDate(d){d=String(d||'').trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return true;var dt=new Date(d+'T00:00:00');return !isNaN(dt.getTime())&&dt.toISOString().slice(0,10)===d;}
 function pruneBadSales(){
   let removed=0;
   for(const k in state.sales){
     const e=state.sales[k];const nm=String(e.name||'');
-    const bad = BAD_NAME.test(nm) || (+e.count||0)>300 || !!e.rally;   // 가짜 이름·인컴 오염·랠리 제거
+    const bad = BAD_NAME.test(nm) || (+e.count||0)>300 || !!e.rally || !isValidDate(e.date);   // 불가능한 날짜도 제거   // 가짜 이름·인컴 오염·랠리 제거
     if(bad){const d=e.date;delete state.sales[k];if(LIVE)DB.set(`sales/${d}/${nk(nm)}`,null);removed++;}
   }
   return removed;
@@ -3770,7 +3793,7 @@ function importSheetData(data,opt){
   opt=opt||{};const silent=opt.silent,fillOnly=opt.fillOnly;
   if(!data||typeof data!=='object'||!Object.keys(data).length){if(!silent)toast('가져올 데이터가 없어요');return 0;}
   let n=0;
-  Object.keys(data).forEach(date=>{const row=data[date];if(!row)return;
+  Object.keys(data).forEach(date=>{const row=data[date];if(!row)return;if(!isValidDate(date))return;   // 6/31 같은 불가능한 날짜 차단
     Object.keys(row).forEach(nm=>{
       const name=String(nm).trim();if(!name)return;
       if(BAD_NAME.test(name))return;                 // Gross·DailyTotal·FieldH/C·Avg 등 가짜 이름 무시
@@ -4997,7 +5020,9 @@ function addNotice(){
   const photos=noticePhotos.slice();
   const n={by:me.name,role:me.role,title,body,photo:photos[0]||null,photos,t:Date.now()};
   state.notices.push(n);if(LIVE)DB.push('notices',n);
-  notifyMentions(title+' '+body,'공지',me.name);noticePhotos=[];renderNotices();toast('공지를 올렸어요 📢');
+  notifyMentions(title+' '+body,'공지',me.name);
+  try{var seen={};rosterMembers().forEach(function(u){var uu=Object.values(state.users).find(function(x){return x.name===u.name;});if(!uu||!uu.uid||seen[uu.uid])return;seen[uu.uid]=1;addNotif(uu.uid,{type:'notice',title:title,msg:(body||'').slice(0,140),by:me.name,t:Date.now(),read:(uu.uid===me.uid)});});}catch(e){}
+  noticePhotos=[];renderNotices();renderBell();toast('공지를 올렸어요 📢 (모두의 알림함에 전송)');
 }
 function onNoticeFiles(files){const room=5-noticePhotos.length;if(room<=0){toast('최대 5장까지 올릴 수 있어요');const i=document.getElementById('ntcPhotoInput');if(i)i.value='';return}const arr=[...files].slice(0,Math.max(0,room));if([...files].length>room)toast('최대 5장까지 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{noticePhotos.push(d);if(--pend===0)renderNoticePreview();}));const i=document.getElementById('ntcPhotoInput');if(i)i.value='';}
 function rmNoticePhoto(i){noticePhotos.splice(i,1);renderNoticePreview();}
@@ -5399,7 +5424,7 @@ function maybeTokenIssuePrompt(){
   if(new Date().getHours()>=22 && !tokensIssuedOn(TODAY) && !((state.tokenHoldDays||{})[TODAY]) && fieldersOn(TODAY).length){window._tokPrompted=true;const el=document.getElementById('tokWorkDate');if(el)el.value=TODAY;openTokenIssue();}
 }
 /* ===== 먹이 기여도 · 우승자 · 보상 ===== */
-function isAdminName(n){return String(n||'').replace(/\s/g,'')===FOUNDER.name.replace(/\s/g,'');}
+function isAdminName(n){var k=String(n||'').replace(/\s/g,'');return k===FOUNDER.name.replace(/\s/g,'')||k==='관리자'||k.toLowerCase()==='admin';}
 function feedTotals(){const t={};periodFeeds().rank.forEach(r=>{t[r.name]=r.days;});return t;}
 function topFeeder(map){let best=null,bv=0;Object.keys(map||{}).forEach(n=>{if(isAdminName(n))return;if(map[n]>bv){bv=map[n];best=n;}});return best?{name:best,count:bv}:null;}
 function renderRewardLead(){
@@ -6329,7 +6354,42 @@ function addNotif(uid,n){if(!state.notifs[uid])state.notifs[uid]=[];state.notifs
 function notifyMentions(text,ctx,by){const ms=parseMentions(text);ms.forEach(u=>{if(me&&u.uid===me.uid)return;addNotif(u.uid,{by:by||(me?me.name:'누군가'),ctx,text:(text||'').slice(0,90),t:Date.now(),read:false})});if(ms.length){renderBell();toast('🔔 '+ms.map(u=>u.name).join(', ')+'님에게 알림을 보냈어요')}}
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
-function renderNotifList(){const box=document.getElementById('notifList');if(!box)return;const list=myNotifs().slice().sort((a,b)=>b.t-a.t);box.innerHTML=list.length?list.map(n=>{if(n.type==='welcome'){return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>🎉 환영합니다</b></div><div class="notif-prev">${n.msg?esc(n.msg).replace(/\n/g,'<br>'):''}</div><div class="notif-t">${ago(n.t)}</div></div>`;}if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="notif-item gift${n.read?'':' unread'}"><div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div></div>`;}return `<div class="notif-item${n.read?'':' unread'}"><div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div></div>`;}).join(''):'<div class="rank-empty">받은 알림이 없어요</div>'}
+function notifInner(n){
+  if(n.type==='cheer'){return `<div class="notif-top"><b>🎉 첫 필드 ${n.day}일차 응원</b></div>${n.msg?`<div class="notif-prev">${esc(n.msg)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='notice'){return `<div class="notif-top">📢 <b>${esc(n.title||'공지')}</b>${n.by?` · ${esc(n.by)}`:''}</div>${n.msg?`<div class="notif-prev">${esc(n.msg).replace(/\n/g,'<br>')}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='welcome'){return `<div class="notif-top"><b>🎉 환영합니다</b></div><div class="notif-prev">${n.msg?esc(n.msg).replace(/\n/g,'<br>'):''}</div><div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div>`;}
+  return `<div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;
+}
+function notifIsReward(n){return n&&(n.type==='gift'||n.type==='giftwin');}
+function renderNotifList(){
+  const box=document.getElementById('notifList');if(!box)return;
+  const list=myNotifs().slice().sort((a,b)=>b.t-a.t);
+  if(!list.length){box.innerHTML='<div class="rank-empty">받은 알림이 없어요</div>';return;}
+  var rows=list.map(function(n){
+    var cls='notif-item'+(notifIsReward(n)?' gift':'')+(n.read?'':' unread');
+    return `<div class="${cls}">${notifInner(n)}<button class="notif-x" title="삭제" onclick="event.stopPropagation();delNotif(${n.t},${notifIsReward(n)?'true':'false'})">✕</button></div>`;
+  }).join('');
+  box.innerHTML=rows+'<button class="notif-clear" onclick="clearNotifs()">🗑️ 알림함 비우기</button>';
+}
+function delNotif(t,isReward){
+  if(!me)return;
+  if(isReward){ if(!confirm('정말 삭제하시겠어요?\n\n⚠️ 교환권은 삭제 시 시상 자격을 상실할 수 있습니다.'))return; }
+  var list=myNotifs().filter(function(x){return x.t!==t;});
+  state.notifs[me.uid]=list;if(LIVE)DB.set('notifs/'+me.uid,list);
+  renderNotifList();renderBell();
+}
+function clearNotifs(){
+  if(!me)return;
+  var list=myNotifs();
+  if(!list.length)return;
+  var hasReward=list.some(notifIsReward);
+  var msg=hasReward?'알림함을 모두 비울까요?\n\n⚠️ 선물·교환권도 함께 삭제되며, 시상 자격을 상실할 수 있습니다. 되돌릴 수 없어요.':'알림함을 모두 비울까요? 되돌릴 수 없어요.';
+  if(!confirm(msg))return;
+  state.notifs[me.uid]=[];if(LIVE)DB.set('notifs/'+me.uid,[]);
+  renderNotifList();renderBell();toast('알림함을 비웠어요');
+}
 function giftHuntActive(){const now=Date.now();return now>=GIFT_HUNT_START&&now<GIFT_HUNT_END;}
 function giftRemaining(){const g=state.giftHunt||{};return Math.max(0,(g.total||100)-(g.opened||0));}
 function openedGiftToday(){const g=state.giftHunt||{};return !!(me&&g.opens&&g.opens[TODAY+'|'+me.uid]);}
@@ -8209,6 +8269,62 @@ function devStatusHTML(){
    na(미출근) 제외 · rally는 출근일로 포함(카운트 0)
    ════════════════════════════════════════════ */
 const LH_WINDOW=5, LH_TARGET=8;
+const ONBOARD_TRAIN={
+  1:{t:'콜백싯 교육', d:'콜백싯 작성법부터. 필드 후 함께 작성하며 기록 습관 잡기.'},
+  2:{t:'콜백싯 분석 교육', d:'어제 콜백싯을 같이 분석 — 넘버·스킬·태도 3축으로 짚기.'},
+  3:{t:'후원자 약정서 교육', d:'약정서 작성·리해쉬(거래정보 재확인)로 취소율 낮추기.'},
+  4:{t:'자립 준비 (혼자 해보기)', d:'혼자 한 사이클 돌려보게 — 옆에서 관찰만, 개입 최소화.'},
+  5:{t:'오브젝션 핸들링 ⭐', d:'거절 대응의 핵심. 가장 중요한 날 — 유형별 대응 집중 코칭.'}
+};
+function obFieldDays(name){try{return lhSeriesFor(name).length;}catch(e){return 0;}}
+function onboardNudge(){
+  if(!me||roleOf(me.name)!=='IC') return;
+  if(isAdminName(me.name)||(typeof isTestBot==='function'&&isTestBot(me))) return;
+  var n=obFieldDays(me.name);
+  if(n<1||n>5) return;
+  var key='obnudge_'+me.uid+'_'+TODAY+'_'+n;
+  if(lsGet(key)) return; lsSet(key,1);
+  var T=ONBOARD_TRAIN[n]||null;
+  var msgs={1:'드디어 첫 필드! 오늘은 결과보다 경험이에요. 한 발 내디딘 게 가장 큰 성과예요 💚',
+    2:'이틀째예요. 어제보다 오늘 한 끗 더 — 작은 시도가 쌓여 실력이 돼요.',
+    3:'벌써 3일차! 리듬이 생기고 있어요. 거절은 자연스러운 거예요, 괜찮아요.',
+    4:'4일차, 이제 혼자서도 흐름이 보이죠? 정말 잘 하고 있어요.',
+    5:'5일차! 오브젝션만 익히면 자립이 코앞이에요. 끝까지 화이팅 🔥'};
+  var nm=document.getElementById('obNudgeName'); if(nm)nm.textContent=me.name+'님, 첫 필드 '+n+'일차!';
+  var mg=document.getElementById('obNudgeMsg'); if(mg)mg.textContent=msgs[n]||'';
+  var tr=document.getElementById('obNudgeTrain'); if(tr){tr.innerHTML='';tr.style.display='none';}   // 신입에겐 교육 문구 X · 응원만
+  try{addNotif(me.uid,{type:'cheer',day:n,msg:msgs[n]||'',t:Date.now(),read:false});renderBell();}catch(e){}
+  try{openModal('obNudgeModal');}catch(e){}
+}
+function leaderOnboardNudge(){
+  if(!me) return;
+  var pend=[];
+  try{ rosterMembers().forEach(function(u){
+    if(roleOf(u.name)!=='IC') return;
+    if(isAdminName(u.name)||(typeof isTestName_==='function'&&isTestName_(u.name))) return;
+    if(nk(u.name)===nk(me.name)) return;
+    var d=obFieldDays(u.name); if(d<1||d>5) return;
+    var chain=uplineChain(u.name);
+    if(!chain.some(function(c){return nk(c)===nk(me.name);})) return;   // 내가 이 신입의 상위 라인일 때만
+    var key='ldnudge_'+me.uid+'_'+TODAY+'_'+nk(u.name)+'_'+d;
+    if(lsGet(key)) return; lsSet(key,1);
+    pend.push({name:u.name,n:d});
+    try{addNotif(me.uid,{type:'newbie',name:u.name,day:d,t:Date.now(),read:false});}catch(e){}
+  }); }catch(e){ return; }
+  if(!pend.length) return;
+  var body=pend.map(function(a){
+    var T=ONBOARD_TRAIN[a.n]||{t:'',d:''};
+    var head=(a.n===1)?('🎉 <b>'+esc(a.name)+'</b> 신입이 왔어요! 축하합니다!<br>앞으로 잘 정착하도록 <b>5일간 신입 교육</b>을 함께 준비해주세요.')
+      :('<b>'+esc(a.name)+'</b> 신입 첫필드 <b>'+a.n+'일차</b>예요.');
+    return '<div style="text-align:left;margin-bottom:10px;padding:11px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px">'+
+      '<div style="font-size:13.5px;line-height:1.6;color:var(--cream)">'+head+'</div>'+
+      (T.t?'<div style="margin-top:8px;font-size:12.5px;color:var(--green-soft);background:rgba(92,188,46,.1);border:1px solid rgba(92,188,46,.25);border-radius:8px;padding:7px 9px;line-height:1.5">📚 '+a.n+'일차 · <b style="color:var(--cream)">'+esc(T.t)+'</b><br><span style="color:var(--muted);font-size:11.5px">'+esc(T.d)+'</span></div>':'')+
+    '</div>';
+  }).join('');
+  var el=document.getElementById('ldNudgeBody'); if(el)el.innerHTML=body;
+  try{renderBell();}catch(e){}
+  try{openModal('ldNudgeModal');}catch(e){}
+}
 function lhSeriesFor(name){
   // 해당 인원의 출근일(na 제외)만 날짜순으로 [{date,count}]
   var arr=[];
@@ -8259,6 +8375,7 @@ function lhBar(cur){
   return '<div class="lh-cells">'+cells+'</div>';
 }
 function uplineOf(name){ return (dossierOf(name).upline)||''; }
+function uplineChain(name){var out=[],cur=uplineOf(name),g=0,seen={};while(cur&&g++<30&&!seen[nk(cur)]){seen[nk(cur)]=1;out.push(cur);cur=uplineOf(cur);}return out;}
 function inMyDownline(name){
   if(!me) return false;
   if(isFounder(me)) return true;
@@ -8281,38 +8398,60 @@ function leaderhitVisible(){
   try{ return myScopeICs().length>0; }catch(e){ return false; }
 }
 function lhCoach(x){
-  var target=LH_TARGET, win=LH_WINDOW;
-  var pace = x.curDays? x.curSum/x.curDays : 0;
-  var full = x.curDays>=win;
-  var remain = Math.max(0, target - x.curSum);
-  var reqPace, proj, need;
-  if(full){ reqPace=target/win; proj=pace*win; need=reqPace; }
-  else { need = x.daysLeft>0 ? remain/x.daysLeft : (remain>0?Infinity:0); reqPace=need; proj=x.curSum+pace*x.daysLeft; }
-  var ratio = reqPace>0 ? pace/reqPace : (remain===0?2:0);
-  var prob = remain===0?100 : (reqPace===Infinity?0 : Math.max(0,Math.min(100,Math.round(ratio*70+(proj>=target?30:0)))));
-  var type,tag,act;
-  if(prob>=100||(remain<=2&&ratio>=1&&!full&&x.daysLeft<=2)){type='now';tag='리더 임박';act='긴 필드 시간 + A급(유동 많은) 사이트 우선 배정. 이번 5일 안에 마무리하게.';}
-  else if(ratio>=1.1){type='skill';tag='스킬 충분';act='페이스는 충분해요. 좋은 사이트만 받쳐주면 닿아요 — A급 셋업 우선.';}
-  else if(ratio>=0.85){type='skill';tag='경합권';act='한 끗 차이. A급 사이트 + 가벼운 클로징 코칭이면 넘어가요.';}
-  else if(pace>0){type='help';tag='지원 필요';act='페이스 미달. 스킬 코칭 + 동행 셋업, 사이트는 쉬운 곳부터 자신감 회복.';}
-  else {type='low';tag='케어 우선';act='결과가 멈춤. 숫자보다 멘탈·태도 1:1부터. 동행으로 0 끊어주기.';}
-  return {prob:prob,type:type,tag:tag,act:act,pace:pace,remain:remain};
+  var TARGET=LH_TARGET, WIN=LH_WINDOW, need=TARGET/WIN;   // 1.6/일
+  var s=lhSeriesFor(x.name), n=s.length;
+  var recent=s.slice(-WIN), recentDays=recent.length;
+  var recentAvg=recentDays?recent.reduce(function(a,b){return a+b.count;},0)/recentDays:0;
+  var prior=s.slice(Math.max(0,n-WIN*2), Math.max(0,n-WIN)), priorDays=prior.length;
+  var priorAvg=priorDays?prior.reduce(function(a,b){return a+b.count;},0)/priorDays:0;
+  var overall=n?s.reduce(function(a,b){return a+b.count;},0)/n:0;
+  var trend=(priorDays>=2)?(recentAvg-priorAvg):0;
+  var prob=Math.max(0,Math.min(100,Math.round((recentAvg/need)*100)));
+  var type,tag,dx,act;
+  if(n<3){ type='new'; tag='관찰 단계';
+    dx='아직 출근 '+n+'일 — 표본이 적어 승급 판단은 일러요.';
+    act='기본기 트레이닝(5 Step·콜백싯)부터. 첫 성공 경험을 빨리 만들어 적응 돕기.'; prob=Math.min(prob,55); }
+  else if(recentAvg>=need){ type='now'; tag='리더 임박';
+    dx='최근 '+recentAvg.toFixed(1)+'/일 — 리더힛 기준(1.6/일)을 넘는 페이스.';
+    act='A급(유동 많은) 사이트 우선 배정 + 긴 필드 시간으로 이번 5일에 마무리.'; }
+  else if(recentAvg>=1.2){ type='skill'; tag='경합권';
+    dx='최근 '+recentAvg.toFixed(1)+'/일 — 기준에 거의 근접, 한 끗 차이.';
+    act='A급 사이트 + 클로징(TAAIS) 코칭이면 닿아요.'; }
+  else if(trend<=-0.6 && priorAvg>=1.0){ type='drop'; tag='하락세 · 주춤';
+    dx='이전 '+priorAvg.toFixed(1)+' → 최근 '+recentAvg.toFixed(1)+'/일로 떨어졌어요. 할 수 있는데 주춤한 케이스.';
+    act='숫자 압박 전에 멘탈·번아웃·환경·사이트 변화부터 1:1로 원인 찾기.'; }
+  else if(n>=10 && overall<0.8){ type='longlow'; tag='장기 저조';
+    dx='장기 평균 '+overall.toFixed(1)+'/일('+n+'일 누적) — 오래 낮게 정체.';
+    act='재교육 또는 Qualifying(적합성) 판단 · 사이트·역할 재배치 검토.'; }
+  else if(recentAvg>0){ type='help'; tag='지원 필요';
+    dx='최근 '+recentAvg.toFixed(1)+'/일 — 기준 미달이지만 결과는 나오는 중.';
+    act='스킬 코칭 + 동행 셋업, 쉬운 사이트부터 자신감 회복.'; }
+  else { type='low'; tag='케어 우선';
+    dx='최근 출근일 결과 0 — 결과가 멈췄어요.';
+    act='숫자보다 멘탈·태도 1:1부터 · 동행으로 0 끊어주기.'; }
+  var nextDay=n+1, train=null;
+  if(nextDay<=5 && ONBOARD_TRAIN[nextDay]) train={day:nextDay,t:ONBOARD_TRAIN[nextDay].t,d:ONBOARD_TRAIN[nextDay].d};
+  return {prob:prob,type:type,tag:tag,dx:dx,act:act,recentAvg:recentAvg,overall:overall,n:n,trend:trend,train:train};
 }
 function lhCoachHTML(list){
   if(!list.length) return '';
   var rows=list.map(function(x){var c=lhCoach(x);c.name=x.name;return c;});
-  var order={now:0,skill:1,help:2,low:3};
+  var order={now:0,drop:1,skill:2,help:3,low:4,longlow:5,new:6};
   rows.sort(function(a,b){return (order[a.type]-order[b.type])||(b.prob-a.prob);});
-  var col={now:'var(--green)',skill:'var(--amber)',help:'var(--wepair)',low:'var(--danger)'};
+  var col={now:'var(--green)',skill:'var(--amber)',drop:'#FF8A4C',help:'var(--wepair)',low:'var(--danger)',longlow:'var(--danger)',new:'var(--muted)'};
   var body=rows.map(function(r){
+    var tr=r.trend>0.15?'▲ 상승':(r.trend<-0.15?'▼ 하락':'― 유지');
     return '<div class="lhc t-'+r.type+'">'+
       '<div class="lhc-top"><span class="lhc-nm">'+esc(r.name)+'</span><span class="lhc-tag t-'+r.type+'">'+r.tag+'</span>'+
-      '<span class="lhc-prob">리더 도달 <b>'+r.prob+'%</b> · 페이스 '+r.pace.toFixed(1)+'/일</span></div>'+
+      '<span class="lhc-prob"><b>'+r.prob+'%</b></span></div>'+
+      (r.train?'<div class="lhc-train">📚 다음 필드 <b>'+r.train.day+'일차</b> · '+esc(r.train.t)+' 교육 필요</div>':'')+
+      '<div class="lhc-met">출근 '+r.n+'일 · 최근 '+r.recentAvg.toFixed(1)+'/일 '+tr+' · 장기 '+r.overall.toFixed(1)+'/일</div>'+
       '<div class="lhc-bar"><i style="width:'+r.prob+'%;background:'+col[r.type]+'"></i></div>'+
-      '<div class="lhc-act">'+r.act+'</div></div>';
+      '<div class="lhc-dx"><span class="lhc-lbl dx">진단</span>'+r.dx+'</div>'+
+      '<div class="lhc-act"><span class="lhc-lbl do">할 일</span>'+r.act+'</div></div>';
   }).join('');
   return '<div class="lh-coach"><div class="lh-coach-h">🚀 승급 가능성 · 개입 우선순위</div>'+
-         '<div class="lh-coach-sub">리더가 될 가능성이 높은 순 · 누구를 먼저 챙기고 어떤 사이트를 줄지</div>'+body+'</div>';
+         '<div class="lh-coach-sub">최근 5일만이 아니라 전체 출근 흐름으로 분석 — 상승·하락·장기저조를 구분해요</div>'+body+'</div>';
 }
 function renderLeaderHit(){
   var box=document.getElementById('leaderhitBody'); if(!box) return;
