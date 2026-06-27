@@ -2814,52 +2814,8 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
           <div class="ah"><h3>제출된 설문</h3><span class="badge zero" id="survBadge">0</span></div>
           <div class="adm-body"><p style="font-size:12px;color:var(--muted);margin-bottom:11px">이름을 누르면 그 사람의 설문 응답을 볼 수 있어요.</p>
           <button class="btn block" onclick="downloadSurveysCSV()" style="margin-bottom:12px">📥 설문 응답 전체 다운로드 (엑셀)</button>
-          <div id="survList"></div></div>
-        </div>
-      </div>
-    </section></div></div>
-
-    <div class="mpanel" id="m-gsheet"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🔗 구글시트 연동</h2><span class="ko">Apps Script 웹앱(/exec) 주소 관리</span><span class="meta">관리자 전용</span></div>
-      <p class="intro">앱은 시트 주소가 아니라, 각 시트에 붙은 <b>Apps Script 웹앱(/exec) 주소</b>로 연동돼요. 시트를 새로 배포했을 때만 아래 주소를 갱신하면 전 팀원에게 공유됩니다. (배포 시 <b>액세스: 모든 사용자</b>, 같은 주소 유지하려면 <b>배포 관리 → 연필 → 새 버전 → 배포</b>.)</p>
-      <div class="sheet-conn" style="margin-top:0">
-        <div class="sc-note">📊 <b>스코어 시트</b> · 세일즈·인컴·리젝·주간/월간 결과·팀원명단·메타 (기존 연동)</div>
-        <div class="sc-row"><input id="webhookUrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook()">저장</button></div>
-        <div class="sc-hint">세일즈 데이터가 오가는 핵심 연동이에요. 비우면 시트 가져오기·전송이 멈추니 주의하세요.</div>
-      </div>
-      <div class="sheet-conn" style="margin-top:14px">
-        <div class="sc-note">🗂️ <b>프레젠스 웹관리 시트</b> · 가입로그·설문응답 (스코어 시트와 분리)</div>
-        <div class="sc-row"><input id="web2UrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook2()">저장</button></div>
-        <div class="sc-hint" id="web2Status" style="margin-top:8px;font-weight:700"></div>
-        <div class="sc-hint">비우면 가입·설문은 시트에 기록되지 않고 앱에만 저장돼요. 가입로그에 비밀번호가 들어가니, 이 시트는 <b>관리자만 보도록</b> 공유 범위를 제한하세요.</div>
-        <button class="btn ghost block" onclick="backupAllToWeb()" style="margin-top:12px">📤 지금까지 쌓인 가입·설문 전체 백업</button>
-        <p style="font-size:11px;color:var(--faint);line-height:1.55;margin-top:8px">자동 백업은 주소를 연결한 <b>이후 제출분</b>부터예요. 연결 전에 쌓인 데이터는 위 버튼으로 한 번 내보내면 시트에 채워져요.</p>
-      </div>
-    </section></div></div>
-
-    <div class="mpanel" id="m-teamtree"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🧭 Team Tree</h2><span class="ko">상위팀 · 하위팀 조직도 · 팀 구조 편집</span><span class="meta">AOP 전용</span></div>
-      <div id="orgEditorBody"></div>
-    </section></div></div>
-
-    <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">승인 · 팀원 · 설문</span><span class="meta">AOP 전용</span></div>
-      <div class="adm-grid">
-        <div class="adm-card adm-collapsed">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🔗 개발 연동 · 바로가기</h3><span class="ah-caret">▾</span></div>
-          <div class="adm-body" id="devLinksBody"></div>
-        </div>
-        <div class="adm-card">
-          <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
-          <div class="adm-body" id="pendList"></div>
-        </div>
-        <div class="adm-card adm-collapsed">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👥 팀원 명단</h3><span class="ah-caret">▾</span></div>
-          <div class="adm-body">
-            <p style="font-size:12.5px;color:var(--green-soft);font-weight:700;margin-bottom:11px;background:rgba(92,188,46,.1);border:1px solid rgba(92,188,46,.25);border-radius:9px;padding:10px 12px;line-height:1.6">👤 이름을 누르면 <b>팀원 프로필</b>이 열려요 — 인적사항·최근 결과·리쿠르팅·팀장·하위팀·1:1, 그리고 <b>퇴사 처리</b>까지 그 안에서. <span style="color:var(--muted);font-weight:600">🔒 관리자 전용</span></p>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기 있는 이름만 <b>회원가입</b>할 수 있어요. 새 팀원은 아래에서 바로 추가하거나, 구글시트 '팀' 탭에 적고 <b>동기화</b>를 누르면 돼요.</p>
-            <div id="memberAdminBody"></div>
-            <button class="btn ghost block" style="margin-top:8px" onclick="syncRosterToSheet()">📋 이번 달 시트에 명단 동기화</button>
+          <details class="surv-acc" open><summary>✅ 재직중 <span class="surv-cnt" id="survActiveBadge">0</span><span class="surv-caret">▾</span></summary><div id="survListActive"></div></details>
+          <details class="surv-acc"><summary>👋 퇴사자 <span class="surv-cnt" id="survDepartedBadge">0</span><span class="surv-caret">▾</span></summary><div id="survListDeparted"></div></details>
           </div>
         </div>
         <div class="adm-card adm-collapsed">
@@ -2876,20 +2832,54 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
             <button class="exp-btn primary block" style="margin-top:10px" onclick="exportSelectedPDF()">📄 선택한 팀원 PDF</button>
           </div>
         </div>
+      </div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-gsheet"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🛠️ 개발 연동</h2><span class="ko">구글시트(Apps Script) · GitHub · Firebase · API 키 — 한 곳에서</span><span class="meta">관리자 전용</span></div>
+      <div class="sec-sub" style="margin-bottom:8px">📊 구글시트 연동 (Apps Script /exec)</div>
+      <p class="intro">앱은 시트 주소가 아니라, 각 시트에 붙은 <b>Apps Script 웹앱(/exec) 주소</b>로 연동돼요. 시트를 새로 배포했을 때만 아래 주소를 갱신하면 전 팀원에게 공유됩니다. (배포 시 <b>액세스: 모든 사용자</b>, 같은 주소 유지하려면 <b>배포 관리 → 연필 → 새 버전 → 배포</b>.)</p>
+      <div class="sheet-conn" style="margin-top:0">
+        <div class="sc-note">📊 <b>스코어 시트</b> · 세일즈·인컴·리젝·주간/월간 결과·팀원명단·메타 (기존 연동)</div>
+        <div class="sc-row"><input id="webhookUrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook()">저장</button></div>
+        <div class="sc-hint">세일즈 데이터가 오가는 핵심 연동이에요. 비우면 시트 가져오기·전송이 멈추니 주의하세요.</div>
+      </div>
+      <div class="sheet-conn" style="margin-top:14px">
+        <div class="sc-note">🗂️ <b>프레젠스 웹관리 시트</b> · 가입로그·설문응답 (스코어 시트와 분리)</div>
+        <div class="sc-row"><input id="web2UrlInput" placeholder="https://script.google.com/macros/s/.../exec" /><button onclick="saveWebhook2()">저장</button></div>
+        <div class="sc-hint" id="web2Status" style="margin-top:8px;font-weight:700"></div>
+        <div class="sc-hint">비우면 가입·설문은 시트에 기록되지 않고 앱에만 저장돼요. 가입로그에 비밀번호가 들어가니, 이 시트는 <b>관리자만 보도록</b> 공유 범위를 제한하세요.</div>
+        <button class="btn ghost block" onclick="backupAllToWeb()" style="margin-top:12px">📤 지금까지 쌓인 가입·설문 전체 백업</button>
+        <p style="font-size:11px;color:var(--faint);line-height:1.55;margin-top:8px">자동 백업은 주소를 연결한 <b>이후 제출분</b>부터예요. 연결 전에 쌓인 데이터는 위 버튼으로 한 번 내보내면 시트에 채워져요.</p>
+      </div>
+      <div class="sec-sub" style="margin-top:26px">🔗 개발 바로가기 · API 키</div>
+      <div id="devLinksBody"></div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-teamtree"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🧭 Team Tree</h2><span class="ko">상위팀 · 하위팀 조직도 · 팀 구조 편집</span><span class="meta">AOP 전용</span></div>
+      <div id="orgEditorBody"></div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">가입 승인 · 팀원 명단 · 직급·권한·계정 · 퇴사자</span><span class="meta">AOP 전용</span></div>
+      <div class="adm-grid">
+        <div class="adm-card">
+          <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
+          <div class="adm-body" id="pendList"></div>
+        </div>
         <div class="adm-card adm-collapsed">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪪 가입 계정 · 직급 관리</h3><span class="badge zero" id="rosterBadge">0</span><span class="ah-caret">▾</span></div>
-          <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👥 팀원 명단</h3><span class="ah-caret">▾</span></div>
+          <div class="adm-body">
+            <p style="font-size:12.5px;color:var(--green-soft);font-weight:700;margin-bottom:11px;background:rgba(92,188,46,.1);border:1px solid rgba(92,188,46,.25);border-radius:9px;padding:10px 12px;line-height:1.6">👤 이름을 누르면 <b>팀원 프로필</b>이 열려요 — 인적사항·최근 결과·리쿠르팅·팀장·하위팀·1:1, 그리고 <b>퇴사 처리</b>까지 그 안에서. <span style="color:var(--muted);font-weight:600">🔒 관리자 전용</span></p>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기 있는 이름만 <b>회원가입</b>할 수 있어요. 새 팀원은 아래에서 바로 추가하거나, 구글시트 '팀' 탭에 적고 <b>동기화</b>를 누르면 돼요.</p>
+            <div id="memberAdminBody"></div>
+            <button class="btn ghost block" style="margin-top:8px" onclick="syncRosterToSheet()">📋 이번 달 시트에 명단 동기화</button>
+          </div>
         </div>
         <div class="adm-card adm-collapsed">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👋 퇴사자</h3><span class="badge zero" id="departedBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body"><div id="departedBody"></div></div>
-        </div>
-        <div class="adm-card">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
-          <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">매니저는 <b>일일 결과만</b> 자기 화면에서 보고 수정할 수 있어요(수정은 구글시트에 자동 반영). 그 외 관리 기능은 못 봐요. 아래에서 <b>매니저로</b>를 누르면 임명, <b>해제</b>를 누르면 권한이 사라져요.</p>
-            <div id="managerAdminBody"></div>
-          </div>
         </div>
         <div class="adm-card">
           <div class="ah"><h3>📊 데이터 사용량</h3></div>
@@ -4153,7 +4143,7 @@ const TABMETA={
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'📣',l:'공지·기념일',g:()=>isFounder(me)},
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
-  gsheet:{e:'🔗',l:'구글시트',g:()=>isFounder(me)},
+  gsheet:{e:'🛠️',l:'개발 연동',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
   teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
@@ -4212,8 +4202,8 @@ function goTab(name){
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{renderToday();}catch(e){}}
   if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();setTimeout(maybeTokenIssuePrompt,500);}}
-  if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();}
-  if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();}
+  if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();if(typeof renderExportPanel==='function')renderExportPanel();}
+  if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
   if(name==='teamtree'&&isFounder(me)){orgEnsureSeed();renderOrgEditor();}
   if(name==='notice')renderNotices();
@@ -5110,14 +5100,7 @@ function renderAdmin(){
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
   document.getElementById('pendList').innerHTML=pend.length?pend.map(u=>`<div class="pend"><span class="pav" style="background:${avColor(u.name)}">${avInner(u.name)}</span><div class="pinfo"><div class="pn">${esc(u.name)} <span style="font-size:11px;color:var(--muted)">· ${ROLE_LABEL[u.role]}</span></div><div class="pid">@${esc(u.id)}</div></div><div class="pacts"><button class="vbtn view" onclick="viewSurvey('${u.uid}','${u.role}')">설문</button><button class="vbtn ok" onclick="approve('${u.uid}')">승인</button><button class="vbtn no" onclick="reject('${u.uid}')">거절</button></div></div>`).join(''):'<div class="empty-row">승인 대기 중인 가입 신청이 없어요</div>';
-  const act=users.filter(u=>!isDeparted(u.name)).sort((a,b)=>ri(b.role)-ri(a.role));
-  const rb=document.getElementById('rosterBadge');rb.textContent=act.length;rb.classList.toggle('zero',act.length===0);
-  const actRow=u=>{
-    const done=Object.keys(u.surveys||{});
-    return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
-  };
-  document.getElementById('rosterBody').innerHTML=act.map(actRow).join('')||'<tr><td colspan="5" class="empty-row" style="border:none">활동 중인 계정이 없어요</td></tr>';
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDepartedAdmin();renderDataUsage();renderSalesMgr();renderDevLinks();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderMemberAdmin();renderDepartedAdmin();renderDataUsage();renderSalesMgr();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -5608,6 +5591,11 @@ function closeMember(){var m=document.getElementById('memberModal');if(m)m.class
 function mbRetire(){if(!mbName)return;retireMember(mbName);closeMember();}
 function mbRehire(){if(!mbName)return;rehireMember(mbName);if(document.getElementById('memberModal').classList.contains('on'))renderMember();}
 function mbPurge(){if(!mbName)return;purgeDeparted(mbName);closeMember();}
+function mbSetRole(uid,role){if(!(me&&isFounder(me)))return;changeRole(uid,role);if(mbName&&document.getElementById('memberModal').classList.contains('on'))renderMember();}
+function mbToggleMgr(){if(!mbName||!(me&&isFounder(me)))return;toggleManager(mbName);if(document.getElementById('memberModal').classList.contains('on'))renderMember();}
+function mbToggleSec(){if(!mbName||!(me&&isFounder(me)))return;toggleSectorLeader(mbName);if(document.getElementById('memberModal').classList.contains('on'))renderMember();}
+function mbResetPw(){if(!mbName||!(me&&isFounder(me)))return;var u=userByName(mbName);if(u)resetPw(u.uid);else toast('가입 계정이 없어요');}
+function mbDeleteAcct(){if(!mbName||!(me&&isFounder(me)))return;var u=userByName(mbName);if(!u){toast('가입 계정이 없어요');return;}reject(u.uid);if(!state.users[u.uid])closeMember();}
 
 function renderMember(){
   var name=mbName;if(!name)return;var E=esc,u=userByName(name),d=dossierOf(name);
@@ -5664,12 +5652,27 @@ function renderMember(){
   h+='<div class="mb-sec"><div class="mb-sh">🏷️ 태그·특성</div><div class="mb-tags">'+mbTagsHTML(d.tags)+'</div>';
   if(mbCanCoach())h+='<div class="mb-add"><input id="mbTagIn" placeholder="예: 멘탈강함 · 클로징탑 · 리쿠르터" onkeydown="if(event.key===\'Enter\')mbAddTag()"><button onclick="mbAddTag()">추가</button></div>';
   h+='</div>';
-  /* ⚙️ 관리 — 퇴사·재입사·삭제 (관리자 전용, 프로필 하단에 분리) */
+  /* ⚙️ 관리 — 직급·권한·계정·퇴사 (관리자 전용) */
   if(me&&isFounder(me)){
     var _isAct=allMembers().some(function(x){return x.replace(/\s/g,'')===name.replace(/\s/g,'');});
+    var _isMe=u&&me&&u.uid===me.uid;
     h+='<div class="mb-sec mb-managez"><div class="mb-sh">⚙️ 관리</div>';
     if(_isAct){
-      h+='<button class="mb-mbtn danger" onclick="mbRetire()">👋 퇴사 처리</button>';
+      if(u){
+        h+='<div class="mb-mgrow"><span class="mb-mgl">직급</span><select class="mb-mgsel" onchange="mbSetRole(\''+u.uid+'\',this.value)">'+ROLES.map(function(r){return '<option'+(r===u.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>';
+        var _onMgr=isManager(u),_onSec=isSectorLeader(u);
+        h+='<div class="mb-mgrow"><span class="mb-mgl">권한</span><div class="mb-perm">'
+          +'<button class="mb-permbtn'+(_onMgr?' on':'')+'" onclick="mbToggleMgr()">🧑‍💼 매니저'+(_onMgr?' ✓':'')+'</button>'
+          +'<button class="mb-permbtn'+(_onSec?' on':'')+'" onclick="mbToggleSec()">🗺️ 섹터리더'+(_onSec?' ✓':'')+'</button>'
+          +'</div></div>';
+        h+='<div class="mb-mhint">🧑‍💼 매니저 = 일일 결과만 입력·수정 · 🗺️ 섹터리더 = 사이트 관리 접근.</div>';
+        h+='<div class="mb-mgrow"><span class="mb-mgl">계정</span><span class="mb-acctid">@'+esc(u.id)+'</span></div>';
+        if(!_isMe)h+='<div class="mb-mbtnrow"><button class="mb-mbtn" onclick="mbResetPw()">🔑 비번 재설정</button><button class="mb-mbtn danger" onclick="mbDeleteAcct()">🗑️ 계정 삭제</button></div>';
+        else h+='<div class="mb-mhint">본인(관리자) 계정이에요.</div>';
+      } else {
+        h+='<div class="mb-mhint">아직 <b>가입 계정이 없는</b> 팀원이에요. 본인이 회원가입(아이디 '+esc(FOUNDER.id)+' 로그인 화면의 “가입”)을 하면 직급·권한·설문·계정이 여기에 연결돼요.</div>';
+      }
+      h+='<button class="mb-mbtn danger block" onclick="mbRetire()" style="margin-top:11px">👋 퇴사 처리</button>';
       h+='<div class="mb-mhint">다음 달부터 명단·시트에서 빠지고, 이번 달까지의 결과·기록은 그대로 보존돼요.</div>';
     } else {
       h+='<div class="mb-mbtnrow"><button class="mb-mbtn" onclick="mbRehire()">🔄 재입사</button><button class="mb-mbtn danger" onclick="mbPurge()">🗑️ 명단에서 삭제</button></div>';
@@ -5834,10 +5837,10 @@ function renderMemberAdmin(){
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-sec-h">✅ 재직 ${active.length}명</div>`
     +`<div class="mem-list">`
-    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기">👤 ${esc(n)}${m&&m.join?`<small class="mem-d">첫필드 ${m.join}</small>`:''}<span class="mem-chev">›</span></span>`;}).join('')
+    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;const u=userByName(n);const rl=u?u.role:roleOf(n);const reg=!!u;const mgr=u&&isManager(u);const sec=u&&isSectorLeader(u);return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 직급·권한·계정 관리">👤 ${esc(n)} <span class="mem-role">${esc(ROLE_LABEL[rl]||rl)}</span>${mgr?'<span class="mem-pm">🧑‍💼</span>':''}${sec?'<span class="mem-pm">🗺️</span>':''}${reg?'':'<span class="mem-noacct">계정없음</span>'}<span class="mem-chev">›</span></span>`;}).join('')
     +`</div>`
     +`<button class="mem-sync" onclick="pullRoster({manual:true})">🔄 구글시트 '팀' 탭에서 팀원 동기화</button>`
-    +`<div class="mem-note">여기엔 <b>활동 중인 팀원만</b> 보여요. 이름을 누르면 <b>프로필</b>이 열리고, 그 안에서 <b>퇴사 처리</b>를 하면 → <b>「퇴사자」 카드로 이동</b>하고 명단·가입계정에선 빠져요. 이번 달까지의 기록은 그대로 보존됩니다.</div>`;
+    +`<div class="mem-note">이름을 누르면 <b>프로필</b>이 열려요 — 그 안에서 <b>직급 변경 · 🧑‍💼매니저/🗺️섹터리더 권한 · 🔑계정(비번재설정·삭제) · 퇴사 처리</b>까지 다 됩니다. 퇴사하면 「퇴사자」 카드로 이동하고 명단에선 빠져요(기록은 보존).</div>`;
   if(typeof renderExportPanel==='function')renderExportPanel();
 }
 /* ===== 👋 퇴사자 (전용 카드 · 기본 숨김 · 여기서만 보관·관리) ===== */
@@ -6009,7 +6012,24 @@ function renderAnnounceAdmin(){
     ?`<div class="ann-cur"><div class="ann-cur-lbl">지금 띄워진 공지</div><div class="ann-cur-tx">${esc(a.text)}</div><div class="ann-cur-meta">${esc(a.by||'')} · ${a.t?new Date(a.t).toLocaleString('ko-KR'):''}</div><button class="ann-clear" onclick="clearAnnounce()">공지 내리기</button></div>`
     :'<div class="ann-cur-none">지금 띄워진 팝업 공지가 없어요</div>';
 }
-function renderSurveyResponses(){const box=document.getElementById('survList');if(!box)return;const rows=[];Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];rows.push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed})}})});rows.sort((a,b)=>b.t-a.t);const bd=document.getElementById('survBadge');if(bd){bd.textContent=rows.length;bd.classList.toggle('zero',rows.length===0)}box.innerHTML=rows.length?rows.map(r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>'}
+function renderSurveyResponses(){
+  const active=document.getElementById('survListActive'),departed=document.getElementById('survListDeparted'),legacy=document.getElementById('survList');
+  if(!active&&!legacy)return;
+  const rowsA=[],rowsD=[];
+  Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];(isDeparted(u.name)?rowsD:rowsA).push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed});}})});
+  const sf=(a,b)=>b.t-a.t;rowsA.sort(sf);rowsD.sort(sf);
+  const row=r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`;
+  const total=rowsA.length+rowsD.length;
+  const bd=document.getElementById('survBadge');if(bd){bd.textContent=total;bd.classList.toggle('zero',total===0);}
+  if(active){
+    active.innerHTML=rowsA.length?rowsA.map(row).join(''):'<div class="empty-row">재직 중 제출된 설문이 없어요</div>';
+    if(departed)departed.innerHTML=rowsD.length?rowsD.map(row).join(''):'<div class="empty-row">퇴사자 설문이 없어요</div>';
+    const ab=document.getElementById('survActiveBadge');if(ab)ab.textContent=rowsA.length;
+    const db=document.getElementById('survDepartedBadge');if(db)db.textContent=rowsD.length;
+  } else if(legacy){
+    legacy.innerHTML=total?rowsA.concat(rowsD).map(row).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>';
+  }
+}
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · ${curMonthKey()} 시트에 등록 요청`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
@@ -8072,6 +8092,27 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .org-ename small{color:var(--muted);font-weight:600;font-size:10.5px}
 .org-eteam,.org-eup{flex:1 1 130px;min-width:120px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12.5px;color-scheme:dark}
 .org-eteam:focus,.org-eup:focus{outline:none;border-color:var(--green-soft)}
+/* 프로필 ⚙️ 관리 — 직급·권한·계정 */
+.mb-mgrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.mb-mgl{flex:0 0 auto;min-width:42px;font-size:12px;font-weight:800;color:var(--muted)}
+.mb-mgsel{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:7px 11px;font-family:inherit;font-size:13px;font-weight:700;color-scheme:dark}
+.mb-mgsel:focus{outline:none;border-color:var(--green-soft)}
+.mb-perm{display:flex;gap:7px;flex-wrap:wrap}
+.mb-permbtn{background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.mb-permbtn.on{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+.mb-acctid{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.mb-mbtn.block{width:100%}
+/* 명단 칩 배지 */
+.mem-role{font-size:10px;font-weight:800;color:var(--green-soft);background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.25);border-radius:5px;padding:1px 6px;margin-left:2px}
+.mem-pm{font-size:11px;margin-left:1px}
+.mem-noacct{font-size:9.5px;font-weight:700;color:var(--amber);background:rgba(245,180,40,.1);border:1px solid rgba(245,180,40,.25);border-radius:5px;padding:1px 5px;margin-left:2px}
+/* 설문 재직/퇴사자 토글 */
+.surv-acc{margin-top:6px;border-top:1px solid var(--line-soft);padding-top:8px}
+.surv-acc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--cream);padding:5px 0}
+.surv-acc>summary::-webkit-details-marker{display:none}
+.surv-cnt{font-family:var(--mono);font-size:10.5px;background:var(--card-2);color:var(--muted);border-radius:6px;padding:1px 7px;font-weight:700}
+.surv-caret{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s ease}
+.surv-acc[open]>summary .surv-caret{transform:rotate(180deg)}
 
 /* 1) 가로 레이아웃 시프트 제거 — 모달로 스크롤 잠길 때 폭이 안 흔들림 */
 html{ scrollbar-gutter:stable; }
