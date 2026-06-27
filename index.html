@@ -2741,8 +2741,13 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 
     <!-- 기념일 관리 (관리자) -->
     <div class="mpanel" id="m-events"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🎉 기념일 관리</h2><span class="ko">생일·기념일·굳뉴스</span><span class="meta">관리자</span></div>
-      <div class="sec-sub">🎂 다음 7일 생일</div>
+      <div class="sec-head"><h2>📣 공지·기념일</h2><span class="ko">팝업 공지 · 생일·기념일·굳뉴스</span><span class="meta">관리자</span></div>
+      <div class="sec-sub">📣 팝업 공지</div>
+      <p style="font-size:12px;color:var(--muted);margin:2px 0 10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b>을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
+      <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
+      <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
+      <div id="annCurrent"></div>
+      <div class="sec-sub" style="margin-top:24px">🎂 다음 7일 생일</div>
       <div id="weekBdays"></div>
       <div class="sec-sub" style="margin-top:24px">📌 기념일 추가</div>
       <div class="ev-add"><input type="date" id="evDate"/><input id="evTitle" placeholder="기념일 이름 (예: 팀 창단일)" maxlength="30"/><button onclick="addEvent()">추가</button></div>
@@ -2884,15 +2889,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
           <div class="adm-body">
             <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">매니저는 <b>일일 결과만</b> 자기 화면에서 보고 수정할 수 있어요(수정은 구글시트에 자동 반영). 그 외 관리 기능은 못 봐요. 아래에서 <b>매니저로</b>를 누르면 임명, <b>해제</b>를 누르면 권한이 사라져요.</p>
             <div id="managerAdminBody"></div>
-          </div>
-        </div>
-        <div class="adm-card">
-          <div class="ah"><h3>📣 팝업 공지</h3></div>
-          <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b> 버튼을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
-            <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
-            <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
-            <div id="annCurrent"></div>
           </div>
         </div>
         <div class="adm-card">
@@ -3131,7 +3127,7 @@ function postWebhook(payload){
 /* 두 번째 웹훅 — '프레젠스 웹관리' 시트용 (가입로그·설문응답). 세일즈/스코어와 분리 */
 function effectiveWeb(){const w=(typeof state!=='undefined'&&state.settings)?state.settings.webhook2:null;return (typeof w==='string'&&/script\.google\.com/.test(w))?w.trim():'';}
 function postWeb(payload){const u=effectiveWeb();if(!u)return;try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})}catch(e){}}
-const FOUNDER = {uid:'admin', name:'관리자', id:'Presence', pw:'0001'};   // 관리자(소유자) 계정 — 항상 로그인 보장
+const FOUNDER = {uid:'admin', name:'임재영', id:'Presence', pw:'0001'};   // 관리자(소유자) = 임재영 AOP — 항상 로그인 보장
 /* ===== 관찰(테스트) 계정 — 모두 비번 0000, DB·집계·시트에 영향 없음 =====
    test1(testbot1): IC 역할 — 설문 화면을 보되 ‘설문 생략’ 가능
    test2(testbot2): 리더(LR) 역할 — 설문 화면을 보되 ‘설문 생략’ 가능
@@ -4155,7 +4151,7 @@ const TABMETA={
   field:{e:'🧭',l:'필드도구',g:()=>isLeader(me.role)},
   sites:{e:'🗺️',l:'사이트 관리',g:()=>isSectorLeader(me)||isFounder(me)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
-  events:{e:'🎉',l:'기념일',g:()=>isFounder(me)},
+  events:{e:'📣',l:'공지·기념일',g:()=>isFounder(me)},
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
   gsheet:{e:'🔗',l:'구글시트',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
@@ -4234,7 +4230,7 @@ function goTab(name){
   if(name==='field')renderField();
   if(name==='sites')renderSites();
   if(name==='daily'){const dd=document.getElementById('dailyDate');if(dd&&!dd.value)dd.value=TODAY;renderDaily();startAutoPull();}
-  if(name==='events'){renderEvents();renderGnAdmin();}
+  if(name==='events'){renderEvents();renderGnAdmin();renderAnnounceAdmin();}
   updateCounts();
   syncTopOffset();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -5895,21 +5891,21 @@ function orgNodeHTML(name,childMap,seen){
   seen=seen||{};if(seen[nk(name)])return '';seen[nk(name)]=1;
   var d=dossierOf(name),team=d.teamName||'',kids=childMap[nk(name)]||[];
   var safe=esc(name).replace(/'/g,"\\'");
-  var h='<div class="org-node"><div class="org-card" onclick="openMember(\''+safe+'\')" title="프로필 열기">'
-    +'<span class="org-av" style="background:'+avColor(name)+'">'+avInner(name)+'</span>'
-    +'<span class="org-nm">'+esc(name)+'</span>'
-    +'<span class="org-role">'+esc(ROLE_LABEL[roleOf(name)]||roleOf(name))+'</span>'
-    +(team?'<span class="org-team">🏷️ '+esc(team)+'</span>':'')
-    +(kids.length?'<span class="org-cnt">'+kids.length+'명</span>':'')
+  var node='<div class="onode" onclick="openMember(\''+safe+'\')" title="프로필 열기">'
+    +'<span class="onode-av" style="background:'+avColor(name)+'">'+avInner(name)+'</span>'
+    +'<span class="onode-nm">'+esc(name)+'</span>'
+    +'<span class="onode-role">'+esc(ROLE_LABEL[roleOf(name)]||roleOf(name))+'</span>'
+    +(team?'<span class="onode-team">🏷️ '+esc(team)+'</span>':'')
+    +(kids.length?'<span class="onode-cnt">'+kids.length+'</span>':'')
     +'</div>';
-  if(kids.length)h+='<div class="org-kids">'+kids.map(function(k){return orgNodeHTML(k,childMap,seen);}).join('')+'</div>';
-  return h+'</div>';
+  var ch=kids.length?'<ul>'+kids.map(function(k){return orgNodeHTML(k,childMap,seen);}).join('')+'</ul>':'';
+  return '<li>'+node+ch+'</li>';
 }
 function orgTreeHTML(){
   var t=orgBuildTree();
   if(!t.mem.length)return '<div class="empty-row">명단에 팀원이 없어요</div>';
   var seen={};
-  var tree='<div class="org-tree">'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen);}).join('')+'</div>';
+  var tree='<div class="otree"><ul>'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen);}).join('')+'</ul></div>';
   var broken=[];t.mem.forEach(function(n){var up=(dossierOf(n).upline||'').trim();if(up&&!t.byk[nk(up)])broken.push(n+'→'+up);});
   var warn=broken.length?'<div class="org-warn">⚠️ 상위 리더가 명단에 없는 사람: '+broken.map(esc).join(', ')+' — 아래에서 다시 지정하세요.</div>':'';
   var teamCnt=Object.keys(t.childMap).length;
@@ -6587,6 +6583,19 @@ async function initFirebase(){
       const f=seedUser(FOUNDER.uid,FOUNDER.name,FOUNDER.id,FOUNDER.pw,'AOP','active',['IC','LR','TL']);
       state.users[f.uid]=f;DB.set('users/'+f.uid,f);
     }
+    /* 관리자 = 임재영(AOP) 단일화 — 기존 '관리자' 표기 교정 + 중복 임재영 계정 흡수 */
+    (function(){
+      var adminU=state.users[FOUNDER.uid]||Object.values(state.users).find(u=>u&&u.id===FOUNDER.id);
+      if(!adminU)return;
+      if(adminU.name!==FOUNDER.name){adminU.name=FOUNDER.name;DB.set('users/'+adminU.uid+'/name',FOUNDER.name);}
+      if(adminU.role!=='AOP'){adminU.role='AOP';DB.set('users/'+adminU.uid+'/role','AOP');}
+      Object.values(state.users).forEach(function(u){
+        if(u&&u.uid!==adminU.uid&&(u.name||'').replace(/\s/g,'')==='임재영'){delete state.users[u.uid];DB.set('users/'+u.uid,null);}
+      });
+      var ek=function(n){return (n||'').replace(/\s/g,'')==='임재영';};
+      if(Array.isArray(state.extraMembers)&&state.extraMembers.some(ek)){state.extraMembers=state.extraMembers.filter(function(n){return !ek(n);});DB.set('extraMembers',state.extraMembers);}
+      if(Array.isArray(state.removedMembers)&&state.removedMembers.some(ek)){state.removedMembers=state.removedMembers.filter(function(n){return !ek(n);});DB.set('removedMembers',state.removedMembers);}
+    })();
     if(me)me=state.users[me.uid]||me;
     if(!me&&authState.view==='login'&&lsGet('presence_sess'))tryAutoLogin();
     if(me&&isFounder(me))renderAdmin();updateCounts();
@@ -8032,19 +8041,31 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .org-seed.ghost{background:var(--card-2);border:1px solid var(--line);color:var(--cream)}
 .org-meta{font-size:11.5px;color:var(--faint);margin-bottom:8px;font-family:var(--mono)}
 .org-warn{font-size:12px;color:var(--amber);background:rgba(245,180,40,.1);border:1px solid rgba(245,180,40,.28);border-radius:9px;padding:8px 11px;margin-bottom:10px;line-height:1.55}
-.org-treebox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;overflow-x:auto}
-.org-tree{min-width:max-content}
-.org-node{position:relative}
-.org-kids{margin-left:13px;padding-left:14px;border-left:2px solid var(--line)}
-.org-card{display:inline-flex;align-items:center;gap:7px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:6px 11px;margin:4px 0;cursor:pointer;transition:border-color .18s,transform .18s}
-.org-card:hover{border-color:var(--green-soft);transform:translateX(2px)}
-.org-av{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex:0 0 auto;overflow:hidden}
-.org-av img{width:100%;height:100%;object-fit:cover}
-.org-av.sm{width:20px;height:20px;font-size:10px}
-.org-nm{font-weight:800;font-size:13.5px;color:var(--cream)}
-.org-role{font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
-.org-team{font-size:10.5px;color:var(--green-soft);background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.25);border-radius:6px;padding:1px 7px;font-weight:700}
-.org-cnt{font-size:9.5px;background:var(--amber);color:var(--green-ink);border-radius:5px;padding:1px 6px;font-weight:800}
+.org-treebox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 12px 16px;overflow-x:auto}
+/* top-down 조직도 (부모 위 · 자식 아래 · 연결선) */
+.otree{min-width:max-content;text-align:center;padding:4px 8px}
+.otree ul{display:flex;justify-content:center;list-style:none;margin:0;padding:22px 0 0;position:relative}
+.otree li{position:relative;padding:22px 9px 0;display:flex;flex-direction:column;align-items:center}
+.otree li::before,.otree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--line);width:50%;height:22px}
+.otree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+.otree li:only-child::before,.otree li:only-child::after{display:none}
+.otree li:only-child{padding-top:22px}
+.otree li:first-child::before,.otree li:last-child::after{border:0}
+.otree li:last-child::before{border-right:2px solid var(--line);border-radius:0 7px 0 0}
+.otree li:first-child::after{border-radius:7px 0 0 0}
+.otree>ul{padding-top:0}
+.otree>ul>li::before,.otree>ul>li::after{display:none}
+.otree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
+.onode{display:inline-flex;flex-direction:column;align-items:center;gap:3px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:9px 13px;cursor:pointer;transition:border-color .18s,transform .18s;min-width:96px;position:relative}
+.onode:hover{border-color:var(--green-soft);transform:translateY(-2px)}
+.onode-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;overflow:hidden;margin-bottom:2px}
+.onode-av img{width:100%;height:100%;object-fit:cover}
+.onode-nm{font-weight:800;font-size:13.5px;color:var(--cream);line-height:1.1}
+.onode-role{font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 7px}
+.onode-team{font-size:10px;color:var(--green-soft);background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.25);border-radius:6px;padding:1px 7px;font-weight:700}
+.onode-cnt{position:absolute;top:-7px;right:-7px;font-size:9.5px;background:var(--amber);color:var(--green-ink);border-radius:999px;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:800;border:2px solid var(--surface)}
+.org-av.sm{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:#fff;overflow:hidden;flex:0 0 auto}
+.org-av.sm img{width:100%;height:100%;object-fit:cover}
 .org-sec-h{font-size:13px;font-weight:800;color:var(--cream);margin:16px 0 8px;padding-bottom:7px;border-bottom:1px solid var(--line)}
 .org-erow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line-soft)}
 .org-ename{flex:0 0 auto;min-width:118px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--cream)}
