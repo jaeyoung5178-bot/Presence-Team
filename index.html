@@ -2306,7 +2306,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <button class="ft-sb active" data-sp="main" onclick="siteTab('main')">📍 주요 사이트</button>
         <button class="ft-sb" data-sp="new" onclick="siteTab('new')">➕ 신규 추가</button>
         <button class="ft-sb" data-sp="shade" onclick="siteTab('shade')">⛅ 여름(그늘)</button>
-        <button class="ft-sb" data-sp="apply" onclick="siteTab('apply')">🚀 신청·발사대</button>
+        <button class="ft-sb" data-sp="apply" onclick="siteTab('apply')">🚀 사이트 신청</button>
       </div>
 
       <div class="sp active" id="sp-main">
@@ -5880,7 +5880,7 @@ function orgEnsureSeed(){
 }
 function orgCmp(a,b){return (ri(roleOf(b))-ri(roleOf(a)))||a.localeCompare(b,'ko');}
 function orgBuildTree(){
-  var mem=allMembers();var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
+  var mem=allMembers().filter(function(n){return !isTestName_(n)&&nk(n)!==nk('관리자')&&nk(n)!==nk('테스터');});var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
   var childMap={},roots=[];
   mem.forEach(function(n){
     var up=(dossierOf(n).upline||'').trim();
@@ -5953,7 +5953,7 @@ function renderOrgEditor(){
   box.innerHTML='<p class="org-help">이름을 누르면 프로필이 열려요. 아래에서 각자의 <b>이끄는 팀 이름</b>과 <b>상위 리더(팀장)</b>를 고르면 위 조직도가 즉시 정리돼요. 순환(서로가 서로의 상위)은 자동으로 막아요.</p>'
     +'<div class="org-tools"><button class="org-seed" onclick="orgSeedExample()">📋 예시 구조 불러오기</button><button class="org-seed ghost" onclick="renderOrgEditor()">🔄 새로고침</button></div>'
     +'<div id="orgTreeBox" class="org-treebox">'+orgTreeHTML()+'</div>'
-    +'<div class="org-sec-h">✏️ 상위·팀 편집</div><div class="org-edit">'+rows+'</div>';
+    +'<details class="org-editwrap"><summary class="org-sec-h org-edit-sum">✏️ 상위·팀 편집 <span class="org-edit-caret">▾</span></summary><div class="org-edit">'+rows+'</div></details>';
 }
 /* 구글시트 '팀' 탭 → 가입 명단 자동 반영 (pull과 같은 JSONP) */
 function pullRoster(opts){
@@ -8117,6 +8117,27 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .org-ename small{color:var(--muted);font-weight:600;font-size:10.5px}
 .org-eteam,.org-eup{flex:1 1 130px;min-width:120px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12.5px;color-scheme:dark}
 .org-eteam:focus,.org-eup:focus{outline:none;border-color:var(--green-soft)}
+/* 상위·팀 편집 토글(기본 닫힘) */
+.org-editwrap{margin-top:14px}
+.org-editwrap>summary.org-edit-sum{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;margin:0}
+.org-editwrap>summary::-webkit-details-marker{display:none}
+.org-edit-caret{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s ease}
+.org-editwrap[open]>summary .org-edit-caret{transform:rotate(180deg)}
+.org-editwrap[open] .org-edit{margin-top:10px}
+/* 모바일: 조직도 한눈에 (노드 압축) */
+@media(max-width:620px){
+  .org-treebox{padding:10px 8px 12px}
+  .otree{padding:2px 4px}
+  .otree ul{padding-top:17px}
+  .otree li{padding:17px 3px 0}
+  .otree li::before,.otree li::after,.otree ul ul::before{height:17px}
+  .onode{min-width:60px;padding:6px 7px;gap:2px;border-radius:9px}
+  .onode-av{width:28px;height:28px;font-size:11px;border-radius:7px;margin-bottom:1px}
+  .onode-nm{font-size:11.5px}
+  .onode-role{font-size:8.5px;padding:0 5px}
+  .onode-team{font-size:8.5px;padding:0 5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .onode-cnt{min-width:15px;height:15px;font-size:8.5px;top:-6px;right:-6px}
+}
 /* 프로필 ⚙️ 관리 — 직급·권한·계정 */
 .mb-mgrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
 .mb-mgl{flex:0 0 auto;min-width:42px;font-size:12px;font-weight:800;color:var(--muted)}
