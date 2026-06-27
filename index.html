@@ -2212,6 +2212,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         #m-sites .srow .nm{font-weight:700;font-size:15px}
         #m-sites .srow .meta2{font-size:12px;color:var(--muted);margin-top:2px}
         #m-sites .srow .note2{font-size:12.5px;color:var(--cream);margin-top:5px;line-height:1.5}
+        #m-sites .srow .srow-area{font-size:12px;font-weight:600;color:var(--muted);margin-left:6px}
         #m-sites .srow .x{background:none;border:none;color:var(--faint);cursor:pointer;font-size:15px}
         #m-sites .srow .x:hover{color:var(--danger)}
         #m-sites .empty{color:var(--muted);font-size:13px;padding:18px;text-align:center}
@@ -2905,6 +2906,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <div id="mePhotoArea" style="display:flex;align-items:center;gap:14px;margin-bottom:16px"></div>
   <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="onProfilePhoto(this.files[0])"/>
   <div id="meBody" class="sv-view"></div>
+  <div id="meVer" style="font-size:11px;color:var(--faint);text-align:center;margin-top:10px"></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('meModal')">닫기</button><button class="btn" id="meLogout" onclick="logout()">로그아웃</button></div>
 </div></div>
 
@@ -5836,8 +5838,8 @@ function renderMemberAdmin(){
   const active=allMembers();
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-sec-h">✅ 재직 ${active.length}명</div>`
-    +`<div class="mem-list">`
-    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;const u=userByName(n);const rl=u?u.role:roleOf(n);const reg=!!u;const mgr=u&&isManager(u);const sec=u&&isSectorLeader(u);return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 직급·권한·계정 관리">👤 ${esc(n)} <span class="mem-role">${esc(ROLE_LABEL[rl]||rl)}</span>${mgr?'<span class="mem-pm">🧑‍💼</span>':''}${sec?'<span class="mem-pm">🗺️</span>':''}${reg?'':'<span class="mem-noacct">계정없음</span>'}<span class="mem-chev">›</span></span>`;}).join('')
+    +`<div class="mem-rows">`
+    + active.map(n=>{const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;const u=userByName(n);const rl=u?u.role:roleOf(n);const reg=!!u;const mgr=u&&isManager(u);const sec=u&&isSectorLeader(u);return `<div class="mem-row${isEx?' extra':''}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 직급·권한·계정 관리"><span class="mr-av" style="background:${avColor(n)}">${avInner(n)}</span><span class="mr-nm">${esc(n)}</span><span class="mr-role">${esc(ROLE_LABEL[rl]||rl)}</span><span class="mr-perm">${mgr?'<span class="mr-pm" title="매니저">🧑‍💼</span>':''}${sec?'<span class="mr-pm" title="섹터리더">🗺️</span>':''}${reg?'':'<span class="mem-noacct">계정없음</span>'}</span><span class="mr-chev">›</span></div>`;}).join('')
     +`</div>`
     +`<button class="mem-sync" onclick="pullRoster({manual:true})">🔄 구글시트 '팀' 탭에서 팀원 동기화</button>`
     +`<div class="mem-note">이름을 누르면 <b>프로필</b>이 열려요 — 그 안에서 <b>직급 변경 · 🧑‍💼매니저/🗺️섹터리더 권한 · 🔑계정(비번재설정·삭제) · 퇴사 처리</b>까지 다 됩니다. 퇴사하면 「퇴사자」 카드로 이동하고 명단에선 빠져요(기록은 보존).</div>`;
@@ -6296,7 +6298,7 @@ function maybeShowWelcome(){
 }
 function closeGiftWin(){closeModal('giftWinModal');}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
-function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');openModal('meModal')}
+function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');var _mv=document.getElementById('meVer');if(_mv)_mv.textContent='버전 '+APP_VERSION;openModal('meModal')}
 
 /* modals */
 function openModal(id){document.getElementById(id).classList.add('on')}
@@ -6973,8 +6975,8 @@ function renderSiteList(){
   var E=(typeof esc==='function')?esc:function(x){return x;};
   box.innerHTML=ids.map(function(id){
     var x=s[id]||{};
-    var meta=[x.area,(x.lat&&x.lng)?'📍좌표':''].filter(Boolean).join(' · ');
-    return '<div class="srow"><div class="info" onclick="openFb(\''+id+'\',\'main\')" style="cursor:pointer"><div class="nm">'+E(x.name||'(이름없음)')+'</div>'+(meta?'<div class="meta2">'+E(meta)+'</div>':'')+(x.note?'<div class="note2">'+E(x.note)+'</div>':'')+'<div class="fbcount">💬 피드백 '+fbCount(id)+'</div></div>'+(canEdit?'<button class="x" onclick="delSite(\''+id+'\')">✕</button>':'')+'</div>';
+    var meta=[x.area,(x.lat&&x.lng)?'📍':''].filter(Boolean).join(' ');
+    return '<div class="srow"><div class="info" onclick="openFb(\''+id+'\',\'main\')" style="cursor:pointer"><div class="nm">'+E(x.name||'(이름없음)')+(meta?' <span class="srow-area">'+E(meta)+'</span>':'')+'</div><div class="meta2">💬 피드백 '+fbCount(id)+' · 탭하면 세부보기 ›</div></div>'+(canEdit?'<button class="x" onclick="event.stopPropagation();delSite(\''+id+'\')">✕</button>':'')+'</div>';
   }).join('');
 }
 function addSiteRow(){
@@ -7464,7 +7466,9 @@ function renderSiteMap(){
   siteMarkers.forEach(function(m){try{siteMap.removeLayer(m);}catch(e){}}); siteMarkers=[];
   var s=state.sites||{}, pts=[];
   Object.keys(s).forEach(function(id){var x=s[id]; if(x&&x.lat&&x.lng){
-    var mk=L.marker([x.lat,x.lng],{icon:msPinIcon()}).addTo(siteMap).bindPopup('<b>'+((x.name||'').replace(/</g,''))+'</b>'+(x.area?'<br>'+(x.area).replace(/</g,''):''));
+    var nm=(x.name||'').replace(/</g,''), ar=(x.area||'').replace(/</g,'');
+    var mk=L.circleMarker([x.lat,x.lng],{radius:9,color:'#ffffff',weight:2.5,fillColor:'#5CBC2E',fillOpacity:.92}).addTo(siteMap)
+      .bindPopup('<div style="font-weight:800;font-size:13.5px;color:#1c1f23;margin-bottom:'+(ar?'2px':'7px')+'">'+nm+'</div>'+(ar?'<div style="color:#5f6368;font-size:11.5px;margin-bottom:7px">'+ar+'</div>':'')+'<button onclick="openFb(\''+id+'\',\'main\')" style="background:#5CBC2E;color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">세부 보기 →</button>');
     siteMarkers.push(mk); pts.push([x.lat,x.lng]);
   }});
   if(pts.length){ try{siteMap.fitBounds(pts,{padding:[34,34],maxZoom:15});}catch(e){} }
@@ -8006,6 +8010,24 @@ function devStatusHTML(){
 /* ============================================================
    BOOT
    ============================================================ */
+/* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
+const APP_VERSION='2026-06-27.1';
+let _updPrompted=false;
+function showUpdateBanner(v){
+  if(_updPrompted)return;_updPrompted=true;
+  var b=document.createElement('div');b.id='updBanner';
+  b.innerHTML='🔄 새 버전이 나왔어요 <b>('+(v||'')+')</b> — 탭하여 업데이트';
+  b.onclick=function(){try{location.replace(location.pathname+'?v='+Date.now());}catch(e){location.reload();}};
+  document.body.appendChild(b);
+}
+function checkForUpdate(){
+  try{
+    fetch(location.pathname+'?_chk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(txt){
+      var m=txt.match(/APP_VERSION='([^']+)'/);
+      if(m&&m[1]&&m[1]!==APP_VERSION)showUpdateBanner(m[1]);
+    }).catch(function(){});
+  }catch(e){}
+}
 (function boot(){
   initFirebase();
   loadSheets();
@@ -8015,6 +8037,9 @@ function devStatusHTML(){
   try{renderToday();}catch(e){}
   window.addEventListener('resize',()=>{try{syncTopOffset();}catch(e){}});
   setInterval(()=>{if(me){renderWaterFeed();renderGb();renderWins()}},60000);
+  setTimeout(checkForUpdate,4000);
+  setInterval(checkForUpdate,300000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkForUpdate();});
 })();
 </script>
 <style id="polish-css-2">
@@ -8113,6 +8138,21 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .surv-cnt{font-family:var(--mono);font-size:10.5px;background:var(--card-2);color:var(--muted);border-radius:6px;padding:1px 7px;font-weight:700}
 .surv-caret{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s ease}
 .surv-acc[open]>summary .surv-caret{transform:rotate(180deg)}
+/* 팀 명단 — 한 줄 한 명 가로 행 */
+.mem-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.mem-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:var(--card);cursor:pointer;transition:border-color .14s,background .14s}
+.mem-row:hover{border-color:var(--green-soft);background:var(--card-2)}
+.mem-row.extra{background:rgba(92,188,46,.08);border-color:rgba(92,188,46,.3)}
+.mem-row .mr-av{flex:0 0 auto;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;overflow:hidden}
+.mem-row .mr-av img{width:100%;height:100%;object-fit:cover}
+.mem-row .mr-nm{flex:0 0 auto;min-width:78px;font-weight:800;font-size:14.5px;color:var(--cream)}
+.mem-row .mr-role{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--green-soft);background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.28);border-radius:6px;padding:2px 8px}
+.mem-row .mr-perm{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.mem-row .mr-perm .mr-pm{font-size:14px}
+.mem-row .mr-chev{flex:0 0 auto;color:var(--muted);font-size:18px;line-height:1}
+/* 업데이트 배너 */
+#updBanner{position:fixed;left:12px;right:12px;bottom:calc(102px + var(--safe-b));z-index:var(--z-overlay-3);background:var(--green);color:var(--green-ink);font-weight:800;font-size:13.5px;text-align:center;padding:13px 16px;border-radius:13px;box-shadow:0 12px 26px -8px rgba(0,0,0,.6);cursor:pointer;animation:pop .3s ease}
+@media(min-width:980px){#updBanner{left:auto;right:24px;max-width:360px;bottom:24px}}
 
 /* 1) 가로 레이아웃 시프트 제거 — 모달로 스크롤 잠길 때 폭이 안 흔들림 */
 html{ scrollbar-gutter:stable; }
