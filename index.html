@@ -917,6 +917,7 @@ table.scores tr.top1 .big{color:var(--green)}
 .modal input[type=file]{width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:10px;font-size:12.5px}
 
 footer{border-top:1px solid var(--line);margin-top:24px;padding:30px 0 calc(44px + var(--safe-b));text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:979px){ footer{ padding-bottom:calc(104px + var(--safe-b)); } }  /* 하단탭바(~94px)에 안 가리도록 */
 footer .punch{font-family:var(--disp);font-size:16px;color:var(--cream);font-weight:600;margin-bottom:6px}
 footer .punch b{color:var(--green)}
 .toast{position:fixed;bottom:calc(22px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--green-ink);font-weight:700;font-size:13.5px;padding:12px 20px;border-radius:12px;z-index:var(--z-overlay);opacity:0;transition:.3s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw;text-align:center}
@@ -2869,6 +2870,14 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪪 가입 계정 · 직급 관리</h3><span class="badge zero" id="rosterBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body" style="overflow-x:auto"><table class="roster"><thead><tr><th>이름</th><th>ID</th><th>직급</th><th>설문</th><th></th></tr></thead><tbody id="rosterBody"></tbody></table></div>
         </div>
+        <div class="adm-card adm-collapsed">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👋 퇴사자</h3><span class="badge zero" id="departedBadge">0</span><span class="ah-caret">▾</span></div>
+          <div class="adm-body"><div id="departedBody"></div></div>
+        </div>
+        <div class="adm-card adm-collapsed">
+          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧭 조직도 · 팀 구조</h3><span class="ah-caret">▾</span></div>
+          <div class="adm-body"><div id="orgEditorBody"></div></div>
+        </div>
         <div class="adm-card">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body">
@@ -3454,7 +3463,7 @@ function continueLogin(u){
   u.lastLogin=Date.now();if(LIVE)DB.set('users/'+u.uid+'/lastLogin',u.lastLogin);
   enterApp();
 }
-/* ===== 첫 필드(근무시작일) 백필 — 예전엔 리더 설문에만 있었음 ===== */
+/* ===== 첫필드 백필 — 예전엔 리더 설문에만 있었음 ===== */
 function firstFieldOf(u){if(!u||!u.surveys)return '';var ks=Object.keys(u.surveys);for(var i=0;i<ks.length;i++){var a=u.surveys[ks[i]]&&u.surveys[ks[i]].answers;if(a&&a.firstField)return a.firstField;}return '';}
 function needsFirstField(u){if(!u)return false;if(typeof isAdminName==='function'&&isAdminName(u.name))return false;if(typeof isTestBot==='function'&&isTestBot(u))return false;if(u.status&&u.status!=='active')return false;return !firstFieldOf(u);}
 var _ffCont=null;
@@ -3518,7 +3527,7 @@ function submitSurvey(){
     else{const v=authState.sel[q.id]||[];if(!v.length){authMsg('모든 항목을 선택해 주세요','err');return}ans[q.id]=v}
   }
   const rec={answers:ans,t:Date.now()};
-  /* 첫 필드(IC) 답 → 근무시작일 자동 기록 */
+  /* 첫필드(IC) 답 → 첫필드 날짜 자동 기록 */
   const _su=(authState.surveyCtx==='signup')?authState.draft:me;
   if(ans.firstField&&_su&&_su.name&&!isTestBot(_su)){const _mi=miGet(_su.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)DB.set('memberInfo/'+nk(_su.name),_mi);}
   if(authState.surveyCtx==='signup'){
@@ -5102,12 +5111,14 @@ function renderAdmin(){
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
   document.getElementById('pendList').innerHTML=pend.length?pend.map(u=>`<div class="pend"><span class="pav" style="background:${avColor(u.name)}">${avInner(u.name)}</span><div class="pinfo"><div class="pn">${esc(u.name)} <span style="font-size:11px;color:var(--muted)">· ${ROLE_LABEL[u.role]}</span></div><div class="pid">@${esc(u.id)}</div></div><div class="pacts"><button class="vbtn view" onclick="viewSurvey('${u.uid}','${u.role}')">설문</button><button class="vbtn ok" onclick="approve('${u.uid}')">승인</button><button class="vbtn no" onclick="reject('${u.uid}')">거절</button></div></div>`).join(''):'<div class="empty-row">승인 대기 중인 가입 신청이 없어요</div>';
-  const rb=document.getElementById('rosterBadge');rb.textContent=users.length;rb.classList.remove('zero');
-  document.getElementById('rosterBody').innerHTML=users.sort((a,b)=>ri(b.role)-ri(a.role)).map(u=>{
+  const act=users.filter(u=>!isDeparted(u.name)).sort((a,b)=>ri(b.role)-ri(a.role));
+  const rb=document.getElementById('rosterBadge');rb.textContent=act.length;rb.classList.toggle('zero',act.length===0);
+  const actRow=u=>{
     const done=Object.keys(u.surveys||{});
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
-  }).join('');
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDataUsage();renderSalesMgr();renderDevLinks();updateCounts();
+  };
+  document.getElementById('rosterBody').innerHTML=act.map(actRow).join('')||'<tr><td colspan="5" class="empty-row" style="border:none">활동 중인 계정이 없어요</td></tr>';
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDepartedAdmin();renderOrgEditor();renderDataUsage();renderSalesMgr();renderDevLinks();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -5299,7 +5310,7 @@ function markRewardGiven(id){
   if(LIVE)DB.set('rewards',state.rewards);
   renderRewardModal();renderRewardAdmin();toast(`🎁 ${r.winner}님 보상 지급 완료로 표시했어요`);
 }
-/* ===== 입퇴사 이력 (입사일·퇴사일 · 데이터는 보존) ===== */
+/* ===== 입퇴사 이력 (첫필드·퇴사일 · 데이터는 보존) ===== */
 function miGet(name){state.memberInfo=state.memberInfo||{};return state.memberInfo[name]||(state.memberInfo[name]={join:'',left:null});}
 function miInfo(name){const mi=state.memberInfo||{};if(mi[name])return mi[name];const k=Object.keys(mi).find(x=>x.replace(/\s/g,'')===String(name).replace(/\s/g,''));return k?mi[k]:{join:'',left:null};}
 function miSetJoin(name){if(!name)return;const m=miGet(name);if(!m.join)m.join=TODAY;m.left=null;if(LIVE)DB.set('memberInfo/'+nk(name),m);}
@@ -5314,6 +5325,7 @@ function retireMember(name){
   state.extraMembers=(state.extraMembers||[]).filter(n=>n.replace(/\s/g,'')!==nm);
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
   renderMemberAdmin();if(typeof renderComp==='function')renderComp();if(typeof renderTokenAdmin==='function')renderTokenAdmin();if(document.getElementById('dailyList'))renderDaily();
+  if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
   toast('👋 '+name+'님 퇴사 처리 — 기록은 그대로 보존돼요');
 }
 function rehireMember(name){
@@ -5327,6 +5339,7 @@ function rehireMember(name){
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
   syncMemberToSheet(name);
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
+  if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
   toast('🔄 '+name+'님 재입사 — 이번 달부터 다시 명단에 포함돼요');
 }
 function purgeDeparted(name){
@@ -5341,6 +5354,7 @@ function purgeDeparted(name){
   Object.keys(state.memberInfo).forEach(k=>{ if(k.replace(/\s/g,'')===nm){ delete state.memberInfo[k]; if(LIVE)DB.set('memberInfo/'+nk(k),null); } });
   if(LIVE){DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
   renderMemberAdmin();
+  if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
   toast('🗑️ '+name+'님을 퇴사자 명단에서 삭제했어요');
 }
 /* ===== 신입 → 현재 달 시트 자동 등록 ===== */
@@ -5427,7 +5441,7 @@ function deleteMember(name){
     state.managers=state.managers.filter(n=>(n||'').replace(/\s/g,'')!==nm);
     if(LIVE)DB.set('managers',state.managers);
   }
-  renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();
+  renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();if(typeof renderAdmin==='function'&&me&&isFounder(me))renderAdmin();
   try{renderWaterFeed();renderGb();renderWins();renderNotices&&renderNotices();renderGallery('net');renderGallery('act');renderCelebrations&&renderCelebrations();if(typeof renderScores==='function')renderScores();if(curTab==='cbjournal')renderCbBoard();}catch(e){}
   updateCounts&&updateCounts();
   toast('🗑️ '+name+'님과 본인이 남긴 기록을 모두 삭제했어요');
@@ -5580,7 +5594,7 @@ function userByName(name){return Object.values(state.users||{}).find(function(x)
 function mbCanCoach(){return !!me&&isFounder(me);}
 function dossierOf(name){var k=nk(name);state.dossier=state.dossier||{};return state.dossier[k]||(state.dossier[k]={});}
 function dossierSet(name,field,val){var k=nk(name);state.dossier=state.dossier||{};var d=state.dossier[k]||(state.dossier[k]={});d[field]=val;if(LIVE)DB.set('dossier/'+k+'/'+field,val);}
-function mbTenure(name){var m=miInfo(name)||{};var u=(typeof userByName==='function')?userByName(name):null;var a=u?surveyMerged(u):{};var start=(a&&a.firstField)?a.firstField:m.join;var lh=(a&&a.leaderHit)?a.leaderHit:'';if(!start)return lh?{join:'',left:m.left,days:null,leaderHit:lh}:null;var j=new Date(start);if(isNaN(j.getTime()))return lh?{join:start,left:m.left,days:null,leaderHit:lh}:null;var end=m.left?new Date(m.left):new Date();return {join:start,left:m.left,days:Math.max(0,Math.round((end-j)/86400000)),leaderHit:lh};}
+function mbTenure(name){var m=miInfo(name)||{};var u=(typeof userByName==='function')?userByName(name):null;var a=u?surveyMerged(u):{};var start=m.join?m.join:((a&&a.firstField)?a.firstField:'');var lh=(a&&a.leaderHit)?a.leaderHit:'';if(!start)return lh?{join:'',left:m.left,days:null,leaderHit:lh}:null;var j=new Date(start);if(isNaN(j.getTime()))return lh?{join:start,left:m.left,days:null,leaderHit:lh}:null;var end=m.left?new Date(m.left):new Date();return {join:start,left:m.left,days:Math.max(0,Math.round((end-j)/86400000)),leaderHit:lh};}
 function mbSubteam(name){var dz=state.dossier||{},out=[];allMembers().forEach(function(n){if(n===name)return;var d=dz[nk(n)];if(d&&d.upline&&nk(d.upline)===nk(name))out.push(n);});return out.sort(function(a,b){return (ri(roleOf(b))-ri(roleOf(a)))||a.localeCompare(b,'ko');});}
 function mbMonth(name,mk){
   var sales=(typeof sumMonth==='function')?sumMonth(name,mk):0;
@@ -5606,8 +5620,7 @@ function renderMember(){
     +'<button class="x" onclick="closeMember()">×</button>';
   var a=(u&&u.surveys)?surveyMerged(u):{},h='';
   h+='<div class="mb-sec"><div class="mb-sh">📋 기본 정보</div><div class="mb-card mb-kv">'
-    +(ten?'<div class="row"><b>입사</b>'+E(ten.join)+(ten.left?' · 퇴사 '+E(ten.left):'')+'</div>':'<div class="row"><b>입사</b>미등록</div>')
-    +(a.firstField?'<div class="row"><b>근무시작일</b>'+E(a.firstField)+'</div>':'')
+    +'<div class="row mb-ff"><b>첫필드</b>'+(isFounder(me)?'<input type="date" class="mb-ffin" value="'+E((ten&&ten.join)||'')+'" onchange="mbSetFirstField(this.value)" title="달력에서 첫필드 날짜를 선택하세요">':((ten&&ten.join)?E(ten.join):'<span style="color:var(--faint)">미등록</span>'))+((ten&&ten.days!=null)?'<span class="mb-ffd">· 근무 '+ten.days+'일차</span>':'')+((ten&&ten.left)?'<span class="mb-ffd">· 퇴사 '+E(ten.left)+'</span>':'')+'</div>'
     +(a.leaderHit?'<div class="row"><b>리더힛</b>'+E(a.leaderHit)+'</div>':'')
     +(a.phone?'<div class="row"><b>연락처</b>'+E(a.phone)+'</div>':'')
     +(a.birth6?'<div class="row"><b>생일</b>'+E(a.birth6)+'</div>':'')
@@ -5642,9 +5655,9 @@ function renderMember(){
     :'<div class="mb-empty">아직 지정된 하위 팀원이 없어요. 아래 “상위·팀 편집”에서 다른 팀원의 상위 리더를 이 사람으로 지정하면 여기 모여요.</div>';
   h+='</div>';
   if(u&&u.surveys&&Object.keys(u.surveys).length){
-    h+='<div class="mb-sec"><div class="mb-sh">📝 설문 결과</div><div class="mb-card">';
+    h+='<details class="mb-sec mb-acc"><summary class="mb-sh">📝 설문 결과 <span class="mb-acc-c">▾</span></summary><div class="mb-card">';
     [['strength','강점'],['weak','보완점'],['vision','비전·목표']].forEach(function(p){if(a[p[0]])h+='<div class="mb-q"><div class="ql">'+p[1]+'</div><div class="qa">'+E(String(a[p[0]]))+'</div></div>';});
-    h+='<button class="ghost" style="margin-top:4px;padding:9px 14px;border-radius:9px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--cream);font-family:inherit;font-size:13px" onclick="mbFullSurvey(\''+E(name).replace(/'/g,"\\'")+'\')">전체 설문 보기 →</button></div></div>';
+    h+='<button class="ghost" style="margin-top:4px;padding:9px 14px;border-radius:9px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--cream);font-family:inherit;font-size:13px" onclick="mbFullSurvey(\''+E(name).replace(/'/g,"\\'")+'\')">전체 설문 보기 →</button></div></details>';
   }
   h+= mbLogSection('동료 평가','⭐','evals',d.evals,true,'동료·리더의 평가 (강점·태도·협업 등)');
   h+= mbLogSection('트레이닝 메모','🎓','trains',d.trains,mbCanCoach(),'코칭 포인트·성장 과제·연습 내용');
@@ -5704,6 +5717,15 @@ function mbAddOne(){
 }
 function mbAddTag(){if(!mbCanCoach())return;var inp=document.getElementById('mbTagIn'),t=(inp&&inp.value||'').trim();if(!t)return;var d=dossierOf(mbName),tags=(d.tags||[]).slice();if(tags.indexOf(t)<0)tags.push(t);dossierSet(mbName,'tags',tags);renderMember();}
 function mbDelTag(i){if(!mbCanCoach())return;var d=dossierOf(mbName),tags=(d.tags||[]).slice();tags.splice(i,1);dossierSet(mbName,'tags',tags);renderMember();}
+function mbSetFirstField(val){
+  if(!mbName||!(me&&isFounder(me)))return;
+  var m=miGet(mbName);m.join=(val||'').trim();if(LIVE)DB.set('memberInfo/'+nk(mbName),m);
+  var u=userByName(mbName);
+  if(u&&u.surveys){var ks=Object.keys(u.surveys);for(var i=0;i<ks.length;i++){var rec=u.surveys[ks[i]];if(rec&&rec.answers&&('firstField'in rec.answers)){rec.answers.firstField=m.join;if(LIVE)DB.set('users/'+u.uid+'/surveys/'+ks[i]+'/answers/firstField',m.join);break;}}}
+  renderMember();
+  if(typeof renderAdmin==='function'&&me&&isFounder(me))renderAdmin();
+  toast(m.join?'📅 첫필드 '+m.join+' 저장':'첫필드를 비웠어요');
+}
 function mbEditOrg(){
   if(!mbCanCoach())return;var d=dossierOf(mbName);
   var names=allMembers().filter(function(n){return n!==mbName;});
@@ -5734,7 +5756,7 @@ function memberCardHTML(name){
       var dt=x.t?new Date(x.t):null,ds=dt?((dt.getMonth()+1)+'/'+dt.getDate()):'';return '<div class="p-item"><span class="m">'+E(x.by||'')+' '+ds+'</span><br>'+E(x.text||'')+'</div>';}).join('');}
   function sb(lbl,o){return '<span class="p-stat">'+lbl+'<b>'+o.sales+' pcs</b>'+o.days+'일 · AVG '+(o.avg?o.avg.toFixed(1):'-')+(o.income?' · '+E(o.income):'')+(o.rej!=null&&o.rej!==''?' · 리젝 '+E(String(o.rej)):'')+'</span>';}
   var html='<div class="p-card"><div class="p-hd"><h1>'+E(name)+' · '+E(role)+'</h1><div class="p-meta">팀: '+E(d.teamName||'-')+(d.upline?' · 상위: '+E(d.upline):'')+((ten&&ten.days!=null)?' · 근무 '+ten.days+'일차 (시작 '+E(ten.join)+')':'')+((ten&&ten.leaderHit)?' · 리더힛 '+E(ten.leaderHit):'')+' · 출력 '+new Date().toLocaleDateString('ko-KR')+'</div></div>';
-  html+='<h2>기본 정보</h2><div class="p-grid">'+(a.firstField?'<div><b>근무시작일</b> '+E(a.firstField)+'</div>':'')+(a.leaderHit?'<div><b>리더힛</b> '+E(a.leaderHit)+'</div>':'')+(a.phone?'<div><b>연락처</b> '+E(a.phone)+'</div>':'')+(a.birth6?'<div><b>생일</b> '+E(a.birth6)+'</div>':'')+(a.email?'<div><b>이메일</b> '+E(a.email)+'</div>':'')+'</div>';
+  html+='<h2>기본 정보</h2><div class="p-grid">'+((function(){var _jn=((typeof miInfo==='function'?miInfo(name):{})||{}).join||a.firstField||'';return _jn?'<div><b>첫필드</b> '+E(_jn)+'</div>':'';})())+(a.leaderHit?'<div><b>리더힛</b> '+E(a.leaderHit)+'</div>':'')+(a.phone?'<div><b>연락처</b> '+E(a.phone)+'</div>':'')+(a.birth6?'<div><b>생일</b> '+E(a.birth6)+'</div>':'')+(a.email?'<div><b>이메일</b> '+E(a.email)+'</div>':'')+'</div>';
   html+='<h2>최근 결과 (자동 집계)</h2>'+sb(ck.slice(5)+'월',cm)+sb(pk.slice(5)+'월',pm);
   var _prc=(u&&state.recruit&&state.recruit[u.uid])||null;
   if(_prc&&_prc.month===recruitMonth()){
@@ -5809,21 +5831,109 @@ function renderMemberAdmin(){
   const box=document.getElementById('memberAdminBody');if(!box)return;
   const ex=state.extraMembers||[];const exk=ex.map(n=>(n||'').replace(/\s/g,''));
   const mi=state.memberInfo||{};
-  const active=allMembers();const activek=active.map(n=>n.replace(/\s/g,''));
-  const dep={};const addDep=n=>{if(!n)return;const k=n.replace(/\s/g,'');if(k&&!dep[k])dep[k]=n;};
-  (state.removedMembers||[]).forEach(addDep);DEPARTED_MEMBERS.forEach(addDep);Object.keys(mi).forEach(n=>{if(mi[n]&&mi[n].left)addDep(n);});
-  const depNames=Object.keys(dep).filter(k=>activek.indexOf(k)<0).map(k=>dep[k]).sort((a,b)=>a.localeCompare(b,'ko'));
+  const active=allMembers();
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-sec-h">✅ 재직 ${active.length}명</div>`
     +`<div class="mem-list">`
-    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기">👤 ${esc(n)}${m&&m.join?`<small class="mem-d">입사 ${m.join}</small>`:''}<span class="mem-chev">›</span></span>`;}).join('')
+    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기">👤 ${esc(n)}${m&&m.join?`<small class="mem-d">첫필드 ${m.join}</small>`:''}<span class="mem-chev">›</span></span>`;}).join('')
     +`</div>`
-    + (depNames.length?`<div class="mem-sec-h">👋 퇴사 ${depNames.length}명 <small>(기록 보존 · 눌러서 재입사/삭제)</small></div><div class="mem-list dep">`
-       + depNames.map(n=>{const m=miInfo(n);return `<span class="mem-chip dep" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 재입사/삭제">${esc(n)}<small class="mem-d">${m&&m.join?'입사 '+m.join+' · ':''}${m&&m.left?'퇴사 '+m.left:'퇴사'}</small><span class="mem-chev">›</span></span>`;}).join('')
-       +`</div>`:'')
     +`<button class="mem-sync" onclick="pullRoster({manual:true})">🔄 구글시트 '팀' 탭에서 팀원 동기화</button>`
-    +`<div class="mem-note">이름을 누르면 <b>프로필</b>이 열리고, 그 안에서 <b>퇴사·재입사·삭제</b>를 처리해요. 퇴사하면 <b>다음 달부터</b> 명단·시트에서 빠지고 <b>이번 달까지의 기록은 그대로</b> 남아요.</div>`;
+    +`<div class="mem-note">여기엔 <b>활동 중인 팀원만</b> 보여요. 이름을 누르면 <b>프로필</b>이 열리고, 그 안에서 <b>퇴사 처리</b>를 하면 → <b>「퇴사자」 카드로 이동</b>하고 명단·가입계정에선 빠져요. 이번 달까지의 기록은 그대로 보존됩니다.</div>`;
   if(typeof renderExportPanel==='function')renderExportPanel();
+}
+/* ===== 👋 퇴사자 (전용 카드 · 기본 숨김 · 여기서만 보관·관리) ===== */
+function renderDepartedAdmin(){
+  const box=document.getElementById('departedBody');if(!box)return;
+  const badge=document.getElementById('departedBadge');
+  const mi=state.memberInfo||{};
+  const active=allMembers();const activek=active.map(n=>n.replace(/\s/g,''));
+  const dep={};const addDep=n=>{if(!n)return;const k=(n||'').replace(/\s/g,'');if(k&&!dep[k])dep[k]=n;};
+  (state.removedMembers||[]).forEach(addDep);DEPARTED_MEMBERS.forEach(addDep);Object.keys(mi).forEach(n=>{if(mi[n]&&mi[n].left)addDep(n);});
+  const depNames=Object.keys(dep).filter(k=>activek.indexOf(k)<0).map(k=>dep[k]).sort((a,b)=>a.localeCompare(b,'ko'));
+  if(badge){badge.textContent=depNames.length;badge.classList.toggle('zero',depNames.length===0);}
+  if(!depNames.length){box.innerHTML='<div class="empty-row">퇴사 처리된 팀원이 없어요</div>';return;}
+  box.innerHTML='<p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">퇴사한 팀원은 <b>여기에만</b> 보관돼요 — 명단·가입계정엔 안 보여요. 이름을 누르면 <b>프로필(인적사항·기록)</b>이 열리고, 그 안에서 <b>재입사</b>나 <b>완전삭제</b>를 할 수 있어요. 이번 달까지의 결과·기록은 그대로 보존됩니다.</p>'
+    +'<div class="mem-list dep">'
+    + depNames.map(n=>{const m=miInfo(n);return `<span class="mem-chip dep" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 재입사/삭제">${esc(n)}<small class="mem-d">${m&&m.join?'첫필드 '+m.join+' · ':''}${m&&m.left?'퇴사 '+m.left:'퇴사'}</small><span class="mem-chev">›</span></span>`;}).join('')
+    +'</div>';
+}
+/* ===== 🧭 조직도 · 팀 구조 (상위팀/하위팀 시각화 + 인라인 편집) ===== */
+function orgCmp(a,b){return (ri(roleOf(b))-ri(roleOf(a)))||a.localeCompare(b,'ko');}
+function orgBuildTree(){
+  var mem=allMembers();var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
+  var childMap={},roots=[];
+  mem.forEach(function(n){
+    var up=(dossierOf(n).upline||'').trim();
+    if(up&&byk[nk(up)]&&nk(up)!==nk(n)){(childMap[nk(up)]=childMap[nk(up)]||[]).push(n);}
+    else roots.push(n);
+  });
+  Object.keys(childMap).forEach(function(k){childMap[k].sort(orgCmp);});
+  roots.sort(orgCmp);
+  return {roots:roots,childMap:childMap,mem:mem,byk:byk};
+}
+function orgIsDescendant(val,name){var cur=val,g=0;while(cur&&g++<60){if(nk(cur)===nk(name))return true;cur=(dossierOf(cur).upline||'').trim();}return false;}
+function orgNodeHTML(name,childMap,seen){
+  seen=seen||{};if(seen[nk(name)])return '';seen[nk(name)]=1;
+  var d=dossierOf(name),team=d.teamName||'',kids=childMap[nk(name)]||[];
+  var safe=esc(name).replace(/'/g,"\\'");
+  var h='<div class="org-node"><div class="org-card" onclick="openMember(\''+safe+'\')" title="프로필 열기">'
+    +'<span class="org-av" style="background:'+avColor(name)+'">'+avInner(name)+'</span>'
+    +'<span class="org-nm">'+esc(name)+'</span>'
+    +'<span class="org-role">'+esc(ROLE_LABEL[roleOf(name)]||roleOf(name))+'</span>'
+    +(team?'<span class="org-team">🏷️ '+esc(team)+'</span>':'')
+    +(kids.length?'<span class="org-cnt">'+kids.length+'명</span>':'')
+    +'</div>';
+  if(kids.length)h+='<div class="org-kids">'+kids.map(function(k){return orgNodeHTML(k,childMap,seen);}).join('')+'</div>';
+  return h+'</div>';
+}
+function orgTreeHTML(){
+  var t=orgBuildTree();
+  if(!t.mem.length)return '<div class="empty-row">명단에 팀원이 없어요</div>';
+  var seen={};
+  var tree='<div class="org-tree">'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen);}).join('')+'</div>';
+  var broken=[];t.mem.forEach(function(n){var up=(dossierOf(n).upline||'').trim();if(up&&!t.byk[nk(up)])broken.push(n+'→'+up);});
+  var warn=broken.length?'<div class="org-warn">⚠️ 상위 리더가 명단에 없는 사람: '+broken.map(esc).join(', ')+' — 아래에서 다시 지정하세요.</div>':'';
+  var teamCnt=Object.keys(t.childMap).length;
+  return '<div class="org-meta">최상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
+}
+function orgRefreshTree(){var box=document.getElementById('orgTreeBox');if(box)box.innerHTML=orgTreeHTML();}
+function orgSetTeam(name,val){if(!(me&&isFounder(me)))return;dossierSet(name,'teamName',(val||'').trim());orgRefreshTree();if(mbName&&nk(mbName)===nk(name)&&document.getElementById('memberModal').classList.contains('on'))renderMember();}
+function orgSetUp(name,val){
+  if(!(me&&isFounder(me)))return;val=(val||'').trim();
+  if(val&&orgIsDescendant(val,name)){toast('⚠️ 순환 구조예요 — '+val+'님은 '+name+'님의 하위에 있어요');renderOrgEditor();return;}
+  dossierSet(name,'upline',val);orgRefreshTree();if(mbName&&document.getElementById('memberModal').classList.contains('on'))renderMember();
+}
+function orgSeedExample(){
+  if(!(me&&isFounder(me)))return;
+  if(!confirm('아래 예시 구조로 한 번에 정리할까요?\n\n임재영 (Presence)\n ├ 고윤경 · FUSE → 김하진, 권영웅\n ├ 윤채영 · YOUNGWAVE → 손예진 · BLIN\n ├ 박인선 · LUMO IN → 고다영\n └ 간승학 · KANGEE\n\n명단에 있는 이름만 적용되고 나머지는 그대로 둬요.'))return;
+  var seed=[['임재영','Presence',''],['고윤경','FUSE','임재영'],['윤채영','YOUNGWAVE','임재영'],['박인선','LUMO IN','임재영'],['간승학','KANGEE','임재영'],['손예진','BLIN','윤채영'],['김하진','','고윤경'],['권영웅','','고윤경'],['고다영','','박인선']];
+  var memk={};allMembers().forEach(function(n){memk[nk(n)]=n;});
+  var applied=0,skipped=[];
+  seed.forEach(function(r){var nm=memk[nk(r[0])];if(!nm){skipped.push(r[0]);return;}dossierSet(nm,'teamName',r[1]);dossierSet(nm,'upline',r[2]?(memk[nk(r[2])]||r[2]):'');applied++;});
+  renderOrgEditor();if(mbName&&document.getElementById('memberModal').classList.contains('on'))renderMember();
+  toast('🧭 예시 구조 '+applied+'명 적용'+(skipped.length?' · 명단에 없는 '+skipped.join(',')+' 제외':''));
+}
+function renderOrgEditor(){
+  var box=document.getElementById('orgEditorBody');if(!box)return;
+  var t=orgBuildTree();
+  var upOpts=function(self){
+    var cu=nk(dossierOf(self).upline||'');
+    return '<option value="">— 최상위(상위 없음) —</option>'+t.mem.filter(function(n){return nk(n)!==nk(self);}).map(function(n){
+      return '<option value="'+esc(n)+'"'+(cu===nk(n)?' selected':'')+'>'+esc(n)+' ('+esc(ROLE_LABEL[roleOf(n)]||roleOf(n))+')</option>';
+    }).join('');
+  };
+  var rows=t.mem.slice().sort(orgCmp).map(function(n){
+    var d=dossierOf(n),safe=esc(n).replace(/'/g,"\\'");
+    return '<div class="org-erow">'
+      +'<span class="org-ename"><span class="org-av sm" style="background:'+avColor(n)+'">'+avInner(n)+'</span>'+esc(n)+' <small>'+esc(ROLE_LABEL[roleOf(n)]||roleOf(n))+'</small></span>'
+      +'<input class="org-eteam" value="'+esc(d.teamName||'')+'" placeholder="이끄는 팀 이름 (예: FUSE)" onchange="orgSetTeam(\''+safe+'\',this.value)">'
+      +'<select class="org-eup" onchange="orgSetUp(\''+safe+'\',this.value)">'+upOpts(n)+'</select>'
+      +'</div>';
+  }).join('');
+  box.innerHTML='<p class="org-help">이름을 누르면 프로필이 열려요. 아래에서 각자의 <b>이끄는 팀 이름</b>과 <b>상위 리더(팀장)</b>를 고르면 위 조직도가 즉시 정리돼요. 순환(서로가 서로의 상위)은 자동으로 막아요.</p>'
+    +'<div class="org-tools"><button class="org-seed" onclick="orgSeedExample()">📋 예시 구조 불러오기</button><button class="org-seed ghost" onclick="renderOrgEditor()">🔄 새로고침</button></div>'
+    +'<div id="orgTreeBox" class="org-treebox">'+orgTreeHTML()+'</div>'
+    +'<div class="org-sec-h">✏️ 상위·팀 편집</div><div class="org-edit">'+rows+'</div>';
 }
 /* 구글시트 '팀' 탭 → 가입 명단 자동 반영 (pull과 같은 JSONP) */
 function pullRoster(opts){
@@ -7884,6 +7994,44 @@ header.top, nav.rail, .botbar{ background:var(--chrome); }
   --z-ff:700; --z-lightbox:800;                     /* 풀스크린 뷰어 */
   --z-gift:900; --z-cblightbox:910; --z-pdf:1000;   /* 최상위 연출·PDF */
 }
+/* 설문 모달이 멤버 프로필(z 510) 위에 오도록 — 프로필에서 설문 열 때 뒤로 막히던 문제 해결 */
+#surveyViewModal{z-index:var(--z-overlay-3)}
+/* 첫필드 달력 입력 */
+.mb-ff{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mb-ffin{background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:5px 9px;font-family:inherit;font-size:13px;color-scheme:dark}
+.mb-ffin:focus{outline:none;border-color:var(--green-soft)}
+.mb-ffd{color:var(--muted);font-size:12px}
+/* 설문 결과 접이식(기본 접힘) */
+details.mb-acc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+details.mb-acc>summary::-webkit-details-marker{display:none}
+details.mb-acc>summary .mb-acc-c{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s ease}
+details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
+/* 🧭 조직도 */
+.org-help{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.org-tools{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.org-seed{background:var(--green);color:var(--green-ink);border:none;border-radius:9px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+.org-seed.ghost{background:var(--card-2);border:1px solid var(--line);color:var(--cream)}
+.org-meta{font-size:11.5px;color:var(--faint);margin-bottom:8px;font-family:var(--mono)}
+.org-warn{font-size:12px;color:var(--amber);background:rgba(245,180,40,.1);border:1px solid rgba(245,180,40,.28);border-radius:9px;padding:8px 11px;margin-bottom:10px;line-height:1.55}
+.org-treebox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;overflow-x:auto}
+.org-tree{min-width:max-content}
+.org-node{position:relative}
+.org-kids{margin-left:13px;padding-left:14px;border-left:2px solid var(--line)}
+.org-card{display:inline-flex;align-items:center;gap:7px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:6px 11px;margin:4px 0;cursor:pointer;transition:border-color .18s,transform .18s}
+.org-card:hover{border-color:var(--green-soft);transform:translateX(2px)}
+.org-av{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex:0 0 auto;overflow:hidden}
+.org-av img{width:100%;height:100%;object-fit:cover}
+.org-av.sm{width:20px;height:20px;font-size:10px}
+.org-nm{font-weight:800;font-size:13.5px;color:var(--cream)}
+.org-role{font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.org-team{font-size:10.5px;color:var(--green-soft);background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.25);border-radius:6px;padding:1px 7px;font-weight:700}
+.org-cnt{font-size:9.5px;background:var(--amber);color:var(--green-ink);border-radius:5px;padding:1px 6px;font-weight:800}
+.org-sec-h{font-size:13px;font-weight:800;color:var(--cream);margin:16px 0 8px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.org-erow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.org-ename{flex:0 0 auto;min-width:118px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--cream)}
+.org-ename small{color:var(--muted);font-weight:600;font-size:10.5px}
+.org-eteam,.org-eup{flex:1 1 130px;min-width:120px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12.5px;color-scheme:dark}
+.org-eteam:focus,.org-eup:focus{outline:none;border-color:var(--green-soft)}
 
 /* 1) 가로 레이아웃 시프트 제거 — 모달로 스크롤 잠길 때 폭이 안 흔들림 */
 html{ scrollbar-gutter:stable; }
