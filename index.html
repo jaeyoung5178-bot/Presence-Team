@@ -2192,13 +2192,10 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         #m-field .ft-notice{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:12.5px;white-space:pre-wrap;line-height:1.7;color:var(--cream);max-height:320px;overflow:auto}
       </style>
 
-      <div class="ft-subnav">
-        <button class="ft-sb active" data-ft="lh" onclick="ftTab('lh')">📈 리더힛</button>
-        <button class="ft-sb" data-ft="rc" onclick="ftTab('rc')">📅 위클리 리캡</button>
-      </div>
+      <!-- 필드도구: 위클리 리캡 전용 (리더힛은 리더 탭의 리더힛 계산기로 통합) -->
 
       <!-- 리더힛 -->
-      <div class="ft-pane active" id="ft-lh">
+      <div class="ft-pane" id="ft-lh">
         <div class="ft-card"><div class="ft-h">승급 기준</div>
           <div class="ft-row">
             <div class="ft-f"><label>리더 목표 세일즈</label><input class="ft-in" id="ftLhTarget" type="number" value="8" style="width:120px"></div>
@@ -2216,7 +2213,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 
 
       <!-- 위클리 리캡 -->
-      <div class="ft-pane" id="ft-rc">
+      <div class="ft-pane active" id="ft-rc">
         <div class="ft-card"><div class="ft-h">이번 주 한눈에</div><div class="ft-kpis" id="ftRcKpis"></div></div>
         <div class="ft-card"><div class="ft-h">팀원 입력 · 결과/인컴</div>
           <div class="ft-weekbar">
@@ -2704,7 +2701,10 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   #m-leaderhit .lh-badge.ok{color:var(--green-ink);background:var(--green);border-color:var(--green)}
   #m-leaderhit .lh-badge.near{color:var(--amber);border-color:var(--amber)}
   #m-leaderhit .lh-cells{display:flex;gap:6px;margin-bottom:9px}
-  #m-leaderhit .lh-cell{flex:1;text-align:center;font-family:var(--mono);font-size:14px;font-weight:700;padding:9px 0;border-radius:9px;border:1px solid var(--line)}
+  #m-leaderhit .lh-cw{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+  #m-leaderhit .lh-cell{text-align:center;font-family:var(--mono);font-size:14px;font-weight:700;padding:9px 0;border-radius:9px;border:1px solid var(--line)}
+  #m-leaderhit .lh-cd{text-align:center;font-size:9px;color:var(--faint);font-family:var(--mono);line-height:1.15}
+  #m-leaderhit .lh-cd small{font-size:8px}
   #m-leaderhit .lh-cell.on{background:rgba(92,188,46,.16);color:var(--green-soft);border-color:rgba(92,188,46,.35)}
   #m-leaderhit .lh-cell.zero{background:var(--card-2);color:var(--faint)}
   #m-leaderhit .lh-cell.empty{background:transparent;color:var(--line);border-style:dashed}
@@ -3750,7 +3750,7 @@ function importSheetData(data,opt){
       const sval=String(val).trim();let ne=null;
       const slow=sval.toLowerCase();
       if(slow==='na'||slow==='n')ne={name,role,date,count:0,na:true,t};
-      else{const c=Number(sval);if(!isNaN(c)&&c>0&&c<=300)ne={name,role,date,count:c,t};}  // 300 초과 = 인컴(₩) 오염 → 무시 · '랠리'는 무시
+      else if(sval!==''){const c=Number(sval);if(!isNaN(c)&&c>=0&&c<=300)ne={name,role,date,count:c,t};}  // 명시적 0 = 필드 뛰고 결과 0(출근일 포함) · 빈칸=무시 · 300 초과=인컴 오염 무시 · '랠리'=무시
       if(!ne)return;
       const cur=state.sales[key];
       if(fillOnly&&cur)return;
@@ -6794,7 +6794,7 @@ async function initFirebase(){
    ════════════════════════════════════════════ */
 let ftReady=false;
 function renderField(){
-  if(!ftReady){ ftLhSeed(); ftWkInit(); ftReady=true; }
+  if(!ftReady){ ftWkInit(); ftReady=true; }
   ftRcCalc();           // 열 때마다 PR/집계 최신화
 }
 function ftTab(k){
@@ -8219,13 +8219,14 @@ function lhAnalyze(name){
           cur:cur, curSum:curSum, curDays:curDays,
           remain:Math.max(0,LH_TARGET-curSum), daysLeft:Math.max(0,LH_WINDOW-curDays)};
 }
-function lhBar(cur, target){
-  // 최근 5칸 시각화 (출근일 카운트)
-  var cells=''; var slots=Math.max(LH_WINDOW, cur.length);
+function lhDow(str){ try{return ['일','월','화','수','목','금','토'][new Date(str+'T00:00:00').getDay()];}catch(e){return '';} }
+function lhMD(str){ var p=String(str).split('-'); return (+p[1])+'/'+(+p[2]); }
+function lhBar(cur){
+  var cells='';
   for(var i=0;i<LH_WINDOW;i++){
     var c=cur[i];
-    if(c){ cells+='<span class="lh-cell '+(c.count>0?'on':'zero')+'">'+c.count+'</span>'; }
-    else { cells+='<span class="lh-cell empty">·</span>'; }
+    if(c){ cells+='<div class="lh-cw"><span class="lh-cell '+(c.count>0?'on':'zero')+'">'+c.count+'</span><span class="lh-cd">'+lhMD(c.date)+'<small>('+lhDow(c.date)+')</small></span></div>'; }
+    else { cells+='<div class="lh-cw"><span class="lh-cell empty">·</span><span class="lh-cd">&nbsp;</span></div>'; }
   }
   return '<div class="lh-cells">'+cells+'</div>';
 }
@@ -8316,7 +8317,7 @@ function ftWkLoad(){
     ' · 💸 급여일 <b style="color:var(--green-soft)">'+ftMD(pay)+'('+ftDow(pay)+')</b>'+
     ' · 📊 <b>'+(+pm.slice(5))+'월 리캡</b>에 반영';
   // 해당 주 시드
-  var mem=ftActiveUsers(function(u){return !/AOP|Owner/i.test(u.role||'');});
+  var mem=ftActiveUsers();
   var pmon=ftMondayOf(ftAddDays(we,-7)), pwe=ftAddDays(we,-7);
   var rows;
   if(mem.length){
