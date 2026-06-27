@@ -3199,7 +3199,7 @@ const WELCOME_MSG='Presence 웹앱 가입을 축하합니다 🎉\n\nPresence와
 function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const rm=((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).map(n=>(n||'').replace(/\s/g,''));const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]&&rm.indexOf(k)<0){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
-function roleOf(name){const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
+function roleOf(name){if(typeof isAdminName==='function'&&isAdminName(name))return 'AOP';const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
 function isDeparted(name){const k=String(name||'').replace(/\s/g,'');if(!k)return false;if(DEPARTED_MEMBERS.some(n=>String(n).replace(/\s/g,'')===k))return true;return ((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).some(n=>String(n||'').replace(/\s/g,'')===k);}
 function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort((a,b)=>(ri(b.role)-ri(a.role))||a.name.localeCompare(b.name,'ko'));}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
@@ -5614,7 +5614,7 @@ function renderSalesMgr(){
   const box=document.getElementById('smBody');if(!box||!me||!isFounder(me))return;
   const mk=smMK(),mn=+mk.slice(5,7);
   const lab=document.getElementById('smMonthLab');if(lab)lab.textContent=`${mk.slice(0,4)}년 ${mn}월`;
-  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  const mems=rosterMembers();   // 임재영(AOP)도 팀원으로 집계 · 테스트봇은 rosterMembers에서 이미 제외
   let tSales=0,tIncome=0,tBep=0,rejArr=[],bepMet=0,bepHas=0;
   box.innerHTML=mems.map(u=>{
     const nm=u.name,sales=sumMonth(nm,mk),days=activeDaysIn(nm,mk),avg=days?(sales/days).toFixed(2):'-';
@@ -5638,7 +5638,7 @@ function renderSalesMgr(){
 function renderSalesAnalysis(mk){
   const box=document.getElementById('smAnalysis');if(!box)return;
   const mn=+mk.slice(5,7);
-  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  const mems=rosterMembers();   // 임재영(AOP)도 팀원으로 집계 · 테스트봇은 rosterMembers에서 이미 제외
   const rows=mems.map(u=>({name:u.name,role:u.role,sales:sumMonth(u.name,mk),days:activeDaysIn(u.name,mk),income:+metaIncome(mk,u.name)||0,rej:metaRej(mk,u.name),bep:+bepOf(u.name)||0}));
   const active=rows.filter(r=>r.sales>0||r.income>0);
   if(!active.length){box.innerHTML=`<div class="sm-an-h">📈 ${mn}월 현황 분석</div><div class="sm-an-b"><p>아직 ${mn}월 데이터가 없어요. 세일즈가 쌓이고 리젝·인컴을 입력하면 여기에 자동으로 분석이 작성돼요.</p></div>`;return;}
@@ -5663,7 +5663,7 @@ function renderSalesAnalysis(mk){
 }
 function renderManagerAdmin(){
   const box=document.getElementById('managerAdminBody');if(!box||!me||!isFounder(me))return;
-  const mems=rosterMembers().filter(u=>!isAdminName(u.name));
+  const mems=rosterMembers();   // 임재영(AOP)도 팀원으로 집계 · 테스트봇은 rosterMembers에서 이미 제외
   const mode=(typeof mgrAdminMode!=='undefined')?mgrAdminMode:'manager';
   const mg=state.managers||[], sl=state.sectorLeaders||[];
   const strip=n=>String(n||'').replace(/\s/g,'');
@@ -6807,7 +6807,7 @@ function ftRoster(){
   var arr=[];
   try{ if(typeof rosterMembers==='function'){ arr=rosterMembers()||[]; } }catch(e){}
   if(!arr.length){ try{ if(window.state&&state.users){ arr=Object.values(state.users).filter(function(u){return u&&u.status==='active';}); } }catch(e){} }
-  return arr.filter(function(u){return u&&u.name;});
+  return arr.filter(function(u){return u&&u.name&&!(typeof isTestBot==='function'&&isTestBot(u));});
 }
 function ftRoleOf(u){ var r=u.role||''; if(!r&&typeof roleOf==='function'){try{r=roleOf(u.name)||'';}catch(e){}} return r; }
 function ftActiveUsers(filter){
