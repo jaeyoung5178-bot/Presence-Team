@@ -2315,11 +2315,12 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .sfb-mapcol{flex:1;min-width:0}
   .sfb-photocol{flex:1;min-width:0}
   .sfb-map{height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
+  .sfb-maparea{position:relative;height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e;isolation:isolate;transform:translateZ(0)}
+  .sfb-maparea>.sfb-map{position:absolute;inset:0;height:100%;width:100%;border:none;border-radius:0;margin:0}
   .sfb-mapbtns{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
-  .sfb-mb{flex:1;min-width:84px;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+  .sfb-mb{flex:1;min-width:72px;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:9px 6px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
   .sfb-mb:hover{border-color:var(--green)}
   .sfb-mb.on{background:var(--green);border-color:var(--green);color:var(--green-ink)}
-  .sfb-maparea{position:relative}
   #sfbInfo .si-card{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
   #sfbInfo .si-note{font-size:14px;color:var(--cream);line-height:1.55;white-space:pre-wrap}
   #sfbInfo .si-meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 14px}
@@ -2348,9 +2349,10 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .sfb-form button{background:var(--green);color:var(--green-ink);border:none;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;font-family:inherit}
   .sfb-cam{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card-2);border:1px solid var(--line);border-radius:10px;width:54px;height:46px;font-size:17px;cursor:pointer;flex:none;line-height:1;gap:1px}
   .sfb-cam small{font-size:8px;color:var(--green-soft);font-weight:700}
-  .ph-lightbox{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);padding:18px}
+  .ph-lightbox{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);padding:18px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   .ph-lightbox.on{display:flex}
   .ph-lightbox img{max-width:100%;max-height:100%;border-radius:10px}
+  .ph-close{position:absolute;top:calc(12px + var(--safe-t,0px));right:16px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:21px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
   @media(min-width:620px){ .sfb-modal{align-items:center} .sfb-box{border-radius:18px} .sfb-top{flex-direction:row} }
 </style>
 <div class="sfb-modal" id="siteFbModal">
@@ -2358,7 +2360,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     <div class="sfb-hd"><span class="t" id="sfbTitle">사이트 피드백</span><button class="c" onclick="closeFb()">×</button></div>
     <div class="sfb-scroll">
       <div class="sfb-sec">
-        <div class="sfb-maparea">
+        <div class="sfb-maparea" id="sfbMapArea">
           <div id="sfbMap" class="sfb-map"></div>
           <div id="sfbNaverHost" class="sfb-map" style="display:none"></div>
           <div id="sfbKakaoHost" class="sfb-map" style="display:none"></div>
@@ -2367,8 +2369,8 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <div class="sfb-mapbtns" id="sfbMapBtns">
           <button class="sfb-mb on" id="sfbBtnMap" onclick="fbShowMap()">🗺️ 지도</button>
           <button class="sfb-mb" id="sfbSatBtn" onclick="fbToggleSat()">🛰️ 위성</button>
-          <button class="sfb-mb" id="sfbBtnNaver" onclick="fbNaverPano()"><svg viewBox="0 0 40 40" width="14" height="14" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버 거리뷰</button>
-          <button class="sfb-mb" id="sfbBtnKakao" onclick="fbKakaoRv()"><svg viewBox="0 0 40 40" width="14" height="14" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오 로드뷰</button>
+          <button class="sfb-mb" id="sfbBtnNaver" onclick="fbNaverPano()"><svg viewBox="0 0 40 40" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버</button>
+          <button class="sfb-mb" id="sfbBtnKakao" onclick="fbKakaoRv()"><svg viewBox="0 0 40 40" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오</button>
         </div>
       </div>
 
@@ -2400,7 +2402,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   </div>
 </div>
 
-<div class="ph-lightbox" id="phLightbox" onclick="closeLightbox()"><img id="phLightImg" src="" alt=""/></div>
+<div class="ph-lightbox" id="phLightbox" onclick="closeLightbox()"><button class="ph-close" onclick="event.stopPropagation();closeLightbox()" aria-label="닫기">✕</button><img id="phLightImg" src="" alt="" /></div>
 
 <!-- ===================== 팀원 생활기록부 카드 ===================== -->
 <div class="mb-modal" id="memberModal">
@@ -2700,8 +2702,9 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
           </div>
         </div>
         <div class="adm-card">
-          <div class="ah"><h3>👥 팀원 명단 관리</h3></div>
+          <div class="ah"><h3>👥 팀원 명단 · 생활기록부 카드</h3></div>
           <div class="adm-body">
+            <p style="font-size:12.5px;color:var(--green-soft);font-weight:700;margin-bottom:11px;background:rgba(92,188,46,.1);border:1px solid rgba(92,188,46,.25);border-radius:9px;padding:10px 12px;line-height:1.6">👤 아래 <b>이름을 누르면</b> 그 팀원의 <b>생활기록부 카드</b>가 열려요 — 인적사항·최근 결과·팀장·하위팀·1:1·PDF. <span style="color:var(--muted);font-weight:600">🔒 관리자 전용</span></p>
             <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">여기 있는 이름만 <b>회원가입</b>할 수 있어요. 새 팀원은 아래에서 바로 추가하거나, 구글시트 '팀' 탭에 적고 <b>동기화</b>를 누르면 돼요.</p>
             <div id="memberAdminBody"></div>
             <button class="btn ghost block" style="margin-top:8px" onclick="syncRosterToSheet()">📋 이번 달 시트에 명단 동기화</button>
@@ -5376,6 +5379,19 @@ function renderMember(){
   var rec=mbRecent(name,12);
   var spark=rec.length?('<div class="mb-stat" style="grid-column:1/-1"><div class="k">최근 추이 (최신순 →)</div><div class="v" style="font-size:15px;letter-spacing:.5px">'+rec.map(function(e){return (+e.count||0);}).join(' · ')+'</div></div>'):'';
   h+='<div class="mb-sec"><div class="mb-sh">📊 최근 결과 <span class="ed">자동 집계 · 실시간</span></div><div class="mb-stats">'+stat('이번 달 '+ck.slice(5)+'월',cm,'')+stat('지난 달 '+pk.slice(5)+'월',pm,' last')+spark+'</div></div>';
+  /* 이번 달 리쿠르팅 — 콜링 허브 자동 연동 */
+  var _ru=(typeof userByName==='function')?userByName(name):null;
+  var _rc=(_ru&&state.recruit&&state.recruit[_ru.uid])||null;
+  var _rcOn=_rc&&_rc.month===recruitMonth();
+  function _rcCell(lbl,d,g){d=+(d||0);g=+(g||0);var pct=g>0?Math.min(100,Math.round(d/g*100)):0;return '<div class="mb-stat"><div class="k">'+lbl+'</div><div class="v">'+d+(g>0?'<small> / '+g+'</small>':'')+'</div><div class="k" style="margin-top:3px">'+(g>0?pct+'%':'목표 미설정')+'</div></div>';}
+  h+='<div class="mb-sec"><div class="mb-sh">🧲 이번 달 리쿠르팅 <span class="ed">'+recruitMonth().slice(5)+'월 · 콜링허브 연동</span></div>';
+  if(_rcOn){
+    h+='<div class="mb-stats">'+_rcCell('📞 부킹',_rc.bk_d,_rc.bk_g)+_rcCell('🙋 쇼업',_rc.su_d,_rc.su_g)+_rcCell('🌱 스타터',_rc.st_d,_rc.st_g)+'</div>';
+    h+='<div class="mb-card" style="margin-top:8px;display:flex;align-items:center;justify-content:space-between"><span style="color:var(--muted);font-size:12.5px">종합 달성률</span><b style="color:var(--green-soft);font-size:16px">'+rcOverall(_rc)+'%</b></div>';
+  } else {
+    h+='<div class="mb-card" style="color:var(--faint);font-size:12.5px;padding:12px;line-height:1.6">이번 달 리쿠르팅 기록이 아직 없어요.<br>콜링 허브에서 부킹·쇼업·스타터를 입력하면 자동으로 여기 표시돼요.</div>';
+  }
+  h+='</div>';
   /* 소속 · 상위 리더(팀장) — 클릭 시 그 리더 카드로 */
   h+='<div class="mb-sec"><div class="mb-sh">🧭 소속 · 상위 리더(팀장)</div><div class="mb-card mb-kv">';
   h+='<div class="row" style="width:100%"><b>팀</b>'+(team?E(team):'<span style="color:var(--faint)">미지정</span>')+'</div>';
@@ -5459,6 +5475,15 @@ function printMember(){
   var html='<div class="p-hd"><h1>'+E(name)+' · '+E(role)+'</h1><div class="p-meta">팀: '+E(d.teamName||'-')+(d.upline?' · 상위: '+E(d.upline):'')+(ten?' · 재직 '+ten.days+'일 (입사 '+E(ten.join)+')':'')+' · 출력 '+new Date().toLocaleDateString('ko-KR')+'</div></div>';
   html+='<h2>기본 정보</h2><div class="p-grid">'+(a.firstField?'<div><b>첫 필드</b> '+E(a.firstField)+'</div>':'')+(a.phone?'<div><b>연락처</b> '+E(a.phone)+'</div>':'')+(a.birth6?'<div><b>생일</b> '+E(a.birth6)+'</div>':'')+(a.email?'<div><b>이메일</b> '+E(a.email)+'</div>':'')+'</div>';
   html+='<h2>최근 결과 (자동 집계)</h2>'+sb(ck.slice(5)+'월',cm)+sb(pk.slice(5)+'월',pm);
+  var _pru=(typeof userByName==='function')?userByName(name):null;
+  var _prc=(_pru&&state.recruit&&state.recruit[_pru.uid])||null;
+  if(_prc&&_prc.month===recruitMonth()){
+    html+='<h2>이번 달 리쿠르팅 ('+recruitMonth().slice(5)+'월)</h2>'
+      +'<span class="p-stat">📞 부킹 <b>'+(+_prc.bk_d||0)+'</b>'+(+_prc.bk_g>0?' / '+_prc.bk_g:'')+'</span>'
+      +'<span class="p-stat">🙋 쇼업 <b>'+(+_prc.su_d||0)+'</b>'+(+_prc.su_g>0?' / '+_prc.su_g:'')+'</span>'
+      +'<span class="p-stat">🌱 스타터 <b>'+(+_prc.st_d||0)+'</b>'+(+_prc.st_g>0?' / '+_prc.st_g:'')+'</span>'
+      +'<span class="p-stat">종합 <b>'+rcOverall(_prc)+'%</b></span>';
+  }
   html+='<h2>하위 팀원 ('+sub.length+'명)</h2><div class="p-grid">'+(sub.length?sub.map(function(n){return '<div>· '+E(n)+' ('+E(ROLE_LABEL[roleOf(n)]||roleOf(n))+')</div>';}).join(''):'<div style="color:#999">없음</div>')+'</div>';
   if(a.strength||a.weak||a.vision)html+='<h2>설문 핵심</h2>'+(a.strength?'<div class="p-q"><b>강점</b>'+E(String(a.strength))+'</div>':'')+(a.weak?'<div class="p-q"><b>보완점</b>'+E(String(a.weak))+'</div>':'')+(a.vision?'<div class="p-q"><b>비전</b>'+E(String(a.vision))+'</div>':'');
   html+='<h2>동료 평가</h2>'+items(d.evals)+'<h2>트레이닝 메모</h2>'+items(d.trains)+'<h2>최근 1:1</h2>'+items(d.ones,true);
@@ -5490,7 +5515,7 @@ function renderMemberAdmin(){
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-sec-h">✅ 재직 ${active.length}명</div>`
     +`<div class="mem-list">`
-    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" style="cursor:pointer" title="팀원 카드 열기">${esc(n)}${m&&m.join?`<small class="mem-d">입사 ${m.join}</small>`:''}<button onclick="retireMember('${esc(n)}')" title="퇴사 처리">퇴사</button></span>`;}).join('')
+    + active.map(n=>{const m=miInfo(n);const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;return `<span class="mem-chip ${isEx?'extra':'base'}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" style="cursor:pointer" title="팀원 카드 열기">👤 ${esc(n)}${m&&m.join?`<small class="mem-d">입사 ${m.join}</small>`:''}<button onclick="retireMember('${esc(n)}')" title="퇴사 처리">퇴사</button></span>`;}).join('')
     +`</div>`
     + (depNames.length?`<div class="mem-sec-h">👋 퇴사 ${depNames.length}명 <small>(기록 보존)</small></div><div class="mem-list dep">`
        + depNames.map(n=>{const m=miInfo(n);return `<span class="mem-chip dep">${esc(n)}<small class="mem-d">${m&&m.join?'입사 '+m.join+' · ':''}${m&&m.left?'퇴사 '+m.left:'퇴사'}</small><button onclick="rehireMember('${esc(n)}')" title="재입사">재입사</button></span>`;}).join('')
@@ -7017,11 +7042,11 @@ var fbMap=null,fbMarker=null,fbSatLayer=null,fbSatOn=false,fbNaverPanoObj=null,f
 function fbMapBtnState(active){['sfbBtnMap','sfbSatBtn','sfbBtnNaver','sfbBtnKakao'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.toggle('on',id===active);});}
 function fbHideHosts(){var n=document.getElementById('sfbNaverHost'),k=document.getElementById('sfbKakaoHost');if(n)n.style.display='none';if(k)k.style.display='none';}
 function fbInitMap(){
-  var x=fbSiteObj(), el=document.getElementById('sfbMap'), nc=document.getElementById('sfbNoCoord'), bb=document.getElementById('sfbMapBtns');
+  var x=fbSiteObj(), el=document.getElementById('sfbMap'), area=document.getElementById('sfbMapArea'), nc=document.getElementById('sfbNoCoord'), bb=document.getElementById('sfbMapBtns');
   if(!el)return;
   fbHideHosts(); fbView='map';
-  if(!(x.lat&&x.lng)){ el.style.display='none'; if(nc)nc.style.display=''; if(bb)bb.style.display='none'; return; }
-  el.style.display=''; if(nc)nc.style.display='none'; if(bb)bb.style.display='';
+  if(!(x.lat&&x.lng)){ if(area)area.style.display='none'; if(nc)nc.style.display=''; if(bb)bb.style.display='none'; return; }
+  if(area)area.style.display=''; el.style.display=''; if(nc)nc.style.display='none'; if(bb)bb.style.display='';
   fbMapBtnState('sfbBtnMap');
   if(typeof L==='undefined'){ el.innerHTML='<div class="sfb-nocoord">지도 로딩 대기… 새로고침 해보세요</div>'; return; }
   if(!fbMap){
@@ -7032,13 +7057,14 @@ function fbInitMap(){
   fbMarker=L.marker([x.lat,x.lng],{icon:(typeof msPinIcon==='function'?msPinIcon():undefined)}).addTo(fbMap);
   fbSatOn=false; if(fbSatLayer){try{fbMap.removeLayer(fbSatLayer);}catch(e){}}
   var sb=document.getElementById('sfbSatBtn'); if(sb)sb.textContent='🛰️ 위성';
-  setTimeout(function(){try{fbMap.invalidateSize();}catch(e){}},130);
+  fbMapResize();
 }
+function fbMapResize(){ [60,300,560].forEach(function(ms){ setTimeout(function(){ try{ if(fbMap&&fbView==='map')fbMap.invalidateSize(); }catch(e){} },ms); }); }
 function fbShowMap(){
   var el=document.getElementById('sfbMap'); fbHideHosts(); if(el)el.style.display=''; fbView='map';
   if(fbSatOn&&fbMap&&fbSatLayer){try{fbMap.removeLayer(fbSatLayer);}catch(e){} fbSatOn=false; var sb=document.getElementById('sfbSatBtn'); if(sb)sb.textContent='🛰️ 위성';}
   fbMapBtnState('sfbBtnMap');
-  setTimeout(function(){try{fbMap&&fbMap.invalidateSize();}catch(e){}},90);
+  fbMapResize();
 }
 function fbToggleSat(){
   if(fbView!=='map')fbShowMap();
