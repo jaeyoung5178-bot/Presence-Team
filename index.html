@@ -4207,7 +4207,7 @@ function goTab(name){
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();if(typeof renderExportPanel==='function')renderExportPanel();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
-  if(name==='teamtree'&&isFounder(me)){orgEnsureSeed();renderOrgEditor();}
+  if(name==='teamtree'&&isFounder(me)){renderOrgEditor();}
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -5914,10 +5914,34 @@ function orgTreeHTML(){
   var broken=[];t.mem.forEach(function(n){var up=(dossierOf(n).upline||'').trim();if(up&&!t.byk[nk(up)])broken.push(n+'→'+up);});
   var warn=broken.length?'<div class="org-warn">⚠️ 상위 리더가 명단에 없는 사람: '+broken.map(esc).join(', ')+' — 아래에서 다시 지정하세요.</div>':'';
   var teamCnt=Object.keys(t.childMap).length;
-  return '<div class="org-meta">최상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
+  var cnt={};t.mem.forEach(function(n){var r=roleOf(n);cnt[r]=(cnt[r]||0)+1;});
+  var rbar=['O','OP','AOP','TL','LR','IC'].filter(function(r){return cnt[r];}).map(function(r){return '<span class="org-rc"><b>'+cnt[r]+'</b>'+esc(ROLE_LABEL[r]||r)+'</span>';}).join('');
+  return '<div class="org-rolebar">'+rbar+'</div><div class="org-meta">최상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
 }
 function orgRefreshTree(){var box=document.getElementById('orgTreeBox');if(box)box.innerHTML=orgTreeHTML();}
 function orgSetTeam(name,val){if(!(me&&isFounder(me)))return;dossierSet(name,'teamName',(val||'').trim());orgRefreshTree();if(mbName&&nk(mbName)===nk(name)&&document.getElementById('memberModal').classList.contains('on'))renderMember();}
+function orgSaveEdits(){
+  if(!(me&&isFounder(me)))return;
+  var rows=document.querySelectorAll('#orgEditorBody .org-erow');
+  if(!rows.length){toast('편집할 팀원이 없어요');return;}
+  var items=[];
+  rows.forEach(function(r){
+    var nm=r.getAttribute('data-name'); if(!nm)return;
+    var te=r.querySelector('.org-eteam'), ue=r.querySelector('.org-eup');
+    items.push({name:nm,team:(te?te.value:'').trim(),up:(ue?ue.value:'').trim()});
+  });
+  var upMap={}; items.forEach(function(it){upMap[nk(it.name)]=it.up;});
+  function inCycle(start){var cur=start,g=0,seen={};while(cur&&g++<90){var k=nk(cur);if(seen[k])return true;seen[k]=1;cur=upMap[k]||'';}return false;}
+  var cyc=[];
+  items.forEach(function(it){if(it.up&&inCycle(it.name))cyc.push(it.name);});
+  items.forEach(function(it){
+    dossierSet(it.name,'teamName',it.team);
+    if(cyc.indexOf(it.name)<0)dossierSet(it.name,'upline',it.up);
+  });
+  orgRefreshTree();
+  if(mbName&&document.getElementById('memberModal').classList.contains('on'))renderMember();
+  toast(cyc.length?('⚠️ 순환은 제외하고 저장했어요 ('+cyc.join(', ')+')'):'🧭 조직도를 저장했어요');
+}
 function orgSetUp(name,val){
   if(!(me&&isFounder(me)))return;val=(val||'').trim();
   if(val&&orgIsDescendant(val,name)){toast('⚠️ 순환 구조예요 — '+val+'님은 '+name+'님의 하위에 있어요');renderOrgEditor();return;}
@@ -5943,17 +5967,16 @@ function renderOrgEditor(){
     }).join('');
   };
   var rows=t.mem.slice().sort(orgCmp).map(function(n){
-    var d=dossierOf(n),safe=esc(n).replace(/'/g,"\\'");
-    return '<div class="org-erow">'
+    var d=dossierOf(n);
+    return '<div class="org-erow" data-name="'+esc(n)+'">'
       +'<span class="org-ename"><span class="org-av sm" style="background:'+avColor(n)+'">'+avInner(n)+'</span>'+esc(n)+' <small>'+esc(ROLE_LABEL[roleOf(n)]||roleOf(n))+'</small></span>'
-      +'<input class="org-eteam" value="'+esc(d.teamName||'')+'" placeholder="이끄는 팀 이름 (예: FUSE)" onchange="orgSetTeam(\''+safe+'\',this.value)">'
-      +'<select class="org-eup" onchange="orgSetUp(\''+safe+'\',this.value)">'+upOpts(n)+'</select>'
+      +'<input class="org-eteam" value="'+esc(d.teamName||'')+'" placeholder="이끄는 팀 이름 (예: FUSE)">'
+      +'<select class="org-eup">'+upOpts(n)+'</select>'
       +'</div>';
   }).join('');
-  box.innerHTML='<p class="org-help">이름을 누르면 프로필이 열려요. 아래에서 각자의 <b>이끄는 팀 이름</b>과 <b>상위 리더(팀장)</b>를 고르면 위 조직도가 즉시 정리돼요. 순환(서로가 서로의 상위)은 자동으로 막아요.</p>'
-    +'<div class="org-tools"><button class="org-seed" onclick="orgSeedExample()">📋 예시 구조 불러오기</button><button class="org-seed ghost" onclick="renderOrgEditor()">🔄 새로고침</button></div>'
+  box.innerHTML='<p class="org-help">이름을 누르면 프로필이 열려요. 아래 <b>✏️ 상위·팀 편집</b>에서 각자의 <b>이끄는 팀 이름</b>과 <b>상위 리더</b>를 고치고 <b>💾 저장</b>을 누르면 위 조직도에 반영돼요. 저장한 구조는 계속 유지됩니다. (순환 구조는 자동으로 걸러져요.)</p>'
     +'<div id="orgTreeBox" class="org-treebox">'+orgTreeHTML()+'</div>'
-    +'<details class="org-editwrap"><summary class="org-sec-h org-edit-sum">✏️ 상위·팀 편집 <span class="org-edit-caret">▾</span></summary><div class="org-edit">'+rows+'</div></details>';
+    +'<details class="org-editwrap"><summary class="org-sec-h org-edit-sum">✏️ 상위·팀 편집 <span class="org-edit-caret">▾</span></summary><div class="org-edit">'+rows+'<button class="org-save" onclick="orgSaveEdits()">💾 저장</button></div></details>';
 }
 /* 구글시트 '팀' 탭 → 가입 명단 자동 반영 (pull과 같은 JSONP) */
 function pullRoster(opts){
@@ -8124,6 +8147,13 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .org-edit-caret{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s ease}
 .org-editwrap[open]>summary .org-edit-caret{transform:rotate(180deg)}
 .org-editwrap[open] .org-edit{margin-top:10px}
+/* 저장 버튼 */
+.org-save{margin-top:12px;width:100%;background:var(--green);color:var(--green-ink);border:none;border-radius:11px;padding:13px;font-weight:800;font-size:14.5px;cursor:pointer;font-family:inherit}
+.org-save:hover{filter:brightness(1.06)}
+/* 직급별 인원 요약 바 */
+.org-rolebar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.org-rc{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--cream);background:var(--card-2);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.org-rc b{font-family:var(--mono);font-size:14px;color:var(--green-soft)}
 /* 모바일: 조직도 한눈에 (노드 압축) */
 @media(max-width:620px){
   .org-treebox{padding:10px 8px 12px}
