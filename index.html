@@ -2187,7 +2187,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 
         <!-- 🗺️ 사이트 관리 (섹터리더) -->
     <div class="mpanel" id="m-sites"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🗺️ 사이트 관리</h2><span class="ko">주요·신규·여름(그늘)·신청</span><span class="meta">섹터리더</span></div>
+      <div class="sec-head"><h2>🗺️ 사이트 관리</h2><span class="ko">주요·신규·신청</span><span class="meta">섹터리더</span></div>
       <style>
         #m-sites .ft-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 18px}
         #m-sites .ft-sb{background:var(--card-2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--mono)}
@@ -2305,7 +2305,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       <div class="ft-subnav">
         <button class="ft-sb active" data-sp="main" onclick="siteTab('main')">📍 주요 사이트</button>
         <button class="ft-sb" data-sp="new" onclick="siteTab('new')">➕ 신규 추가</button>
-        <button class="ft-sb" data-sp="shade" onclick="siteTab('shade')">⛅ 여름(그늘)</button>
         <button class="ft-sb" data-sp="apply" onclick="siteTab('apply')">🚀 사이트 신청</button>
       </div>
 
@@ -2359,56 +2358,10 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
             <button class="ft-btn" onclick="addSiteRow()">사이트 등록</button>
             <button class="ft-btn ghost" onclick="nsResetForm()">초기화</button>
           </div>
-          <div class="ft-note">등록한 사이트는 팀 공용으로 저장돼요. 좌표·사진이 함께 저장돼 <b>주요 사이트 지도</b>와 <b>여름(그늘)</b> 탭에서 바로 보여요.</div>
+          <div class="ft-note">등록한 사이트는 팀 공용으로 저장돼요. 좌표·사진이 함께 저장돼 <b>주요 사이트 지도</b>에서 바로 보여요.</div>
         </div>
       </div>
 
-      <div class="sp" id="sp-shade">
-        <div class="ft-card"><div class="ft-h">검증된 그늘 사이트</div><div class="slist" id="shadeList"></div></div>
-        <div class="ft-card" id="shadeAnalyzeCard"><div class="ft-h">새 장소 그늘 분석</div>
-          <div class="ft-row">
-            <div class="ft-f" style="flex:1;min-width:200px"><label>장소 검색 (이름·주소)</label>
-              <div class="ms-searchbar">
-                <span class="ms-sicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16.5" y2="16.5"/></svg></span>
-                <input class="ms-sinput" id="msQuery" placeholder="장소·주소 검색" onkeydown="if(event.key==='Enter')msSearch()">
-                <button class="ms-sbtn" onclick="msSearch()">검색</button>
-              </div>
-            </div>
-          </div>
-          <div id="msResults" class="ms-results"></div>
-          <div id="msMap" class="ms-map" style="margin-top:10px"></div>
-          <div class="ms-mapbtns">
-            <button class="ms-mini" id="msSatBtn" onclick="msToggleSat()">🛰️ 위성</button>
-            <button class="ms-mini" onclick="openNaverPano()"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버</button>
-            <button class="ms-mini" onclick="openKakaoRv()"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오</button>
-          </div>
-          <div id="msRvWrap" style="display:none;margin-top:10px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-              <span id="msRvLabel" style="font-size:12px;color:var(--green-soft);font-weight:700"></span>
-              <span id="msRvDate" style="font-size:11.5px;color:var(--amber);font-family:var(--mono)"></span>
-              <button class="ms-mini" style="flex:none;min-width:auto;padding:6px 12px;margin-left:auto" onclick="closeRv()">✕ 닫기</button>
-            </div>
-            <div id="msPano" class="ms-roadview"></div>
-            <div id="msKv" class="ms-roadview" style="display:none"></div>
-          </div>
-          <div id="msNearby" class="ms-nearby"></div>
-          <div class="ft-note" style="margin-top:8px">검색 후 지도에서 <b>핀을 끌어</b> 정확한 부스 자리에 놓으세요. 그늘은 핀 위치 기준으로 계산됩니다. (지도를 눌러도 핀이 이동해요)</div>
-          <div class="obst" style="margin-top:12px">
-            <div class="chk">건물 방향 <select id="msDir"><option>없음</option><option>북</option><option>북동</option><option>동</option><option>남동</option><option>남</option><option>남서</option><option>서</option><option>북서</option></select></div>
-            <div class="chk">높이 <input type="range" id="msBlk" min="0" max="65" value="32"></div>
-            <div class="chk"><input type="checkbox" id="msAwn"> 차양</div>
-            <div class="chk">차양고도 <input type="range" id="msAwnAlt" min="30" max="70" value="55"></div>
-            <div class="chk">날짜 <input class="ft-in" id="msDate" type="date" value="2026-07-15" style="width:150px"></div>
-          </div>
-          <div class="ft-legend"><span class="lg-sun">직사광(더움)</span><span class="lg-half">반그늘</span><span class="lg-shade">그늘(시원)</span></div>
-          <div class="ft-row" style="margin-top:10px"><button class="ft-btn" onclick="msAnalyze()">⛅ 분석</button></div>
-          <div id="msResult"></div>
-          <div class="ft-row" style="margin-top:14px">
-            <div class="ft-f" style="flex:1;min-width:180px"><label>카카오맵 등록 이름 (신청용)</label><input class="ft-in" id="msKakao" placeholder="신청 규정용 정확한 상호/지명"></div>
-            <button class="ft-btn ghost" onclick="msAddVerified()">➕ 검증목록에 추가</button>
-          </div>
-        </div>
-      </div>
       <div class="sp" id="sp-apply">
         <div class="ft-card"><div class="ft-h">사이트 신청 링크</div>
           <div class="ft-row">
@@ -2858,7 +2811,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     </section></div></div>
 
     <div class="mpanel" id="m-teamtree"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🧭 Team Tree</h2><span class="ko">상위팀 · 하위팀 조직도 · 팀 구조 편집</span><span class="meta">AOP 전용</span></div>
+      <div class="sec-head"><h2>🧭 Team Tree</h2><span class="ko">상위팀 · 하위팀 조직도 · 내 위치 보기</span><span class="meta">리더 이상</span></div>
       <div id="orgEditorBody"></div>
     </section></div></div>
 
@@ -4129,9 +4082,9 @@ const NAV=[
   {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
-  {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','recap','calling','field']},
+  {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','teamtree','recap','calling','field']},
   {k:'sector',e:'🗺️',l:'섹터',tabs:['sites']},
-  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','teamtree','events','survey','gsheet','admin']}
+  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -4147,7 +4100,7 @@ const TABMETA={
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
   gsheet:{e:'🛠️',l:'개발 연동',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
-  teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)},
+  teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)||isLeader(me.role)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -4207,7 +4160,7 @@ function goTab(name){
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();if(typeof renderExportPanel==='function')renderExportPanel();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
-  if(name==='teamtree'&&isFounder(me)){renderOrgEditor();}
+  if(name==='teamtree')renderOrgEditor();
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -5916,7 +5869,7 @@ function orgTreeHTML(){
   var teamCnt=Object.keys(t.childMap).length;
   var cnt={};t.mem.forEach(function(n){var r=roleOf(n);cnt[r]=(cnt[r]||0)+1;});
   var rbar=['O','OP','AOP','TL','LR','IC'].filter(function(r){return cnt[r];}).map(function(r){return '<span class="org-rc"><b>'+cnt[r]+'</b>'+esc(ROLE_LABEL[r]||r)+'</span>';}).join('');
-  return '<div class="org-rolebar">'+rbar+'</div><div class="org-meta">최상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
+  return '<div class="org-rolebar">'+rbar+'</div><div class="org-meta">상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
 }
 function orgRefreshTree(){var box=document.getElementById('orgTreeBox');if(box)box.innerHTML=orgTreeHTML();}
 function orgSetTeam(name,val){if(!(me&&isFounder(me)))return;dossierSet(name,'teamName',(val||'').trim());orgRefreshTree();if(mbName&&nk(mbName)===nk(name)&&document.getElementById('memberModal').classList.contains('on'))renderMember();}
@@ -5959,10 +5912,16 @@ function orgSeedExample(){
 }
 function renderOrgEditor(){
   var box=document.getElementById('orgEditorBody');if(!box)return;
+  var canEdit=me&&isFounder(me);
   var t=orgBuildTree();
+  if(!canEdit){
+    box.innerHTML='<p class="org-help">우리 팀 전체 조직도예요. 내가 <b>누구 팀에 속해 있는지</b>, <b>위·아래로 어떻게 이어지는지</b> 한눈에 볼 수 있어요. 이름을 누르면 프로필이 열립니다. (구조 편집은 관리자만 할 수 있어요.)</p>'
+      +'<div id="orgTreeBox" class="org-treebox">'+orgTreeHTML()+'</div>';
+    return;
+  }
   var upOpts=function(self){
     var cu=nk(dossierOf(self).upline||'');
-    return '<option value="">— 최상위(상위 없음) —</option>'+t.mem.filter(function(n){return nk(n)!==nk(self);}).map(function(n){
+    return '<option value="">— 상위 없음(최상단) —</option>'+t.mem.filter(function(n){return nk(n)!==nk(self);}).map(function(n){
       return '<option value="'+esc(n)+'"'+(cu===nk(n)?' selected':'')+'>'+esc(n)+' ('+esc(ROLE_LABEL[roleOf(n)]||roleOf(n))+')</option>';
     }).join('');
   };
@@ -6986,7 +6945,6 @@ function siteTab(k){
   var el=document.getElementById('sp-'+k); if(el)el.classList.add('active');
   if(k==='main'){renderSiteList();renderSiteMap();}
   if(k==='new'){nsInitMap();}
-  if(k==='shade'){msInit();}
   if(k==='apply')startPad(); else stopPad();
 }
 function renderSiteList(){
@@ -8040,7 +7998,7 @@ function devStatusHTML(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-06-27.1';
+const APP_VERSION='2026-06-27.2';
 let _updPrompted=false;
 function showUpdateBanner(v){
   if(_updPrompted)return;_updPrompted=true;
