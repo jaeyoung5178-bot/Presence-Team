@@ -2219,9 +2219,16 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       <div class="ft-pane" id="ft-rc">
         <div class="ft-card"><div class="ft-h">이번 주 한눈에</div><div class="ft-kpis" id="ftRcKpis"></div></div>
         <div class="ft-card"><div class="ft-h">팀원 입력 · 결과/인컴</div>
+          <div class="ft-weekbar">
+            <button class="ft-wk-nav" onclick="ftWkShift(-1)">‹ 지난주</button>
+            <div class="ft-wk-mid"><label class="ft-wk-lab">위크엔딩 (일요일)</label><input type="date" id="ftWkDate" class="ft-wk-date" onchange="ftWkPick(this.value)"></div>
+            <button class="ft-wk-nav" onclick="ftWkShift(1)">다음주 ›</button>
+          </div>
+          <div class="ft-wk-info" id="ftWkInfo"></div>
           <div class="ft-scroll"><table><thead><tr><th>이름</th><th>이번주</th><th>지난주</th><th>필드일</th><th>인컴(원)</th><th></th></tr></thead><tbody id="ftRcRows"></tbody></table></div>
           <div class="ft-row" style="margin-top:12px"><button class="ft-btn ghost" onclick="ftRcAdd()">+ 팀원</button><button class="ft-btn" onclick="ftRcCalc()">집계</button></div>
-          <div class="ft-note">팀 명단(활동 멤버)에서 이름을 자동으로 불러옵니다. 결과·인컴만 채우세요.</div>
+          <div class="ft-note">위크엔딩 <b>일요일</b>을 고르면 그 주(월~일) 결과가 자동으로 들어오고, 인컴은 <b>주차별로 저장</b>돼요. 그 일요일의 일한 분은 <b>+5일 뒤 금요일</b>에 들어오는 인컴이에요.</div>
+          <div class="ft-row" style="margin-top:10px"><button class="ft-btn ghost" onclick="ftWkRollup()">📤 이 달 인컴 = 주간 합계로 반영 (월·시트)</button></div>
         </div>
         <div class="ft-card"><div class="ft-h">먼저 연락할 사람</div><div id="ftRcCheck"></div></div>
         <div class="ft-card"><div class="ft-h">PR (리쿠르팅) · 허브 자동 연동</div><div id="ftRcPR"></div></div>
@@ -2671,6 +2678,40 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .dev-status .ds-st{font-size:12px;font-weight:700;font-family:var(--mono)}
   .dev-status .ds-st.on{color:var(--green-soft)}
   .dev-status .ds-st.off{color:var(--faint)}
+  /* 인컴 위크엔딩 달력 */
+  #m-field .ft-weekbar{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  #m-field .ft-wk-nav{flex:none;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:9px;padding:9px 11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+  #m-field .ft-wk-nav:active{transform:scale(.97)}
+  #m-field .ft-wk-mid{flex:1;display:flex;flex-direction:column;gap:3px;align-items:center}
+  #m-field .ft-wk-lab{font-size:10.5px;color:var(--muted);font-weight:600}
+  #m-field .ft-wk-date{background:var(--ink);border:1.5px solid var(--line);color:var(--cream);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;width:100%;max-width:210px;text-align:center}
+  #m-field .ft-wk-date:focus{outline:0;border-color:var(--green)}
+  #m-field .ft-wk-info{font-size:12px;color:var(--muted);background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:11px;line-height:1.6}
+  #m-field .ft-wk-info b{color:var(--cream)}
+  /* 리더힛 계산기 */
+  #m-leaderhit .lh-top{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:13px}
+  #m-leaderhit .lh-rule{font-size:13px;color:var(--cream)}
+  #m-leaderhit .lh-rule small{color:var(--faint)}
+  #m-leaderhit .lh-summary{font-size:12px;color:var(--muted)}
+  #m-leaderhit .lh-list{display:flex;flex-direction:column;gap:10px}
+  #m-leaderhit .lh-card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+  #m-leaderhit .lh-card.hit{border-color:var(--green);background:linear-gradient(180deg,rgba(92,188,46,.08),var(--card))}
+  #m-leaderhit .lh-row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  #m-leaderhit .lh-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--green-ink);flex:none}
+  #m-leaderhit .lh-nm{flex:1;font-size:15px;font-weight:700;color:var(--cream)}
+  #m-leaderhit .lh-badge{flex:none;font-size:11.5px;font-weight:700;color:var(--muted);background:var(--card-2);border:1px solid var(--line);border-radius:7px;padding:4px 9px}
+  #m-leaderhit .lh-badge.ok{color:var(--green-ink);background:var(--green);border-color:var(--green)}
+  #m-leaderhit .lh-badge.near{color:var(--amber);border-color:var(--amber)}
+  #m-leaderhit .lh-cells{display:flex;gap:6px;margin-bottom:9px}
+  #m-leaderhit .lh-cell{flex:1;text-align:center;font-family:var(--mono);font-size:14px;font-weight:700;padding:9px 0;border-radius:9px;border:1px solid var(--line)}
+  #m-leaderhit .lh-cell.on{background:rgba(92,188,46,.16);color:var(--green-soft);border-color:rgba(92,188,46,.35)}
+  #m-leaderhit .lh-cell.zero{background:var(--card-2);color:var(--faint)}
+  #m-leaderhit .lh-cell.empty{background:transparent;color:var(--line);border-style:dashed}
+  #m-leaderhit .lh-prog{height:7px;background:var(--card-2);border-radius:99px;overflow:hidden;margin-bottom:8px}
+  #m-leaderhit .lh-prog-in{height:100%;background:linear-gradient(90deg,var(--green),var(--green-soft));border-radius:99px;transition:width .4s}
+  #m-leaderhit .lh-note{font-size:12.5px;color:var(--muted);line-height:1.6}
+  #m-leaderhit .lh-note b{color:var(--cream)}
+  #m-leaderhit .lh-empty{font-size:13px;color:var(--muted);padding:18px 4px;text-align:center;line-height:1.7}
   body.pdf-open{overflow:hidden}
   #pdfOverlay{position:fixed;inset:0;z-index:var(--z-pdf);background:#eef0f4;display:flex;flex-direction:column}
   #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
@@ -2853,6 +2894,11 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       </div>
       <div class="sec-sub" style="margin-top:26px">🔗 개발 바로가기 · API 키</div>
       <div id="devLinksBody"></div>
+    </section></div></div>
+
+    <div class="mpanel" id="m-leaderhit"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🏅 리더힛 계산기</h2><span class="ko">연속 출근 5일 · 후원자 8명 · IC별 자동 집계</span><span class="meta">리더 이상</span></div>
+      <div id="leaderhitBody"></div>
     </section></div></div>
 
     <div class="mpanel" id="m-teamtree"><div class="wrap"><section class="sec">
@@ -4131,7 +4177,7 @@ const NAV=[
   {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
-  {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','teamtree','recap','calling','field']},
+  {k:'lead',e:'🎯',l:'리더',tabs:['leaderhit','cbjournal','teamtree','recap','calling','field']},
   {k:'sector',e:'🗺️',l:'섹터',tabs:['sites']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
@@ -4141,8 +4187,8 @@ const TABMETA={
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성'},topics:{e:'🗂️',l:'토픽자료'},
-  recap:{e:'📅',l:'리캡',g:()=>isTLplus(me.role)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},cbjournal:{e:'📓',l:'콜백싯 일지',g:()=>isFounder(me)||isLeader(me.role)},
-  field:{e:'🧭',l:'필드도구',g:()=>isLeader(me.role)},
+  recap:{e:'📅',l:'리캡',g:()=>isFounder(me)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},leaderhit:{e:'🏅',l:'리더힛 계산기',g:()=>leaderhitVisible()},cbjournal:{e:'📓',l:'콜백싯 일지',g:()=>isFounder(me)||isLeader(me.role)},
+  field:{e:'🧭',l:'필드도구',g:()=>isFounder(me)},
   sites:{e:'🗺️',l:'사이트 관리',g:()=>isSectorLeader(me)||isFounder(me)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
   events:{e:'📣',l:'공지·기념일',g:()=>isFounder(me)},
@@ -4222,6 +4268,7 @@ function goTab(name){
   if(name==='recap')renderRecap();
   if(name==='calling')renderCalling();
   if(name==='field')renderField();
+  if(name==='leaderhit')renderLeaderHit();
   if(name==='sites')renderSites();
   if(name==='daily'){const dd=document.getElementById('dailyDate');if(dd&&!dd.value)dd.value=TODAY;renderDaily();startAutoPull();}
   if(name==='events'){renderEvents();renderGnAdmin();renderAnnounceAdmin();}
@@ -6746,7 +6793,7 @@ async function initFirebase(){
    ════════════════════════════════════════════ */
 let ftReady=false;
 function renderField(){
-  if(!ftReady){ ftLhSeed(); ftRcSeed(); ftReady=true; }
+  if(!ftReady){ ftLhSeed(); ftWkInit(); ftReady=true; }
   ftRcCalc();           // 열 때마다 PR/집계 최신화
 }
 function ftTab(k){
@@ -6923,7 +6970,7 @@ function ftRcRowHTML(d){
     '<td><button class="ft-del" onclick="this.closest(\'tr\').remove();ftRcCalc()">✕</button></td></tr>';
 }
 function ftRcAdd(d){ document.getElementById('ftRcRows').insertAdjacentHTML('beforeend',ftRcRowHTML(d)); ftRcBind(); }
-function ftRcBind(){ document.querySelectorAll('#ftRcRows input').forEach(function(i){i.oninput=ftRcCalc;}); }
+function ftRcBind(){ document.querySelectorAll('#ftRcRows input').forEach(function(i){i.oninput=ftRcCalc;}); document.querySelectorAll('#ftRcRows tr').forEach(function(tr){ var ins=tr.querySelectorAll('input'); var incEl=tr.querySelector('.ft-inc'); if(incEl){ incEl.onchange=function(){ var nm=ins[0]?ins[0].value.trim():''; if(nm)ftWkSaveInc(nm, incEl.value); }; } }); }
 function ftRcSeed(){
   var mem=ftActiveUsers(function(u){return !/AOP|Owner/i.test(u.role||'');});
   var wk=ftWeekBounds(0), pw=ftWeekBounds(-1);
@@ -6989,13 +7036,13 @@ function ftRcNotice(m,totR,wow,prod,totInc,cands,pr){
   L.push('총결과 '+totR+'명 (전주대비 '+(wow>=0?'+':'')+wow+'%)');
   L.push('팀 생산성 '+prod.toFixed(1)+'/일 · 총인컴 '+ftWon(totInc)+'원');
   if(pr)L.push('PR 부킹 '+(pr.bk_d||0)+'/'+(pr.bk_g||0)+' · 스타트 '+(pr.st_d||0)+'/'+(pr.st_g||0));
-  if(top)L.push('\n🏆 이주의 톱 — '+top.n+' ('+top.res+'명)');
+  if(top)L.push('\n🏆 이주의 베스트 펀드레이저 — '+top.n+' ('+top.res+'명)');
   L.push('\n👥 개인 결과');
   m.slice().sort(function(a,b){return b.res-a.res;}).forEach(function(x){
     var ar=x.wow>0?'▲':x.wow<0?'▼':'-'; L.push('· '+x.n+'  '+x.res+'명 ('+ar+Math.abs(x.wow)+'%)');
   });
   if(cands.length){ L.push('\n🤝 이번 주 함께 챙길 멤버'); cands.forEach(function(x){L.push('· '+x.n);}); }
-  L.push('\n다음 주도 머물고 싶은 부스 만들어봅시다 💚');
+  L.push('\n다음주도 머물고 싶은 사람들 되어 봅시다 💚');
   document.getElementById('ftRcNotice').textContent=L.join('\n');
 }
 function ftRcCopy(){
@@ -8126,6 +8173,180 @@ function devStatusHTML(){
     row('🐙','GitHub 저장소',!!devVal('github'))+
     row('🔥','Firebase 콘솔',!!devVal('firebase'))+
     '</div>';
+}
+
+/* ════════════════════════════════════════════
+   🏅 리더힛 계산기 — 연속 5일(출근일 기준) 후원자 8명
+   na(미출근) 제외 · rally는 출근일로 포함(카운트 0)
+   ════════════════════════════════════════════ */
+const LH_WINDOW=5, LH_TARGET=8;
+function lhSeriesFor(name){
+  // 해당 인원의 출근일(na 제외)만 날짜순으로 [{date,count}]
+  var arr=[];
+  for(var k in state.sales){
+    var e=state.sales[k]; if(!e||e.name!==name) continue;
+    if(e.na) continue;                       // 미출근 제외
+    arr.push({date:e.date, count:(e.rally?0:(+e.count||0))});
+  }
+  arr.sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
+  return arr;
+}
+function lhAnalyze(name){
+  var s=lhSeriesFor(name);
+  var n=s.length;
+  // 모든 연속 5일 구간 검사 → 달성 여부 & 가장 좋은 합
+  var hit=false, hitEnd=-1, bestSum=0, bestStart=0;
+  for(var i=0;i+LH_WINDOW<=n;i++){
+    var sum=0; for(var j=i;j<i+LH_WINDOW;j++) sum+=s[j].count;
+    if(sum>bestSum){bestSum=sum;bestStart=i;}
+    if(sum>=LH_TARGET){ hit=true; hitEnd=i+LH_WINDOW-1; if(!window._lhFirstHit) {} }
+  }
+  // 현재 진행 구간 = 최근 출근일 최대 5일
+  var curStart=Math.max(0,n-LH_WINDOW);
+  var cur=s.slice(curStart);
+  var curSum=cur.reduce(function(a,b){return a+b.count;},0);
+  var curDays=cur.length;
+  // 첫 달성일(달성했다면)
+  var hitDate=null;
+  if(hit){
+    for(var i2=0;i2+LH_WINDOW<=n;i2++){
+      var sm=0; for(var j2=i2;j2<i2+LH_WINDOW;j2++) sm+=s[j2].count;
+      if(sm>=LH_TARGET){ hitDate=s[i2+LH_WINDOW-1].date; break; }
+    }
+  }
+  return {name:name, series:s, n:n, hit:hit, hitDate:hitDate, bestSum:bestSum,
+          cur:cur, curSum:curSum, curDays:curDays,
+          remain:Math.max(0,LH_TARGET-curSum), daysLeft:Math.max(0,LH_WINDOW-curDays)};
+}
+function lhBar(cur, target){
+  // 최근 5칸 시각화 (출근일 카운트)
+  var cells=''; var slots=Math.max(LH_WINDOW, cur.length);
+  for(var i=0;i<LH_WINDOW;i++){
+    var c=cur[i];
+    if(c){ cells+='<span class="lh-cell '+(c.count>0?'on':'zero')+'">'+c.count+'</span>'; }
+    else { cells+='<span class="lh-cell empty">·</span>'; }
+  }
+  return '<div class="lh-cells">'+cells+'</div>';
+}
+function uplineOf(name){ return (dossierOf(name).upline)||''; }
+function inMyDownline(name){
+  if(!me) return false;
+  if(isFounder(me)) return true;
+  var meK=nk(me.name), cur=name, g=0;
+  while(cur && g++<60){ var up=uplineOf(cur); if(!up) return false; if(nk(up)===meK) return true; cur=up; }
+  return false;
+}
+function myScopeICs(){
+  return rosterMembers().filter(function(u){
+    return u.role==='IC' && !isAdminName(u.name) && !isDeparted(u.name) && (isFounder(me)||inMyDownline(u.name));
+  });
+}
+function leaderhitVisible(){
+  if(!me) return false;
+  if(!(isFounder(me)||isLeader(me.role))) return false;
+  try{ return myScopeICs().length>0; }catch(e){ return false; }
+}
+function renderLeaderHit(){
+  var box=document.getElementById('leaderhitBody'); if(!box) return;
+  // IC만 (원하면 전체로 바꿀 수 있음). 미가입 IC도 세일즈 있으면 포함.
+  var ics=myScopeICs().map(function(u){return u.name;});
+  if(!ics.length){ box.innerHTML='<div class="lh-empty">현재 근무 중인 우리 팀 IC가 없어요.<br><small>리더힛 계산기는 내 팀 IC가 1명 이상 활동 중일 때만 보여요.</small></div>'; return; }
+  var all=ics.map(lhAnalyze);
+  var done=all.filter(function(x){return x.hit;}).length;
+  var list=all.filter(function(x){return !x.hit;});   // 🏅 달성자는 명단에서 자동 제외
+  list.sort(function(a,b){ if(a.remain!==b.remain) return a.remain-b.remain; return b.curSum-a.curSum; });
+  var head='<div class="lh-top"><div class="lh-rule">📏 기준 · <b>연속 출근 5일 동안 후원자 '+LH_TARGET+'명</b> <small>(미출근일 제외)</small></div>'+
+           '<div class="lh-summary">우리 팀 IC '+ics.length+'명 · 🏅 달성 <b style="color:var(--green-soft)">'+done+'</b> · 진행중 '+list.length+'</div></div>';
+  var cards=list.map(function(x){
+    if(x.hit){
+      return '<div class="lh-card hit"><div class="lh-row1"><span class="lh-av" style="background:'+avColor(x.name)+'">'+avInner(x.name)+'</span>'+
+        '<span class="lh-nm">'+esc(x.name)+'</span><span class="lh-badge ok">🎉 리더힛 달성</span></div>'+
+        lhBar(x.cur)+
+        '<div class="lh-note">최고 연속 5일 합 <b>'+x.bestSum+'명</b>'+(x.hitDate?' · 달성일 '+x.hitDate:'')+'</div></div>';
+    }
+    var coach;
+    if(x.n===0) coach='출근 기록이 없어요.';
+    else if(x.curDays<LH_WINDOW) coach='앞으로 <b>'+x.daysLeft+'일</b> 안에 <b>'+x.remain+'명</b> 더 만나면 달성 🔥';
+    else coach='최근 5일 <b>'+x.curSum+'명</b> · 달성까지 <b>'+x.remain+'명</b> 부족 — 다음 출근일부터 페이스 올리면 따라잡혀요';
+    var pct=Math.min(100,Math.round(x.curSum/LH_TARGET*100));
+    return '<div class="lh-card"><div class="lh-row1"><span class="lh-av" style="background:'+avColor(x.name)+'">'+avInner(x.name)+'</span>'+
+      '<span class="lh-nm">'+esc(x.name)+'</span><span class="lh-badge '+(x.remain<=2?'near':'')+'">'+(x.curDays<LH_WINDOW?('D-'+x.daysLeft+' · '+x.remain+'명'):(x.remain+'명 부족'))+'</span></div>'+
+      lhBar(x.cur)+
+      '<div class="lh-prog"><div class="lh-prog-in" style="width:'+pct+'%"></div></div>'+
+      '<div class="lh-note">'+coach+'</div></div>';
+  }).join('');
+  if(!list.length){ cards='<div class="lh-empty">🎉 현재 우리 팀 IC 전원 리더힛 달성! 새 IC가 들어오면 여기서 다시 추적돼요.</div>'; }
+  box.innerHTML=head+'<div class="lh-list">'+cards+'</div>';
+}
+
+/* ─────────── 인컴 위크엔딩(일요일) 달력 + 주차별 저장 ─────────── */
+var ftCurWE=null;
+function ftAddDays(str,n){ var d=new Date(str+'T00:00:00'); d.setDate(d.getDate()+n); return ftDateStr(d); }
+function ftWeSundayOf(str){ var d=new Date(str+'T00:00:00'); var add=(7-d.getDay())%7; d.setDate(d.getDate()+add); return ftDateStr(d); } // 그 주(월~일)의 끝 일요일
+function ftPaydayOf(weStr){ return ftAddDays(weStr,5); }   // 위크엔딩 일요일 +5 = 급여 금요일
+function ftMondayOf(weStr){ return ftAddDays(weStr,-6); }
+function ftPayMonthOf(weStr){ return ftPaydayOf(weStr).slice(0,7); }
+function ftMD(str){ var p=str.split('-'); return (+p[1])+'.'+(+p[2]); }
+var FT_DOW=['일','월','화','수','목','금','토'];
+function ftDow(str){ return FT_DOW[new Date(str+'T00:00:00').getDay()]; }
+function ftDefaultWE(){ // 오늘 이전(포함)의 가장 최근 일요일 = 막 끝난 위크엔딩
+  var d=new Date(); d.setHours(0,0,0,0); while(d.getDay()!==0){ d.setDate(d.getDate()-1); } return ftDateStr(d);
+}
+function ftWkIncOf(weStr,name){ try{ return (((state.incomeWk||{})[weStr]||{})[nk(name)]); }catch(e){ return undefined; } }
+function ftWkSaveInc(name,val){
+  if(!ftCurWE) return;
+  state.incomeWk=state.incomeWk||{}; state.incomeWk[ftCurWE]=state.incomeWk[ftCurWE]||{};
+  var v=Math.max(0, +val||0); state.incomeWk[ftCurWE][nk(name)]=v;
+  if(typeof LIVE!=='undefined'&&LIVE){ try{ DB.set('incomeWk/'+ftCurWE+'/'+nk(name), v); }catch(e){} }
+}
+function ftWkInit(){
+  if(!ftCurWE) ftCurWE=ftDefaultWE();
+  var inp=document.getElementById('ftWkDate'); if(inp) inp.value=ftCurWE;
+  ftWkLoad();
+}
+function ftWkShift(n){ ftCurWE=ftWeSundayOf(ftAddDays(ftCurWE||ftDefaultWE(), n*7)); var inp=document.getElementById('ftWkDate'); if(inp)inp.value=ftCurWE; ftWkLoad(); }
+function ftWkPick(val){ if(!val)return; ftCurWE=ftWeSundayOf(val); var inp=document.getElementById('ftWkDate'); if(inp)inp.value=ftCurWE; ftWkLoad(); }
+function ftWkLoad(){
+  var we=ftCurWE, mon=ftMondayOf(we), pay=ftPaydayOf(we), pm=ftPayMonthOf(we);
+  var info=document.getElementById('ftWkInfo');
+  if(info) info.innerHTML='📅 일한 주 <b>'+ftMD(mon)+'('+ftDow(mon)+')~'+ftMD(we)+'('+ftDow(we)+')</b>'+
+    ' · 💸 급여일 <b style="color:var(--green-soft)">'+ftMD(pay)+'('+ftDow(pay)+')</b>'+
+    ' · 📊 <b>'+(+pm.slice(5))+'월 리캡</b>에 반영';
+  // 해당 주 시드
+  var mem=ftActiveUsers(function(u){return !/AOP|Owner/i.test(u.role||'');});
+  var pmon=ftMondayOf(ftAddDays(we,-7)), pwe=ftAddDays(we,-7);
+  var rows;
+  if(mem.length){
+    rows=mem.map(function(u){
+      var stored=ftWkIncOf(we,u.name);
+      return {n:u.name, res:ftSumRange(u.name,mon,we), prev:ftSumRange(u.name,pmon,pwe), d:ftDaysRange(u.name,mon,we), inc:(stored!=null?stored:0)};
+    });
+  } else {
+    rows=[{n:'이서준',res:11,prev:9,d:5,inc:330000},{n:'박도윤',res:9,prev:10,d:5,inc:270000}];
+  }
+  var tb=document.getElementById('ftRcRows'); if(tb){ tb.innerHTML=''; rows.forEach(ftRcAdd); }
+  ftRcCalc();
+}
+function ftWkRollup(){
+  if(!ftCurWE){ if(typeof toast==='function')toast('먼저 주를 선택하세요'); return; }
+  var pm=ftPayMonthOf(ftCurWE);
+  // 같은 급여월(pm)에 속하는 모든 위크엔딩의 인컴을 사람별 합산
+  var wk=state.incomeWk||{}; var sum={};
+  Object.keys(wk).forEach(function(we){
+    if(ftPayMonthOf(we)!==pm) return;
+    var m=wk[we]||{}; Object.keys(m).forEach(function(k){ sum[k]=(sum[k]||0)+(+m[k]||0); });
+  });
+  var names=Object.keys(sum); if(!names.length){ if(typeof toast==='function')toast('이 달에 입력된 주간 인컴이 없어요'); return; }
+  state.salesMeta=state.salesMeta||{}; state.salesMeta[pm]=state.salesMeta[pm]||{};
+  var n=0;
+  names.forEach(function(k){
+    state.salesMeta[pm][k]=state.salesMeta[pm][k]||{};
+    state.salesMeta[pm][k].income=sum[k];
+    if(typeof LIVE!=='undefined'&&LIVE){ try{ DB.set('salesMeta/'+pm+'/'+k+'/income', sum[k]); }catch(e){} }
+    n++;
+  });
+  try{ if(typeof renderSalesMgr==='function')renderSalesMgr(); }catch(e){}
+  if(typeof toast==='function')toast('✅ '+(+pm.slice(5))+'월 인컴 = 주간 합계로 반영했어요 ('+n+'명) · 시트 메타탭은 ↻로 밀어주세요');
 }
 
 /* ============================================================
