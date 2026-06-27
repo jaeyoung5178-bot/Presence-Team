@@ -6321,7 +6321,7 @@ function maybeShowWelcome(){
 }
 function closeGiftWin(){closeModal('giftWinModal');}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
-function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');var _mv=document.getElementById('meVer');if(_mv)_mv.textContent='버전 '+APP_VERSION;openModal('meModal')}
+function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');var _mv=document.getElementById('meVer');if(_mv)_mv.innerHTML='버전 '+APP_VERSION+' · <button onclick="forceRefresh()" style="background:none;border:none;color:var(--green-soft);font:inherit;font-size:11px;cursor:pointer;padding:0;text-decoration:underline">🔄 최신버전 새로고침</button>';openModal('meModal')}
 
 /* modals */
 function openModal(id){document.getElementById(id).classList.add('on')}
@@ -7920,17 +7920,23 @@ try{updateInstallBtn();}catch(e){}
 /* ════════════════════════════════════════════
    🟢 연결 상태 점 + 🛠️ 빌드 시각
    ════════════════════════════════════════════ */
-const BUILD_TS="2026-06-26 21:51";
+const BUILD_TS="2026-06-26 21:51"; /* (구) 고정값 — 이제 APP_VERSION을 사용 */
 window._connOk=false;
 function setConn(ok){
   var d=document.getElementById('connDot'); if(!d)return;
   d.classList.toggle('on',!!ok); d.classList.toggle('off',!ok);
   window._connOk=!!ok;
 }
+function forceRefresh(){
+  try{ location.replace(location.pathname+'?v='+Date.now()); }
+  catch(e){ location.reload(true); }
+}
 function showConnInfo(){
   var ok=!!window._connOk;
-  var msg=(ok?'🟢 실시간 연결됨':'🔴 연결 끊김')+' · 🛠️ 빌드 '+BUILD_TS;
-  if(typeof toast==='function')toast(msg); else alert(msg);
+  var ver=(typeof APP_VERSION!=='undefined')?APP_VERSION:BUILD_TS;
+  var line=(ok?'🟢 실시간 연결됨':'🔴 연결 끊김')+' · 🛠️ 빌드 '+ver;
+  /* 연결 점을 탭하면 뜨는 숨겨진 새로고침 */
+  if(confirm(line+'\n\n최신 버전으로 새로고침할까요?')) forceRefresh();
 }
 
 /* ════════════════════════════════════════════
