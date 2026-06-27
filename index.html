@@ -2088,6 +2088,15 @@ body.app-on #ambientBg{opacity:.7}
         #m-sites .ms-nb-row .nb-meta{color:var(--green-soft);font-size:12px;font-family:var(--mono);flex:none}
         #m-sites .ms-nb-empty{font-size:12px;color:var(--muted);padding:8px 2px;line-height:1.6}
         #m-sites .ms-roadview{height:clamp(360px,58vh,520px);border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
+        #m-sites .ns-coord{font-size:12.5px;color:var(--cream);background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-top:8px;line-height:1.55}
+        #m-sites .ns-coord b{color:var(--green-soft);font-family:var(--mono)}
+        #m-sites .ns-phgrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+        #m-sites .ns-ph{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+        #m-sites .ns-ph img{width:100%;height:100%;object-fit:cover;display:block}
+        #m-sites .ns-phx{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;background:rgba(14,16,19,.78);color:#fff;font-size:11px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+        #m-sites .ns-phbadge{position:absolute;top:3px;left:3px;background:rgba(14,16,19,.78);border-radius:6px;font-size:11px;padding:1px 4px;line-height:1.3}
+        #m-sites .ns-phadd{display:inline-flex;align-items:center;gap:6px;margin-top:9px;background:var(--card-2);border:1px dashed var(--line);color:var(--cream);border-radius:10px;padding:9px 15px;font-size:13px;font-weight:700;cursor:pointer}
+        #m-sites .ns-phadd:hover{border-color:var(--green);color:var(--green-soft)}
       </style>
 
       <div class="ft-subnav">
@@ -2107,19 +2116,47 @@ body.app-on #ambientBg{opacity:.7}
 
       <div class="sp" id="sp-new">
         <div class="ft-card"><div class="ft-h">신규 사이트 추가</div>
-          <div class="ft-row">
-            <div class="ft-f" style="flex:1;min-width:160px"><label>사이트명</label><input class="ft-in" id="nsName" placeholder="예: 부평역 1번출구 광장"></div>
+
+          <div class="ft-f" style="margin-bottom:4px">
+            <label>① 장소 검색 — 이름·주소를 검색해 탭하면 좌표가 자동으로 들어가요</label>
+            <div class="ms-searchbar">
+              <span class="ms-sicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16.5" y2="16.5"/></svg></span>
+              <input class="ms-sinput" id="nsQuery" placeholder="예: 부평역 1번출구 · 다이소 구월점" onkeydown="if(event.key==='Enter')nsSearch()">
+              <button class="ms-sbtn" onclick="nsSearch()">검색</button>
+            </div>
+          </div>
+          <div id="nsResults" class="ms-results"></div>
+
+          <div id="nsMap" class="ms-map" style="margin-top:10px"></div>
+          <div class="ms-mapbtns">
+            <button class="ms-mini" id="nsSatBtn" onclick="nsToggleSat()">🛰️ 위성</button>
+            <button class="ms-mini" onclick="nsRoadview('naver')"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버 거리뷰</button>
+            <button class="ms-mini" onclick="nsRoadview('kakao')"><svg viewBox="0 0 40 40" width="15" height="15" style="vertical-align:-2px;margin-right:3px"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오 로드뷰</button>
+          </div>
+          <div id="nsCoord" class="ns-coord">📍 검색하거나 지도를 눌러 부스 자리를 지정하세요</div>
+          <div class="ft-note" style="margin-top:6px">검색 후 지도에서 <b>핀을 끌어</b> 정확한 부스 자리에 놓으면 좌표가 자동 저장돼요.</div>
+
+          <div class="ft-row" style="margin-top:14px">
+            <div class="ft-f" style="flex:1;min-width:160px"><label>② 사이트명 <span style="color:var(--faint);font-weight:400">(검색 시 자동입력 · 수정가능)</span></label><input class="ft-in" id="nsName" placeholder="예: 부평역 1번출구 광장"></div>
             <div class="ft-f" style="width:150px"><label>지역</label><input class="ft-in" id="nsArea" placeholder="부평구"></div>
           </div>
           <div class="ft-row" style="margin-top:11px">
             <div class="ft-f" style="flex:1;min-width:200px"><label>메모 (유동인구·보도폭·특이사항)</label><input class="ft-in" id="nsNote" placeholder="넓은 보도, 오후 그늘, 주말 유동 많음"></div>
           </div>
-          <div class="ft-row" style="margin-top:11px">
-            <div class="ft-f" style="width:120px"><label>위도(선택)</label><input class="ft-in" id="nsLat" type="number" step="0.0001"></div>
-            <div class="ft-f" style="width:120px"><label>경도(선택)</label><input class="ft-in" id="nsLng" type="number" step="0.0001"></div>
-            <button class="ft-btn" onclick="addSiteRow()">사이트 등록</button>
+
+          <div class="ft-f" style="margin-top:13px">
+            <label>③ 현장 사진 (최대 8장 · 올리면 셋업/콜백싯으로 자동 분류돼요)</label>
+            <div id="nsPhotoGrid" class="ns-phgrid"></div>
+            <label class="ns-phadd"><input type="file" accept="image/*" multiple style="display:none" onchange="nsPhotoPick(this)"><span>＋ 사진 추가</span></label>
           </div>
-          <div class="ft-note">등록한 사이트는 팀 공용으로 저장돼요. 좌표를 넣으면 여름(그늘) 탭에서 바로 분석할 수 있어요.</div>
+
+          <input type="hidden" id="nsLat"><input type="hidden" id="nsLng">
+
+          <div class="ft-row" style="margin-top:16px">
+            <button class="ft-btn" onclick="addSiteRow()">사이트 등록</button>
+            <button class="ft-btn ghost" onclick="nsResetForm()">초기화</button>
+          </div>
+          <div class="ft-note">등록한 사이트는 팀 공용으로 저장돼요. 좌표·사진이 함께 저장돼 <b>주요 사이트 지도</b>와 <b>여름(그늘)</b> 탭에서 바로 보여요.</div>
         </div>
       </div>
 
@@ -2197,38 +2234,81 @@ body.app-on #ambientBg{opacity:.7}
     <style>
   .sfb-modal{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
   .sfb-modal.on{display:flex}
-  .sfb-box{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:82vh;display:flex;flex-direction:column;padding-bottom:calc(8px + var(--safe-b))}
+  .sfb-box{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:calc(8px + var(--safe-b))}
   .sfb-hd{display:flex;align-items:center;gap:10px;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
   .sfb-hd .t{font-weight:800;font-size:16px;flex:1;color:var(--cream)}
   .sfb-hd .c{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
-  .sfb-list{flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+  .sfb-scroll{flex:1;overflow:auto;padding:14px 18px 8px}
+  .sfb-top{display:flex;flex-direction:column;gap:14px}
+  .sfb-mapcol{flex:1;min-width:0}
+  .sfb-photocol{flex:1;min-width:0}
+  .sfb-map{height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0c120e}
+  .sfb-mapbtns{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+  .sfb-mb{flex:1;min-width:84px;background:var(--card-2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+  .sfb-mb:hover{border-color:var(--green)}
+  .sfb-nocoord{font-size:12.5px;color:var(--muted);background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:16px 14px;text-align:center;line-height:1.6}
+  .sfb-sec{margin-top:18px}
+  .sfb-sech{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green-soft);font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+  .sfb-sech .cnt{color:var(--faint);font-weight:600;letter-spacing:0;text-transform:none}
+  .sfb-grid{display:flex;gap:8px;flex-wrap:wrap;min-height:24px}
+  .sfb-grid.empty::after{content:"아직 없어요";color:var(--faint);font-size:12px;align-self:center}
+  .sfb-th{position:relative;width:92px;height:92px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .sfb-th img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
+  .sfb-th .phdel{position:absolute;top:3px;right:3px;background:rgba(217,72,72,.92);color:#fff;border:none;border-radius:50%;width:19px;height:19px;font-size:10px;cursor:pointer;line-height:1;padding:0}
+  .sfb-th .swap{position:absolute;bottom:3px;left:3px;background:rgba(14,16,19,.8);color:#fff;border:none;border-radius:6px;font-size:9.5px;padding:2px 5px;cursor:pointer;font-family:inherit;font-weight:700}
+  .sfb-th .swap:hover{background:var(--green);color:var(--green-ink)}
+  .sfb-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
   .sfb-item{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:10px 13px}
   .sfb-item .who{font-size:12px;color:var(--green-soft);font-weight:700}
   .sfb-item .who small{color:var(--faint);font-weight:400;margin-left:6px}
   .sfb-item .tx{font-size:13.5px;color:var(--cream);margin-top:4px;line-height:1.5;white-space:pre-wrap}
   .sfb-item .del{float:right;background:none;border:none;color:var(--faint);cursor:pointer;font-size:12px}
-  .sfb-empty{color:var(--muted);font-size:13px;text-align:center;padding:28px 10px}
+  .sfb-empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 10px}
   .sfb-form{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
   .sfb-form textarea{flex:1;background:var(--ink);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:14px;font-family:inherit;resize:none;height:46px}
   .sfb-form button{background:var(--green);color:var(--green-ink);border:none;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;font-family:inherit}
-  .sfb-photos{display:flex;gap:8px;overflow-x:auto;padding:0 18px 8px}
-  .sfb-photos:empty{display:none}
-  .sfb-ph{position:relative;flex:none}
-  .sfb-ph img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line);cursor:pointer;display:block}
-  .sfb-ph .phdel{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:1;padding:0}
-  .sfb-phload{font-size:12px;color:var(--muted);padding:2px 18px 8px}
-  .sfb-cam{display:flex;align-items:center;justify-content:center;background:var(--card-2);border:1px solid var(--line);border-radius:10px;width:46px;height:46px;font-size:20px;cursor:pointer;flex:none}
+  .sfb-cam{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card-2);border:1px solid var(--line);border-radius:10px;width:54px;height:46px;font-size:17px;cursor:pointer;flex:none;line-height:1;gap:1px}
+  .sfb-cam small{font-size:8px;color:var(--green-soft);font-weight:700}
   .ph-lightbox{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);padding:18px}
   .ph-lightbox.on{display:flex}
   .ph-lightbox img{max-width:100%;max-height:100%;border-radius:10px}
-  @media(min-width:600px){ .sfb-modal{align-items:center} .sfb-box{border-radius:18px} }
+  @media(min-width:620px){ .sfb-modal{align-items:center} .sfb-box{border-radius:18px} .sfb-top{flex-direction:row} }
 </style>
 <div class="sfb-modal" id="siteFbModal">
   <div class="sfb-box">
     <div class="sfb-hd"><span class="t" id="sfbTitle">사이트 피드백</span><button class="c" onclick="closeFb()">×</button></div>
-    <div class="sfb-list" id="sfbList"></div>
-    <div class="sfb-photos" id="sfbPhotos"></div>
-    <div class="sfb-form" id="sfbForm"><label class="sfb-cam">📷<input type="file" accept="image/*" multiple onchange="fbPhotoPick(this)" hidden></label><textarea id="sfbInput" placeholder="이 사이트 피드백 (그늘·유동·주의사항 등)" maxlength="300"></textarea><button onclick="addFb()">남기기</button></div>
+    <div class="sfb-scroll">
+      <div class="sfb-top">
+        <div class="sfb-mapcol">
+          <div id="sfbMap" class="sfb-map"></div>
+          <div id="sfbNoCoord" class="sfb-nocoord" style="display:none">📍 이 사이트엔 저장된 좌표가 없어요.<br>주요 사이트 ▸ 신규 추가에서 좌표를 등록하면 지도가 보여요.</div>
+          <div class="sfb-mapbtns" id="sfbMapBtns">
+            <button class="sfb-mb" id="sfbSatBtn" onclick="fbToggleSat()">🛰️ 위성</button>
+            <button class="sfb-mb" onclick="fbOpenMap('naver')"><svg viewBox="0 0 40 40" width="14" height="14"><rect width="40" height="40" rx="9" fill="#03C75A"/><path d="M23 21.3 L17.6 13 H13 V27 H17 V18.7 L22.4 27 H27 V13 H23 Z" fill="#fff"/></svg>네이버</button>
+            <button class="sfb-mb" onclick="fbOpenMap('kakao')"><svg viewBox="0 0 40 40" width="14" height="14"><rect width="40" height="40" rx="9" fill="#FEE500"/><ellipse cx="20" cy="18" rx="11" ry="8.4" fill="#3A1D1D"/></svg>카카오</button>
+          </div>
+        </div>
+        <div class="sfb-photocol">
+          <div class="sfb-sech">📷 셋업사진 <span class="cnt" id="sfbSetupCnt"></span></div>
+          <div class="sfb-grid" id="sfbSetup"></div>
+        </div>
+      </div>
+
+      <div class="sfb-sec">
+        <div class="sfb-sech">🧾 최근 콜백싯 <span class="cnt" id="sfbCbCnt"></span></div>
+        <div class="sfb-grid" id="sfbCallbacks"></div>
+      </div>
+
+      <div class="sfb-sec">
+        <div class="sfb-sech">💬 사이트 피드백 · 정보</div>
+        <div class="sfb-list" id="sfbList"></div>
+      </div>
+    </div>
+    <div class="sfb-form" id="sfbForm">
+      <label class="sfb-cam" title="사진을 올리면 셋업·콜백싯으로 자동 분류돼요">📷<small>자동분류</small><input type="file" accept="image/*" multiple onchange="fbPhotoPick(this)" hidden></label>
+      <textarea id="sfbInput" placeholder="이 사이트 피드백 (그늘·유동·주의사항 등)" maxlength="300"></textarea>
+      <button onclick="addFb()">남기기</button>
+    </div>
   </div>
 </div>
 
@@ -6067,6 +6147,7 @@ function siteTab(k){
   document.querySelectorAll('#m-sites .sp').forEach(function(p){p.classList.remove('active');});
   var el=document.getElementById('sp-'+k); if(el)el.classList.add('active');
   if(k==='main'){renderSiteList();renderSiteMap();}
+  if(k==='new'){nsInitMap();}
   if(k==='shade'){msInit();}
   if(k==='apply')startPad(); else stopPad();
 }
@@ -6087,12 +6168,177 @@ function addSiteRow(){
   if(!(me&&(isFounder(me)||isSectorLeader(me)))){if(typeof toast==='function')toast('섹터리더 권한이 필요해요');return;}
   var name=(document.getElementById('nsName').value||'').trim(); if(!name){if(typeof toast==='function')toast('사이트명을 입력하세요');return;}
   var id='s'+Date.now();
-  var obj={name:name,area:(document.getElementById('nsArea').value||'').trim(),note:(document.getElementById('nsNote').value||'').trim(),lat:+document.getElementById('nsLat').value||null,lng:+document.getElementById('nsLng').value||null,by:(me&&me.name)||'',t:Date.now()};
+  var lat=+document.getElementById('nsLat').value||null, lng=+document.getElementById('nsLng').value||null;
+  var obj={name:name,area:(document.getElementById('nsArea').value||'').trim(),note:(document.getElementById('nsNote').value||'').trim(),lat:lat,lng:lng,by:(me&&me.name)||'',t:Date.now()};
   if(!state.sites)state.sites={}; state.sites[id]=obj; if(LIVE)DB.set('sites/'+id,obj);
-  ['nsName','nsArea','nsNote','nsLat','nsLng'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
-  if(typeof toast==='function')toast('사이트를 등록했어요 📍');
+  /* 셋업 사진 함께 저장 */
+  var nph=0;
+  if(nsPhotos&&nsPhotos.length){
+    var pc={};
+    nsPhotos.forEach(function(d,k){
+      var pid='p'+Date.now()+k+Math.floor(Math.random()*1000);
+      var po={by:(me&&me.name)||'',role:(me&&me.role)||'',img:(d&&d.img)||d,kind:(d&&d.kind)||'setup',t:Date.now()+k};
+      pc[pid]=po; if(LIVE)DB.set('sitePhotos/'+id+'/'+pid,po);
+    });
+    photoCache[id]=pc; nph=nsPhotos.length;
+  }
+  var msg='사이트를 등록했어요 📍'+(obj.lat?' · 좌표 저장':'')+(nph?' · 사진 '+nph+'장':'');
+  nsResetForm();
+  if(typeof toast==='function')toast(msg);
   siteTab('main');
 }
+function nsResetForm(){
+  ['nsName','nsArea','nsNote','nsLat','nsLng','nsQuery'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
+  nsPhotos=[]; nsRenderPhotoGrid();
+  var rb=document.getElementById('nsResults'); if(rb)rb.innerHTML='';
+  nsPickLat=null; nsPickLng=null; window._nsResults=[];
+  if(nsMarker&&nsMap){try{nsMap.removeLayer(nsMarker);}catch(e){} nsMarker=null;}
+  var c=document.getElementById('nsCoord'); if(c)c.innerHTML='📍 검색하거나 지도를 눌러 부스 자리를 지정하세요';
+}
+
+/* ════════════════════════════════════════════
+   ➕ 신규 사이트: 자동 좌표(검색+지도) + 셋업 사진
+   ════════════════════════════════════════════ */
+var nsMap=null, nsMarker=null, nsPickLat=null, nsPickLng=null, nsSatLayer=null, nsSatOn=false, nsPhotos=[];
+function nsInitMap(){
+  var el=document.getElementById('nsMap'); if(!el)return;
+  if(typeof L==='undefined'){ el.innerHTML='<div class="ms-empty" style="padding:22px">지도 로딩 대기… 새로고침 해보세요</div>'; return; }
+  if(!nsMap){
+    nsMap=L.map('nsMap',{zoomControl:true,attributionControl:false}).setView([37.4895,126.7237],13); // 부평 중심
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(nsMap);
+    nsMap.on('click',function(e){nsSetMarker(e.latlng.lat,e.latlng.lng,true);});
+  }
+  setTimeout(function(){try{nsMap.invalidateSize();}catch(e){}},90);
+}
+function nsSetMarker(lat,lng,reverse){
+  nsPickLat=+lat; nsPickLng=+lng;
+  var la=document.getElementById('nsLat'), ln=document.getElementById('nsLng');
+  if(la)la.value=nsPickLat.toFixed(6); if(ln)ln.value=nsPickLng.toFixed(6);
+  var c=document.getElementById('nsCoord');
+  if(c)c.innerHTML='📍 좌표 자동 입력됨 · <b>'+nsPickLat.toFixed(5)+', '+nsPickLng.toFixed(5)+'</b> <span style="color:var(--muted)">— 핀을 끌어 미세조정</span>';
+  if(!nsMap)return;
+  if(!nsMarker){
+    nsMarker=L.marker([nsPickLat,nsPickLng],{draggable:true,icon:msPinIcon()}).addTo(nsMap);
+    nsMarker.on('dragend',function(){var p=nsMarker.getLatLng();nsSetMarker(p.lat,p.lng,true);});
+  } else nsMarker.setLatLng([nsPickLat,nsPickLng]);
+  if(reverse)nsReverseGeocode(nsPickLat,nsPickLng);
+}
+function nsSearch(){
+  var qel=document.getElementById('nsQuery'); var q=(qel&&qel.value||'').trim(); if(!q)return;
+  var box=document.getElementById('nsResults'); box.innerHTML='<div class="ms-loading">🔍 검색 중…</div>';
+  ensureKakao(function(ok,reason){
+    if(ok && window.kakao && kakao.maps && kakao.maps.services){ nsKakaoSearch(q,box,false); return; }
+    if(reason==='nokey'){ nsOsmSearch(q,box); return; }
+    nsKakaoFailMsg(box,reason);
+  });
+}
+function nsKakaoFailMsg(box,reason){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  var why = (reason==='loaderror')?'카카오 서버가 요청을 거절했어요 (도메인·키 불일치 또는 카카오맵 미활성).'
+          : (reason==='rejected')?'카카오 SDK 인증이 거절됐어요 (도메인 등록·카카오맵 활성 확인).'
+          : (reason==='timeout')?'카카오 응답이 지연돼요 (네트워크·도메인 확인).'
+          : '카카오 검색을 사용할 수 없어요. 지도를 눌러 직접 핀을 놓으세요.';
+  box.innerHTML='<div class="ms-err">⚠️ <b>'+why+'</b><br>관리 탭에서 <b>카카오 검색 키</b>를 등록하면 정확한 장소검색이 켜져요.<br><div class="ms-origin">'+E(location.origin)+'</div><small>※ 키가 없어도 지도를 눌러 좌표를 지정할 수 있어요.</small></div>';
+}
+function nsKakaoSearch(q,box,noBias){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  var ps=new kakao.maps.services.Places();
+  var opts={size:15};
+  if(!noBias && nsMap){ try{ var c=nsMap.getCenter(); opts.location=new kakao.maps.LatLng(c.lat,c.lng); opts.radius=20000; opts.sort=kakao.maps.services.SortBy.DISTANCE; }catch(e){} }
+  ps.keywordSearch(q,function(data,status){
+    var S=kakao.maps.services.Status;
+    if(status===S.OK && data && data.length){ nsRenderResults(data,box,E); return; }
+    if(status===S.ZERO_RESULT){
+      if(!noBias){ nsKakaoSearch(q,box,true); return; }
+      box.innerHTML='<div class="ms-empty">\u2018'+E(q)+'\u2019 결과가 없어요. 상호를 더 정확히(예: <b>다이소 구월점</b>) 쓰거나, 지도를 눌러 직접 핀을 놓으세요.</div>'; return;
+    }
+    box.innerHTML='<div class="ms-err">⚠️ <b>카카오 검색이 차단됐어요</b><br>키는 등록됐지만 <b>도메인 등록</b>이 빠졌어요.<br>developers.kakao.com → 내 애플리케이션 → <b>앱 설정 · 플랫폼 · Web</b> 에 아래 주소를 추가하세요.<div class="ms-origin">'+E(location.origin)+'</div></div>';
+  },opts);
+}
+function nsRenderResults(data,box,E){
+  window._nsResults=data.map(function(p){return {lat:+p.y,lng:+p.x,name:p.place_name,addr:(p.road_address_name||p.address_name||''),jibun:(p.address_name||''),cat:(p.category_group_name||'')};});
+  var rows=window._nsResults.slice(0,15).map(function(r,i){
+    var cat=r.cat?'<span class="ms-cat">'+E(r.cat)+'</span>':'';
+    var addr=r.addr?'<span class="ms-raddr">'+E(r.addr)+'</span>':'';
+    return '<button class="ms-res" onclick="nsPickIdx('+i+')"><span class="ms-rico">📍</span><span class="ms-rmain"><span class="ms-rname">'+E(r.name)+cat+'</span>'+addr+'</span><span class="ms-rgo">선택 ›</span></button>';
+  }).join('');
+  box.innerHTML='<div class="ms-rhead">검색 결과 '+window._nsResults.length+'곳 · 탭하면 좌표가 들어가요</div>'+rows;
+}
+function nsOsmSearch(q,box){
+  var E=(typeof esc==='function')?esc:function(x){return x;};
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=8&countrycodes=kr&accept-language=ko&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(list){
+      if(!list||!list.length){box.innerHTML='<div class="ms-empty">결과가 없어요. 지도를 눌러 직접 핀을 놓으세요.<br><small>더 정확한 한국 장소검색은 관리 탭에서 <b>카카오 검색 키</b>를 등록하면 켜져요.</small></div>';return;}
+      window._nsResults=list.map(function(p){return {lat:+p.lat,lng:+p.lon,name:(p.display_name||'').split(',').slice(0,2).join(', '),addr:'',jibun:'',cat:''};});
+      var rows=window._nsResults.map(function(r,i){return '<button class="ms-res" onclick="nsPickIdx('+i+')"><span class="ms-rico">📍</span><span class="ms-rmain"><span class="ms-rname">'+E(r.name)+'</span></span><span class="ms-rgo">선택 ›</span></button>';}).join('');
+      box.innerHTML='<div class="ms-rhead">기본 검색 결과 · 더 정확하려면 카카오 키 등록</div>'+rows;
+    })
+    .catch(function(){box.innerHTML='<div class="ms-empty">검색 실패 — 지도를 눌러 직접 핀을 놓으세요.</div>';});
+}
+function nsExtractGu(addr){ var m=String(addr||'').match(/([가-힣]{2,}[구군시])/); return m?m[1]:''; }
+function nsPickIdx(i){ var r=(window._nsResults||[])[i]; if(!r)return; nsPick(r); }
+function nsPick(r){
+  nsSetMarker(r.lat,r.lng,false);
+  if(nsMap)nsMap.setView([r.lat,r.lng],17);
+  var rb=document.getElementById('nsResults'); if(rb)rb.innerHTML='';
+  var nm=document.getElementById('nsName'); if(nm&&!nm.value&&r.name)nm.value=r.name;
+  var ar=document.getElementById('nsArea'); if(ar&&!ar.value){ var gu=nsExtractGu(r.addr||r.jibun||''); if(gu)ar.value=gu; }
+  var qel=document.getElementById('nsQuery'); if(qel)qel.value='';
+}
+function nsReverseGeocode(lat,lng){
+  if(!(window.kakao && kakao.maps && kakao.maps.services))return;
+  try{
+    var g=new kakao.maps.services.Geocoder();
+    g.coord2Address(lng,lat,function(res,status){
+      if(status===kakao.maps.services.Status.OK && res && res[0]){
+        var a=res[0].address, ar=document.getElementById('nsArea');
+        if(ar&&!ar.value&&a){ var gu=nsExtractGu(a.region_2depth_name||a.address_name||''); if(gu)ar.value=gu; else if(a.region_2depth_name)ar.value=a.region_2depth_name; }
+      }
+    });
+  }catch(e){}
+}
+function nsRoadview(provider){
+  if(nsPickLat==null){if(typeof toast==='function')toast('먼저 장소를 검색하거나 지도를 눌러 핀을 놓으세요');return;}
+  var url = (provider==='naver')
+    ? 'https://map.naver.com/p/?c='+nsPickLng+','+nsPickLat+',18,0,0,0,dh'
+    : 'https://map.kakao.com/link/roadview/'+nsPickLat+','+nsPickLng;
+  if(provider==='naver'&&typeof toast==='function')toast('네이버 지도에서 거리뷰(노란 사람) 아이콘을 눌러보세요');
+  window.open(url,'_blank','noopener');
+}
+function nsToggleSat(){
+  if(!nsMap){if(typeof toast==='function')toast('지도 로딩 대기 중');return;}
+  if(!nsSatLayer){ nsSatLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}); }
+  nsSatOn=!nsSatOn;
+  var btn=document.getElementById('nsSatBtn');
+  if(nsSatOn){ nsSatLayer.addTo(nsMap); try{nsSatLayer.bringToFront();}catch(e){} if(nsMarker&&nsMarker.bringToFront)try{nsMarker.bringToFront();}catch(e){} if(btn)btn.textContent='🗺️ 지도'; }
+  else { try{nsMap.removeLayer(nsSatLayer);}catch(e){} if(btn)btn.textContent='🛰️ 위성'; }
+}
+function nsPhotoPick(input){
+  if(!(me&&(isFounder(me)||isSectorLeader(me)))){if(typeof toast==='function')toast('섹터리더만 사진을 올릴 수 있어요');input.value='';return;}
+  var files=Array.prototype.slice.call(input.files||[]); if(!files.length)return;
+  var room=Math.max(0,8-nsPhotos.length);
+  if(room<=0){if(typeof toast==='function')toast('사진은 최대 8장이에요');input.value='';return;}
+  var pick=files.slice(0,room);
+  if(typeof toast==='function')toast('사진 분석·분류 중…');
+  pick.forEach(function(file){
+    compressImage(file,1000,function(data){
+      if(!data){if(typeof toast==='function')toast('이 사진은 처리하지 못했어요');return;}
+      classifyPhoto(data,function(kind){ nsPhotos.push({img:data,kind:kind}); nsRenderPhotoGrid(); });
+    });
+  });
+  if(files.length>room && typeof toast==='function')toast('최대 8장까지만 담았어요');
+  input.value='';
+}
+function nsRenderPhotoGrid(){
+  var box=document.getElementById('nsPhotoGrid'); if(!box)return;
+  if(!nsPhotos.length){box.innerHTML='';return;}
+  box.innerHTML=nsPhotos.map(function(d,i){
+    var src=(d&&d.img)||d, bdg=((d&&d.kind)==='callback')?'🧾':'📷';
+    return '<div class="ns-ph"><img src="'+src+'" alt="현장사진"/><span class="ns-phbadge">'+bdg+'</span><button class="ns-phx" onclick="nsRemovePhoto('+i+')">✕</button></div>';
+  }).join('');
+}
+function nsRemovePhoto(i){ nsPhotos.splice(i,1); nsRenderPhotoGrid(); }
 function delSite(id){
   if(!(me&&(isFounder(me)||isSectorLeader(me))))return;
   if(!confirm('이 사이트를 삭제할까요?'))return;
@@ -6424,9 +6670,43 @@ function openFb(id,kind){
   var t=document.getElementById('sfbTitle'); if(t)t.textContent='💬 '+fbSiteName(id,kind);
   var canWrite=me&&(isFounder(me)||isSectorLeader(me));
   var form=document.getElementById('sfbForm'); if(form)form.style.display=canWrite?'':'none';
+  var m=document.getElementById('siteFbModal'); if(m)m.classList.add('on');
   renderFb();
   loadPhotos(id);
-  var m=document.getElementById('siteFbModal'); if(m)m.classList.add('on');
+  fbInitMap();
+}
+function fbSiteObj(){ var s=(fbKind==='shade')?(state.shadeSites||{}):(state.sites||{}); return s[fbTarget]||{}; }
+var fbMap=null,fbMarker=null,fbSatLayer=null,fbSatOn=false;
+function fbInitMap(){
+  var x=fbSiteObj(), el=document.getElementById('sfbMap'), nc=document.getElementById('sfbNoCoord'), bb=document.getElementById('sfbMapBtns');
+  if(!el)return;
+  if(!(x.lat&&x.lng)){ el.style.display='none'; if(nc)nc.style.display=''; if(bb)bb.style.display='none'; return; }
+  el.style.display=''; if(nc)nc.style.display='none'; if(bb)bb.style.display='';
+  if(typeof L==='undefined'){ el.innerHTML='<div class="sfb-nocoord">지도 로딩 대기… 새로고침 해보세요</div>'; return; }
+  if(!fbMap){
+    fbMap=L.map('sfbMap',{zoomControl:true,attributionControl:false}).setView([x.lat,x.lng],17);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(fbMap);
+  } else { fbMap.setView([x.lat,x.lng],17); }
+  if(fbMarker){try{fbMap.removeLayer(fbMarker);}catch(e){}}
+  fbMarker=L.marker([x.lat,x.lng],{icon:(typeof msPinIcon==='function'?msPinIcon():undefined)}).addTo(fbMap);
+  fbSatOn=false; if(fbSatLayer){try{fbMap.removeLayer(fbSatLayer);}catch(e){}}
+  var sb=document.getElementById('sfbSatBtn'); if(sb)sb.textContent='🛰️ 위성';
+  setTimeout(function(){try{fbMap.invalidateSize();}catch(e){}},130);
+}
+function fbToggleSat(){
+  if(!fbMap){if(typeof toast==='function')toast('지도 로딩 대기 중');return;}
+  if(!fbSatLayer){ fbSatLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}); }
+  fbSatOn=!fbSatOn; var b=document.getElementById('sfbSatBtn');
+  if(fbSatOn){ fbSatLayer.addTo(fbMap); try{fbSatLayer.bringToFront();}catch(e){} if(fbMarker&&fbMarker.bringToFront)try{fbMarker.bringToFront();}catch(e){} if(b)b.textContent='🗺️ 지도'; }
+  else { try{fbMap.removeLayer(fbSatLayer);}catch(e){} if(b)b.textContent='🛰️ 위성'; }
+}
+function fbOpenMap(provider){
+  var x=fbSiteObj(); if(!(x.lat&&x.lng)){if(typeof toast==='function')toast('이 사이트엔 좌표가 없어요');return;}
+  var url=(provider==='naver')
+    ? 'https://map.naver.com/p/?c='+x.lng+','+x.lat+',17,0,0,0,dh'
+    : 'https://map.kakao.com/link/map/'+encodeURIComponent(x.name||'사이트')+','+x.lat+','+x.lng;
+  if(provider==='naver'&&typeof toast==='function')toast('네이버 지도 — 위성/거리뷰 아이콘으로 전환하세요');
+  window.open(url,'_blank','noopener');
 }
 function closeFb(){ var m=document.getElementById('siteFbModal'); if(m)m.classList.remove('on'); fbTarget=null; fbKind=null; }
 function renderFb(){
@@ -6491,47 +6771,112 @@ function compressImage(file,maxW,cb){
   }catch(err){cb(null);}
 }
 function loadPhotos(id){
-  var box=document.getElementById('sfbPhotos');
-  if(box)box.innerHTML='<div class="sfb-phload">사진 불러오는 중…</div>';
+  var sb=document.getElementById('sfbSetup'); if(sb)sb.innerHTML='';
+  var cbx=document.getElementById('sfbCallbacks'); if(cbx)cbx.innerHTML='';
   if(typeof DB.get!=='function'){ photoCache[id]=photoCache[id]||{}; if(fbTarget===id)renderPhotos(); return; }
   DB.get('sitePhotos/'+id).then(function(v){ photoCache[id]=v||{}; if(fbTarget===id)renderPhotos(); })
     .catch(function(){ photoCache[id]=photoCache[id]||{}; if(fbTarget===id)renderPhotos(); });
 }
-function renderPhotos(){
-  var box=document.getElementById('sfbPhotos'); if(!box)return;
+function fbPhotosByKind(kind){
   var o=photoCache[fbTarget]||{};
-  var ids=Object.keys(o).sort(function(a,b){return (o[a].t||0)-(o[b].t||0);});
-  if(!ids.length){box.innerHTML='';return;}
-  box.innerHTML=ids.map(function(pid){
-    var x=o[pid]||{}, canDel=me&&(isFounder(me)||x.by===(me&&me.name));
-    return '<div class="sfb-ph"><img src="'+x.img+'" onclick="fbPhotoView(\''+pid+'\')" alt="셋업"/>'+(canDel?'<button class="phdel" onclick="delPhoto(\''+pid+'\')">✕</button>':'')+'</div>';
-  }).join('');
+  return Object.keys(o).filter(function(k){return ((o[k]&&o[k].kind)||'setup')===kind;})
+    .sort(function(a,b){return (o[b].t||0)-(o[a].t||0);}); /* 최신 먼저 */
+}
+function renderPhotos(){ renderSetup(); renderCallbacks(); }
+function fbPhotoCard(pid,x,otherLbl){
+  var canDel=me&&(isFounder(me)||x.by===(me&&me.name));
+  var canSwap=me&&(isFounder(me)||isSectorLeader(me));
+  return '<div class="sfb-th"><img src="'+x.img+'" onclick="fbPhotoView(\''+pid+'\')" alt="사이트사진"/>'
+    +(canSwap?'<button class="swap" title="분류 바꾸기" onclick="fbSwapKind(\''+pid+'\')">⇄ '+otherLbl+'</button>':'')
+    +(canDel?'<button class="phdel" onclick="fbDelPhoto(\''+pid+'\')">✕</button>':'')+'</div>';
+}
+function renderSetup(){
+  var box=document.getElementById('sfbSetup'); if(!box)return;
+  var o=photoCache[fbTarget]||{}, ids=fbPhotosByKind('setup');
+  var cnt=document.getElementById('sfbSetupCnt'); if(cnt)cnt.textContent=ids.length?('('+ids.length+')'):'';
+  box.classList.toggle('empty',!ids.length);
+  box.innerHTML=ids.map(function(pid){return fbPhotoCard(pid,o[pid]||{},'콜백싯');}).join('');
+}
+function renderCallbacks(){
+  var box=document.getElementById('sfbCallbacks'); if(!box)return;
+  var o=photoCache[fbTarget]||{}, ids=fbPhotosByKind('callback');
+  var cnt=document.getElementById('sfbCbCnt'); if(cnt)cnt.textContent=ids.length?('('+ids.length+')'):'';
+  box.classList.toggle('empty',!ids.length);
+  box.innerHTML=ids.map(function(pid){return fbPhotoCard(pid,o[pid]||{},'셋업');}).join('');
+}
+/* 📷 사진 자동 분류 — 색채감(Hasler)·채도 기반
+   콜백싯=회색조 종이 문서(글자·숫자) / 셋업=컬러 현장(사람·조끼·거리) */
+function classifyPhoto(dataURL,cb){
+  try{
+    var img=new Image();
+    img.onload=function(){
+      try{
+        var W=200, H=Math.max(1,Math.round(img.height*W/img.width));
+        var c=document.createElement('canvas'); c.width=W; c.height=H;
+        var ctx=c.getContext('2d'); ctx.drawImage(img,0,0,W,H);
+        var d=ctx.getImageData(0,0,W,H).data, n=W*H;
+        var lowSat=0, bright=0, sats=new Float32Array(n);
+        var rgSum=0,ybSum=0,rgSq=0,ybSq=0;
+        for(var i=0,p=0;i<n;i++,p+=4){
+          var r=d[p],g=d[p+1],b=d[p+2];
+          var mx=Math.max(r,g,b), mn=Math.min(r,g,b);
+          var S=mx?(mx-mn)/mx:0; sats[i]=S;
+          var Lum=0.299*r+0.587*g+0.114*b;
+          if(S<0.10)lowSat++; if(Lum>150)bright++;
+          var rg=r-g, yb=0.5*(r+g)-b;
+          rgSum+=rg; ybSum+=yb; rgSq+=rg*rg; ybSq+=yb*yb;
+        }
+        var rgM=rgSum/n, ybM=ybSum/n;
+        var rgSd=Math.sqrt(Math.max(0,rgSq/n-rgM*rgM)), ybSd=Math.sqrt(Math.max(0,ybSq/n-ybM*ybM));
+        var colorful=Math.sqrt(rgSd*rgSd+ybSd*ybSd)+0.3*Math.sqrt(rgM*rgM+ybM*ybM);
+        var arr=Array.prototype.slice.call(sats).sort(function(a,b){return a-b;});
+        var satP90=arr[Math.floor(n*0.90)]||0;
+        var lowSatFrac=lowSat/n, brightFrac=bright/n, sc=0;
+        sc += colorful<12?3:(colorful<18?1:(colorful>24?-3:-1));
+        sc += satP90<0.15?2:(satP90>0.30?-2:0);
+        sc += lowSatFrac>0.85?1:(lowSatFrac<0.55?-1:0);
+        sc += brightFrac>0.60?1:(brightFrac<0.35?-1:0);
+        cb(sc>=3?'callback':'setup');
+      }catch(e){ cb('setup'); }
+    };
+    img.onerror=function(){cb('setup');};
+    img.src=dataURL;
+  }catch(e){cb('setup');}
 }
 function fbPhotoPick(input){
   if(!fbTarget){input.value='';return;}
   if(!(me&&(isFounder(me)||isSectorLeader(me)))){if(typeof toast==='function')toast('섹터리더만 사진을 올릴 수 있어요');input.value='';return;}
   var files=Array.prototype.slice.call(input.files||[]);
   if(!files.length)return;
-  var cur=Object.keys(photoCache[fbTarget]||{}).length;
-  var room=Math.max(0,6-cur);
-  if(room<=0){if(typeof toast==='function')toast('사이트당 사진은 최대 6장이에요');input.value='';return;}
-  var pick=files.slice(0,room);
-  if(typeof toast==='function')toast('사진 압축·업로드 중…');
-  pick.forEach(function(file){
+  if(typeof toast==='function')toast('사진 분석·분류 중…');
+  files.forEach(function(file){
     compressImage(file,1000,function(data){
       if(!data){if(typeof toast==='function')toast('이 사진은 처리하지 못했어요');return;}
-      var pid='p'+Date.now()+Math.floor(Math.random()*1000);
-      var obj={by:(me&&me.name)||'',role:(me&&me.role)||'',img:data,t:Date.now()};
-      if(!photoCache[fbTarget])photoCache[fbTarget]={};
-      photoCache[fbTarget][pid]=obj;
-      if(LIVE)DB.set('sitePhotos/'+fbTarget+'/'+pid,obj);
-      renderPhotos();
+      classifyPhoto(data,function(kind){
+        var cur=photoCache[fbTarget]||{};
+        var same=Object.keys(cur).filter(function(k){return ((cur[k]&&cur[k].kind)||'setup')===kind;}).length;
+        if(same>=8){ if(typeof toast==='function')toast((kind==='callback'?'콜백싯':'셋업사진')+'은 최대 8장이에요'); return; }
+        var pid='p'+Date.now()+Math.floor(Math.random()*100000);
+        var obj={by:(me&&me.name)||'',role:(me&&me.role)||'',img:data,kind:kind,t:Date.now()};
+        if(!photoCache[fbTarget])photoCache[fbTarget]={};
+        photoCache[fbTarget][pid]=obj;
+        if(LIVE)DB.set('sitePhotos/'+fbTarget+'/'+pid,obj);
+        renderPhotos();
+        if(typeof toast==='function')toast(kind==='callback'?'🧾 콜백싯으로 분류했어요':'📷 셋업사진으로 분류했어요');
+      });
     });
   });
-  if(files.length>room && typeof toast==='function')toast('최대 6장까지만 올렸어요');
   input.value='';
 }
-function delPhoto(pid){
+function fbSwapKind(pid){
+  if(!(me&&(isFounder(me)||isSectorLeader(me))))return;
+  var o=photoCache[fbTarget]||{}, x=o[pid]; if(!x)return;
+  var nk=((x.kind||'setup')==='callback')?'setup':'callback';
+  x.kind=nk; if(LIVE)DB.set('sitePhotos/'+fbTarget+'/'+pid+'/kind',nk);
+  renderPhotos();
+  if(typeof toast==='function')toast(nk==='callback'?'🧾 콜백싯으로 옮겼어요':'📷 셋업사진으로 옮겼어요');
+}
+function fbDelPhoto(pid){
   var o=photoCache[fbTarget]||{};
   if(!o[pid])return;
   if(!(me&&(isFounder(me)||o[pid].by===me.name)))return;
