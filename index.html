@@ -2832,6 +2832,11 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       </div>
     </section></div></div>
 
+    <div class="mpanel" id="m-teamtree"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>🧭 Team Tree</h2><span class="ko">상위팀 · 하위팀 조직도 · 팀 구조 편집</span><span class="meta">AOP 전용</span></div>
+      <div id="orgEditorBody"></div>
+    </section></div></div>
+
     <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">승인 · 팀원 · 설문</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
@@ -2873,10 +2878,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <div class="adm-card adm-collapsed">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>👋 퇴사자</h3><span class="badge zero" id="departedBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body"><div id="departedBody"></div></div>
-        </div>
-        <div class="adm-card adm-collapsed">
-          <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧭 조직도 · 팀 구조</h3><span class="ah-caret">▾</span></div>
-          <div class="adm-body"><div id="orgEditorBody"></div></div>
         </div>
         <div class="adm-card">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🧑‍💼 매니저 임명</h3><span class="badge zero" id="mgrBadge">0</span><span class="ah-caret">▾</span></div>
@@ -4142,7 +4143,7 @@ const NAV=[
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
   {k:'lead',e:'🎯',l:'리더',tabs:['cbjournal','recap','calling','field']},
   {k:'sector',e:'🗺️',l:'섹터',tabs:['sites']},
-  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
+  {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','teamtree','events','survey','gsheet','admin']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -4158,6 +4159,7 @@ const TABMETA={
   survey:{e:'📝',l:'설문',g:()=>isFounder(me)},
   gsheet:{e:'🔗',l:'구글시트',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
+  teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -4217,6 +4219,7 @@ function goTab(name){
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
+  if(name==='teamtree'&&isFounder(me)){orgEnsureSeed();renderOrgEditor();}
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -5118,7 +5121,7 @@ function renderAdmin(){
     return `<tr><td><span class="rn">${esc(u.name)}</span>${u.status==='pending'?' <span style="font-size:10px;color:var(--amber)">대기</span>':''}</td><td class="mono" style="color:var(--muted);font-size:11px">@${esc(u.id)}</td><td><select onchange="changeRole('${u.uid}',this.value)">${ROLES.map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select></td><td>${done.length?done.map(k=>`<span class="vlink" onclick="viewSurvey('${u.uid}','${k}')">${k}</span>`).join(' '):'<span class="sno">없음</span>'}</td><td>${u.uid!==me.uid?`<span class="vlink" onclick="resetPw('${u.uid}')">비번재설정</span> · <span class="vlink" style="color:var(--danger)" onclick="reject('${u.uid}')">삭제</span>`:'<span class="sno">나</span>'}</td></tr>`;
   };
   document.getElementById('rosterBody').innerHTML=act.map(actRow).join('')||'<tr><td colspan="5" class="empty-row" style="border:none">활동 중인 계정이 없어요</td></tr>';
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDepartedAdmin();renderOrgEditor();renderDataUsage();renderSalesMgr();renderDevLinks();updateCounts();
+  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderManagerAdmin();renderMemberAdmin();renderDepartedAdmin();renderDataUsage();renderSalesMgr();renderDevLinks();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -5858,6 +5861,22 @@ function renderDepartedAdmin(){
     +'</div>';
 }
 /* ===== 🧭 조직도 · 팀 구조 (상위팀/하위팀 시각화 + 인라인 편집) ===== */
+var ORG_SEED=[['임재영','Presence',''],['고윤경','FUSE','임재영'],['윤채영','YOUNGWAVE','임재영'],['박인선','LUMO IN','임재영'],['간승학','KANGEE','임재영'],['손예진','BLIN','윤채영'],['김하진','','고윤경'],['권영웅','','고윤경'],['고다영','','박인선']];
+function orgApplySeed(force){
+  var memk={};allMembers().forEach(function(n){memk[nk(n)]=n;});
+  var applied=0,skipped=[];
+  ORG_SEED.forEach(function(r){var nm=memk[nk(r[0])];if(!nm){skipped.push(r[0]);return;}
+    if(!force){var d=dossierOf(nm);if((d.upline||'').trim()||(d.teamName||'').trim())return;}/* 이미 값 있으면 보존 */
+    dossierSet(nm,'teamName',r[1]);dossierSet(nm,'upline',r[2]?(memk[nk(r[2])]||r[2]):'');applied++;});
+  return {applied:applied,skipped:skipped};
+}
+function orgEnsureSeed(){
+  if(!(me&&isFounder(me)))return;
+  if(state.__orgSeeded||lsGet('presence_org_seeded'))return;
+  var any=allMembers().some(function(n){return (dossierOf(n).upline||'').trim()||(dossierOf(n).teamName||'').trim();});
+  if(!any)orgApplySeed(false);                 /* 비어있을 때만 자동 적용 */
+  state.__orgSeeded=true;lsSet('presence_org_seeded','1');
+}
 function orgCmp(a,b){return (ri(roleOf(b))-ri(roleOf(a)))||a.localeCompare(b,'ko');}
 function orgBuildTree(){
   var mem=allMembers();var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
