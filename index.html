@@ -1037,7 +1037,7 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .sync-now{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit}
 .daily-datebar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
 /* ===== 일일 결과 달력 ===== */
-.daily-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px 14px;margin-bottom:12px}
+.daily-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px 12px;margin-bottom:12px;max-width:340px}
 .dc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .dc-head b{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--cream);flex:1;text-align:center}
 .dc-head button{background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:9px;width:34px;height:34px;font-size:17px;cursor:pointer;flex:0 0 auto}
@@ -1046,7 +1046,7 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .dc-wd span{text-align:center;font-size:10.5px;color:var(--muted);font-family:var(--mono)}
 .dc-wd .sun{color:#ff8a8a}.dc-wd .sat{color:#8ab6ff}
 .dc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.dc-cell{position:relative;aspect-ratio:1;border:1px solid transparent;background:var(--surface);border-radius:9px;color:var(--cream);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--mono);transition:.12s;padding:0}
+.dc-cell{position:relative;aspect-ratio:1;border:1px solid transparent;background:var(--surface);border-radius:8px;color:var(--cream);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--mono);transition:.12s;padding:0}
 .dc-cell.empty{background:none;border:none;cursor:default}
 .dc-cell:not(.empty):hover{border-color:var(--g2)}
 .dc-cell.sun{color:#ff9d9d}.dc-cell.sat{color:#9dbcff}
@@ -3495,9 +3495,10 @@ function renderAuth(){
     v.innerHTML=`
       <div class="auth-h">${esc(S.title)}</div>
       <div class="auth-p">${esc(S.intro)}</div>
+      ${(authState.surveyCtx==='gate'&&me&&!isTestBot(me))?`<div style="margin:10px 0;padding:12px 14px;background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.38);border-radius:11px;font-size:13px;color:var(--green-soft);line-height:1.65">📝 <b>${esc(me.name)}</b>님, ${ROLE_LABEL[me.role]||me.role} 승급을 축하해요!<br>이 설문을 <b style="color:var(--cream)">완료하면 바로 로그인</b>돼요 — 마지막 한 단계만 남았어요. 모든 항목을 채운 뒤 아래 <b>제출하고 로그인</b>을 눌러주세요.</div>`:''}
       <div class="auth-msg" id="authMsg"></div>
       <div id="svForm">${surveyFormHTML(authState.surveyKey)}</div>
-      <button class="btn block" style="margin-top:8px" onclick="submitSurvey()">제출하기</button>
+      <button class="btn block" style="margin-top:8px" onclick="submitSurvey()">${authState.surveyCtx==='gate'?'제출하고 로그인':'제출하기'}</button>
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&!me.obs)?'<button class="btn ghost block" style="margin-top:8px" onclick="skipSurveyTest()">⏭ 설문 생략하고 입장 (테스트봇)</button>':''}
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&me.obs)?'<div class="auth-p" style="margin-top:8px;font-size:12px">관찰 모드 — 생략 없이 전 과정을 체험합니다.</div>':''}
       ${authState.surveyCtx==='gate'?'<div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>':''}`;
@@ -3541,7 +3542,7 @@ function continueLogin(u){
   const rk=reqSurvey(u.role,u.name);
   if(rk && !u.surveys[rk]){ // 직급에 맞는 설문 미완료 → 게이팅
     authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
-    authMsg(`${ROLE_LABEL[u.role]} 설문을 작성해야 로그인할 수 있어요.`,'info');return;
+    authMsg(`✅ ${ROLE_LABEL[u.role]} 설문만 완료하면 바로 로그인돼요 · 마지막 한 단계예요!`,'info');return;
   }
   u.lastLogin=Date.now();if(LIVE)DB.set('users/'+u.uid+'/lastLogin',u.lastLogin);
   enterApp();
@@ -3663,7 +3664,7 @@ function enterApp(){
   showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
   setTimeout(maybeAskFirstField,1100);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
-  setTimeout(function(){try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},900);
+  setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
 function logout(){lsDel('presence_sess');me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
@@ -3701,7 +3702,7 @@ function pullFromSheet(){
   if(!url){toast('웹훅 URL이 없어요');return}
   toast('📥 시트에서 가져오는 중…');
   const cb='__sheetPull_'+Date.now();
-  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();renderDaily();renderScores();renderPerfGauge();renderComp();toast(rm?`📥 가져오기 완료 · 잘못된 ${rm}건 정리했어요`:'📥 가져오기 완료');setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();refreshSalesViews();toast(rm?`📥 가져오기 완료 · 잘못된 ${rm}건 정리했어요`:'📥 가져오기 완료');setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{toast('시트 연결 실패 — 배포(액세스: 모든 사용자) 확인');setSheetSync('err');delete window[cb];const x=document.getElementById(cb);if(x)x.remove();};
@@ -3709,7 +3710,7 @@ function pullFromSheet(){
 }
 /* 잘못 들어온 세일즈 청소: 가짜 이름(Gross·DailyTotal·FieldH/C·Avg 등) + 인컴(₩)이 세일즈로 들어온 큰 값 */
 const BAD_NAME=/gross|daily|field|avg|total|net|h\/?c|합계|소계|인컴|리젝|리섭|위크앤드|주간/i;
-function isValidDate(d){d=String(d||'').trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return true;var dt=new Date(d+'T00:00:00');return !isNaN(dt.getTime())&&dt.toISOString().slice(0,10)===d;}
+function isValidDate(d){d=String(d||'').trim();var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);if(!m)return true;var y=+m[1],mo=+m[2],da=+m[3];if(mo<1||mo>12||da<1||da>31)return false;var dt=new Date(y,mo-1,da);return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===da;}
 function pruneBadSales(){
   let removed=0;
   for(const k in state.sales){
@@ -3729,7 +3730,7 @@ function resetAndRepull(){
   if(!url){toast('웹훅 URL이 없어요');return}
   toast('🧹 초기화 완료 · 시트에서 다시 가져오는 중…');setSheetSync('sync');
   const cb='__reReq_'+Date.now();
-  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();renderDaily();renderScores();renderPerfGauge();renderComp();const cnt=Object.keys(state.sales).length;toast(`✅ 다시 가져오기 완료 · ${cnt}건 기록`);setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{try{importSheetData(data,{silent:true,fillOnly:false});const rm=pruneBadSales();refreshSalesViews();const cnt=Object.keys(state.sales).length;toast(`✅ 다시 가져오기 완료 · ${cnt}건 기록`);setSheetSync('ok');}catch(e){toast('가져오기 처리 오류');setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{toast('시트 연결 실패 — 배포(액세스: 모든 사용자) 확인');setSheetSync('err');delete window[cb];const x=document.getElementById(cb);if(x)x.remove();};
@@ -3789,6 +3790,10 @@ function backupAllToWeb(){
   })();
 }
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
+function refreshSalesViews(){
+  ['renderDaily','renderScores','renderPerfGauge','renderComp','renderRecap','renderSalesMgr','renderField','renderLeaderHit'].forEach(function(fn){try{var fx=window[fn];if(typeof fx==='function')fx();}catch(e){}});
+  try{if(typeof updateCounts==='function')updateCounts();}catch(e){}
+}
 function importSheetData(data,opt){
   opt=opt||{};const silent=opt.silent,fillOnly=opt.fillOnly;
   if(!data||typeof data!=='object'||!Object.keys(data).length){if(!silent)toast('가져올 데이터가 없어요');return 0;}
@@ -3811,7 +3816,7 @@ function importSheetData(data,opt){
       n++;
     });
   });
-  if(n){renderDaily();renderScores();renderPerfGauge();renderComp();}
+  if(n){refreshSalesViews();}
   if(!silent)toast(`📥 ${n}건 가져왔어요 (스코어·일일 결과·월별 통계 반영)`);
   return n;
 }
@@ -3822,7 +3827,7 @@ function autoPullSheet(){
   if(!url){setSheetSync('err');return;}
   setSheetSync('sync');
   const cb='__autoPull_'+Date.now();let done=false;
-  window[cb]=(data)=>{done=true;try{importSheetData(data,{silent:true,fillOnly:true});const rm=pruneBadSales();if(rm){renderDaily();renderScores();renderPerfGauge();renderComp();}setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{done=true;try{importSheetData(data,{silent:true,fillOnly:true});pruneBadSales();refreshSalesViews();setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
   s.onerror=()=>{setSheetSync('err');try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}};
@@ -3835,7 +3840,7 @@ function dpad(n){return (n<10?'0':'')+n;}
 let dailyCalYM=null;
 function dailyPick(ds){if(!ds)return;const el=document.getElementById('dailyDate');if(el)el.value=ds;dailyCalYM={y:+ds.slice(0,4),m:+ds.slice(5,7)};renderDaily();}
 function dailyToday(){dailyPick(TODAY);}
-function dailyShift(n){const base=new Date(dailyDateVal()+'T00:00:00');base.setDate(base.getDate()+n);dailyPick(base.toISOString().slice(0,10));}
+function dailyShift(n){const base=new Date(dailyDateVal()+'T00:00:00');base.setDate(base.getDate()+n);var y=base.getFullYear(),mo=String(base.getMonth()+1).padStart(2,'0'),da=String(base.getDate()).padStart(2,'0');dailyPick(y+'-'+mo+'-'+da);}
 function dailyCalShift(n){if(!dailyCalYM){const s=dailyDateVal();dailyCalYM={y:+s.slice(0,4),m:+s.slice(5,7)};}let m=dailyCalYM.m+n,y=dailyCalYM.y;if(m<1){m=12;y--;}if(m>12){m=1;y++;}dailyCalYM={y,m};renderDailyCalendar();}
 function renderDailyCalendar(){
   const box=document.getElementById('dailyCal');if(!box)return;
@@ -6251,7 +6256,7 @@ function renderSurveyResponses(){
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · ${curMonthKey()} 시트에 등록 요청`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
-function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${role}. 다음 로그인 때 ${role} 설문을 작성하게 됩니다`:`${u.name}님 직급을 ${role}(으)로 변경했어요`);renderAdmin()}
+function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
 function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
 function gfAnswerHTML(v){
   if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
@@ -8269,6 +8274,9 @@ function devStatusHTML(){
    na(미출근) 제외 · rally는 출근일로 포함(카운트 0)
    ════════════════════════════════════════════ */
 const LH_WINDOW=5, LH_TARGET=8;
+const ONBOARD_SINCE='2026-06-28';   // 이 날짜 이후 첫필드한 사람만 신입 온보딩 적용 (기존 멤버 제외)
+function firstFieldDateOf(name){try{var u=Object.values(state.users).find(function(x){return x.name===name;});var ff=u?firstFieldOf(u):'';if(ff)return ff;}catch(e){}try{return (miInfo(name)||{}).join||'';}catch(e){return '';}}
+function isNewHire(name){var ff=firstFieldDateOf(name);return !!ff && ff>=ONBOARD_SINCE;}
 const ONBOARD_TRAIN={
   1:{t:'콜백싯 교육', d:'콜백싯 작성법부터. 필드 후 함께 작성하며 기록 습관 잡기.'},
   2:{t:'콜백싯 분석 교육', d:'어제 콜백싯을 같이 분석 — 넘버·스킬·태도 3축으로 짚기.'},
@@ -8280,6 +8288,7 @@ function obFieldDays(name){try{return lhSeriesFor(name).length;}catch(e){return 
 function onboardNudge(){
   if(!me||roleOf(me.name)!=='IC') return;
   if(isAdminName(me.name)||(typeof isTestBot==='function'&&isTestBot(me))) return;
+  if(!isNewHire(me.name)) return;   // 오늘 이후 첫필드한 신규 신입만
   var n=obFieldDays(me.name);
   if(n<1||n>5) return;
   var key='obnudge_'+me.uid+'_'+TODAY+'_'+n;
@@ -8296,6 +8305,18 @@ function onboardNudge(){
   try{addNotif(me.uid,{type:'cheer',day:n,msg:msgs[n]||'',t:Date.now(),read:false});renderBell();}catch(e){}
   try{openModal('obNudgeModal');}catch(e){}
 }
+function recallOnboardNotifs(){
+  if(!me||!isFounder(me)||!state.notifs) return;
+  if(lsGet('onboard_recalled_v1')) return;
+  var changed=0;
+  Object.keys(state.notifs).forEach(function(uid){
+    var arr=state.notifs[uid]; if(!Array.isArray(arr)) return;
+    var nl=arr.filter(function(x){return x&&x.type!=='cheer'&&x.type!=='newbie';});
+    if(nl.length!==arr.length){ state.notifs[uid]=nl; if(LIVE)DB.set('notifs/'+uid,nl); changed++; }
+  });
+  lsSet('onboard_recalled_v1',1);
+  if(changed){ try{renderBell();}catch(e){} if(typeof toast==='function')toast('잘못 발송된 신입 알림을 회수했어요'); }
+}
 function leaderOnboardNudge(){
   if(!me) return;
   var pend=[];
@@ -8303,6 +8324,7 @@ function leaderOnboardNudge(){
     if(roleOf(u.name)!=='IC') return;
     if(isAdminName(u.name)||(typeof isTestName_==='function'&&isTestName_(u.name))) return;
     if(nk(u.name)===nk(me.name)) return;
+    if(!isNewHire(u.name)) return;   // 오늘 이후 첫필드한 신규 신입만
     var d=obFieldDays(u.name); if(d<1||d>5) return;
     var chain=uplineChain(u.name);
     if(!chain.some(function(c){return nk(c)===nk(me.name);})) return;   // 내가 이 신입의 상위 라인일 때만
@@ -8430,7 +8452,7 @@ function lhCoach(x){
     dx='최근 출근일 결과 0 — 결과가 멈췄어요.';
     act='숫자보다 멘탈·태도 1:1부터 · 동행으로 0 끊어주기.'; }
   var nextDay=n+1, train=null;
-  if(nextDay<=5 && ONBOARD_TRAIN[nextDay]) train={day:nextDay,t:ONBOARD_TRAIN[nextDay].t,d:ONBOARD_TRAIN[nextDay].d};
+  if(nextDay<=5 && ONBOARD_TRAIN[nextDay] && isNewHire(x.name)) train={day:nextDay,t:ONBOARD_TRAIN[nextDay].t,d:ONBOARD_TRAIN[nextDay].d};
   return {prob:prob,type:type,tag:tag,dx:dx,act:act,recentAvg:recentAvg,overall:overall,n:n,trend:trend,train:train};
 }
 function lhCoachHTML(list){
