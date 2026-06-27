@@ -437,6 +437,46 @@ body.can-mod .gcard .del{display:flex}
 @keyframes ghpop{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:1}}
 @keyframes ghfade{0%{transform:scale(1);opacity:1}100%{transform:scale(1.4) translateY(-14px);opacity:0}}
 .tree-float{position:absolute;inset:0;pointer-events:none;z-index:6}
+/* 🌳 초원 배경 — 계절·날씨 반응 */
+.tree-bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.tree-bg-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tree-bg::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;transition:background .9s ease}
+.season-summer .tree-bg::before{background:linear-gradient(180deg,rgba(120,200,255,.16),transparent 48%)}
+.season-autumn .tree-bg::before{background:linear-gradient(180deg,rgba(255,205,130,.18),transparent 56%)}
+.season-winter .tree-bg::before{background:linear-gradient(180deg,rgba(205,228,247,.34),rgba(230,240,250,.12) 60%,transparent)}
+.wx-rain .tree-bg::before{background:linear-gradient(180deg,rgba(64,84,104,.40),rgba(96,116,136,.20) 62%,transparent)}
+/* 구름 천천히 흐르기 */
+.tb-cloud{animation:tb-drift linear infinite;transform-box:view-box;transition:opacity .9s ease}
+.tb-cloud-a{animation-duration:64s}
+.tb-cloud-b{animation-duration:88s;animation-delay:-26s}
+@keyframes tb-drift{from{transform:translateX(-130px)}to{transform:translateX(470px)}}
+.season-summer .tb-cloud{opacity:.6}
+.season-autumn .tb-cloud{opacity:.38}
+.wx-rain .tb-cloud{opacity:.9;filter:brightness(.8) saturate(.85)}
+.wx-snow .tb-cloud{opacity:.95;filter:brightness(1.04)}
+/* ☀️ 여름 해 (맑을 때만) */
+.tb-sun{position:absolute;top:11%;left:28%;width:50px;height:50px;border-radius:50%;z-index:1;pointer-events:none;
+  background:radial-gradient(circle,#fff7c6 0%,#ffd84a 56%,rgba(255,216,74,0) 72%);
+  box-shadow:0 0 24px 9px rgba(255,221,90,.5);animation:tb-sun 5s ease-in-out infinite}
+@keyframes tb-sun{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.07);opacity:1}}
+/* 🌧️/❄️ 날씨 입자 */
+.tree-weather{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.tw-rain{position:absolute;top:-14%;width:2px;height:13px;border-radius:2px;
+  background:linear-gradient(180deg,rgba(175,208,236,0),rgba(120,165,205,.92));animation:tw-rain linear infinite}
+@keyframes tw-rain{0%{transform:translateY(-22px);opacity:0}12%{opacity:1}100%{transform:translateY(330px);opacity:.45}}
+.tw-snow{position:absolute;top:-8%;color:#fff;line-height:1;text-shadow:0 0 3px rgba(180,210,235,.75);animation:tw-snow linear infinite}
+@keyframes tw-snow{0%{transform:translateY(-18px) translateX(0);opacity:0}14%{opacity:1}100%{transform:translateY(330px) translateX(var(--sx,0));opacity:.7}}
+/* 🌙 시간대 — 낮/노을/밤 */
+.tb-night{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#0a1230 0%,#14203f 55%,#1b2a48 100%);opacity:var(--nightveil,0);transition:opacity 1.4s ease}
+.tb-twi{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(255,170,90,0) 26%,rgba(255,140,75,.42) 74%,rgba(255,110,120,.34) 100%);opacity:var(--twiglow,0);transition:opacity 1.4s ease}
+.tb-moon{position:absolute;top:13%;left:29%;width:34px;height:34px;border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle at 38% 36%,#fdfbef,#e2e8f4 68%,#c6d0e2);box-shadow:0 0 16px 6px rgba(205,222,255,.42);opacity:0;transition:opacity 1.4s ease}
+.tod-night .tb-moon{opacity:1}
+.tb-star{position:absolute;z-index:2;width:2.4px;height:2.4px;border-radius:50%;background:#fff;opacity:0;animation:tb-twinkle 3.2s ease-in-out infinite}
+.tod-night .tb-star{opacity:.85}
+@keyframes tb-twinkle{0%,100%{opacity:.18}50%{opacity:.95}}
+.tb-sun{transition:opacity 1.2s ease,background .8s ease}
+.season-summer .tb-sun{width:56px;height:56px;box-shadow:0 0 30px 11px rgba(255,221,90,.55)}
+.tod-twilight .tb-sun{background:radial-gradient(circle,#ffe7b0 0%,#ff9d4d 56%,rgba(255,157,77,0) 74%);box-shadow:0 0 26px 10px rgba(255,150,80,.5)}
 .float-gift{position:absolute;font-size:26px;background:none;border:none;cursor:pointer;pointer-events:auto;padding:0;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4));animation:floatdrift var(--dur,4s) ease-in-out var(--delay,0s) infinite}
 .float-gift:disabled{cursor:default;opacity:.5}
 .float-gift:hover{transform:scale(1.18)}
@@ -1692,7 +1732,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       <section class="sec">
         <div class="sec-head"><h2>🌳 Presence 나무</h2><span class="ko">우리가 함께 키우는 나무</span><span class="meta">12월 31일 완성 🎄</span></div>
         <div class="tree-wrap">
-          <div class="tree-stage"><div class="ground"></div>
+          <div class="tree-stage"><div class="tree-bg" id="treeBg" aria-hidden="true"><svg class="tree-bg-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="tbSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset=".5" stop-color="#dcf1ff"/><stop offset="1" stop-color="#ecf8e7"/></linearGradient><linearGradient id="tbHillA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c7ea93"/><stop offset="1" stop-color="#a9dd6e"/></linearGradient><linearGradient id="tbHillB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd258"/><stop offset="1" stop-color="#6cbf45"/></linearGradient></defs><rect width="400" height="300" fill="url(#tbSky)"/><g class="tb-cloud tb-cloud-a"><g transform="translate(78,66)"><ellipse cx="-22" cy="8" rx="18" ry="13" fill="#fff"/><ellipse cx="0" cy="-2" rx="26" ry="18" fill="#fff"/><ellipse cx="24" cy="6" rx="20" ry="14" fill="#fff"/><ellipse cx="2" cy="13" rx="32" ry="14" fill="#fff"/></g></g><g class="tb-cloud tb-cloud-b"><g transform="translate(300,104)"><ellipse cx="-16" cy="6" rx="15" ry="11" fill="#ffffff" opacity=".95"/><ellipse cx="4" cy="-2" rx="22" ry="15" fill="#ffffff" opacity=".95"/><ellipse cx="22" cy="7" rx="16" ry="11" fill="#ffffff" opacity=".95"/><ellipse cx="2" cy="12" rx="27" ry="12" fill="#ffffff" opacity=".95"/></g></g><path d="M0 224 Q110 190 220 216 Q320 238 400 210 L400 300 L0 300 Z" fill="url(#tbHillA)"/><path d="M0 256 Q130 224 270 250 Q350 264 400 246 L400 300 L0 300 Z" fill="url(#tbHillB)"/><g fill="#ffffff" opacity=".55"><circle cx="64" cy="270" r="2.4"/><circle cx="120" cy="278" r="2"/><circle cx="300" cy="276" r="2.4"/><circle cx="356" cy="268" r="2"/></g><g opacity=".9"><circle cx="92" cy="266" r="3" fill="#ffd24a"/><circle cx="334" cy="262" r="3" fill="#ff9ec2"/></g></svg></div><div class="tree-weather" id="treeWeather" aria-hidden="true"></div><div class="ground"></div>
             <div class="tree-counter"><div class="n" id="prCount">0</div><div class="l">물 준 횟수</div></div>
             <div class="stage-tag" id="stageTag">씨앗</div>
             <svg id="treeSvg" viewBox="0 0 200 260"></svg>
@@ -1715,6 +1755,8 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <div class="sec-head"><h2>🐔 우리 닭장</h2><span class="ko">물 주고 먹이도 잊지 말기!</span><button class="coop-toggle" id="coopToggle" onclick="toggleCoop()" aria-expanded="true" aria-label="닭장 접기·펼치기"><span class="coop-tg-ar">▾</span></button></div>
         <div class="coop-card" id="coopCard">
           <div class="coop-inner">
+          <div class="coop-2col">
+          <div class="coop-left">
           <div class="coop-scene">
             <svg class="coop-svg" viewBox="0 0 340 188" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
               <defs>
@@ -1812,6 +1854,9 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
             <div class="coop-burst" id="coopBurst"></div>
           </div>
           <button class="coop-cta" onclick="goFeed()" aria-label="먹이주러 바로가기 · 컴페티션 열기"><span class="coop-cta-em">🌽</span><span class="coop-cta-tx">먹이주러 바로가기</span><span class="coop-up"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M6 15 L12 8 L18 15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+          </div>
+          <div class="coop-rank" id="coopRank"></div>
+          </div>
           </div>
         </div>
       </section>
@@ -4159,7 +4204,7 @@ function goTab(name){
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
-  if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{renderToday();}catch(e){}}
+  if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{fetchTreeWeather(renderTreeBg);}catch(e){}try{renderCoopRank();}catch(e){}try{renderToday();}catch(e){}}
   if(name==='comp'){clearAnimPrev();previewStage=null;renderComp();if(me&&isFounder(me)){renderTokenAdmin();renderRewardAdmin();setTimeout(maybeTokenIssuePrompt,500);}}
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();if(typeof renderExportPanel==='function')renderExportPanel();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
@@ -4246,7 +4291,78 @@ function sunAnim(){const stg=document.querySelector('.tree-stage');if(!stg)retur
 function leavesAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;const E=['🍂','🍁'];for(let i=0;i<11;i++){setTimeout(()=>{const l=document.createElement('div');l.className='leaf';l.textContent=E[i%2];l.style.left=(4+Math.random()*92)+'%';l.style.fontSize=(15+Math.random()*11)+'px';l.style.animationDuration=(2.8+Math.random()*1.4)+'s';stg.appendChild(l);setTimeout(()=>l.remove(),4400)},i*170)}}
 function snowAnim(){const stg=document.querySelector('.tree-stage');if(!stg)return;for(let i=0;i<18;i++){setTimeout(()=>{const f=document.createElement('div');f.className='snow';f.textContent=Math.random()<0.5?'❄️':'❅';f.style.left=(Math.random()*100)+'%';f.style.fontSize=(9+Math.random()*11)+'px';f.style.animationDuration=(3+Math.random()*1.8)+'s';stg.appendChild(f);setTimeout(()=>f.remove(),5000)},i*110)}}
 function wateringCanAnim(pour){const stg=document.querySelector('.tree-stage');if(!stg)return;const can=document.createElement('div');can.className='water-can';can.innerHTML=`<svg viewBox="0 0 72 54"><path d="M22 24 L52 24 L49 48 Q48 51 45 51 L29 51 Q26 51 25 48 Z" fill="#5CBC2E"/><rect x="20" y="19" width="34" height="6" rx="3" fill="#4aa325"/><path d="M28 19 Q37 5 48 17" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M50 25 q10 3 7 18" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M22 29 L7 17" stroke="#5CBC2E" stroke-width="6" stroke-linecap="round"/><ellipse cx="6" cy="16" rx="5" ry="3" fill="#4aa325" transform="rotate(-42 6 16)"/></svg>`;stg.appendChild(can);if(pour){for(let i=0;i<11;i++){setTimeout(()=>{if(!can.parentNode)return;const d=document.createElement('div');d.className='can-drop';d.textContent='💧';d.style.left=(39+Math.random()*10)+'%';stg.appendChild(d);setTimeout(()=>d.remove(),950)},650+i*72)}}setTimeout(()=>can.remove(),2050)}
+/* 🌤️ 계절 + 실시간 날씨로 나무 배경 바꾸기 */
+function treeSeason(){var m=new Date().getMonth()+1;return (m>=3&&m<=5)?'spring':(m>=6&&m<=8)?'summer':(m>=9&&m<=11)?'autumn':'winter';}
+var _twx={rain:false,snow:false,t:0,done:false};
+function fetchTreeWeather(cb){
+  if(_twx.done && (Date.now()-_twx.t)<20*60000){cb&&cb();return;}
+  try{
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4563&longitude=126.7052&current=precipitation,weather_code&daily=sunrise,sunset&timezone=auto')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var c=(d&&d.current)||{}, code=+c.weather_code, p=+c.precipitation||0;
+        var snow=(code>=71&&code<=77)||(code>=85&&code<=86);
+        var rain=!snow && ((code>=51&&code<=67)||(code>=80&&code<=82)||(code>=95&&code<=99)||p>0.05);
+        _twx.rain=!!rain; _twx.snow=!!snow;
+        try{ var dy=d&&d.daily; if(dy&&dy.sunrise&&dy.sunset){ _twx.sr=new Date(dy.sunrise[0]).getTime(); _twx.ss=new Date(dy.sunset[0]).getTime(); } }catch(e){}
+        _twx.t=Date.now(); _twx.done=true; cb&&cb();
+      })
+      .catch(function(){ _twx.t=Date.now(); _twx.done=true; cb&&cb(); });
+  }catch(e){ cb&&cb(); }
+}
+function daylight(){
+  var now=Date.now(), sr=_twx.sr, ss=_twx.ss;
+  if(!sr||!ss){ var a=new Date(); a.setHours(6,30,0,0); sr=a.getTime(); var b=new Date(); b.setHours(19,0,0,0); ss=b.getTime(); }
+  var T=3600000; // 60분 박명(노을) 구간
+  var light,tw=0,phase;
+  if(now<sr-T||now>ss+T){ light=0; phase='night'; }
+  else if(now<=sr+T){ light=Math.max(0,Math.min(1,(now-(sr-T))/(2*T))); tw=Math.max(0,1-Math.abs(now-sr)/T); phase='dawn'; }
+  else if(now<ss-T){ light=1; phase='day'; }
+  else { light=Math.max(0,Math.min(1,1-(now-(ss-T))/(2*T))); tw=Math.max(0,1-Math.abs(now-ss)/T); phase='dusk'; }
+  return {light:light,tw:tw,phase:phase};
+}
+function ensureTreeLayers(bg){
+  if(!bg) return;
+  if(!bg.querySelector('.tb-night')){ var n=document.createElement('div'); n.className='tb-night'; bg.appendChild(n); }
+  if(!bg.querySelector('.tb-twi')){ var t=document.createElement('div'); t.className='tb-twi'; bg.appendChild(t); }
+  if(!bg.querySelector('.tb-moon')){ var m=document.createElement('div'); m.className='tb-moon'; bg.appendChild(m); }
+  if(!bg.querySelector('.tb-star')){
+    [[18,14],[30,9],[44,17],[58,11],[70,20],[82,13],[26,25],[64,28]].forEach(function(p){
+      var s=document.createElement('i'); s.className='tb-star'; s.style.left=p[0]+'%'; s.style.top=p[1]+'%'; s.style.animationDelay=(Math.random()*3).toFixed(2)+'s'; bg.appendChild(s);
+    });
+  }
+}
+function renderTreeBg(){
+  var stg=document.querySelector('#m-home .tree-stage'); if(!stg) return;
+  var season=treeSeason();
+  var raining=_twx.rain, snowing=(_twx.snow||season==='winter')&&!raining;
+  ['spring','summer','autumn','winter'].forEach(function(s){stg.classList.toggle('season-'+s,s===season);});
+  stg.classList.toggle('wx-rain',!!raining);
+  stg.classList.toggle('wx-snow',!!snowing);
+  var bg=document.getElementById('treeBg'); ensureTreeLayers(bg);
+  var dl=daylight();
+  stg.style.setProperty('--nightveil',((1-dl.light)*0.82).toFixed(3));
+  stg.style.setProperty('--twiglow',(dl.tw*(raining?0.3:1)).toFixed(3));
+  stg.classList.toggle('tod-night', dl.light<0.18);
+  stg.classList.toggle('tod-twilight', dl.tw>0.22 && dl.light>=0.18);
+  stg.classList.toggle('tod-day', dl.light>=0.85);
+  if(bg){
+    var sun=bg.querySelector('.tb-sun'), wantSun=(dl.light>0.30 && !raining && !snowing);
+    if(wantSun&&!sun){var s=document.createElement('div');s.className='tb-sun';bg.appendChild(s);}
+    else if(!wantSun&&sun){sun.remove();}
+  }
+  if(!window._treeBgTimer){ window._treeBgTimer=setInterval(function(){ if(document.querySelector('#m-home.active')){ try{renderTreeBg();}catch(e){} } },60000); }
+  var wl=document.getElementById('treeWeather'); if(!wl) return;
+  var key=raining?'rain':snowing?'snow':'none';
+  if(wl.dataset.key===key) return;   // 같은 상태면 입자 유지(깜빡임 방지)
+  wl.dataset.key=key;
+  var h='';
+  if(raining){ for(var i=0;i<18;i++){ h+='<i class="tw-rain" style="left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(0.5+Math.random()*0.35).toFixed(2)+'s;animation-delay:'+(-Math.random()).toFixed(2)+'s"></i>'; } }
+  else if(snowing){ for(var j=0;j<16;j++){ h+='<i class="tw-snow" style="left:'+(Math.random()*100).toFixed(1)+'%;--sx:'+(Math.random()*18-9).toFixed(0)+'px;font-size:'+(7+Math.random()*7).toFixed(0)+'px;animation-duration:'+(4+Math.random()*3).toFixed(1)+'s;animation-delay:'+(-Math.random()*5).toFixed(1)+'s">❄</i>'; } }
+  wl.innerHTML=h;
+}
 function renderTree(weekOverride){
+  try{renderTreeBg();}catch(e){}
   const preview = weekOverride==null && treePreviewStep!==null;
   let endedPreview=false, wkP=null;
   if(preview){const step=TREE_PREVIEW[treePreviewStep];if(step==='end'){wkP=TREE_WEEKS;endedPreview=true}else wkP=step}
@@ -4713,14 +4829,27 @@ function buyFeed(){
   state.tokens[me.name]=myTokens()-1;
   const d=TODAY;state.feedByDay=state.feedByDay||{};state.feedByDay[d]=state.feedByDay[d]||{};state.feedByDay[d][me.name]=1;  // 하루 1회 cap
   if(LIVE){DB.set('tokens',state.tokens);DB.set('feedByDay',state.feedByDay);}
-  buyFeedAnim();renderTokenShop();renderFeedLog();renderComp();
+  buyFeedAnim();renderTokenShop();renderFeedLog();renderComp();try{renderCoopRank();}catch(e){}
   toast('🌽 기념토큰으로 먹이를 줬어요! (−1 🪙)');
 }
 function rankRow(i,name,val,ended){
   const win=ended&&i===0;
   return `<div class="rank-row${win?' win':''}"><span class="rank-no">${i+1}</span><span class="rank-av" style="background:${avColor(name)}">${avInner(name)}</span><span class="rank-nm">${esc(name)}${win?'<span class="win-crown">👑</span>':''}</span><span class="rank-val">${val}일</span></div>`;
 }
+function renderCoopRank(){
+  const el=document.getElementById('coopRank'); if(!el) return;
+  const {rank}=periodFeeds(); const ended=compEnded(), dl=daysLeft();
+  const dchip = ended ? '<span class="cr-d ended">🏁 종료</span>' : `<span class="cr-d${dl<=2?' soon':''}">⏳ ${dl}일 남음</span>`;
+  const medal=['🥇','🥈','🥉'];
+  const list = rank.length
+    ? rank.slice(0,5).map((w,i)=>`<div class="cr-row${i===0?' lead':''}"><span class="cr-m">${medal[i]||`<span class="cr-no">${i+1}</span>`}</span><span class="cr-nm">${esc(w.name)}</span><span class="cr-role">${esc((typeof ROLE_LABEL!=='undefined'&&ROLE_LABEL[w.role])||w.role)}</span><span class="cr-days">${w.days}<small>일</small></span></div>`).join('')
+    : '<div class="cr-empty">아직 먹이를 준 사람이 없어요 🌽<br>필드 결과 → 토큰 → 먹이 주기!</div>';
+  el.innerHTML = `<div class="cr-head"><span class="cr-tit">🍖 먹이순위 <small>지금 1등</small></span>${dchip}</div>`
+    + (rank.length?`<div class="cr-top"><span class="cr-crown">👑</span><b>${esc(rank[0].name)}</b><span class="cr-topdays">${rank[0].days}일</span></div>`:'')
+    + `<div class="cr-list">${list}</div>`;
+}
 function refreshCompLive(){
+  try{renderCoopRank();}catch(e){}
   const c=document.getElementById('m-comp');
   if(c&&c.classList.contains('active')){
     if(typeof renderComp==='function')renderComp();
@@ -6539,7 +6668,7 @@ async function initFirebase(){
   DB.on('waters',v=>{state.waters=v||{};renderWaterFeed()});
   DB.on('waterGiftLog',v=>{state.waterGiftLog=v?(Array.isArray(v)?v:Object.values(v)):[];if(me&&isFounder(me))renderWaterAdmin();});
   DB.on('giftHunt',v=>{if(v)state.giftHunt={...(state.giftHunt||{}),...v};if(me){renderGiftHunt();maybeGiftStartPopup();}});
-  DB.on('comp',v=>{if(v)state.comp=v;renderComp()});
+  DB.on('comp',v=>{if(v)state.comp=v;renderComp();if(typeof renderCoopRank==='function'){try{renderCoopRank();}catch(e){}}});
   DB.on('notices',v=>{state.notices=v?Object.values(v):[];renderNotices()});
   DB.on('gb',v=>{state.gb=v?Object.values(v):[];renderGb()});
   DB.on('net',v=>{state.net=v?Object.values(v):[];renderGallery('net')});
@@ -8233,7 +8362,33 @@ html{ scrollbar-gutter:stable; }
 .coop-card:hover{border-color:rgba(92,188,46,.55);box-shadow:0 18px 40px -18px rgba(92,188,46,.55)}
 .coop-card:active{transform:scale(.992)}
 .coop-card:focus-visible{outline:2px solid var(--green-soft);outline-offset:3px}
-.coop-scene{position:relative;width:100%;aspect-ratio:340/188;min-height:170px;border-bottom:1px solid var(--line);overflow:hidden}
+.coop-scene{position:relative;width:100%;aspect-ratio:340/188;min-height:140px;max-height:200px;border-bottom:1px solid var(--line);overflow:hidden}
+/* 닭장 2단: 왼쪽 닭장 · 오른쪽 실시간 먹이순위 (나무 물주기와 비슷한 크기) */
+.coop-2col{display:grid;grid-template-columns:1.05fr .95fr}
+@media(max-width:760px){.coop-2col{grid-template-columns:1fr}}
+.coop-left{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+@media(max-width:760px){.coop-left{border-right:none;border-bottom:1px solid var(--line)}}
+.coop-rank{display:flex;flex-direction:column;padding:14px 15px;min-width:0;background:radial-gradient(120% 90% at 100% 0%,rgba(92,188,46,.08),transparent 60%)}
+.cr-head{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.cr-tit{font-weight:800;font-size:14px;color:var(--cream)}
+.cr-tit small{font-weight:700;font-size:10.5px;color:var(--muted);margin-left:3px}
+.cr-d{margin-left:auto;font-weight:800;font-size:11px;color:var(--green-soft);background:rgba(92,188,46,.15);border:1px solid rgba(92,188,46,.35);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.cr-d.soon{color:#d98a2b;background:rgba(230,176,82,.16);border-color:rgba(230,176,82,.45)}
+.cr-d.ended{color:var(--muted);background:var(--card);border-color:var(--line)}
+.cr-top{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,rgba(92,188,46,.16),rgba(138,224,92,.1));border:1px solid rgba(92,188,46,.4);border-radius:12px;padding:9px 12px;margin-bottom:10px}
+.cr-crown{font-size:18px;line-height:1}
+.cr-top b{font-size:15px;color:var(--cream);font-weight:800}
+.cr-topdays{margin-left:auto;font-weight:800;font-size:13px;color:var(--green-soft)}
+.cr-list{display:flex;flex-direction:column;gap:2px}
+.cr-row{display:flex;align-items:center;gap:8px;padding:6px 7px;border-radius:9px}
+.cr-row.lead{background:rgba(92,188,46,.08)}
+.cr-m{flex:0 0 22px;text-align:center;font-size:14px}
+.cr-no{display:inline-block;width:20px;font-weight:800;font-size:11px;color:var(--faint)}
+.cr-nm{font-weight:700;font-size:13px;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr-role{font-size:9.5px;font-weight:700;color:var(--muted);background:var(--card);border-radius:5px;padding:1px 5px;flex:0 0 auto}
+.cr-days{margin-left:auto;font-weight:800;font-size:13px;color:var(--cream);white-space:nowrap}
+.cr-days small{font-weight:700;font-size:10px;color:var(--muted);margin-left:1px}
+.cr-empty{color:var(--faint);font-size:12.5px;padding:14px 4px;text-align:center;line-height:1.5}
 .coop-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .coop-scene::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 -20px 34px -20px rgba(60,30,10,.32),inset 0 10px 22px -16px rgba(255,255,255,.5)}
 
@@ -8395,8 +8550,36 @@ function goFeed(){
 }
 
 /* 🐔 닭 클릭 → 신나서 통통+하트 / 배고파서 푸드덕+말풍선 (이동 안 함) */
+/* 🔊 꼬꼬댁 — Web Audio로 합성 (외부 파일 없음 · 오프라인 동작) */
+var _cluckAC=null;
+function _cluckCtx(){ try{ if(!_cluckAC) _cluckAC=new (window.AudioContext||window.webkitAudioContext)(); if(_cluckAC.state==='suspended') _cluckAC.resume(); }catch(e){ return null; } return _cluckAC; }
+function _cluckSyl(ac,t0,f0,f1,dur,vol){
+  var o=ac.createOscillator(), o2=ac.createOscillator(), g=ac.createGain(), bp=ac.createBiquadFilter();
+  o.type='sawtooth'; o2.type='square'; o2.detune.value=-1200;
+  bp.type='bandpass'; bp.frequency.value=f0*1.7; bp.Q.value=7;
+  o.frequency.setValueAtTime(f0*0.82,t0);
+  o.frequency.linearRampToValueAtTime(f1,t0+dur*0.28);
+  o.frequency.linearRampToValueAtTime(f0*0.55,t0+dur);
+  o2.frequency.setValueAtTime(f0*0.82,t0);
+  o2.frequency.linearRampToValueAtTime(f1,t0+dur*0.28);
+  o2.frequency.linearRampToValueAtTime(f0*0.55,t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(bp); o2.connect(bp); bp.connect(g); g.connect(ac.destination);
+  o.start(t0); o2.start(t0); o.stop(t0+dur+0.03); o2.stop(t0+dur+0.03);
+}
+function playCluck(){
+  var ac=_cluckCtx(); if(!ac) return;
+  var t=ac.currentTime+0.01, j=function(n){return n*(0.94+Math.random()*0.12);};
+  /* 꼬 · 꼬 · 댁 — 마지막 음을 더 높고 길게 (살짝 랜덤) */
+  _cluckSyl(ac,t,        j(820), j(1180), 0.11, 0.16);
+  _cluckSyl(ac,t+0.155,  j(770), j(1100), 0.10, 0.15);
+  _cluckSyl(ac,t+0.31,   j(990), j(1520), 0.17, 0.20);
+}
 function chickPoke(ev,el){
   try{ ev.stopPropagation(); }catch(e){}
+  try{ playCluck(); }catch(e){}
   try{
     var scene=el.closest('.coop-scene'); if(!scene)return;
     var hungry=Math.random()<0.5;
