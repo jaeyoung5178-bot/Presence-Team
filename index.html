@@ -2001,6 +2001,8 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     </section></div></div>
 
     <!-- COMPETITION : 동물 키우기 (everyone) -->
+    <div class="mpanel" id="m-setupkit"></div>
+    <div class="mpanel" id="m-rejectnote"></div>
     <div class="mpanel" id="m-comp"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>🏆 컴페티션</h2><span class="ko">세일즈로 키우는 우리 동물</span></div>
       <div class="comp-banner">
@@ -4284,11 +4286,11 @@ function topicFilter(cat,btn){document.querySelectorAll('#topicsBody .tf-chip').
 
 const NAV=[
   {k:'home',e:'🏠',l:'홈',tabs:['home']},
-  {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf']},
+  {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf','rejectnote']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
   {k:'lead',e:'🎯',l:'리더',tabs:['leaderhit','cbjournal','teamtree','recap','calling','field']},
-  {k:'sector',e:'🗺️',l:'섹터',tabs:['sites']},
+  {k:'sector',e:'🗺️',l:'섹터',tabs:['sites','setupkit']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','survey','gsheet','admin']}
 ];
 const TABMETA={
@@ -4306,6 +4308,8 @@ const TABMETA={
   gsheet:{e:'🛠️',l:'개발 연동',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
   teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)||isLeader(me.role)},
+  setupkit:{e:'🐑',l:'셋업 비서',g:()=>typeof canSetupKit==='function'&&canSetupKit(me)},
+  rejectnote:{e:'🛡️',l:'리젝노트',g:()=>typeof canRejectNote==='function'&&canRejectNote(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -4366,6 +4370,9 @@ function goTab(name){
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
   if(name==='teamtree')renderOrgEditor();
+  if(name==='setupkit'&&typeof renderSetupKit==='function')renderSetupKit();
+  if(name==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();
+  if(name==='admin'&&typeof renderMemberAdmin==='function'&&me&&isFounder(me))renderMemberAdmin();
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
   if(name==='training')renderTraining();
@@ -5919,12 +5926,14 @@ function renderMember(){
     if(_isAct){
       if(u){
         h+='<div class="mb-mgrow"><span class="mb-mgl">직급</span><select class="mb-mgsel" onchange="mbSetRole(\''+u.uid+'\',this.value)">'+ROLES.map(function(r){return '<option'+(r===u.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>';
-        var _onMgr=isManager(u),_onSec=isSectorLeader(u);
+        var _onMgr=isManager(u),_onSec=isSectorLeader(u),_onRn=!!u.rn,_onSk=!!u.sk;
         h+='<div class="mb-mgrow"><span class="mb-mgl">권한</span><div class="mb-perm">'
           +'<button class="mb-permbtn'+(_onMgr?' on':'')+'" onclick="mbToggleMgr()">🧑‍💼 매니저'+(_onMgr?' ✓':'')+'</button>'
           +'<button class="mb-permbtn'+(_onSec?' on':'')+'" onclick="mbToggleSec()">🗺️ 섹터리더'+(_onSec?' ✓':'')+'</button>'
+          +'<button class="mb-permbtn'+(_onRn?' on':'')+'" onclick="mbToggleRn()">🛡️ 리젝노트'+(_onRn?' ✓':'')+'</button>'
+          +'<button class="mb-permbtn'+(_onSk?' on':'')+'" onclick="mbToggleSk()">🐑 셋업비서'+(_onSk?' ✓':'')+'</button>'
           +'</div></div>';
-        h+='<div class="mb-mhint">🧑‍💼 매니저 = 일일 결과만 입력·수정 · 🗺️ 섹터리더 = 사이트 관리 접근.</div>';
+        h+='<div class="mb-mhint">🧑‍💼 매니저 = 일일 결과만 입력·수정 · 🗺️ 섹터리더 = 사이트 관리 · 🛡️ 리젝노트 · 🐑 셋업비서 = 해당 탭 사용 권한.</div>';
         h+='<div class="mb-mgrow"><span class="mb-mgl">계정</span><span class="mb-acctid">@'+esc(u.id)+'</span></div>';
         if(!_isMe){var _rk=reqSurvey(u.role,u.name);h+='<div class="mb-mbtnrow"><button class="mb-mbtn" onclick="mbResetPw()">🔑 비번 재설정</button>'+(_rk?'<button class="mb-mbtn" onclick="mbResetSurvey()">🎫 '+(ROLE_LABEL[_rk]||_rk)+' 설문 다시받기</button>':'')+'<button class="mb-mbtn danger" onclick="mbDeleteAcct()">🗑️ 계정 삭제</button></div>';}
         else h+='<div class="mb-mhint">본인(관리자) 계정이에요.</div>';
@@ -6914,6 +6923,7 @@ async function initFirebase(){
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
+  DB.on('rnPresets',v=>{state.rnPresets=v||null;if(typeof curTab!=='undefined'&&curTab==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();});
   DB.on('sales',v=>{
     state.sales={};
     if(v){for(const date in v){for(const kk in v[date]){const e=v[date][kk];const nm=e.name||kk;state.sales[`${date}|${nm}`]={name:nm,role:e.role,date,count:e.count,na:e.na||false,rally:e.rally||false,t:e.t}}}}
@@ -9204,6 +9214,470 @@ function spawnKernel(layer,cx,cy){
     if(c){ c.classList.add('collapsed'); if(b)b.setAttribute('aria-expanded','false'); }
   }
 }catch(e){} initCoopCorn(); })();
+</script>
+<script>
+/* ===== 프레젠스 매니저 서포트 룸 (셋업비서 + 리젝노트) — 추가 모듈 ===== */
+/* ════════════════════════════════════════════════════════════════
+   프레젠스 매니저 서포트 룸 — 셋업비서 + 리젝노트
+   index.html 안에 추가되는 격리 모듈 (기존 로직 비침습)
+   사용: state, me, DB, LIVE, isFounder, isLeader, toast  (index.html 제공)
+   ════════════════════════════════════════════════════════════════ */
+(function(){
+  if(window.__pmsrLoaded)return; window.__pmsrLoaded=true;
+
+  /* ---------- 권한 ---------- */
+  window.canRejectNote = function(u){ return !!u && (isFounder(u) || u.rn===true); };
+
+  /* ---------- 공용: 저장 ---------- */
+  const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},
+    set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+  function copyText(txt,silent){const ok=()=>{if(!silent&&window.toast)toast('복사됐어요 ✓');};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,()=>fb(txt,silent));}else fb(txt,silent);}
+  function fb(txt,silent){const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');if(!silent&&window.toast)toast('복사됐어요 ✓');}catch(e){}document.body.removeChild(ta);}
+
+  /* ---------- 스타일 (앱 다크 토큰 재사용, 접두사 격리) ---------- */
+  function injectStyle(){
+    if(document.getElementById('pmsr-style'))return;
+    const s=document.createElement('style');s.id='pmsr-style';
+    s.textContent=`
+    .sk-sub{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:14px}
+    .sk-sub button{flex:1;padding:9px 4px;border-radius:9px;font-size:13px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer}
+    .sk-sub button.on{background:var(--grad);color:#fff}
+    .sk-page{display:none}.sk-page.on{display:block}
+    .sk-ta{width:100%;min-height:140px;resize:vertical;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:14.5px;line-height:1.5;background:var(--card);color:var(--cream);font-family:inherit}
+    .sk-ta.sm{min-height:64px}
+    .sk-ta:focus,.rn-f:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.18)}
+    .sk-lab{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin:0 0 5px 2px}
+    .sk-f{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:10px 11px;font-size:14px;background:var(--card);color:var(--cream)}
+    .pmsr-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;font-size:14px;font-weight:800;padding:12px 16px;width:100%;border:none;cursor:pointer}
+    .pmsr-btn.grad{background:var(--grad);color:#fff}.pmsr-btn.green{background:var(--green);color:var(--green-ink)}
+    .pmsr-btn.ghost{background:var(--surface);color:var(--cream);border:1px solid var(--line)}
+    .pmsr-btn.sm{width:auto;padding:8px 12px;font-size:12.5px;border-radius:9px}
+    .pmsr-btn:active{transform:scale(.99)}
+    .pmsr-row{display:flex;gap:8px;flex-wrap:wrap}.pmsr-col{flex:1;min-width:120px}
+    .pmsr-chips{display:flex;flex-wrap:wrap;gap:7px}
+    .pmsr-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(92,188,46,.13);border:1px solid rgba(92,188,46,.3);color:var(--green-soft);border-radius:999px;padding:6px 8px 6px 12px;font-size:13px;font-weight:700}
+    .pmsr-chip.road{background:rgba(230,176,82,.13);border-color:rgba(230,176,82,.3);color:var(--amber)}
+    .pmsr-chip .rm{font-size:15px;color:var(--coral);cursor:pointer}
+    .slip{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:12px}
+    .slip-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border-bottom:1px dashed var(--line);background:var(--surface)}
+    .slip-h h4{margin:0;font-size:14px;font-weight:800;font-family:var(--disp)}
+    .slip-h small{display:block;font-size:11px;color:var(--muted)}
+    .slip pre{margin:0;padding:13px;white-space:pre-wrap;word-break:break-word;font-size:13.5px;line-height:1.6;color:var(--cream);font-family:inherit}
+    .rn-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+    .rn-tbl th{background:var(--surface);color:var(--muted);font-weight:700;padding:8px 6px;text-align:left;border-bottom:1px solid var(--line);position:sticky;top:0}
+    .rn-tbl td{padding:8px 6px;border-bottom:1px solid var(--line-soft);color:var(--cream);vertical-align:top}
+    .rn-pill{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block}
+    .rn-open{background:rgba(162,171,185,.2);color:var(--muted)}
+    .rn-pass{background:rgba(92,188,46,.18);color:var(--green-soft)}
+    .rn-rej{background:rgba(255,107,107,.18);color:var(--danger)}
+    .rn-due{background:rgba(230,176,82,.2);color:var(--amber)}
+    .rn-prob-상{color:var(--danger);font-weight:800}.rn-prob-중{color:var(--amber);font-weight:800}.rn-prob-하{color:var(--green-soft);font-weight:800}
+    .rn-stat{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .rn-statc{flex:1;min-width:80px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px}
+    .rn-statc .n{font-size:22px;font-weight:800;font-family:var(--disp)}
+    .rn-statc .l{font-size:11px;color:var(--muted);margin-top:2px}
+    .pmsr-help{font-size:12px;color:var(--muted);line-height:1.5;margin:6px 2px 0}
+    `;
+    document.head.appendChild(s);
+  }
+
+  /* ════════════════════ 셋업비서 ════════════════════ */
+  const DEFAULT_WEEKLY=["유영진","임재영","장재원","김한별","김주아","고윤경","박인선","김하진","유승민","윤채영","김종훈","손예진","신준용","이예지","문승현","김태경","간승학","천세진","최이수","권영웅","박건","고다연","최현우","양아영"];
+  const SHEMA=["이예승","유영진","임재영","장재원","김한별","김주아","고윤경","박인선","김하진","유승민","윤채영","김종훈","손예진","신준용","이예지","문승현","김태경","간승학","천세진","최이수","권영웅","박건","고다연"];
+  let weekly=LS.get('pd_weekly',null)||DEFAULT_WEEKLY.slice();
+  let daily =LS.get('pd_daily',[]);
+  let groupsSaved=LS.get('pd_groups',[]);
+  let rooms=LS.get('pd_rooms',null)||[{id:'peace',name:'피스메이커 소통방',url:''},{id:'arrival',name:'도착현황방',url:''},{id:'score',name:'스코어방',url:''},{id:'weekly',name:'위클리 스코어방',url:''},{id:'report',name:'생산성보고방',url:''}];
+  let roomMap=LS.get('pd_roommap',null)||{setup:'peace',pledge:'report',arrival:'arrival',score:'score',weekly:'weekly'};
+  let curEnc='',encSeed=0,skTab='daily';
+  const sW=()=>LS.set('pd_weekly',weekly),sD=()=>LS.set('pd_daily',daily),sG=()=>LS.set('pd_groups',groupsSaved),sRm=()=>LS.set('pd_rooms',rooms),sMap=()=>LS.set('pd_roommap',roomMap);
+
+  const MASTER=()=>[...new Set([...weekly,...SHEMA,...daily.map(d=>d.name)])];
+  const given=n=>n.length>1?n.slice(1):n;
+  const hangul=t=>(t||'').replace(/[^가-힣]/g,'');
+  function splitTag(t){t=(t||'').trim();const m=t.match(/^([가-힣]+)([\s\S]*)$/);return m?{name:m[1],tag:m[2]}:{name:'',tag:t};}
+  function fullName(n){const M=MASTER();let h=M.find(x=>x===n);if(h)return h;h=M.find(x=>given(x)===n);if(h)return h;h=M.find(x=>x.endsWith(n));if(h)return h;return n;}
+  function toShort(tok){const {name,tag}=splitTag(tok);const f=fullName(name);return (f.length>1?f.slice(1):f)+tag;}
+  const wIdx=n=>{const i=weekly.indexOf(hangul(n));return i<0?9999:i;};
+  const isHeader=l=>/^\s*\d+\s*[\.\)]/.test(l);
+  function parseGroups(text){const L=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);const g=[];let c=null;for(const l of L){if(isHeader(l)){c={header:l,raw:[]};g.push(c);}else if(c){c.raw.push(...l.split(/[\s,]+/).filter(Boolean));}}return g;}
+  function classify(h){if(/위페어|wepair/i.test(h))return'wepair';if(/road|로드/i.test(h))return'road';return'city';}
+
+  const DOWF=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],DOW=['일','월','화','수','목','금','토'];
+  function tomorrow(){const d=new Date();d.setDate(d.getDate()+1);return d;}
+  function toInput(d){return d.toISOString().slice(0,10);}
+  function skDateEl(){return document.getElementById('skDate');}
+  function curDate(){const v=skDateEl()&&skDateEl().value;return v?new Date(v+'T00:00:00'):tomorrow();}
+  function dParts(){const d=curDate();return{YY:String(d.getFullYear()).slice(2),MM:String(d.getMonth()+1).padStart(2,'0'),DD:String(d.getDate()).padStart(2,'0'),M:d.getMonth()+1,D:d.getDate(),dow:DOW[d.getDay()]};}
+  function weekRange(){const d=curDate();const day=d.getDay();const off=(day===0?-6:1-day);const mon=new Date(d);mon.setDate(d.getDate()+off);const sun=new Date(mon);sun.setDate(mon.getDate()+6);const f=x=>String(x.getFullYear()).slice(2)+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+String(x.getDate()).padStart(2,'0');return{start:f(mon),end:f(sun)};}
+
+  const OPEN=['오늘도 새벽 공기 가르며 모인 우리 양떼들 🐑','한 걸음 먼저 움직이는 사람들, 좋은 아침! ☀️','오늘의 필드를 채울 주인공들 모여라 🕊️','기분 좋은 시작, 오늘의 셋업 떴어 🌿'];
+  const MID=['어제보다 딱 한 걸음만 더. 그거면 충분해.','why가 명확하면 KPI는 내려간다. 진실된 why 장전!','한 명의 마음을 정성껏. 결과는 따라온다.','컨디션보다 태도. 오늘도 끝까지 가보자.'];
+  const CLOSE=['빠른셋업 바른셋업 하시고 벨공으로! 🔥','안전하게, 그리고 뜨겁게. 출발! 🔥','오늘도 멋지게. 응원할게! 잘자요 안녕~','한 명 한 명이 다 소중해. 잘 다녀오자 ✨'];
+  const pick=(a,s)=>a[Math.abs(s)%a.length];
+  function genEnc(){const b=curDate().getDate()*7+encSeed*3;return pick(OPEN,b)+' '+pick(MID,b+1)+' '+pick(CLOSE,b+2);}
+
+  function genSetup(g,enc){const p=dParts();return '🕊️'+p.M+'월 '+p.D+'일 ('+p.dow+') 셋업공지!!🕊️\n'+g.map(x=>x.header+'\n'+x.raw.map(toShort).join(' ')).join('\n')+'\n\n'+enc;}
+  function dailySorted(){return daily.slice().sort((a,b)=>wIdx(a.name)-wIdx(b.name));}
+  function genPledge(){const p=dParts();const otf=(document.getElementById('skOtf')?document.getElementById('skOtf').value:'')||'https://vo.la/dtmRn';
+    const L=dailySorted();const city=L.filter(d=>!d.road).map(d=>d.name),road=L.filter(d=>d.road).map(d=>d.name);
+    let o='🕊️ 💌 '+p.YY+'년 '+p.M+'월 '+p.D+'일 ('+p.dow+') 약정서 💌\n (반드시 활동 당일 내 작성)\n\nOTF(On The Field) 단축 링크 '+otf.trim()+' \n약정서 보고 방법 OTF / 약정서 보무완\nEx) 이예승 ㅡ O / 완3 보1\n\nCity\n'+city.map(n=>'🐏 '+n+' - ').join('\n');
+    if(road.length)o+='\nRoad\n'+road.map(n=>'🐏 '+n+' - ').join('\n');
+    o+='\n필드인원: '+L.length+'  ';return o;}
+  function genArrival(){const p=dParts();return '☀️'+p.M+'월 '+p.D+'일 ('+p.dow+') 필드 도착현황☀️\n'+dailySorted().map(d=>'🐏 '+d.name+' - ').join('\n');}
+  function genScore(g,hi){const p=dParts();const line='—————————————';if(!hi)hi='🏅 \n🥈 \n🥉 ';
+    return '☀️ '+p.YY+'.'+p.MM+'.'+p.DD+' ('+p.dow+')요일 벨필공선! ☀️\n《Weekly  High-roller》\n'+hi+'\n'+line+'\n'+g.map(x=>x.header+'\n'+x.raw.map(toShort).join(' ')).join('\n')+'\n'+line+'\n1.\n2.\n3.\n4.\n5.\n6.\n7.\n8.\n9.\n10.\n'+line+'\n카드 (출금율 94%) :  (2만 ) \n계좌 (출금율 66%) :  (2만 )\n보: / 무:  / 완:  (2만 ) ';}
+  function genWeekly(){const r=weekRange();const d19='ㅡ'.repeat(19),d18='ㅡ'.repeat(18);
+    const goal=(document.getElementById('skGoal').value||'').trim()||'__';
+    const wc=weekly.length,dc=daily.length;
+    const T=(document.getElementById('skTotal').value||'').trim()||Math.round(wc*1.3);
+    const K=(document.getElementById('skToday').value||'').trim()||Math.round(dc*1.5);
+    let o='🐏✔ '+r.start+'  ~ '+r.end+'✔🐑\n'+d19+'\n        🎯 목표 후원자 '+goal+'명 🎯\n'+d19+'\n'+weekly.map(n=>'🐏'+n+' /').join('\n')+'\n'+d18+'\n🐑 인천 총후원 0/'+T+' (2만 )🔥   \n🐑 오늘의 목표 0/'+K+' (2만 )🔥 \n '+d18;return o;}
+
+  function slipHTML(icon,title,room,id,extra){return '<div class="slip"><div class="slip-h"><div><h4>'+icon+' '+title+'</h4><small>→ '+room+'</small></div><div style="display:flex;gap:6px">'+(extra||'')+'<button class="pmsr-btn ghost sm" data-copy="'+id+'">복사</button><button class="pmsr-btn green sm" data-send="'+id+'">방으로 →</button></div></div><pre id="'+id+'"></pre></div>';}
+
+  function ensureSetupKit(){
+    const el=document.getElementById('m-setupkit');if(!el||el.dataset.built)return;el.dataset.built='1';
+    el.innerHTML='<div class="wrap"><section class="sec">'
+      +'<div class="sec-head"><h2>🐑 셋업 비서</h2><span class="ko">데일리·위클리 글 자동 생성</span></div>'
+      +'<div class="pmsr-row" style="align-items:flex-end;margin-bottom:12px"><div class="pmsr-col" style="max-width:170px"><label class="sk-lab">필드 기준일</label><input type="date" id="skDate" class="sk-f"></div><button class="pmsr-btn ghost sm" id="skTomorrow">내일로</button><span id="skDow" class="pmsr-chip" style="margin-left:auto"></span></div>'
+      +'<div class="sk-sub"><button data-sk="daily" class="on">🌅 데일리</button><button data-sk="weekly">📅 위클리</button><button data-sk="set">⚙️ 명단·방</button></div>'
+      // daily
+      +'<div class="sk-page on" id="skp-daily">'
+        +'<label class="sk-lab">오늘 셋업 인원 붙여넣기 (장소+이름)</label>'
+        +'<textarea class="sk-ta" id="skIn" placeholder="1. 굴포천역 8번출구\n유영진 천세진 김태경\n2. 아이플렉스\n임재영 이예지"></textarea>'
+        +'<details style="margin-top:8px"><summary style="font-size:12.5px;color:var(--green-soft);cursor:pointer;font-weight:700">응원 문구 · 하이올러 · OTF</summary>'
+          +'<label class="sk-lab" style="margin-top:8px">응원 문구 (비우면 자동)</label><textarea class="sk-ta sm" id="skEnc"></textarea>'
+          +'<label class="sk-lab" style="margin-top:6px">스코어방 하이올러</label><textarea class="sk-ta sm" id="skHi"></textarea>'
+          +'<label class="sk-lab" style="margin-top:6px">OTF 링크</label><input class="sk-f" id="skOtf" value="https://vo.la/dtmRn"></details>'
+        +'<button class="pmsr-btn grad" id="skGen" style="margin-top:12px">🪄 4가지 글 만들기</button>'
+        +'<div id="skDailyRoster" style="display:none;margin-top:14px"><label class="sk-lab">오늘 활동인원 <span id="skDcnt" style="color:var(--green-soft)"></span></label><div class="pmsr-chips" id="skChips"></div>'
+          +'<div class="pmsr-row" style="margin-top:8px"><div class="pmsr-col" style="flex:2"><input class="sk-f" id="skAdd" placeholder="추가할 인원"></div><button class="pmsr-btn ghost sm" id="skAddRoad">+Road</button><button class="pmsr-btn green sm" id="skAddCity">+City</button></div></div>'
+        +'<div id="skSlips"></div></div>'
+      // weekly
+      +'<div class="sk-page" id="skp-weekly">'
+        +'<div class="pmsr-chip" id="skRange" style="width:100%;justify-content:center;margin-bottom:10px">—</div>'
+        +'<div class="pmsr-row"><div class="pmsr-col"><label class="sk-lab">🎯 목표 후원자</label><input class="sk-f" id="skGoal" inputmode="numeric" placeholder="예: 16"></div><div class="pmsr-col"><label class="sk-lab">총후원(비우면 자동)</label><input class="sk-f" id="skTotal" inputmode="numeric"></div><div class="pmsr-col"><label class="sk-lab">오늘목표(자동)</label><input class="sk-f" id="skToday" inputmode="numeric"></div></div>'
+        +'<p class="pmsr-help">자동: 총후원=위클리×1.3, 오늘목표=데일리×1.5 (위클리 <b id="skWcnt">0</b>명·오늘 <b id="skDcnt2">0</b>명)</p>'
+        +'<button class="pmsr-btn grad" id="skWgen" style="margin-top:8px">📅 위클리 스코어방 만들기</button><div id="skWslip"></div></div>'
+      // settings
+      +'<div class="sk-page" id="skp-set">'
+        +'<label class="sk-lab">위클리 필드 명단 <span id="skWcnt2" style="color:var(--green-soft)"></span> (입사일 순 · 약정/도착 정렬 기준)</label><div id="skWlist"></div>'
+        +'<div class="pmsr-row" style="margin-top:8px"><div class="pmsr-col" style="flex:2"><input class="sk-f" id="skNewW" placeholder="새 인원 (성+이름)"></div><button class="pmsr-btn green sm" id="skAddW">+추가</button></div>'
+        +'<button class="pmsr-btn ghost sm" id="skResetW" style="margin-top:8px">기본 명단 복원</button>'
+        +'<label class="sk-lab" style="margin-top:16px">카톡방 주소</label><div id="skRooms"></div></div>'
+      +'</section></div>';
+    // wire
+    skDateEl().value=toInput(tomorrow());
+    skDateEl().addEventListener('change',skOnDate);
+    document.getElementById('skTomorrow').onclick=()=>{skDateEl().value=toInput(tomorrow());skOnDate();};
+    el.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{skTab=b.dataset.sk;el.querySelectorAll('[data-sk]').forEach(x=>x.classList.toggle('on',x===b));el.querySelectorAll('.sk-page').forEach(p=>p.classList.remove('on'));document.getElementById('skp-'+skTab).classList.add('on');});
+    document.getElementById('skGen').onclick=()=>{if(buildDaily())renderSk();};
+    document.getElementById('skAddCity').onclick=()=>addDailyPerson(false);
+    document.getElementById('skAddRoad').onclick=()=>addDailyPerson(true);
+    document.getElementById('skWgen').onclick=renderWeeklySlip;
+    document.getElementById('skAddW').onclick=()=>{const i=document.getElementById('skNewW');const v=i.value.trim();if(!v)return;weekly.push(v);i.value='';sW();renderWlist();skCounts();};
+    document.getElementById('skResetW').onclick=()=>{if(confirm('기본 위클리 명단으로 복원할까요?')){weekly=DEFAULT_WEEKLY.slice();sW();renderWlist();skCounts();}};
+    el.addEventListener('click',e=>{const c=e.target.closest('[data-copy]'),s=e.target.closest('[data-send]');
+      if(c){const pre=document.getElementById(c.dataset.copy);if(pre)copyText(pre.textContent);}
+      if(s){const pre=document.getElementById(s.dataset.send);if(pre)skSend(pre.textContent,s.dataset.send);}});
+    renderWlist();renderRooms();skOnDate();
+    if(groupsSaved.length)renderSk();
+  }
+  function skOnDate(){const el=document.getElementById('skDow');if(el)el.textContent=DOWF[curDate().getDay()];const r=weekRange();const rg=document.getElementById('skRange');if(rg)rg.textContent='🐑 '+r.start+'  ~  '+r.end;skCounts();}
+  function skCounts(){const wc=weekly.length,dc=daily.length;['skWcnt','skWcnt2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='('+wc+'명)';});const a=document.getElementById('skDcnt2');if(a)a.textContent=dc;const t=document.getElementById('skTotal');if(t)t.placeholder='자동 '+Math.round(wc*1.3);const k=document.getElementById('skToday');if(k)k.placeholder='자동 '+Math.round(dc*1.5);}
+  function buildDaily(){const text=document.getElementById('skIn').value.trim();if(!text){toast&&toast('셋업 인원을 붙여넣어줘');return false;}const g=parseGroups(text);if(!g.length){toast&&toast('장소 줄(1. 2.)을 못 찾았어');return false;}groupsSaved=g.map(x=>({header:x.header,raw:x.raw.slice()}));daily=[];g.forEach(x=>{const c=classify(x.header);if(c==='wepair')return;x.raw.forEach(tok=>daily.push({name:fullName(splitTag(tok).name),road:c==='road'}));});sG();sD();const cu=document.getElementById('skEnc').value.trim();curEnc=cu||genEnc();return true;}
+  function renderSk(){const hi=document.getElementById('skHi').value.trim();
+    document.getElementById('skDailyRoster').style.display='';renderChips();
+    const data={setup:genSetup(groupsSaved,curEnc),pledge:genPledge(),arrival:genArrival(),score:genScore(groupsSaved,hi)};
+    const RL=k=>{const r=rooms.find(x=>x.id===roomMap[k]);return r?r.name:'방';};
+    const box=document.getElementById('skSlips');
+    box.innerHTML=slipHTML('🕊️','셋업 공지',RL('setup'),'sk-setup','<button class="pmsr-btn ghost sm" id="skReroll">🔁</button>')
+      +slipHTML('💌','약정서',RL('pledge'),'sk-pledge')
+      +slipHTML('☀️','도착현황',RL('arrival'),'sk-arrival')
+      +slipHTML('🏅','스코어방',RL('score'),'sk-score');
+    document.getElementById('sk-setup').textContent=data.setup;
+    document.getElementById('sk-pledge').textContent=data.pledge;
+    document.getElementById('sk-arrival').textContent=data.arrival;
+    document.getElementById('sk-score').textContent=data.score;
+    const rr=document.getElementById('skReroll');if(rr)rr.onclick=()=>{if(document.getElementById('skEnc').value.trim()){toast&&toast('응원 문구를 비우면 자동 생성돼요');return;}encSeed++;curEnc=genEnc();renderSk();};
+    skCounts();
+  }
+  function renderChips(){const L=dailySorted();document.getElementById('skDcnt').textContent='('+L.length+'명)';const box=document.getElementById('skChips');box.innerHTML='';L.forEach(d=>{const idx=daily.indexOf(d);const el=document.createElement('span');el.className='pmsr-chip'+(d.road?' road':'');el.innerHTML='<b>'+d.name+'</b>'+(d.road?' RD':'')+'<span class="rm">×</span>';el.querySelector('.rm').onclick=()=>{daily.splice(idx,1);sD();renderSk();};box.appendChild(el);});}
+  function addDailyPerson(road){const i=document.getElementById('skAdd');const v=i.value.trim();if(!v)return;daily.push({name:fullName(splitTag(v).name),road:!!road});i.value='';sD();renderSk();}
+  function renderWeeklySlip(){const text=genWeekly();const r=rooms.find(x=>x.id===roomMap.weekly);const rl=r?r.name:'방';
+    const box=document.getElementById('skWslip');box.innerHTML=slipHTML('📅','위클리 스코어방',rl,'sk-weekly');document.getElementById('sk-weekly').textContent=text;}
+  function renderWlist(){const box=document.getElementById('skWlist');if(!box)return;box.innerHTML='';weekly.forEach((nm,i)=>{const el=document.createElement('div');el.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-bottom:5px';el.innerHTML='<span style="font-size:11px;color:var(--muted);width:22px;text-align:center;font-weight:700">'+(i+1)+'</span><input class="sk-f" style="flex:1;border:none;background:transparent;padding:3px" value="'+nm+'"><button class="pmsr-btn ghost sm" data-u>▲</button><button class="pmsr-btn ghost sm" data-d>▼</button><button class="rm" style="color:var(--coral);font-weight:800;font-size:17px;background:none;border:none;cursor:pointer">×</button>';
+    el.querySelector('input').onchange=e=>{weekly[i]=e.target.value.trim()||weekly[i];sW();};
+    el.querySelector('[data-u]').onclick=()=>{if(i>0){[weekly[i-1],weekly[i]]=[weekly[i],weekly[i-1]];sW();renderWlist();}};
+    el.querySelector('[data-d]').onclick=()=>{if(i<weekly.length-1){[weekly[i+1],weekly[i]]=[weekly[i],weekly[i+1]];sW();renderWlist();}};
+    el.querySelector('.rm').onclick=()=>{weekly.splice(i,1);sW();renderWlist();skCounts();};box.appendChild(el);});}
+  const OUTL={setup:'셋업공지',pledge:'약정서',arrival:'도착현황',score:'스코어방',weekly:'위클리 스코어방'};
+  function renderRooms(){const box=document.getElementById('skRooms');if(!box)return;box.innerHTML='';rooms.forEach((r,i)=>{const el=document.createElement('div');el.style.cssText='display:flex;gap:6px;margin-bottom:6px';el.innerHTML='<input class="sk-f" style="flex:0 0 100px" value="'+r.name.replace(/"/g,'&quot;')+'"><input class="sk-f" style="flex:1" placeholder="https:// 링크" value="'+(r.url||'').replace(/"/g,'&quot;')+'"><button class="rm" style="color:var(--coral);background:none;border:none;font-size:17px;cursor:pointer">×</button>';
+    const ins=el.querySelectorAll('input');ins[0].onchange=e=>{r.name=e.target.value.trim()||r.name;sRm();renderRooms();};ins[1].onchange=e=>{r.url=e.target.value.trim();sRm();};el.querySelector('.rm').onclick=()=>{rooms.splice(i,1);sRm();renderRooms();};box.appendChild(el);});
+    const add=document.createElement('button');add.className='pmsr-btn ghost sm';add.textContent='+방 추가';add.onclick=()=>{rooms.push({id:'r'+Date.now(),name:'새 방',url:''});sRm();renderRooms();};box.appendChild(add);
+    const mp=document.createElement('div');mp.style.marginTop='10px';mp.innerHTML='<div class="sk-lab">어떤 글을 어느 방으로</div>';Object.keys(OUTL).forEach(k=>{const o=rooms.map(r=>'<option value="'+r.id+'"'+(roomMap[k]===r.id?' selected':'')+'>'+r.name+'</option>').join('');const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;margin-top:6px';row.innerHTML='<span style="flex:0 0 90px;font-size:12px;color:var(--muted)">'+OUTL[k]+'</span><select class="sk-f" style="flex:1">'+o+'</select>';row.querySelector('select').onchange=e=>{roomMap[k]=e.target.value;sMap();};mp.appendChild(row);});box.appendChild(mp);}
+  function skSend(text,id){const key=id.replace('sk-','');const r=rooms.find(x=>x.id===roomMap[key]);if(r&&r.url){const w=window.open(r.url,'_blank');if(!w)location.href=r.url;}copyText(text,true);toast&&toast(r&&r.url?'복사 완료 — 방에서 붙여넣기':'방 주소를 먼저 등록해줘');}
+  window.renderSetupKit=function(){injectStyle();ensureSetupKit();};
+
+  /* ════════════════════ 리젝노트 ════════════════════ */
+  window.canSetupKit=function(u){return !!u&&(isFounder(u)||u.sk===true);};
+  const PROBS=['상','중','하'];
+  const DEF_CLIENTS=['옥스팜','유니세프','위페어'];
+  const DEF_CHANNELS=['스트릿','이벤트','B2B'];
+  const DEF_OBJ=['금전부담','타단체후원','일시후원','생각해보고','배우자와 상의','국내희망','단체불신','개인정보'];
+  function presetList(cat){const p=(state.rnPresets||{});const extra=Array.isArray(p[cat])?p[cat]:[];const base=cat==='clients'?DEF_CLIENTS:cat==='channels'?DEF_CHANNELS:DEF_OBJ;return [...base,...extra.filter(x=>x&&!base.includes(x))];}
+  function addPreset(cat,val){if(!isFounder(me))return;val=(val||'').trim();if(!val)return;const cur=Array.isArray((state.rnPresets||{})[cat])?state.rnPresets[cat].slice():[];if(presetList(cat).includes(val)){toast&&toast('이미 있는 예시예요');return;}cur.push(val);if(LIVE)DB.set('rnPresets/'+cat,cur);else{state.rnPresets=state.rnPresets||{};state.rnPresets[cat]=cur;renderRejectNote();}toast&&toast('예시 추가 ✓');}
+  function delPreset(cat,val){if(!isFounder(me))return;const cur=Array.isArray((state.rnPresets||{})[cat])?state.rnPresets[cat].filter(x=>x!==val):[];if(LIVE)DB.set('rnPresets/'+cat,cur);else{state.rnPresets[cat]=cur;renderRejectNote();}}
+
+  let myRN={},rnSubbed=false,selObj=[],viewUid=null,viewName='',viewAll=null;
+  let period={from:'',to:''};
+  function inPeriod(r){const d=r.date||'';if(period.from&&d<period.from)return false;if(period.to&&d>period.to)return false;return true;}
+  function periodLabel(){return (period.from||period.to)?((period.from||'…')+' ~ '+(period.to||'…')):'전체 기간';}
+  function subscribeOwn(){if(rnSubbed||!LIVE||!me)return;rnSubbed=true;DB.on('rejectnotes/'+me.uid,v=>{myRN=v||{};if(typeof curTab!=='undefined'&&curTab==='rejectnote')renderRejectNote();});}
+  function ownList(){return Object.keys(myRN).map(k=>({id:k,...myRN[k]})).sort((a,b)=>(b.t||0)-(a.t||0));}
+  function addMonths(dstr,m){const d=new Date(dstr+'T00:00:00');d.setMonth(d.getMonth()+m);return d;}
+  function isDue(r){if(r.status!=='open')return false;return new Date()>=addMonths(r.date,4);}
+  function saveRN(r){myRN[r.id]=r;if(LIVE)DB.set('rejectnotes/'+me.uid+'/'+r.id,r);else renderRejectNote();}
+  function delRN(id){if(!confirm('이 기록을 삭제할까요?'))return;delete myRN[id];if(LIVE)DB.set('rejectnotes/'+me.uid+'/'+id,null);else renderRejectNote();}
+
+  function ensureRejectNote(){
+    const el=document.getElementById('m-rejectnote');if(!el||el.dataset.built)return;el.dataset.built='1';
+    el.innerHTML='<div class="wrap"><section class="sec">'
+      +'<div class="sec-head"><h2>🛡️ 리젝노트</h2><span class="ko">내 후원 안정성 추적 · 4개월 리뷰</span></div>'
+      +'<p class="pmsr-help" style="margin-bottom:10px">🔒 이 기록은 <b>나만</b> 볼 수 있어요. (관리자만 조회 가능)</p>'
+      +'<div id="rnAdminTools"></div>'
+      +'<div id="rnStats" class="rn-stat"></div>'
+      +'<div id="rnDue"></div>'
+      +'<details style="margin-bottom:12px"><summary style="font-size:13px;color:var(--green-soft);font-weight:800;cursor:pointer">➕ 후원자 기록 추가</summary><div id="rnForm" style="margin-top:10px"></div></details>'
+      +'<div style="overflow-x:auto"><table class="rn-tbl" id="rnTbl"></table></div>'
+      +'<div id="rnAnalysis"></div>'
+      +'</section></div>';
+    buildForm();subscribeOwn();renderRejectNote();
+  }
+
+  function objChips(){
+    const wrap=document.getElementById('rnObjChips');if(!wrap)return;wrap.innerHTML='';
+    presetList('obj').forEach(o=>{const on=selObj.includes(o);const b=document.createElement('button');b.type='button';b.className='pmsr-btn '+(on?'green':'ghost')+' sm';b.style.marginBottom='4px';b.textContent=o;b.onclick=()=>{if(on)selObj=selObj.filter(x=>x!==o);else selObj.push(o);objChips();renderSelObj();};wrap.appendChild(b);});
+    const etc=document.createElement('button');etc.type='button';etc.className='pmsr-btn ghost sm';etc.textContent='기타 직접입력';etc.onclick=()=>{const box=document.getElementById('rnObjEtc');box.style.display=box.style.display==='none'?'flex':'none';};wrap.appendChild(etc);
+  }
+  function renderSelObj(){const box=document.getElementById('rnObjSel');if(!box)return;box.innerHTML='';selObj.forEach(o=>{const el=document.createElement('span');el.className='pmsr-chip';el.innerHTML='<b>'+o+'</b><span class="rm">×</span>';el.querySelector('.rm').onclick=()=>{selObj=selObj.filter(x=>x!==o);renderSelObj();objChips();};box.appendChild(el);});}
+
+  function buildForm(){
+    const f=document.getElementById('rnForm');
+    const cliOpts=presetList('clients').map(c=>'<option>'+c+'</option>').join('')+'<option value="__etc">기타(직접입력)</option>';
+    const chOpts=presetList('channels').map(c=>'<option>'+c+'</option>').join('')+'<option value="__etc">기타(직접입력)</option>';
+    f.innerHTML=
+      '<div class="pmsr-row">'
+      +'<div class="pmsr-col"><label class="sk-lab">클라이언트</label><select class="sk-f rn-f" id="rnClient">'+cliOpts+'</select><input class="sk-f rn-f" id="rnClientEtc" placeholder="직접 입력" style="display:none;margin-top:6px"></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">구분</label><select class="sk-f rn-f" id="rnCity"><option>시티</option><option>로드</option></select></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">채널</label><select class="sk-f rn-f" id="rnChan">'+chOpts+'</select><input class="sk-f rn-f" id="rnChanEtc" placeholder="직접 입력" style="display:none;margin-top:6px"></div></div>'
+      +'<div class="pmsr-row" style="margin-top:8px">'
+      +'<div class="pmsr-col"><label class="sk-lab">후원번호 (숫자만 — SWP 자동)</label><div style="display:flex;align-items:center"><span style="background:var(--surface);border:1.5px solid var(--line);border-right:none;border-radius:11px 0 0 11px;padding:10px 9px;color:var(--muted);font-weight:800;font-size:13px">SWP</span><input class="sk-f rn-f" id="rnCode" inputmode="numeric" placeholder="26034329" style="border-radius:0 11px 11px 0"></div></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">금액</label><input class="sk-f rn-f" id="rnAmt" placeholder="3만"></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">결제</label><select class="sk-f rn-f" id="rnPay"><option>계좌</option><option>카드</option></select></div></div>'
+      +'<div class="pmsr-row" style="margin-top:8px">'
+      +'<div class="pmsr-col"><label class="sk-lab">출생연도</label><input class="sk-f rn-f" id="rnBirth" inputmode="numeric" placeholder="1999"></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">성별</label><select class="sk-f rn-f" id="rnGen"><option>여</option><option>남</option></select></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">담당자</label><input class="sk-f rn-f" id="rnOwner" placeholder="'+((me&&me.name)||'')+'"></div></div>'
+      +'<label class="sk-lab" style="margin-top:10px">오브젝션 (클릭해서 추가 · 여러 개)</label>'
+      +'<div class="pmsr-chips" id="rnObjChips" style="margin-bottom:6px"></div>'
+      +'<div id="rnObjEtc" style="display:none;gap:6px"><input class="sk-f rn-f" id="rnObjEtcIn" placeholder="직접 입력 후 추가"><button type="button" class="pmsr-btn green sm" id="rnObjEtcAdd">추가</button></div>'
+      +'<div class="pmsr-chips" id="rnObjSel" style="margin-top:6px"></div>'
+      +'<label class="sk-lab" style="margin-top:10px">장소</label><input class="sk-f rn-f" id="rnPlace" placeholder="스타벅스 배곧신도시점">'
+      +'<label class="sk-lab" style="margin-top:8px">특이사항·메모</label><textarea class="sk-ta sm rn-f" id="rnMemo" placeholder="후원 사연, 인상, 기부금영수증 여부 등"></textarea>'
+      +'<button class="pmsr-btn grad" id="rnAdd" style="margin-top:10px">기록 저장</button>';
+    document.getElementById('rnClient').onchange=e=>{document.getElementById('rnClientEtc').style.display=e.target.value==='__etc'?'':'none';};
+    document.getElementById('rnChan').onchange=e=>{document.getElementById('rnChanEtc').style.display=e.target.value==='__etc'?'':'none';};
+    selObj=[];objChips();renderSelObj();
+    document.getElementById('rnObjEtcAdd').onclick=()=>{const i=document.getElementById('rnObjEtcIn');const v=i.value.trim();if(v&&!selObj.includes(v)){selObj.push(v);i.value='';renderSelObj();objChips();}};
+    document.getElementById('rnAdd').onclick=()=>{
+      const g=id=>document.getElementById(id).value.trim();
+      let client=g('rnClient');if(client==='__etc')client=g('rnClientEtc');
+      let chan=g('rnChan');if(chan==='__etc')chan=g('rnChanEtc');
+      const codeNum=g('rnCode').replace(/[^0-9]/g,'');
+      if(!g('rnOwner')&&!codeNum&&!g('rnAmt')){toast&&toast('담당자/후원번호/금액 중 하나는 입력해줘');return;}
+      const r={id:'rn_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),t:Date.now(),date:new Date().toISOString().slice(0,10),
+        client,city:g('rnCity'),chan,code:codeNum?('SWP'+codeNum):'',amount:g('rnAmt'),pay:g('rnPay'),birth:g('rnBirth'),gender:g('rnGen'),
+        owner:g('rnOwner')||((me&&me.name)||''),place:g('rnPlace'),obj:selObj.slice(),memo:g('rnMemo'),status:'open',rejReason:'',rejProb:'',by:(me&&me.name)||'',byUid:(me&&me.uid)||''};
+      saveRN(r);['rnCode','rnAmt','rnBirth','rnPlace','rnMemo'].forEach(id=>document.getElementById(id).value='');
+      selObj=[];objChips();renderSelObj();toast&&toast('기록을 저장했어요 ✓');
+    };
+  }
+
+  function statBlock(L){const tot=L.length,open=L.filter(r=>r.status==='open').length,pass=L.filter(r=>r.status==='pass').length,rej=L.filter(r=>r.status==='reject').length;const closed=pass+rej;const rate=closed?Math.round(rej/closed*100):0;
+    return '<div class="rn-statc"><div class="n">'+tot+'</div><div class="l">전체</div></div>'
+      +'<div class="rn-statc"><div class="n" style="color:var(--muted)">'+open+'</div><div class="l">관찰중</div></div>'
+      +'<div class="rn-statc"><div class="n" style="color:var(--green-soft)">'+pass+'</div><div class="l">패스</div></div>'
+      +'<div class="rn-statc"><div class="n" style="color:var(--danger)">'+rej+'</div><div class="l">리젝</div></div>'
+      +'<div class="rn-statc"><div class="n" style="color:var(--amber)">'+rate+'%</div><div class="l">리젝률</div></div>';}
+
+  function renderTable(tbl,L,readonly){
+    tbl.innerHTML='<tr><th>날짜</th><th>담당</th><th>금액</th><th>후원번호</th><th>오브젝션</th><th>상태</th><th>상중하</th>'+(readonly?'':'<th></th>')+'</tr>'
+      +(L.length?'':'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">기록이 없어요.</td></tr>');
+    L.forEach(r=>{const tr=document.createElement('tr');const due=isDue(r);
+      const stPill=r.status==='pass'?'<span class="rn-pill rn-pass">패스</span>':r.status==='reject'?'<span class="rn-pill rn-rej">리젝</span>':('<span class="rn-pill '+(due?'rn-due':'rn-open')+'">'+(due?'리뷰필요':'관찰중')+'</span>');
+      const obj=Array.isArray(r.obj)?r.obj.join(', '):(r.obj||'');
+      tr.innerHTML='<td>'+(r.date||'').slice(5)+'<br><span style="color:var(--muted);font-size:10px">'+(r.client||'')+'·'+(r.chan||'')+'</span></td>'
+        +'<td>'+(r.owner||'')+'<br><span style="color:var(--muted);font-size:10px">'+(r.place||'').slice(0,8)+'</span></td>'
+        +'<td>'+(r.amount||'')+'<br><span style="color:var(--muted);font-size:10px">'+(r.pay||'')+'</span></td>'
+        +'<td style="font-size:11px">'+(r.code||'-')+'</td>'
+        +'<td style="font-size:11px;max-width:110px">'+obj.slice(0,22)+'</td>'
+        +'<td>'+stPill+(r.rejReason?'<br><span style="color:var(--muted);font-size:10px">'+r.rejReason.slice(0,14)+'</span>':'')+'</td>'
+        +'<td class="rn-prob-'+(r.rejProb||'')+'">'+(r.rejProb||'-')+'</td>'
+        +(readonly?'':'<td><button class="pmsr-btn ghost sm rnEdit">⋯</button></td>');
+      if(!readonly){const b=tr.querySelector('.rnEdit');if(b)b.onclick=()=>openRNEdit(r);}
+      tbl.appendChild(tr);});
+  }
+
+  function renderRejectNote(){
+    injectStyle();ensureRejectNote();subscribeOwn();
+    if(!document.getElementById('rnTbl'))return;
+    const L=ownList();
+    const at=document.getElementById('rnAdminTools');
+    if(me&&isFounder(me)){at.style.display='';at.innerHTML=adminToolsHTML();wireAdminTools();}
+    else{at.style.display='none';at.innerHTML='';}
+    document.getElementById('rnStats').innerHTML=statBlock(L);
+    const due=L.filter(isDue);
+    document.getElementById('rnDue').innerHTML=due.length?('<div class="rn-statc" style="background:rgba(230,176,82,.1);border-color:rgba(230,176,82,.3);margin-bottom:12px"><b style="color:var(--amber)">⏰ 4개월 리뷰 대상 '+due.length+'건</b><div class="pmsr-help">후원일 4개월 경과 — 2회+ 출금 확인되면 <b>패스</b>, 아니면 <b>리젝</b>으로 마감.</div></div>'):'';
+    renderTable(document.getElementById('rnTbl'),L,false);
+    const an=document.getElementById('rnAnalysis');
+    if(me&&isFounder(me)){an.style.display='';renderAnalysis(an);}else{an.style.display='none';an.innerHTML='';}
+  }
+
+  function adminToolsHTML(){
+    const us=pmsrActive();
+    const viewOpts=us.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(u=>'<option value="'+u.uid+'">'+(u.name||'')+' ('+(u.role||'')+')</option>').join('');
+    return '<details open style="margin-bottom:10px"><summary style="font-size:13px;color:var(--green-soft);font-weight:800;cursor:pointer">📅 기간 설정 — <span style="color:var(--muted)">'+periodLabel()+'</span></summary><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input type="date" class="sk-f rn-f" id="rnFrom" value="'+period.from+'" style="flex:1;min-width:120px"><span style="color:var(--muted)">~</span><input type="date" class="sk-f rn-f" id="rnTo" value="'+period.to+'" style="flex:1;min-width:120px"><button class="pmsr-btn grad sm" id="rnPeriodApply">확인</button><button class="pmsr-btn ghost sm" id="rnPeriodClear">전체</button></div><p class="pmsr-help">확인을 누르면 아래 <b>분석·활동가 조회·PDF</b>가 이 기간으로 계산돼요.</p></details>'
+      +'<details style="margin-bottom:10px"><summary style="font-size:13px;color:var(--wepair);font-weight:800;cursor:pointer">👁 활동가 리젝노트 조회</summary><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><select class="sk-f rn-f" id="rnViewUser" style="flex:1;min-width:130px">'+viewOpts+'</select><button class="pmsr-btn ghost sm" id="rnViewBtn">조회</button><button class="pmsr-btn green sm" id="rnViewPdf">📄 PDF</button></div><div id="rnViewBox" style="margin-top:10px"></div></details>'
+      +'<details style="margin-bottom:12px"><summary style="font-size:13px;color:var(--violet);font-weight:800;cursor:pointer">⚙️ 고정 예시 관리 (클라이언트·채널·오브젝션)</summary><div style="margin-top:8px" id="rnPresetMgr"></div></details>';
+  }
+  function wireAdminTools(){
+    const ap=document.getElementById('rnPeriodApply');if(ap)ap.onclick=()=>{period.from=document.getElementById('rnFrom').value;period.to=document.getElementById('rnTo').value;renderRejectNote();if(viewUid)loadView();toast&&toast('기간: '+periodLabel());};
+    const cl=document.getElementById('rnPeriodClear');if(cl)cl.onclick=()=>{period={from:'',to:''};renderRejectNote();if(viewUid)loadView();};
+    const vb=document.getElementById('rnViewBtn');if(vb)vb.onclick=()=>{const sel=document.getElementById('rnViewUser');viewUid=sel.value;viewName=sel.options[sel.selectedIndex].text;loadView();};
+    const vp=document.getElementById('rnViewPdf');if(vp)vp.onclick=()=>{if(!viewAll){toast&&toast('먼저 조회를 눌러줘');return;}exportPDF(viewName,(viewAll||[]).filter(inPeriod),true);};
+    const pm=document.getElementById('rnPresetMgr');if(pm){pm.innerHTML='';[['clients','클라이언트'],['channels','채널'],['obj','오브젝션']].forEach(arr=>{const cat=arr[0],lab=arr[1];
+      const wrap=document.createElement('div');wrap.style.marginBottom='10px';
+      const baseArr=cat==='clients'?DEF_CLIENTS:cat==='channels'?DEF_CHANNELS:DEF_OBJ;
+      const chips=presetList(cat).map(v=>{const custom=!baseArr.includes(v);return '<span class="pmsr-chip" style="background:var(--card)">'+v+(custom?' <span class="rm" data-delp="'+cat+'|'+v+'">×</span>':'')+'</span>';}).join(' ');
+      wrap.innerHTML='<div class="sk-lab">'+lab+'</div><div class="pmsr-chips" style="margin-bottom:6px">'+chips+'</div><div style="display:flex;gap:6px"><input class="sk-f rn-f" id="rnPre-'+cat+'" placeholder="예시 추가"><button class="pmsr-btn green sm" data-addp="'+cat+'">+</button></div>';
+      pm.appendChild(wrap);});
+      pm.querySelectorAll('[data-addp]').forEach(b=>b.onclick=()=>{const cat=b.dataset.addp;addPreset(cat,document.getElementById('rnPre-'+cat).value);});
+      pm.querySelectorAll('[data-delp]').forEach(b=>b.onclick=()=>{const parts=b.dataset.delp.split('|');delPreset(parts[0],parts[1]);});
+    }
+  }
+  function loadView(){const box=document.getElementById('rnViewBox');if(!box)return;box.innerHTML='<p class="pmsr-help">불러오는 중…</p>';
+    const done=v=>{viewAll=Object.keys(v||{}).map(k=>({id:k,...v[k]})).sort((a,b)=>(b.t||0)-(a.t||0));
+      const L=viewAll.filter(inPeriod);
+      box.innerHTML='<div class="pmsr-help" style="margin-bottom:6px">📅 '+periodLabel()+' · '+L.length+'건</div><div class="rn-stat">'+statBlock(L)+'</div><div style="overflow-x:auto"><table class="rn-tbl" id="rnViewTbl"></table></div>';
+      renderTable(document.getElementById('rnViewTbl'),L,true);};
+    if(LIVE)DB.get('rejectnotes/'+viewUid).then(v=>done(v||{}));else done(viewUid===(me&&me.uid)?myRN:{});}
+
+  function exportPDF(name,notes,withSummary){
+    const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    const closed=notes.filter(r=>r.status==='pass'||r.status==='reject');const rej=closed.filter(r=>r.status==='reject').length;const rate=closed.length?Math.round(rej/closed.length*100):0;
+    const sum=withSummary?'<div class="sum">총 '+notes.length+'건 · 마감 '+closed.length+'건 · 리젝 '+rej+'건 · <b>리젝률 '+rate+'%</b></div>':'';
+    const rows=notes.map(r=>{const obj=Array.isArray(r.obj)?r.obj.join(', '):(r.obj||'');const st=r.status==='pass'?'패스':r.status==='reject'?'리젝':'관찰중';
+      return '<tr><td>'+esc(r.date)+'</td><td>'+esc(r.client)+'</td><td>'+esc(r.chan)+'</td><td>'+esc(r.owner)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.amount)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(r.birth)+'</td><td>'+esc(obj)+'</td><td>'+st+'</td><td>'+esc(r.rejProb)+'</td><td>'+esc(r.rejReason)+'</td><td>'+esc(r.memo)+'</td></tr>';}).join('');
+    const html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>리젝노트 - '+esc(name)+'</title><style>body{font-family:-apple-system,Pretendard,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin:0 0 4px}.meta{color:#666;font-size:12px}.sum{margin:10px 0;padding:10px;background:#f6f6f6;border-radius:8px;font-size:13px}table{border-collapse:collapse;width:100%;font-size:11px;margin-top:10px}th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}th{background:#f3f3f3}</style></head><body><h1>🛡️ 리젝노트 — '+esc(name)+'</h1><div class="meta">기간 '+esc(periodLabel())+' · 출력일 '+new Date().toLocaleDateString('ko-KR')+'</div>'+sum+'<table><tr><th>날짜</th><th>클라이언트</th><th>채널</th><th>담당</th><th>후원번호</th><th>금액</th><th>결제</th><th>출생</th><th>오브젝션</th><th>상태</th><th>상중하</th><th>리젝사유</th><th>메모</th></tr>'+rows+'</table></body></html>';
+    const w=window.open('','_blank');if(!w){toast&&toast('팝업 차단을 해제해줘');return;}w.document.write(html);w.document.close();setTimeout(()=>{try{w.print();}catch(e){}},400);
+  }
+
+  function renderAnalysis(box){
+    const compute=allRaw=>{
+      const flatAll=[];Object.keys(allRaw||{}).forEach(uid=>{const o=allRaw[uid]||{};Object.keys(o).forEach(k=>flatAll.push(o[k]));});
+      const flat=flatAll.filter(inPeriod);
+      const closed=flat.filter(r=>r.status==='pass'||r.status==='reject');
+      const rate=arr=>{const c=arr.filter(r=>r.status==='pass'||r.status==='reject');const rj=c.filter(r=>r.status==='reject').length;return c.length?Math.round(rj/c.length*100):null;};
+      const overall=rate(flat);
+      const card=rate(flat.filter(r=>r.pay==='카드')),acct=rate(flat.filter(r=>r.pay==='계좌'));
+      const ageOf=r=>{const y=parseInt(r.birth,10);if(!y)return null;const a=(new Date().getFullYear())-y;return a<30?'20대 이하':a<40?'30대':a<50?'40대':'50대+';};
+      const ageGroups=['20대 이하','30대','40대','50대+'];const ageRates=ageGroups.map(g=>({g,r:rate(flat.filter(x=>ageOf(x)===g)),n:flat.filter(x=>ageOf(x)===g).length}));
+      const probAcc=PROBS.map(p=>{const sub=closed.filter(r=>r.rejProb===p);const rj=sub.filter(r=>r.status==='reject').length;return {p,n:sub.length,pct:sub.length?Math.round(rj/sub.length*100):null};});
+      const byCat=key=>{const m={};flat.forEach(r=>{const k=r[key]||'-';(m[k]=m[k]||[]).push(r);});return Object.keys(m).map(k=>({k,r:rate(m[k]),n:m[k].length})).filter(x=>x.r!=null).sort((a,b)=>b.r-a.r);};
+      const byClient=byCat('client'),byChan=byCat('chan');
+      const tips=[];
+      if(card!=null&&acct!=null){const d=card-acct;if(Math.abs(d)>=8)tips.push('💳 카드 결제 리젝률('+card+'%)이 계좌('+acct+'%)보다 '+Math.abs(d)+'%p '+(d>0?'높음':'낮음')+' — '+(d>0?'카드 후원은 더 신중히 검증 권장':'카드가 더 안정적')+'.');}
+      const wa=ageRates.filter(a=>a.r!=null).sort((a,b)=>b.r-a.r)[0];if(wa&&wa.r>=40)tips.push('👤 '+wa.g+' 연령대 리젝률이 '+wa.r+'%로 가장 높음.');
+      const sp=probAcc.find(x=>x.p==='상');if(sp&&sp.pct!=null)tips.push('🎯 "상" 평가 중 실제 리젝 '+sp.pct+'% — 자가진단 '+(sp.pct>=60?'정확도 높음':'재점검 필요')+'.');
+      if(byChan[0]&&byChan[0].r>=40)tips.push('📍 채널 "'+byChan[0].k+'" 리젝률 '+byChan[0].r+'%로 최고.');
+      if(overall!=null)tips.push('📈 이 기간 전체 리젝률 '+overall+'% ('+(overall<20?'안정적':overall<35?'보통':'주의')+').');
+      const bar=(label,val,n)=>'<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+label+(n!=null?' <span style="color:var(--muted)">('+n+')</span>':'')+'</span><b style="color:'+(val>=40?'var(--danger)':val>=25?'var(--amber)':'var(--green-soft)')+'">'+(val==null?'-':val+'%')+'</b></div><div style="height:6px;background:var(--surface);border-radius:4px;overflow:hidden;margin-top:3px"><div style="height:100%;width:'+(val||0)+'%;background:'+(val>=40?'var(--danger)':val>=25?'var(--amber)':'var(--green)')+'"></div></div></div>';
+      let h='<details open style="margin-top:16px"><summary style="font-size:14px;font-weight:800;color:var(--coral);cursor:pointer">📊 리젝 분석 (관리자 전용) · '+periodLabel()+'</summary><div style="margin-top:10px">';
+      h+='<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="pmsr-btn green sm" id="rnAnaPdf">📄 이 기간 PDF 다운로드</button></div>';
+      h+='<div class="rn-stat"><div class="rn-statc"><div class="n" style="color:var(--amber)">'+(overall==null?'-':overall+'%')+'</div><div class="l">전체 리젝률</div></div><div class="rn-statc"><div class="n">'+flat.length+'</div><div class="l">총 기록</div></div><div class="rn-statc"><div class="n">'+closed.length+'</div><div class="l">마감</div></div></div>';
+      h+='<div class="sk-lab">결제수단별</div>'+bar('카드',card)+bar('계좌',acct);
+      h+='<div class="sk-lab" style="margin-top:8px">연령대별</div>'+ageRates.map(a=>bar(a.g,a.r,a.n)).join('');
+      h+='<div class="sk-lab" style="margin-top:8px">자가진단(상/중/하)별 실제 리젝률</div>'+probAcc.map(p=>bar(p.p,p.pct,p.n)).join('');
+      if(byClient.length){h+='<div class="sk-lab" style="margin-top:8px">클라이언트별</div>'+byClient.map(c=>bar(c.k,c.r,c.n)).join('');}
+      if(byChan.length){h+='<div class="sk-lab" style="margin-top:8px">채널별</div>'+byChan.map(c=>bar(c.k,c.r,c.n)).join('');}
+      if(tips.length)h+='<div style="margin-top:10px;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:10px"><div class="sk-lab">자동 인사이트</div>'+tips.map(t=>'<div style="font-size:12.5px;margin-top:4px">'+t+'</div>').join('')+'</div>';
+      h+='</div></details>';
+      box.innerHTML=h;
+      const pb=document.getElementById('rnAnaPdf');if(pb)pb.onclick=()=>exportPDF('팀 전체 분석',flat,true);
+    };
+    if(LIVE)DB.get('rejectnotes').then(all=>compute(all||{}));else compute(state.rejectnotes||{[me&&me.uid]:myRN});
+  }
+
+  function openRNEdit(r){
+    const choice=prompt('상태를 정해줘:\n1 = 패스(정상 유지)\n2 = 리젝(취소)\n0 = 관찰중으로\n(삭제하려면 d)', r.status==='reject'?'2':r.status==='pass'?'1':'0');
+    if(choice===null)return;const c=choice.trim().toLowerCase();
+    if(c==='1'){r.status='pass';r.rejReason='';r.rejProb='';saveRN(r);toast&&toast('패스 처리 ✓');return;}
+    if(c==='0'){r.status='open';saveRN(r);return;}
+    if(c==='2'){const why=prompt('리젝 사유:',r.rejReason||'');if(why===null)return;const p=prompt('리젝 가능성 (상/중/하):',r.rejProb||'중');if(p===null)return;r.status='reject';r.rejReason=why.trim();r.rejProb=(PROBS.includes(p.trim())?p.trim():'중');saveRN(r);toast&&toast('리젝 기록 ✓');return;}
+    if(c==='d')delRN(r.id);
+  }
+  window.renderRejectNote=renderRejectNote;
+
+  /* ── 퇴사자 제외: 시스템 체크/권한 영역엔 활동 멤버만 ── */
+  function pmsrIsDeparted(name){const k=(name||'').replace(/\s/g,'');if(!k)return false;if(typeof isDeparted==='function'&&isDeparted(name))return true;const mi=(state.memberInfo||{})[name];return !!(mi&&mi.left);}
+  function pmsrActive(){const set=new Set((typeof allMembers==='function'?allMembers():[]).map(n=>(n||'').replace(/\s/g,'')));return Object.values(state.users||{}).filter(u=>u&&u.status==='active'&&set.has((u.name||'').replace(/\s/g,''))&&!pmsrIsDeparted(u.name));}
+
+  /* ── 멤버 모달용 리젝노트/셋업비서 토글 (매니저/섹터리더와 같은 줄) ── */
+  function modalOpen(){const m=document.getElementById('memberModal');return m&&m.classList.contains('on');}
+  function syncMemberUI(){if(modalOpen()&&typeof renderMember==='function')renderMember();try{window.renderMemberAdmin();}catch(e){}}
+  window.mbToggleRn=function(){if(typeof mbName==='undefined'||!mbName||!(me&&isFounder(me)))return;const u=userByName(mbName);if(!u)return;const nv=!u.rn;u.rn=nv;if(LIVE)DB.set('users/'+u.uid+'/rn',nv);toast&&toast(u.name+' 리젝노트 '+(nv?'부여 ✓':'해제'));syncMemberUI();};
+  window.mbToggleSk=function(){if(typeof mbName==='undefined'||!mbName||!(me&&isFounder(me)))return;const u=userByName(mbName);if(!u)return;const nv=!u.sk;u.sk=nv;if(LIVE)DB.set('users/'+u.uid+'/sk',nv);toast&&toast(u.name+' 셋업비서 '+(nv?'부여 ✓':'해제'));syncMemberUI();};
+
+  /* ── 팀 명단에 기능 권한 토글 그리드 (매니저·섹터리더·리젝노트·셋업비서, 접기) ── */
+  function pmsrPermGrid(){
+    if(!me||!isFounder(me))return;injectStyle();
+    const box=document.getElementById('memberAdminBody');if(!box)return;
+    const us=pmsrActive().filter(u=>!isFounder(u)).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    const det=document.createElement('details');det.open=true;det.style.cssText='margin-top:18px;border:1.5px solid var(--green);border-radius:16px;padding:14px 14px 10px;background:var(--surface)';
+    det.innerHTML='<summary style="cursor:pointer;font-size:15px;font-weight:900;color:var(--green-soft);list-style:revert">🔑 기능 권한 부여 — 멤버별 ON / OFF</summary><p class="pmsr-help" style="margin:8px 0 12px">버튼을 눌러 켜고 끄면 <b>위쪽 개인 카드에도 바로 반영</b>돼요. (🧑‍💼매니저 · 🗺️섹터리더 · 🛡️리젝노트 · 🐑셋업비서)</p>';
+    const wrap=document.createElement('div');
+    us.forEach(u=>{const mgr=isManager(u),sec=isSectorLeader(u);
+      const row=document.createElement('div');row.style.cssText='padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:var(--card);margin-bottom:9px';
+      const bs='font-size:13.5px;padding:11px 13px;font-weight:800;border-radius:11px;flex:1;min-width:104px';
+      row.innerHTML='<div style="font-size:14.5px;font-weight:800;margin-bottom:9px">'+(u.name||'')+' <span style="color:var(--muted);font-size:12px;font-weight:600">'+(u.role||'')+'</span></div>'
+        +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+        +'<button class="pmsr-btn '+(mgr?'green':'ghost')+'" style="'+bs+'" data-pg="mgr|'+u.uid+'">🧑‍💼 매니저 '+(mgr?'ON':'OFF')+'</button>'
+        +'<button class="pmsr-btn '+(sec?'green':'ghost')+'" style="'+bs+'" data-pg="sec|'+u.uid+'">🗺️ 섹터리더 '+(sec?'ON':'OFF')+'</button>'
+        +'<button class="pmsr-btn '+(u.rn?'green':'ghost')+'" style="'+bs+'" data-pg="rn|'+u.uid+'">🛡️ 리젝노트 '+(u.rn?'ON':'OFF')+'</button>'
+        +'<button class="pmsr-btn '+(u.sk?'green':'ghost')+'" style="'+bs+'" data-pg="sk|'+u.uid+'">🐑 셋업비서 '+(u.sk?'ON':'OFF')+'</button>'
+        +'</div>';
+      wrap.appendChild(row);});
+    det.appendChild(wrap);box.appendChild(det);
+    det.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{const parts=b.dataset.pg.split('|');const f=parts[0],uid=parts[1];const u=(state.users||{})[uid];if(!u)return;
+      if(f==='mgr'){toggleManager(u.name);}
+      else if(f==='sec'){toggleSectorLeader(u.name);}
+      else{const nv=!u[f];u[f]=nv;if(LIVE)DB.set('users/'+uid+'/'+f,nv);}
+      toast&&toast(u.name+' 권한 변경 ✓');
+      try{window.renderMemberAdmin();}catch(e){}
+      if(modalOpen()&&typeof renderMember==='function')renderMember();
+    });
+  }
+  if(typeof renderMemberAdmin==='function'&&!renderMemberAdmin.__pmsr){
+    const _orig=renderMemberAdmin;
+    window.renderMemberAdmin=function(){_orig.apply(this,arguments);try{pmsrPermGrid();}catch(e){}};
+    window.renderMemberAdmin.__pmsr=true;
+  }
+
+})();
+
 </script>
 </body>
 </html>
