@@ -3298,8 +3298,8 @@ const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
 const isAdmin=r=>ri(r)>=3;        // AOP+ (역할)
 const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name) && !(window.__adminOff && me && (u.uid===me.uid || u.name===me.name));  // 관리자(소유자) 계정만 편집·관리 (관리자 모드 OFF 시 본인은 일반 AOP처럼 보임)
-function isManager(u){if(!u)return false;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
-function isSectorLeader(u){if(!u)return false;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
+function isManager(u){if(!u)return false;if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
+function isSectorLeader(u){if(!u)return false;if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
 function canDaily(u){return isFounder(u)||isManager(u);}   // 일일 결과 입력·수정 권한 (관리자 + 매니저)
 const SURVEY_EXEMPT=['임재영','관리자'];   // 관리자 본인 — 설문 생략
 function isSurveyExempt(name){return SURVEY_EXEMPT.map(s=>s.replace(/\s/g,'')).includes((name||'').replace(/\s/g,''))}
@@ -9230,7 +9230,7 @@ function spawnKernel(layer,cx,cy){
   if(window.__pmsrLoaded)return; window.__pmsrLoaded=true;
 
   /* ---------- 권한 ---------- */
-  window.canRejectNote = function(u){ return !!u && (isFounder(u) || u.rn===true); };
+  window.canRejectNote = function(u){ return !!u && (isFounder(u) || u.rn===true || pmsrRealFounder(u)); };
 
   /* ===== 관리자 모드 ON/OFF 토글 (창업자 본인 전용) ===== */
   window.__adminOff = false; // 기본 ON (=off가 false)
@@ -9247,6 +9247,7 @@ function spawnKernel(layer,cx,cy){
   window.toggleAdminMode = function(){
     if(!pmsrRealFounder(me)) return;
     window.__adminOff = !window.__adminOff;
+    try{ document.body.classList.toggle('can-mod', isFounder(me)); }catch(e){}
     pmsrSyncAdminBtn();
     try{ if(typeof buildRail==='function') buildRail(); }catch(e){}
     try{ if(typeof goTab==='function') goTab('home'); }catch(e){}
@@ -9457,7 +9458,7 @@ function spawnKernel(layer,cx,cy){
   window.renderSetupKit=function(){injectStyle();ensureSetupKit();};
 
   /* ════════════════════ 리젝노트 ════════════════════ */
-  window.canSetupKit=function(u){return !!u&&(isFounder(u)||u.sk===true);};
+  window.canSetupKit=function(u){return !!u&&(isFounder(u)||u.sk===true||pmsrRealFounder(u));};
   const PROBS=['상','중','하'];
   const DEF_CLIENTS=['옥스팜','유니세프','위페어'];
   const DEF_CHANNELS=['스트릿','이벤트','B2B'];
