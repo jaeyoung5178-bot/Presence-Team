@@ -3566,8 +3566,7 @@ function submitNewPw(){
   me.pwHash=hash(pw); me.mustChangePw=false;
   if(LIVE){DB.set('users/'+me.uid+'/pwHash',me.pwHash);DB.set('users/'+me.uid+'/mustChangePw',false);}
   toast('새 비밀번호로 변경했어요 🔒');
-  if(needsFirstField(me)){ askFirstField(function(){ continueLogin(me); }); return; }
-  continueLogin(me);
+  continueLogin(me); // 임시비번 교체 직후 → 곧장 설문 게이트로 (첫필드는 입장 후 maybeAskFirstField가 안내)
 }
 function continueLogin(u){
   const rk=reqSurvey(u.role,u.name);
