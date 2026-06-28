@@ -3663,6 +3663,18 @@ function submitSurvey(){
       me.lastLogin=Date.now();enterApp();toast('설문 완료! 환영해요 🎉'); }
   }
 }
+/* 로그인 → '프레젠스 웹관리' 시트 기록 (사람·날짜별 로그인 확인용) */
+function logLogin(){
+  try{
+    if(!me||(typeof isTestBot==='function'&&isTestBot(me)))return;
+    var d=new Date();
+    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    var key='loginlogged_'+me.uid+'_'+ds;
+    if(lsGet(key))return; lsSet(key,1);   // 하루 1회 (새로고침 중복 방지)
+    var tm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    postWeb({type:'loginlog',name:me.name,id:me.id||'',role:me.role||'',date:ds,time:tm,ts:Date.now()});
+  }catch(e){}
+}
 /* 가입 → '프레젠스 웹관리' 시트 기록 (스코어 시트 아님) */
 function sendSignupToSheet(user,pw){
   postWeb({type:'signup',name:user.name,id:user.id,password:pw||'',role:user.role,status:user.status,submittedAt:new Date(user.createdAt).toISOString()});
@@ -3689,6 +3701,7 @@ function enterApp(){
   // prefill name fields
   
   buildRail();renderAll();goTab('home');startAutoPull();subCbjournal();
+  try{logLogin();}catch(e){}
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
