@@ -3513,7 +3513,7 @@ function renderAuth(){
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&me.obs)?'<div class="auth-p" style="margin-top:8px;font-size:12px">관찰 모드 — 생략 없이 전 과정을 체험합니다.</div>':''}
       ${authState.surveyCtx==='gate'?'<div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>':''}`;
   }else if(authState.view==='newpw'){
-    box.innerHTML=`
+    v.innerHTML=`
       <div class="auth-h">새 비밀번호 설정</div>
       <div class="auth-p">임시 비밀번호로 로그인했어요. 안전을 위해 <b>본인이 사용할 새 비밀번호</b>를 설정해 주세요. 설정하면 바로 로그인돼요.</div>
       <div class="auth-msg" id="authMsg"></div>
