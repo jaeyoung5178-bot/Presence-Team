@@ -3536,7 +3536,7 @@ function authMsg(t,cls){const m=document.getElementById('authMsg');if(!m)return;
 function goLogin(){authState.view='login';renderAuth()}
 function goSignup(){authState.view='signup';renderAuth()}
 
-function findUserById(id){return Object.values(state.users).find(u=>u.id.toLowerCase()===id.toLowerCase())}
+function findUserById(id){if(!id)return null;const _q=String(id).trim().toLowerCase();return Object.values(state.users).find(u=>u&&u.id&&String(u.id).toLowerCase()===_q)}
 
 function doLogin(){
   const id=document.getElementById('liId').value.trim(),pw=document.getElementById('liPw').value;
@@ -3665,12 +3665,13 @@ function submitSurvey(){
 }
 /* 로그인 → '프레젠스 웹관리' 시트 기록 (사람·날짜별 로그인 확인용) */
 function logLogin(){
+  // 앱 진입(자동로그인 포함)할 때마다 호출 · 하루 1회만 시트에 방문 기록
   try{
     if(!me||(typeof isTestBot==='function'&&isTestBot(me)))return;
     var d=new Date();
     var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    var key='loginlogged_'+me.uid+'_'+ds;
-    if(lsGet(key))return; lsSet(key,1);   // 하루 1회 (새로고침 중복 방지)
+    var key='visit_'+me.uid+'_'+ds;            // v2 — 프리픽스 변경으로 기존 제한 전부 리셋
+    if(lsGet(key))return; lsSet(key,1);         // 같은 날 새로고침/재진입 중복만 방지
     var tm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     postWeb({type:'loginlog',name:me.name,id:me.id||'',role:me.role||'',date:ds,time:tm,ts:Date.now()});
   }catch(e){}
