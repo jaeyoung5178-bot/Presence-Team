@@ -1688,6 +1688,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       </div>
       <span class="spacer"></span>
       <button class="conn-dot off" id="connDot" onclick="showConnInfo()" aria-label="연결 상태"></button>
+      <button class="adm-toggle" id="admToggle" onclick="toggleAdminMode()" style="display:none" aria-label="관리자 모드 ON/OFF" title="관리자 모드 ON/OFF — 끄면 일반 AOP 화면">🛡️</button>
       <button class="hdr-install" id="installBtn" onclick="installApp()" style="display:none" aria-label="앱 설치" title="앱으로 설치 · 바탕화면에 추가"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="9.5 10 12 12.5 14.5 10"/><line x1="12" y1="7" x2="12" y2="12.5"/></svg></button>
       <button class="bell-btn" id="bellBtn" onclick="openNotifs()" aria-label="알림">🔔<span class="bell-badge" id="bellBadge"></span></button>
       <button class="me-pill" onclick="openMe()">
@@ -2680,6 +2681,9 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   .install-btn:hover{filter:brightness(1.07)}
   .install-btn .app-ic{background:#fff;color:var(--green-ink);box-shadow:none}
   .conn-dot{width:11px;height:11px;border-radius:50%;border:none;padding:0;margin:0 6px 0 2px;cursor:pointer;background:#6B7280;flex:none;align-self:center}
+  .adm-toggle{width:30px;height:30px;border-radius:50%;border:1px solid var(--green);background:rgba(92,188,46,.16);color:var(--green-soft);font-size:14px;line-height:1;padding:0;margin:0 4px 0 0;cursor:pointer;flex:none;align-self:center;display:flex;align-items:center;justify-content:center;transition:opacity .15s,filter .15s}
+  .adm-toggle.off{border-color:var(--line);background:var(--surface);color:var(--muted);filter:grayscale(1);opacity:.7}
+  .adm-toggle:hover{filter:brightness(1.1)}
   .conn-dot.on{background:#5CBC2E;animation:connpulse 2.2s infinite}
   .conn-dot.off{background:#FF6B6B}
   .dev-status{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
@@ -3293,7 +3297,7 @@ const ROLE_LABEL={IC:'IC',LR:'리더(LR)',TL:'팀리더(TL)',AOP:'AOP',OP:'OP',O
 const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
 const isAdmin=r=>ri(r)>=3;        // AOP+ (역할)
-const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);  // 관리자(소유자) 계정만 편집·관리
+const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name) && !(window.__adminOff && me && (u.uid===me.uid || u.name===me.name));  // 관리자(소유자) 계정만 편집·관리 (관리자 모드 OFF 시 본인은 일반 AOP처럼 보임)
 function isManager(u){if(!u)return false;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
 function isSectorLeader(u){if(!u)return false;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
 function canDaily(u){return isFounder(u)||isManager(u);}   // 일일 결과 입력·수정 권한 (관리자 + 매니저)
@@ -9228,6 +9232,37 @@ function spawnKernel(layer,cx,cy){
   /* ---------- 권한 ---------- */
   window.canRejectNote = function(u){ return !!u && (isFounder(u) || u.rn===true); };
 
+  /* ===== 관리자 모드 ON/OFF 토글 (창업자 본인 전용) ===== */
+  window.__adminOff = false; // 기본 ON (=off가 false)
+  function pmsrRealFounder(u){ return !!u && (typeof FOUNDER!=='undefined') && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name); }
+  function pmsrSyncAdminBtn(){
+    var b=document.getElementById('admToggle'); if(!b) return;
+    if(pmsrRealFounder(me)){
+      b.style.display='';
+      var off=!!window.__adminOff;
+      b.classList.toggle('off', off);
+      b.title = off ? '관리자 모드 OFF — 일반 AOP 화면 (눌러서 켜기)' : '관리자 모드 ON — 눌러서 끄기';
+    } else { b.style.display='none'; }
+  }
+  window.toggleAdminMode = function(){
+    if(!pmsrRealFounder(me)) return;
+    window.__adminOff = !window.__adminOff;
+    pmsrSyncAdminBtn();
+    try{ if(typeof buildRail==='function') buildRail(); }catch(e){}
+    try{ if(typeof goTab==='function') goTab('home'); }catch(e){}
+    try{ if(typeof renderAll==='function') renderAll(); }catch(e){}
+    try{ if(typeof renderWaterFeed==='function') renderWaterFeed(); }catch(e){}
+    try{ if(typeof renderTree==='function') renderTree(); }catch(e){}
+    try{ toast && toast(window.__adminOff ? '관리자 모드 OFF — 일반 AOP 화면으로 봅니다' : '관리자 모드 ON — 관리 기능 복구'); }catch(e){}
+  };
+  // buildRail 호출마다 토글 버튼 상태 동기화
+  if(typeof buildRail==='function' && !buildRail.__pmsrAdm){
+    var _bRail=buildRail;
+    window.buildRail=function(){ var r=_bRail.apply(this,arguments); try{pmsrSyncAdminBtn();}catch(e){} return r; };
+    window.buildRail.__pmsrAdm=true;
+  }
+  setTimeout(function(){ try{pmsrSyncAdminBtn();}catch(e){} }, 800);
+
   /* ---------- 공용: 저장 ---------- */
   const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},
     set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
@@ -9475,8 +9510,9 @@ function spawnKernel(layer,cx,cy){
       +'<div class="pmsr-col"><label class="sk-lab">채널</label><select class="sk-f rn-f" id="rnChan">'+chOpts+'</select><input class="sk-f rn-f" id="rnChanEtc" placeholder="직접 입력" style="display:none;margin-top:6px"></div></div>'
       +'<div class="pmsr-row" style="margin-top:8px">'
       +'<div class="pmsr-col"><label class="sk-lab">후원번호 (숫자만 — SWP 자동)</label><div style="display:flex;align-items:center"><span style="background:var(--surface);border:1.5px solid var(--line);border-right:none;border-radius:11px 0 0 11px;padding:10px 9px;color:var(--muted);font-weight:800;font-size:13px">SWP</span><input class="sk-f rn-f" id="rnCode" inputmode="numeric" placeholder="26034329" style="border-radius:0 11px 11px 0"></div></div>'
-      +'<div class="pmsr-col"><label class="sk-lab">금액</label><input class="sk-f rn-f" id="rnAmt" placeholder="3만"></div>'
-      +'<div class="pmsr-col"><label class="sk-lab">결제</label><select class="sk-f rn-f" id="rnPay"><option>계좌</option><option>카드</option></select></div></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">금액</label><select class="sk-f rn-f" id="rnAmt"><option>2만</option><option selected>3만</option><option>4만</option><option>5만</option><option>7만</option><option>10만</option><option value="__etc">기타(직접입력)</option></select><input class="sk-f rn-f" id="rnAmtEtc" placeholder="직접 입력 (예: 1만)" style="display:none;margin-top:6px"></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">결제</label><select class="sk-f rn-f" id="rnPay"><option>계좌</option><option>카드</option></select></div>'
+      +'<div class="pmsr-col"><label class="sk-lab">후원 주기</label><select class="sk-f rn-f" id="rnCycle"><option>매월</option><option>6개월</option><option>12개월</option></select></div></div>'
       +'<div class="pmsr-row" style="margin-top:8px">'
       +'<div class="pmsr-col"><label class="sk-lab">출생연도</label><input class="sk-f rn-f" id="rnBirth" inputmode="numeric" placeholder="1999"></div>'
       +'<div class="pmsr-col"><label class="sk-lab">성별</label><select class="sk-f rn-f" id="rnGen"><option>여</option><option>남</option></select></div>'
@@ -9490,6 +9526,7 @@ function spawnKernel(layer,cx,cy){
       +'<button class="pmsr-btn grad" id="rnAdd" style="margin-top:10px">기록 저장</button>';
     document.getElementById('rnClient').onchange=e=>{document.getElementById('rnClientEtc').style.display=e.target.value==='__etc'?'':'none';};
     document.getElementById('rnChan').onchange=e=>{document.getElementById('rnChanEtc').style.display=e.target.value==='__etc'?'':'none';};
+    document.getElementById('rnAmt').onchange=e=>{document.getElementById('rnAmtEtc').style.display=e.target.value==='__etc'?'':'none';};
     selObj=[];objChips();renderSelObj();
     document.getElementById('rnObjEtcAdd').onclick=()=>{const i=document.getElementById('rnObjEtcIn');const v=i.value.trim();if(v&&!selObj.includes(v)){selObj.push(v);i.value='';renderSelObj();objChips();}};
     document.getElementById('rnAdd').onclick=()=>{
@@ -9497,11 +9534,12 @@ function spawnKernel(layer,cx,cy){
       let client=g('rnClient');if(client==='__etc')client=g('rnClientEtc');
       let chan=g('rnChan');if(chan==='__etc')chan=g('rnChanEtc');
       const codeNum=g('rnCode').replace(/[^0-9]/g,'');
-      if(!g('rnOwner')&&!codeNum&&!g('rnAmt')){toast&&toast('담당자/후원번호/금액 중 하나는 입력해줘');return;}
+      let amt=g('rnAmt');if(amt==='__etc')amt=g('rnAmtEtc');
+      if(!g('rnOwner')&&!codeNum&&!amt){toast&&toast('담당자/후원번호/금액 중 하나는 입력해줘');return;}
       const r={id:'rn_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),t:Date.now(),date:new Date().toISOString().slice(0,10),
-        client,city:g('rnCity'),chan,code:codeNum?('SWP'+codeNum):'',amount:g('rnAmt'),pay:g('rnPay'),birth:g('rnBirth'),gender:g('rnGen'),
+        client,city:g('rnCity'),chan,code:codeNum?('SWP'+codeNum):'',amount:amt,pay:g('rnPay'),cycle:g('rnCycle'),birth:g('rnBirth'),gender:g('rnGen'),
         owner:g('rnOwner')||((me&&me.name)||''),place:g('rnPlace'),obj:selObj.slice(),memo:g('rnMemo'),status:'open',rejReason:'',rejProb:'',by:(me&&me.name)||'',byUid:(me&&me.uid)||''};
-      saveRN(r);['rnCode','rnAmt','rnBirth','rnPlace','rnMemo'].forEach(id=>document.getElementById(id).value='');
+      saveRN(r);['rnCode','rnBirth','rnPlace','rnMemo','rnAmtEtc'].forEach(id=>document.getElementById(id).value='');
       selObj=[];objChips();renderSelObj();toast&&toast('기록을 저장했어요 ✓');
     };
   }
@@ -9521,7 +9559,7 @@ function spawnKernel(layer,cx,cy){
       const obj=Array.isArray(r.obj)?r.obj.join(', '):(r.obj||'');
       tr.innerHTML='<td>'+(r.date||'').slice(5)+'<br><span style="color:var(--muted);font-size:10px">'+(r.client||'')+'·'+(r.chan||'')+'</span></td>'
         +'<td>'+(r.owner||'')+'<br><span style="color:var(--muted);font-size:10px">'+(r.place||'').slice(0,8)+'</span></td>'
-        +'<td>'+(r.amount||'')+'<br><span style="color:var(--muted);font-size:10px">'+(r.pay||'')+'</span></td>'
+        +'<td>'+(r.amount||'')+'<br><span style="color:var(--muted);font-size:10px">'+(r.pay||'')+(r.cycle?'·'+r.cycle:'')+'</span></td>'
         +'<td style="font-size:11px">'+(r.code||'-')+'</td>'
         +'<td style="font-size:11px;max-width:110px">'+obj.slice(0,22)+'</td>'
         +'<td>'+stPill+(r.rejReason?'<br><span style="color:var(--muted);font-size:10px">'+r.rejReason.slice(0,14)+'</span>':'')+'</td>'
@@ -9580,8 +9618,8 @@ function spawnKernel(layer,cx,cy){
     const closed=notes.filter(r=>r.status==='pass'||r.status==='reject');const rej=closed.filter(r=>r.status==='reject').length;const rate=closed.length?Math.round(rej/closed.length*100):0;
     const sum=withSummary?'<div class="sum">총 '+notes.length+'건 · 마감 '+closed.length+'건 · 리젝 '+rej+'건 · <b>리젝률 '+rate+'%</b></div>':'';
     const rows=notes.map(r=>{const obj=Array.isArray(r.obj)?r.obj.join(', '):(r.obj||'');const st=r.status==='pass'?'패스':r.status==='reject'?'리젝':'관찰중';
-      return '<tr><td>'+esc(r.date)+'</td><td>'+esc(r.client)+'</td><td>'+esc(r.chan)+'</td><td>'+esc(r.owner)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.amount)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(r.birth)+'</td><td>'+esc(obj)+'</td><td>'+st+'</td><td>'+esc(r.rejProb)+'</td><td>'+esc(r.rejReason)+'</td><td>'+esc(r.memo)+'</td></tr>';}).join('');
-    const html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>리젝노트 - '+esc(name)+'</title><style>body{font-family:-apple-system,Pretendard,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin:0 0 4px}.meta{color:#666;font-size:12px}.sum{margin:10px 0;padding:10px;background:#f6f6f6;border-radius:8px;font-size:13px}table{border-collapse:collapse;width:100%;font-size:11px;margin-top:10px}th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}th{background:#f3f3f3}</style></head><body><h1>🛡️ 리젝노트 — '+esc(name)+'</h1><div class="meta">기간 '+esc(periodLabel())+' · 출력일 '+new Date().toLocaleDateString('ko-KR')+'</div>'+sum+'<table><tr><th>날짜</th><th>클라이언트</th><th>채널</th><th>담당</th><th>후원번호</th><th>금액</th><th>결제</th><th>출생</th><th>오브젝션</th><th>상태</th><th>상중하</th><th>리젝사유</th><th>메모</th></tr>'+rows+'</table></body></html>';
+      return '<tr><td>'+esc(r.date)+'</td><td>'+esc(r.client)+'</td><td>'+esc(r.chan)+'</td><td>'+esc(r.owner)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.amount)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(r.cycle)+'</td><td>'+esc(r.birth)+'</td><td>'+esc(obj)+'</td><td>'+st+'</td><td>'+esc(r.rejProb)+'</td><td>'+esc(r.rejReason)+'</td><td>'+esc(r.memo)+'</td></tr>';}).join('');
+    const html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>리젝노트 - '+esc(name)+'</title><style>body{font-family:-apple-system,Pretendard,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin:0 0 4px}.meta{color:#666;font-size:12px}.sum{margin:10px 0;padding:10px;background:#f6f6f6;border-radius:8px;font-size:13px}table{border-collapse:collapse;width:100%;font-size:11px;margin-top:10px}th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}th{background:#f3f3f3}</style></head><body><h1>🛡️ 리젝노트 — '+esc(name)+'</h1><div class="meta">기간 '+esc(periodLabel())+' · 출력일 '+new Date().toLocaleDateString('ko-KR')+'</div>'+sum+'<table><tr><th>날짜</th><th>클라이언트</th><th>채널</th><th>담당</th><th>후원번호</th><th>금액</th><th>결제</th><th>주기</th><th>출생</th><th>오브젝션</th><th>상태</th><th>상중하</th><th>리젝사유</th><th>메모</th></tr>'+rows+'</table></body></html>';
     const w=window.open('','_blank');if(!w){toast&&toast('팝업 차단을 해제해줘');return;}w.document.write(html);w.document.close();setTimeout(()=>{try{w.print();}catch(e){}},400);
   }
 
