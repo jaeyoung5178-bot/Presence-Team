@@ -1037,7 +1037,13 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .sync-now{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit}
 .daily-datebar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
 /* ===== 일일 결과 달력 ===== */
-.daily-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px 12px;margin-bottom:12px;max-width:340px}
+.daily-top{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.daily-cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px 12px;margin-bottom:0;width:330px;max-width:100%;flex:0 0 auto}
+.daily-cal.collapsed{padding-bottom:11px}
+.daily-side{flex:1 1 260px;min-width:240px;display:flex;flex-direction:column;gap:10px}
+.dc-toggle{background:var(--surface);border:1px solid var(--line);color:var(--muted);border-radius:9px;width:34px;height:34px;font-size:13px;cursor:pointer;flex:0 0 auto}
+.dc-toggle:hover{border-color:var(--green);color:var(--green-soft)}
+@media(max-width:640px){.daily-top{flex-direction:column}.daily-cal,.daily-side{width:100%;max-width:100%}}
 .dc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .dc-head b{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--cream);flex:1;text-align:center}
 .dc-head button{background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:9px;width:34px;height:34px;font-size:17px;cursor:pointer;flex:0 0 auto}
@@ -2803,11 +2809,15 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     <!-- 일일 결과 입력 (관리자) -->
     <div class="mpanel" id="m-daily"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자 · 매니저</span></div>
-      <div class="daily-cal" id="dailyCal"></div>
+      <div class="daily-top">
+        <div class="daily-cal" id="dailyCal"></div>
+        <div class="daily-side">
+          <div class="daily-sum" id="dailySum"></div>
+          <div class="sheet-sync"><span class="sync-dot idle" id="sheetSyncDot"></span><span id="sheetSyncTxt">대기 중</span><button class="sync-now" onclick="autoPullSheet()">↻ 지금 동기화</button></div>
+          <p class="founder-only" style="font-size:11px;color:var(--faint);line-height:1.55;margin:0">🔗 시트 연동 주소(Apps Script /exec)는 <b>관리 → 구글시트</b> 탭에서 관리해요.</p>
+        </div>
+      </div>
       <input type="date" id="dailyDate" onchange="dailyPick(this.value)" style="display:none" />
-      <div class="sheet-sync"><span class="sync-dot idle" id="sheetSyncDot"></span><span id="sheetSyncTxt">대기 중</span><button class="sync-now" onclick="autoPullSheet()">↻ 지금 동기화</button></div>
-      <p class="founder-only" style="font-size:11px;color:var(--faint);line-height:1.55;margin-top:8px">🔗 시트 연동 주소(Apps Script /exec)는 <b>관리 → 구글시트</b> 탭에서 관리해요.</p>
-      <div class="daily-sum" id="dailySum"></div>
       <div id="dailyList"></div>
       <button class="btn block" id="dailyDoneBtn" onclick="dailyComplete()" style="margin-top:12px">✅ 검수 완료 · 결과보고 (시트 전송)</button>
       <button class="btn ghost block founder-only" onclick="pullFromSheet()" style="margin-top:8px">📥 시트에서 과거 데이터 가져오기</button>
@@ -3250,7 +3260,7 @@ function joinKey(name){
   return d||'9999-12-31';   // 첫 필드 미기록 → 맨 아래
 }
 function joinSort(a,b){var ja=joinKey(a.name),jb=joinKey(b.name);return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));}
-function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)&&!isAdminName(n)&&!isTestName_(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});return out.sort(joinSort);}
+function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)&&!isAdminName(n)&&!isTestName_(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});var _jk={};out.forEach(function(u){_jk[u.name]=joinKey(u.name);});return out.sort(function(a,b){var ja=_jk[a.name]||'9999-12-31',jb=_jk[b.name]||'9999-12-31';return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));});}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
 const TEAM_TARGET  = 215;    // 폴백 기본값
 const MONTHLY_TEAM_TARGET = {'2026-05':215,'2026-06':215,'2026-07':215,'2026-08':215,'2026-09':215,'2026-10':215,'2026-11':215,'2026-12':215}; // 🎯 타겟 탭 연동 전 폴백. 연동되면 시트값으로 자동 대체
@@ -3502,6 +3512,15 @@ function renderAuth(){
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&!me.obs)?'<button class="btn ghost block" style="margin-top:8px" onclick="skipSurveyTest()">⏭ 설문 생략하고 입장 (테스트봇)</button>':''}
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&me.obs)?'<div class="auth-p" style="margin-top:8px;font-size:12px">관찰 모드 — 생략 없이 전 과정을 체험합니다.</div>':''}
       ${authState.surveyCtx==='gate'?'<div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>':''}`;
+  }else if(authState.view==='newpw'){
+    box.innerHTML=`
+      <div class="auth-h">새 비밀번호 설정</div>
+      <div class="auth-p">임시 비밀번호로 로그인했어요. 안전을 위해 <b>본인이 사용할 새 비밀번호</b>를 설정해 주세요. 설정하면 바로 로그인돼요.</div>
+      <div class="auth-msg" id="authMsg"></div>
+      <div class="field"><label>새 비밀번호</label><input id="npPw" type="password" placeholder="새 비밀번호 (4자 이상)" autocomplete="new-password" /></div>
+      <div class="field"><label>새 비밀번호 확인</label><input id="npPw2" type="password" placeholder="새 비밀번호 확인" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitNewPw()" /></div>
+      <button class="btn block" style="margin-top:8px" onclick="submitNewPw()">변경하고 로그인</button>
+      <div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>`;
   }else if(authState.view==='pending'){
     v.innerHTML=`
       <div class="status-screen">
@@ -3535,8 +3554,20 @@ function doLogin(){
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
   const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
   me=u;
+  if(u.mustChangePw){ authState.view='newpw'; renderAuth(); authMsg('임시 비밀번호로 로그인했어요 · 새 비밀번호를 설정해 주세요','info'); return; }
   if(needsFirstField(u)){ askFirstField(function(){ continueLogin(u); }); return; }
   continueLogin(u);
+}
+function submitNewPw(){
+  if(!me)return;
+  const pw=document.getElementById('npPw').value, pw2=document.getElementById('npPw2').value;
+  if(!pw||pw.length<4){authMsg('비밀번호는 4자 이상으로 해주세요','err');return;}
+  if(pw!==pw2){authMsg('비밀번호가 일치하지 않아요','err');return;}
+  me.pwHash=hash(pw); me.mustChangePw=false;
+  if(LIVE){DB.set('users/'+me.uid+'/pwHash',me.pwHash);DB.set('users/'+me.uid+'/mustChangePw',false);}
+  toast('새 비밀번호로 변경했어요 🔒');
+  if(needsFirstField(me)){ askFirstField(function(){ continueLogin(me); }); return; }
+  continueLogin(me);
 }
 function continueLogin(u){
   const rk=reqSurvey(u.role,u.name);
@@ -3676,6 +3707,7 @@ function tryAutoLogin(){
   if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
   if(/^testbot[123]$/.test(s.uid||'')){me=testBotObj(s.uid);enterApp();return true;}
   const u=state.users[s.uid];if(!u||u.status!=='active')return false;
+  if(u.mustChangePw){me=u;authState.view='newpw';renderAuth();return true;}
   const rk=reqSurvey(u.role,u.name);if(rk&&!u.surveys[rk])return false;
   me=u;enterApp();return true;
 }
@@ -3749,7 +3781,7 @@ function saveWebhook(){
   state.settings=state.settings||{};state.settings.webhook=url;
   if(LIVE)DB.set('settings/webhook',url);
   setSheetSync('idle');toast('🔗 연동 주소를 저장했어요 · 전 팀원에게 공유됩니다');
-  autoPullSheet();
+  window._pullFails=0;startAutoPull();
 }
 function saveWebhook2(){
   if(!isFounder(me)){toast('관리자만 설정할 수 있어요');return;}
@@ -3791,7 +3823,9 @@ function backupAllToWeb(){
 }
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
 function refreshSalesViews(){
-  ['renderDaily','renderScores','renderPerfGauge','renderComp','renderRecap','renderSalesMgr','renderField','renderLeaderHit'].forEach(function(fn){try{var fx=window[fn];if(typeof fx==='function')fx();}catch(e){}});
+  var t=(typeof curTab!=='undefined')?curTab:'';
+  var map={daily:['renderDaily'],sales:['renderScores','renderPerfGauge'],salesmgr:['renderSalesMgr'],recap:['renderRecap'],field:['renderField'],leaderhit:['renderLeaderHit'],home:['renderComp']};
+  (map[t]||[]).forEach(function(fn){try{var fx=window[fn];if(typeof fx==='function')fx();}catch(e){}});
   try{if(typeof updateCounts==='function')updateCounts();}catch(e){}
 }
 function importSheetData(data,opt){
@@ -3824,20 +3858,21 @@ let sheetSyncState='idle',autoPullTimer=null;
 function setSheetSync(st){sheetSyncState=st;const d=document.getElementById('sheetSyncDot'),t=document.getElementById('sheetSyncTxt');if(d)d.className='sync-dot '+st;if(t)t.textContent=st==='ok'?'시트 실시간 연동':st==='sync'?'동기화 중…':st==='err'?'연동 안 됨 (배포 확인)':'대기 중';}
 function autoPullSheet(){
   const url=effectiveWebhook();
-  if(!url){setSheetSync('err');return;}
+  if(!url){setSheetSync('err');if(autoPullTimer){clearInterval(autoPullTimer);autoPullTimer=null;}return;}
   setSheetSync('sync');
   const cb='__autoPull_'+Date.now();let done=false;
-  window[cb]=(data)=>{done=true;try{importSheetData(data,{silent:true,fillOnly:true});pruneBadSales();refreshSalesViews();setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
+  window[cb]=(data)=>{done=true;try{window._pullFails=0;var _n=importSheetData(data,{silent:true,fillOnly:true});var _rm=pruneBadSales();if(_n||_rm)refreshSalesViews();setSheetSync('ok');}catch(e){setSheetSync('err');}finally{delete window[cb];const s=document.getElementById(cb);if(s)s.remove();}};
   const s=document.createElement('script');s.id=cb;
   s.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb+'&t='+Date.now();
-  s.onerror=()=>{setSheetSync('err');try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}};
+  s.onerror=()=>{setSheetSync('err');window._pullFails=(window._pullFails||0)+1;if(window._pullFails>=4&&autoPullTimer){clearInterval(autoPullTimer);autoPullTimer=null;}try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}};
   document.body.appendChild(s);
-  setTimeout(()=>{if(!done){setSheetSync('err');try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}}},12000);
+  setTimeout(()=>{if(!done){setSheetSync('err');window._pullFails=(window._pullFails||0)+1;if(window._pullFails>=4&&autoPullTimer){clearInterval(autoPullTimer);autoPullTimer=null;}try{delete window[cb];const x=document.getElementById(cb);if(x)x.remove();}catch(e){}}},12000);
 }
 function startAutoPull(){if(!me||!isFounder(me))return;autoPullSheet();if(autoPullTimer)clearInterval(autoPullTimer);autoPullTimer=setInterval(autoPullSheet,120000);}
 function dailyDateVal(){const el=document.getElementById('dailyDate');return (el&&el.value)||TODAY;}
 function dpad(n){return (n<10?'0':'')+n;}
-let dailyCalYM=null;
+let dailyCalYM=null;let dailyCalOpen=true;
+function toggleDailyCal(){dailyCalOpen=!dailyCalOpen;renderDailyCalendar();}
 function dailyPick(ds){if(!ds)return;const el=document.getElementById('dailyDate');if(el)el.value=ds;dailyCalYM={y:+ds.slice(0,4),m:+ds.slice(5,7)};renderDaily();}
 function dailyToday(){dailyPick(TODAY);}
 function dailyShift(n){const base=new Date(dailyDateVal()+'T00:00:00');base.setDate(base.getDate()+n);var y=base.getFullYear(),mo=String(base.getMonth()+1).padStart(2,'0'),da=String(base.getDate()).padStart(2,'0');dailyPick(y+'-'+mo+'-'+da);}
@@ -3855,11 +3890,14 @@ function renderDailyCalendar(){
     const ds=`${mk}-${dpad(d)}`,dow=new Date(y,m-1,d).getDay();
     cells+=`<button class="dc-cell${ds===sel?' sel':''}${ds===TODAY?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}" onclick="dailyPick('${ds}')">${d}${has[ds]?'<i class="dc-dot"></i>':''}</button>`;
   }
-  box.innerHTML=`<div class="dc-head"><button onclick="dailyCalShift(-1)" aria-label="이전 달">‹</button><b>${y}년 ${m}월</b><button onclick="dailyCalShift(1)" aria-label="다음 달">›</button><button class="dc-today" onclick="dailyPick('${TODAY}')">오늘</button></div>`+
+  box.classList.toggle('collapsed',!dailyCalOpen);
+  var head=`<div class="dc-head"><button onclick="dailyCalShift(-1)" aria-label="이전 달">‹</button><b>${y}년 ${m}월</b><button onclick="dailyCalShift(1)" aria-label="다음 달">›</button><button class="dc-today" onclick="dailyPick('${TODAY}')">오늘</button><button class="dc-toggle" onclick="toggleDailyCal()" aria-label="달력 접기/펴기" title="달력 접기/펴기">${dailyCalOpen?'▾':'▸'}</button></div>`;
+  if(!dailyCalOpen){ box.innerHTML=head; return; }
+  box.innerHTML=head+
     `<div class="dc-wd"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>`+
     `<div class="dc-grid">${cells}</div>`;
 }
-function membersSorted(){return Object.values(state.users).filter(u=>u.status==='active').sort(joinSort);}
+function membersSorted(){var arr=Object.values(state.users).filter(u=>u.status==='active');var _jk={};arr.forEach(function(u){_jk[u.name]=joinKey(u.name);});return arr.sort(function(a,b){var ja=_jk[a.name]||'9999-12-31',jb=_jk[b.name]||'9999-12-31';return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));});}
 function dailyAdj(name,delta){
   if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
@@ -6255,7 +6293,7 @@ function renderSurveyResponses(){
 }
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · ${curMonthKey()} 시트에 등록 요청`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
-function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);if(LIVE)DB.set('users/'+uid+'/pwHash',u.pwHash);alert(`${u.name}님의 새 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.`);toast('비밀번호를 재설정했어요')}
+function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);u.mustChangePw=true;if(LIVE){DB.set('users/'+uid+'/pwHash',u.pwHash);DB.set('users/'+uid+'/mustChangePw',true);}alert(`${u.name}님의 임시 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.\n(${u.name}님이 처음 로그인하면 새 비밀번호를 직접 설정하게 됩니다.)`);toast('임시 비밀번호를 발급했어요 · 본인이 첫 로그인 시 변경합니다')}
 function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
 function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
 function gfAnswerHTML(v){
