@@ -6533,6 +6533,7 @@ function notifyMentions(text,ctx,by){const ms=parseMentions(text);ms.forEach(u=>
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
 function notifInner(n){
+  if(n.type==='survey'){return `<div class="notif-top">📋 <b>참여조사 도착</b></div><div class="notif-prev"><b>${esc(n.title||'행사')}</b> — 참석 여부를 응답해 주세요</div><div class="tg-acts"><button class="tg-give" onclick="evOpenFromBell('${n.sid}')">응답하기</button></div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='tokengrant'){return `<div class="notif-top">🪙 <b>이벤트 토큰 지급 대기</b></div><div class="notif-prev"><b>${esc(n.title||'행사')}</b> 마감 · 참석 <b>${n.n||0}명</b> 집계 완료</div><div class="tg-acts"><button class="tg-give" onclick="evApproveGrant('${n.sid}')">🪙 지급 완료</button><button class="tg-hold" onclick="evHoldGrant('${n.sid}')">보류</button></div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='cheer'){return `<div class="notif-top"><b>🎉 첫 필드 ${n.day}일차 응원</b></div>${n.msg?`<div class="notif-prev">${esc(n.msg)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
@@ -6989,6 +6990,9 @@ async function initFirebase(){
   DB.on('net',v=>{state.net=v?Object.values(v):[];renderGallery('net')});
   DB.on('act',v=>{state.act=v?Object.values(v):[];renderGallery('act')});
   DB.on('wins',v=>{state.wins=v?Object.values(v):[];renderWins()});
+  DB.on('eventSurveys',v=>{if(window.__evOnSurveys)window.__evOnSurveys(v);});
+  DB.on('eventResponses',v=>{if(window.__evOnResponses)window.__evOnResponses(v);});
+  DB.on('eventTokenGrants',v=>{if(window.__evOnGrants)window.__evOnGrants(v);});
   DB.on('notifs',v=>{state.notifs={};if(v){for(const uid in v){state.notifs[uid]=Array.isArray(v[uid])?v[uid]:Object.values(v[uid])}}renderBell();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();if(me&&document.body.classList.contains('app-on'))maybeShowGiftPopup();});
   DB.on('obj',v=>{const a=Array.isArray(v)?v:(v&&typeof v==='object'?Object.values(v):null);if(a&&a.length)state.obj=a;renderObj();});
   DB.on('links',v=>{state.links=v||{};if(me)renderKakao()});
@@ -9876,12 +9880,11 @@ function spawnKernel(layer,cx,cy){
 
   /* ---------- 구독 (메타데이터만 — 사진은 지연 로딩으로 경량화) ---------- */
   var evGrants={};
-  function evSub(){
-    if(!LIVE)return; if(evSub._on)return; evSub._on=true;
-    DB.on('eventSurveys', function(v){ evSurveys=v||{}; evRefresh(); });
-    DB.on('eventResponses', function(v){ evResponses=v||{}; evRefresh(); });
-    DB.on('eventTokenGrants', function(v){ evGrants=v||{}; evRefresh(); });
-  }
+  /* Firebase 구독은 initFirebase(실제 DB 준비 후)에서 아래 세터를 호출 — 초기 스텁 구독 버그 방지 */
+  window.__evOnSurveys   = function(v){ evSurveys=v||{};   evRefresh(); };
+  window.__evOnResponses = function(v){ evResponses=v||{}; evRefresh(); };
+  window.__evOnGrants    = function(v){ evGrants=v||{};    evRefresh(); };
+  function evSub(){ /* no-op: 구독은 initFirebase에서 처리해 DB 준비를 보장 */ }
   function evRefresh(){
     try{ evCheckTokenDeadlines(); }catch(e){}
     try{ if(typeof curTab!=='undefined'&&curTab==='eventsurvey'&&me&&isFounder(me)) renderEventSurveyAdmin(); }catch(e){}
@@ -9983,6 +9986,7 @@ function spawnKernel(layer,cx,cy){
 
   /* ---------- 응답 모달 (풀스크린 슬라이드 + 참석/미참석 · 사진 지연 로딩) ---------- */
   function openRespond(id){
+    if(document.getElementById('evOverlay'))return; // 중복 팝업 방지 — 한 번만
     var sv=evSurveys[id]; if(!sv)return; evStyle();
     var pc=sv.photoCount||(sv.photos?sv.photos.length:0);
     var ov=document.createElement('div'); ov.className='ev-overlay'; ov.id='evOverlay'; ov.tabIndex=0;
@@ -10078,7 +10082,7 @@ function spawnKernel(layer,cx,cy){
           +'<div class="ev-thumbs" id="evThumbs"></div>'
           +'<button class="ev-btn grad" id="evSend">🚀 행사설문 발송하기</button>'
         +'</div></details>'
-        +'<div class="ev-results-head">📊 진행 현황 · 결과</div>'
+        +'<div class="ev-results-head">📊 진행 현황 · 결과 <button class="ev-mini" id="evClearAll" style="float:right">🧹 전체 비우기</button></div>'
         +'<div id="evResults"></div>'
       +'</section></div>';
       var now=new Date(); evCalY=now.getFullYear(); evCalM=now.getMonth(); evSelStart=null; evSelEnd=null; evPhotos=[]; evAud='all'; setRecipFrom('all');
@@ -10100,6 +10104,7 @@ function spawnKernel(layer,cx,cy){
       if(tb)tb.onclick=function(){rosterList().forEach(function(x){evRecip[NK(x.name)]=x.name;});renderRecip();};
       if(tn)tn.onclick=function(){evRecip={};renderRecip();};
       document.getElementById('evSend').onclick=sendSurvey;
+      var ca=document.getElementById('evClearAll'); if(ca)ca.onclick=function(){ if(!confirm('모든 참여조사·응답·토큰집계를 삭제할까요?\n(되돌릴 수 없어요 — 잘못 보낸 설문 정리용)'))return; evSurveys={};evResponses={};evGrants={}; if(LIVE){DB.set('eventSurveys',null);DB.set('eventResponses',null);DB.set('eventTokenGrants',null);} renderEvResults(); evRenderHomeCard(); toast&&toast('🧹 참여조사 전체 삭제됨 — 깨끗해졌어요'); };
     }
     renderEvResults();
   }
@@ -10148,7 +10153,9 @@ function spawnKernel(layer,cx,cy){
   function curOvern(){var c=document.getElementById('evOvern');return !!(c&&c.checked);}
   function updatePeriodPrev(){var p=document.getElementById('evPeriodPrev');if(!p)return;
     if(!evSelStart){p.textContent='기간을 선택하면 여기에 표시돼요';return;}
-    p.innerHTML='🗓️ '+periodText({start:evSelStart,end:evSelEnd,overnight:curOvern()});}
+    var warn=''; var tm=new Date(); tm.setHours(0,0,0,0);
+    if(parseYmd(evSelStart)<tm) warn=' ⚠️ 오늘보다 과거예요 — › 로 올바른 달(월)을 골랐는지 확인!';
+    p.innerHTML='🗓️ '+periodText({start:evSelStart,end:evSelEnd,overnight:curOvern()})+(warn?'<span style="color:var(--coral)">'+warn+'</span>':'');}
   function tokenDeadlineTs(){var d=(document.getElementById('evTokenDate')||{}).value,t=(document.getElementById('evTokenTime')||{}).value||'23:59';if(!d)return 0;var ts=Date.parse(d+'T'+t+':00');return isNaN(ts)?0:ts;}
   function updateTokenPrev(){var p=document.getElementById('evTokenPrev');if(!p)return;var ts=tokenDeadlineTs();
     if(!ts){p.textContent='날짜를 선택하면 마감 시각이 표시돼요';return;}
@@ -10163,6 +10170,8 @@ function spawnKernel(layer,cx,cy){
     if(!evSelStart){toast&&toast('달력에서 행사 기간을 선택해줘');return;}
     var recips=Object.keys(evRecip).map(function(k){return evRecip[k];});
     if(!recips.length){toast&&toast('받을 사람을 한 명 이상 체크해줘');return;}
+    var _tm=new Date(); _tm.setHours(0,0,0,0);
+    if(parseYmd(evSelStart)<_tm){ if(!confirm('선택한 시작일이 '+fmtDay(evSelStart)+'(으)로 오늘보다 과거예요.\n달력에서 › 를 눌러 올바른 달을 골랐는지 확인해 주세요.\n\n이대로 발송할까요?'))return; }
     var id='ev'+Date.now();
     var tkOn=!!(document.getElementById('evTokenOn')&&document.getElementById('evTokenOn').checked);
     var deadline=tkOn?tokenDeadlineTs():0;
@@ -10181,6 +10190,7 @@ function spawnKernel(layer,cx,cy){
     var tk=document.getElementById('evTokenOn'); if(tk){tk.checked=false;document.getElementById('evTokenWrap').style.display='none';document.getElementById('evTokenDate').value='';}
     updateOvWrap(); updatePeriodPrev(); renderThumbs(); renderEvCal(); renderAud(); renderRecip();
     toast&&toast('🚀 발송 완료 — 대상자 '+recips.length+'명 홈에 떴어요'+(tkOn?' · 🪙토큰 마감 예약됨':''));
+    try{ evNotifyRecipients(id,title,recips); }catch(e){}
     try{ evCopy(kakaoShareText(sv), '📋 카톡 공유 문구가 복사됐어요 — 팀 카톡방에 붙여넣으면 끝!'); }catch(e){}
     renderEvResults(); evRenderHomeCard();
   }
@@ -10260,6 +10270,18 @@ function spawnKernel(layer,cx,cy){
     var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast&&toast(msg);}catch(e){}document.body.removeChild(ta);
   }
   window.evShare=function(id){var sv=evSurveys[id];if(!sv)return;evCopy(kakaoShareText(sv));};
+
+  /* 벨 알림: 관리자(나)+등록 대상자에게 — 관리자모드 꺼도 나에게 뜨고, 벨에서 다시 찾게 */
+  function uidByName(name){try{var us=(typeof state!=='undefined'&&state.users)?state.users:{};var nm=NK(name),f=null;Object.keys(us).forEach(function(k){var u=us[k];if(u&&NK(u.name)===nm)f=u.uid||k;});return f;}catch(e){return null;}}
+  function evNotifyRecipients(id,title,recips){
+    if(typeof addNotif!=='function')return;
+    var done={}, t=Date.now();
+    var fid=(me&&me.uid)||(typeof FOUNDER!=='undefined'?FOUNDER.uid:'admin');
+    addNotif(fid,{type:'survey',sid:id,title:title,t:t,read:false}); done[fid]=1;          // 관리자 본인
+    (recips||[]).forEach(function(nm){var uid=uidByName(nm); if(uid&&!done[uid]){addNotif(uid,{type:'survey',sid:id,title:title,t:t,read:false});done[uid]=1;}});
+    try{if(typeof renderBell==='function')renderBell();}catch(e){}
+  }
+  window.evOpenFromBell=function(id){ try{if(typeof closeModal==='function')closeModal('notifModal');}catch(e){} setTimeout(function(){openRespond(id);},120); };
 
   /* ---------- PDF ---------- */
   function evPdf(id){
