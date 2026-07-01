@@ -4418,21 +4418,21 @@ function cbZoom(src){let o=document.getElementById('cbLightbox');if(!o){o=docume
    Firebase: meeting = {active,room,host,hostUid,server,t,invites:{uid:1},present:{uid:name}}
    ============================================================ */
 let meetJoined=false;
-function meetServer(){ var s=(state.settings&&state.settings.meetServer)||''; return /^https?:\/\//.test(s)?s.replace(/\/+$/,''):'https://meet.jit.si'; }
+function meetZoomUrl(){ var u=(state.meeting&&state.meeting.zoomUrl)||(state.settings&&state.settings.zoomUrl)||''; return String(u).trim(); }
+function meetSavedZoom(){ return (state.settings&&state.settings.zoomUrl)?String(state.settings.zoomUrl).trim():''; }
+function isZoomLink(u){ return /zoom\.us\//i.test(u||''); }
 function meetSubscribe(){ if(!LIVE||window._meetSub)return; window._meetSub=1; DB.on('meeting',function(v){ state.meeting=v||{}; if(typeof curTab!=='undefined'&&curTab==='meeting')renderMeeting(); meetCheckInvite(); }); }
 function subMeeting(){ meetSubscribe(); }
 function meetActive(){ return !!(state.meeting&&state.meeting.active); }
-function meetRoomUrl(){
-  var m=state.meeting||{}; if(!m.room)return '';
-  var nm=encodeURIComponent(me.name||'게스트');
-  return meetServer()+'/'+encodeURIComponent(m.room)+'#config.prejoinPageEnabled=false&config.disableDeepLinking=true&userInfo.displayName=%22'+nm+'%22';
-}
+/* 줌은 새 창(탭)으로 열림 */
+function meetOpenZoom(){ var u=meetZoomUrl(); if(!u){toast('줌 링크가 아직 없어요');return false;} window.open(u,'_blank','noopener'); return true; }
 function meetCreate(){
   if(!isOwnerAccount(me)){toast('관리자만 방을 열 수 있어요');return;}
-  var room='presence-'+Date.now().toString(36);
-  var m={active:true,room:room,host:me.name,hostUid:me.uid,server:meetServer(),t:Date.now(),invites:{},present:{}};
+  var zoom=meetSavedZoom();
+  if(!isZoomLink(zoom)){toast('먼저 아래에 줌 회의 링크를 저장하세요');var el=document.getElementById('meetZoomIn');if(el)el.focus();return;}
+  var m={active:true,type:'zoom',zoomUrl:zoom,host:me.name,hostUid:me.uid,t:Date.now(),invites:{},present:{}};
   state.meeting=m; if(LIVE)DB.set('meeting',m);
-  toast('📹 미팅룸을 열었어요 — 팀원이 입장할 수 있어요'); meetJoin();
+  toast('📹 줌 미팅룸을 열었어요 — 팀원을 초대하세요'); meetJoin();
 }
 function meetEnd(){
   if(!isOwnerAccount(me))return;
@@ -4460,7 +4460,9 @@ function meetJoin(){
   meetJoined=true;
   if(me){ if(LIVE)DB.set('meeting/present/'+me.uid,me.name);
     if(state.meeting.invites&&state.meeting.invites[me.uid]){ if(LIVE)DB.set('meeting/invites/'+me.uid,null); delete state.meeting.invites[me.uid]; } }
-  meetHideInvite(); renderMeeting();
+  meetHideInvite();
+  meetOpenZoom();          // ★ 줌을 새 창에서 열기 (버튼 클릭 제스처라 팝업 허용됨)
+  renderMeeting();
 }
 function meetLeave(){ meetJoined=false; if(me&&LIVE)DB.set('meeting/present/'+me.uid,null); renderMeeting(); }
 function meetCheckInvite(){
@@ -4471,37 +4473,40 @@ function meetCheckInvite(){
 function meetShowInvite(){
   var o=document.getElementById('mtInviteModal');
   if(!o){ o=document.createElement('div'); o.id='mtInviteModal'; o.className='mt-invite-modal';
-    o.innerHTML='<div class="mt-invite-box"><div class="ic">📹</div><h3>화상미팅 초대</h3><p id="mtInviteMsg"></p><div class="acts"><button class="btn ghost" onclick="meetDeclineInvite()">나중에</button><button class="btn" onclick="meetJoin()">수락하고 입장</button></div></div>';
+    o.innerHTML='<div class="mt-invite-box"><div class="ic">📹</div><h3>화상미팅 초대</h3><p id="mtInviteMsg"></p><div class="acts"><button class="btn ghost" onclick="meetDeclineInvite()">나중에</button><button class="btn" onclick="meetJoin()">수락하고 줌 입장 →</button></div></div>';
     document.body.appendChild(o); }
-  var msg=document.getElementById('mtInviteMsg'); if(msg)msg.innerHTML='<b>'+esc((state.meeting&&state.meeting.host)||'관리자')+'</b>님이 미팅룸에 초대했어요.<br>지금 입장할까요?';
+  var msg=document.getElementById('mtInviteMsg'); if(msg)msg.innerHTML='<b>'+esc((state.meeting&&state.meeting.host)||'관리자')+'</b>님이 줌 미팅에 초대했어요.<br>수락하면 줌이 새 창으로 열려요.';
   o.classList.add('on');
 }
 function meetHideInvite(){ var o=document.getElementById('mtInviteModal'); if(o)o.classList.remove('on'); }
 function meetDeclineInvite(){ if(me&&state.meeting&&state.meeting.invites){ if(LIVE)DB.set('meeting/invites/'+me.uid,null); delete state.meeting.invites[me.uid]; } meetHideInvite(); }
-function meetServerBox(){
-  var cur=(state.settings&&state.settings.meetServer)||'https://meet.jit.si';
-  return '<div class="mt-card"><div class="sec-sub">⚙️ 미팅 서버 (선택)</div><p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin:0 0 9px">기본은 무료 공개 서버(meet.jit.si). 자체/사설 Jitsi 서버가 있으면 주소를 넣으세요.</p><div style="display:flex;gap:7px"><input id="meetServerIn" value="'+esc(cur)+'" placeholder="https://meet.jit.si" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--fg,#fff);border-radius:8px;padding:8px 10px;font-size:12px"><button class="btn" style="flex:0 0 auto;padding:8px 14px" onclick="meetSaveServer()">저장</button></div></div>';
+function meetZoomBox(){
+  var cur=meetSavedZoom();
+  return '<div class="mt-card"><div class="sec-sub">🎥 줌 회의 링크 (관리자)</div><p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin:0 0 9px">줌 <b>개인 회의실(PMI)</b> 링크나 예약 회의의 <b>참가 URL</b>을 붙여넣고 저장하세요. 팀원은 이 링크로 새 창에서 입장해요.<br>예: https://us05web.zoom.us/j/1234567890?pwd=…</p><div style="display:flex;gap:7px"><input id="meetZoomIn" value="'+esc(cur)+'" placeholder="https://zoom.us/j/…" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--fg,#fff);border-radius:8px;padding:8px 10px;font-size:12px"><button class="btn" style="flex:0 0 auto;padding:8px 14px" onclick="meetSaveZoom()">저장</button></div>'+(cur?'<div style="margin-top:8px"><button class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="window.open(meetSavedZoom(),\'_blank\',\'noopener\')">🔗 링크 테스트로 열어보기</button></div>':'')+'</div>';
 }
-function meetSaveServer(){
+function meetSaveZoom(){
   if(!isOwnerAccount(me))return;
-  var el=document.getElementById('meetServerIn'),v=(el&&el.value||'').trim();
-  state.settings=state.settings||{}; state.settings.meetServer=v||null;
-  if(LIVE)DB.set('settings/meetServer',v||null);
-  toast('미팅 서버를 저장했어요'); renderMeeting();
+  var el=document.getElementById('meetZoomIn'),v=(el&&el.value||'').trim();
+  if(v&&!isZoomLink(v)){toast('줌 링크(zoom.us …)가 맞는지 확인해주세요');return;}
+  state.settings=state.settings||{}; state.settings.zoomUrl=v||null;
+  if(LIVE)DB.set('settings/zoomUrl',v||null);
+  // 이미 열린 방이면 링크도 갱신
+  if(meetActive()&&isOwnerAccount(me)){ state.meeting.zoomUrl=v||null; if(LIVE)DB.set('meeting/zoomUrl',v||null); }
+  toast(v?'줌 링크를 저장했어요 ✓':'줌 링크를 비웠어요'); renderMeeting();
 }
 function renderMeeting(){
   var box=document.getElementById('meetBody'); if(!box||!me)return;
   var admin=isOwnerAccount(me), active=meetActive(), m=state.meeting||{}, h='';
   if(!active){
-    h+='<div class="mt-card"><p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0">'+(admin?'아직 열린 미팅룸이 없어요. 아래 버튼으로 방을 열면 팀원들이 입장할 수 있어요.':'아직 열린 미팅룸이 없어요. 관리자가 방을 열면 여기에서 입장할 수 있어요.')+'</p>';
-    if(admin)h+='<div class="mt-actions"><button class="btn" onclick="meetCreate()">📹 미팅룸 만들기 / 열기</button></div>';
-    h+='</div>'; if(admin)h+=meetServerBox(); box.innerHTML=h; return;
+    h+='<div class="mt-card"><p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0">'+(admin?'아직 열린 미팅룸이 없어요. 줌 링크를 저장한 뒤 방을 열면 팀원을 초대할 수 있어요.':'아직 열린 미팅룸이 없어요. 관리자가 방을 열면 여기에서 줌으로 입장할 수 있어요.')+'</p>';
+    if(admin)h+='<div class="mt-actions"><button class="btn" onclick="meetCreate()">📹 줌 미팅룸 열기</button></div>';
+    h+='</div>'; if(admin)h+=meetZoomBox(); box.innerHTML=h; return;
   }
-  h+='<div class="mt-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="mt-live"><i></i>LIVE · '+esc(m.host||'')+'님 방</span><span style="font-size:11.5px;color:var(--faint)">'+esc(m.room||'')+'</span></div>';
+  h+='<div class="mt-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="mt-live"><i></i>LIVE · '+esc(m.host||'')+'님 방</span><span style="font-size:11.5px;color:var(--faint)">🎥 Zoom</span></div>';
   var pres=m.present?Object.values(m.present):[];
   if(pres.length)h+='<div class="mt-present">'+pres.map(function(n){return '<span>🟢 '+esc(n)+'</span>';}).join('')+'</div>';
-  if(!meetJoined){ h+='<div class="mt-actions"><button class="btn" onclick="meetJoin()">🚪 입장하기</button></div>'; }
-  else{ h+='<iframe class="mt-frame" allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write" src="'+meetRoomUrl()+'"></iframe><div class="mt-actions"><button class="btn ghost" onclick="meetLeave()">나가기</button></div>'; }
+  h+='<div class="mt-actions"><button class="btn" onclick="meetJoin()">🎥 줌 미팅 입장 (새 창)</button>'+(meetJoined?'<button class="btn ghost" onclick="meetLeave()">나가기</button>':'')+'</div>';
+  h+='<p style="font-size:11px;color:var(--faint);margin:10px 0 0;line-height:1.5">버튼을 누르면 줌이 새 창(또는 줌 앱)으로 열려요. 창이 안 뜨면 브라우저의 팝업 차단을 허용해 주세요.</p>';
   h+='</div>';
   if(admin){
     h+='<div class="mt-card"><div class="sec-sub">🔔 초대 (관리자)</div><div class="mt-actions"><button class="btn" onclick="meetInviteAll()">🔔 리더 전원 초대</button>'+(meetJoined?'':'<button class="btn ghost" onclick="meetJoin()">내가 입장</button>')+'<button class="btn ghost" onclick="meetEnd()">⛔ 미팅 종료</button></div>';
@@ -4510,7 +4515,7 @@ function renderMeeting(){
         var invited=m.invites&&m.invites[u.uid], here=m.present&&m.present[u.uid];
         return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px"><span>'+esc(u.name)+' <small style="color:var(--faint)">· '+esc(u.role)+'</small></span>'+(here?'<span style="font-size:11px;color:var(--green-soft,#8AE05C);font-weight:700">🟢 입장중</span>':'<button class="btn ghost" style="padding:5px 12px;font-size:12px" onclick="meetInvite(\''+u.uid+'\')">'+(invited?'다시 초대':'초대')+'</button>')+'</div>';
       }).join('')+'</div>'; }
-    h+='</div>'; h+=meetServerBox();
+    h+='</div>'; h+=meetZoomBox();
   }
   box.innerHTML=h;
 }
