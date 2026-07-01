@@ -1544,6 +1544,36 @@ body.app-on #ambientBg{opacity:.7}
 .sheet-conn .sc-hint{font-size:10.5px;color:var(--faint);line-height:1.55;margin-top:8px}
 .sheet-conn .sc-hint b{color:var(--muted)}
 @media(max-width:760px){#sndToggle{bottom:86px;right:12px}#fxToggle{bottom:130px;right:12px}}
+/* ── 리쿠르팅 달력(월 선택) ── */
+.rc-cal{background:var(--card,#14161B);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 13px 14px;margin-bottom:16px}
+.rc-cal-h{font-size:13px;color:var(--muted);margin-bottom:10px}
+.rc-cal-h b{color:var(--fg,#fff);margin-left:4px}
+.rc-past{display:inline-block;font-size:10.5px;color:#0c0f13;background:var(--green-soft,#8AE05C);border-radius:20px;padding:2px 9px;margin-left:6px;font-weight:800;vertical-align:middle}
+.rc-mchips{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.rc-mchip{flex:0 0 auto;min-width:52px;padding:8px 10px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;font-size:14px;line-height:1.05;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rc-mchip small{font-size:9px;color:var(--faint);font-weight:700}
+.rc-mchip.on{background:var(--green-soft,#5CBC2E);border-color:var(--green-soft,#5CBC2E);color:#0c0f13}
+.rc-mchip.on small{color:#0c0f13;opacity:.75}
+.rc-mpick{display:block;margin-top:11px;font-size:11.5px;color:var(--faint)}
+.rc-mpick input[type=month]{margin-left:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--fg,#fff);border-radius:8px;padding:5px 8px;font-size:12px;color-scheme:dark}
+/* ── 화상 미팅룸 ── */
+.mt-card{background:var(--card,#14161B);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;margin-bottom:14px}
+.mt-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#0c0f13;background:#ff5470;border-radius:20px;padding:3px 11px}
+.mt-live i{width:8px;height:8px;border-radius:50%;background:#0c0f13;animation:mtpulse 1.2s infinite}
+@keyframes mtpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.mt-frame{width:100%;height:min(72vh,620px);border:0;border-radius:14px;background:#000;margin-top:12px}
+.mt-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.mt-actions .btn{flex:1;min-width:130px}
+.mt-invite-modal{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;background:rgba(6,8,12,.72);backdrop-filter:blur(3px);padding:24px}
+.mt-invite-modal.on{display:flex}
+.mt-invite-box{background:var(--card,#14161B);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:26px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.mt-invite-box .ic{font-size:44px;margin-bottom:8px}
+.mt-invite-box h3{margin:0 0 6px;font-size:18px}
+.mt-invite-box p{margin:0 0 18px;font-size:13px;color:var(--muted);line-height:1.55}
+.mt-invite-box .acts{display:flex;gap:10px}
+.mt-invite-box .acts .btn{flex:1}
+.mt-present{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mt-present span{font-size:11px;background:rgba(92,188,46,.14);color:var(--green-soft,#8AE05C);border-radius:20px;padding:3px 10px;font-weight:700}
 </style>
 <style id="enh-css">
 /* ===== 데스크탑: 좌측 사이드바 + 넓은 캔버스 ===== */
@@ -2842,6 +2872,12 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       <div id="cbBody"></div>
     </section></div></div>
 
+    <!-- 화상 미팅룸 (리더 이상) -->
+    <div class="mpanel" id="m-meeting"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📹 미팅룸</h2><span class="ko">화상 미팅 · 관리자가 열고 팀원이 입장</span><span class="meta">리더 전용</span></div>
+      <div id="meetBody"></div>
+    </section></div></div>
+
     <!-- 일일 결과 입력 (관리자) -->
     <div class="mpanel" id="m-daily"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>🗓️ 일일 결과 입력</h2><span class="ko">팀원별 일별 세일즈 · 시트 연동</span><span class="meta">관리자 · 매니저</span></div>
@@ -3328,6 +3364,9 @@ const ri=r=>Math.max(0,ROLES.indexOf(r));
 const isLeader=r=>ri(r)>=1;       // LR+ → Performance
 const isAdmin=r=>ri(r)>=3;        // AOP+ (역할)
 const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name) && !(window.__adminOff && me && (u.uid===me.uid || u.name===me.name));  // 관리자(소유자) 계정만 편집·관리 (관리자 모드 OFF 시 본인은 일반 AOP처럼 보임)
+/* 소유자 계정 여부 — '관리자 모드 OFF'(미리보기 토글)와 무관하게 항상 true.
+   콜백싯 전체 열람처럼 '진짜 소유자만' 접근하는 데이터에는 이 판정을 쓴다. */
+const isOwnerAccount=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);
 function isManager(u){if(!u)return false;if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
 function isSectorLeader(u){if(!u)return false;if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
 function canDaily(u){return isFounder(u)||isManager(u);}   // 일일 결과 입력·수정 권한 (관리자 + 매니저)
@@ -3770,14 +3809,80 @@ const TRAINING_SEED=[{"title": "트레이닝 2대 철학", "tag": "Philosophy", 
 const RECAP_SEED={"2026-05": {"period": "2026.04.20 – 05.24", "done": 212, "net": 112, "avg": "1.7", "income": "1,547만", "hc": 128, "note": "NO ZERO 300일 돌파 · FLM 트레이닝 데뷔 · 트레일워커 성공 · 간승학 2주 내 LR 달성", "sections": [{"t": "팀원별 성과", "b": "윤채영 TL — 52pcs · ₩3,674,356 · 리젝 26\n임재영 AOP — 51pcs · ₩3,699,707 · 리젝 23\n고윤경 LR — 45pcs · ₩3,414,606 · 리젝 21\n손예진 LR — 42pcs · ₩3,196,599 · 리젝 13\n박인선 LR — 18pcs · ₩1,276,150 · 리젝 14\n김하진 IC — 4pcs · ₩206,404 · 리젝 3\n간승학 LR — 0pcs (5/13 첫 필드 · 신규 합류)"}, {"t": "주차별 흐름", "b": "1주 34 · 2주 48 · 3주 46 · 4주 52 · 5주 32 (총 212pcs)\n↑ 4주차 AVG 2.5 — 월간 최고"}, {"t": "리쿠르팅 & H/C", "b": "총 면접 제안 26명 · 쇼업 9명(36%) · 노쇼 16명(64%)\n임재영 6쇼업(46% · 유효 13명) · 고윤경 3쇼업(38% · 유효 8명)\n채널: 당근마켓 / 알바몬 · 간승학 신규 합류"}, {"t": "Challenge & Solution", "b": "리젝률 상승 → 사인 직전 이름·예금주·금액·정기여부 더블체크\n당근 PR 정지 → 소명 접수·해제 대기 후 공고 재개\n더위 시작 → 그늘 사이트로 셋업 포인트 이동"}, {"t": "Win & How", "b": "FLM 트레이닝 미팅 데뷔 · 팀 Q/C 꾸준 관리\n트레일워커 이벤트 성공 + 뉴본드 시스템 체감\n간승학 당근 PR 스타터 → 2주 내 LR 달성\nNO ZERO 300일 돌파 · 윤경·예진 B2B 상승(잠실 유니세프 B2B 수료)\n홍대 미팅 참석 — 재영·채영·예진·승학·승찬"}, {"t": "6월 Goal & Plan", "b": "목표 240pcs+ / ₩1,700만 · 팀 AVG 2.0 · NO ZERO DAYS\n윤경·인선 TL 프로모션 · 예진·승학 섹터리더 도전\nIC 전원 리더힛(하진·승찬·이수·영웅) · 콜링 주간 15부킹+\nReading: 발타자르 그라시안 『완전한 인간』"}]}, "2026-04": {"period": "2026.03.23 – 04.19", "done": 160, "net": 113, "avg": "1.5", "income": "1,131만", "hc": 105, "note": "팀 본격 가동 — 4주 연속 상승 · 윤채영 첫 BIG 프로모션(LR→TL)", "sections": [{"t": "팀원별 성과", "b": "윤채영 TL — 39pcs · ₩2,508,542 · 리젝 14\n고윤경 LR — 36pcs · ₩2,432,699 · 리젝 8\n손예진 LR — 34pcs · ₩2,764,934 · 리젝 5\n임재영 AOP — 27pcs · ₩1,896,207 · 리젝 15\n박인선 LR — 17pcs · ₩1,271,316 · 리젝 2\n서경욱 LR — 7pcs · ₩376,075 · 리젝 2\n김하진 IC — 0pcs · ₩68,032"}, {"t": "주차별 흐름", "b": "1주 39 · 2주 40 · 3주 37 · 4주 31 (총 160pcs)\n↑ 4주 연속 상승 · Net 113pcs"}, {"t": "Challenge & Solution", "b": "오리나 개인사 셋업 제한 → 상위 리더 직접 케어\n당근 PR 채널 막힘 → 공고 주기 텀·내용 수정·개인 사업자 활용\n리젝 47건 → 서명 전 정기여부·₩30,000·워터버켓 재확인·클로징 스크립트 보완"}, {"t": "Win & How", "b": "4월 S.W TOP 3 이내 AOP 팀 · 기복 없는 안정적 인컴\n첫 BIG 프로모션 — 윤채영 LR → TL\n예진 IC → Leader · 팀 Q/C 강화·교육 퀄리티 UP\n좋은 여성 리더상(윤경·채영) 롤모델"}, {"t": "5월 Goal & Plan", "b": "목표 200pcs+ / ₩1,500만 · AVG 2.0 · NO ZERO 300일\n윤경 LR→TL · First LR 확보 · 김하진 리더힛·New IC 스타터\nPR 참여자 주 3회+ · 평일 SNS 5부킹 · 주말 PR 콜링"}]}};
 const CALLING_URL='https://jaeyoung5178-bot.github.io/presence-calling/';
 function recruitMonth(){return TODAY.slice(0,7);}
-function myRecruit(){const mk=recruitMonth();let r=state.recruit[me.uid];if(!r||r.month!==mk)r={month:mk,bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0};return {...r};}
+let rcSel = recruitMonth();                 // 리쿠르팅 화면에서 '선택된 달'
+function rcIsRec(o){return o&&typeof o==='object'&&('bk_g'in o||'bk_d'in o||'su_g'in o||'su_d'in o||'st_g'in o||'st_d'in o);}
+function rcClean(r){r=r||{};return {bk_g:+r.bk_g||0,bk_d:+r.bk_d||0,su_g:+r.su_g||0,su_d:+r.su_d||0,st_g:+r.st_g||0,st_d:+r.st_d||0};}
+/* uid 저장값을 {'YYYY-MM':{...}} 형태로 정규화 (구식 flat {month,...} 자동 호환) */
+function rcNorm(uid){
+  var raw=state.recruit&&state.recruit[uid]; if(!raw||typeof raw!=='object')return {};
+  var map={};
+  if(raw.month&&rcIsRec(raw))map[raw.month]=rcClean(raw);                    // 레거시 flat 1건
+  Object.keys(raw).forEach(function(k){ if(/^\d{4}-\d{2}$/.test(k)&&raw[k]&&typeof raw[k]==='object')map[k]=rcClean(raw[k]); });
+  return map;
+}
+function rcRec(uid,mk){var m=rcNorm(uid);return m[mk]||null;}
+function rcMonthsAll(){var s={};s[recruitMonth()]=1;s[rcSel]=1;Object.keys(state.recruit||{}).forEach(function(uid){Object.keys(rcNorm(uid)).forEach(function(mk){s[mk]=1;});});return Object.keys(s).sort();}
+function canSeeAllRecruit(u){return isOwnerAccount(u);}   // 개별 데이터 열람: 관리자만 (본인은 항상 자기 것)
 function rcPct(d,g){g=+g||0;d=+d||0;return g<=0?0:Math.min(100,Math.round(d/g*100));}
 function rcOverall(r){const a=[];if(+r.bk_g>0)a.push(rcPct(r.bk_d,r.bk_g));if(+r.su_g>0)a.push(rcPct(r.su_d,r.su_g));if(+r.st_g>0)a.push(rcPct(r.st_d,r.st_g));return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;}
-function rcSave(r){state.recruit[me.uid]=r;if(LIVE)DB.set('recruit/'+me.uid,r);renderCalling();}
+function myRecruit(){var r=rcRec(me.uid,rcSel);return r?Object.assign({month:rcSel},r):{month:rcSel,bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0};}
+function rcSave(r){
+  var mk=rcSel,map=rcNorm(me.uid);map[mk]=rcClean(r);
+  state.recruit[me.uid]=map;                          // 로컬: 깔끔한 월별맵으로
+  if(LIVE)DB.set('recruit/'+me.uid,map);              // 저장(구식 flat 흔적까지 정리됨)
+  if(typeof sheetRecWrite==='function')sheetRecWrite(mk);   // ★ 구글시트 자동 미러
+  renderCalling();
+}
 function rcAdj(field,d){const r=myRecruit();r[field]=Math.max(0,(+r[field]||0)+d);rcSave(r);}
-function rcGoals(){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rcg-bk').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rcg-su').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rcg-st').value,10)||0);rcSave(r);toast('이번 달 목표를 저장했어요 🎯');}
-function rcReset(){if(!me||!isFounder(me))return;if(!confirm('이번 달 모든 팀원의 리쿠르팅 기록을 초기화할까요?'))return;const mk=recruitMonth();const nr={...state.recruit};Object.keys(nr).forEach(uid=>{if(nr[uid]&&nr[uid].month===mk)delete nr[uid];});state.recruit=nr;if(LIVE)DB.set('recruit',nr);renderCalling();toast('이번 달 리쿠르팅을 초기화했어요');}
-function teamRecruit(){const mk=recruitMonth();const t={bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0,members:[]};Object.values(state.users).forEach(u=>{if(u.status!=='active')return;const r=state.recruit[u.uid];if(r&&r.month===mk&&((+r.bk_g||0)+(+r.su_g||0)+(+r.st_g||0)+(+r.bk_d||0)+(+r.su_d||0)+(+r.st_d||0))>0){t.bk_g+=+r.bk_g||0;t.bk_d+=+r.bk_d||0;t.su_g+=+r.su_g||0;t.su_d+=+r.su_d||0;t.st_g+=+r.st_g||0;t.st_d+=+r.st_d||0;t.members.push({uid:u.uid,name:u.name,role:u.role,r,pct:rcOverall(r)});}});return t;}
+function rcGoals(){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rcg-bk').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rcg-su').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rcg-st').value,10)||0);rcSave(r);toast('목표를 저장했어요 🎯');}
+function rcReset(){
+  if(!me||!isOwnerAccount(me))return;
+  var mk=rcSel,mn=parseInt(mk.slice(5,7),10);
+  if(!confirm(mn+'월 모든 팀원의 리쿠르팅 기록을 초기화할까요?'))return;
+  Object.keys(state.recruit||{}).forEach(function(uid){var map=rcNorm(uid);if(map[mk]){delete map[mk];state.recruit[uid]=map;if(LIVE)DB.set('recruit/'+uid,map);}});
+  renderCalling();toast(mn+'월 리쿠르팅을 초기화했어요');
+}
+function teamRecruit(mk){
+  mk=mk||rcSel;
+  const t={bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0,members:[]};
+  Object.values(state.users).forEach(u=>{if(u.status!=='active')return;const r=rcRec(u.uid,mk);if(r&&((+r.bk_g||0)+(+r.su_g||0)+(+r.st_g||0)+(+r.bk_d||0)+(+r.su_d||0)+(+r.st_d||0))>0){t.bk_g+=+r.bk_g||0;t.bk_d+=+r.bk_d||0;t.su_g+=+r.su_g||0;t.su_d+=+r.su_d||0;t.st_g+=+r.st_g||0;t.st_d+=+r.st_d||0;t.members.push({uid:u.uid,name:u.name,role:u.role,r,pct:rcOverall(r)});}});
+  return t;
+}
+/* ★ 리쿠르팅 → 구글시트 '리쿠르팅' 탭 자동 미러 (내 선택 달 1건) */
+function sheetRecWrite(mk){
+  const url=(typeof effectiveWebhook==='function')?effectiveWebhook():'';
+  if(!url||!/script\.google\.com/.test(url))return;
+  const r=rcRec(me.uid,mk)||{bk_g:0,bk_d:0,su_g:0,su_d:0,st_g:0,st_d:0};
+  const cb='__rc_'+Date.now()+'_'+Math.floor(Math.random()*1e5);
+  const q='action=recwrite&callback='+cb+'&month='+encodeURIComponent(mk)
+    +'&name='+encodeURIComponent(me.name)+'&role='+encodeURIComponent(me.role||'')
+    +'&bk_g='+(+r.bk_g||0)+'&bk_d='+(+r.bk_d||0)+'&su_g='+(+r.su_g||0)+'&su_d='+(+r.su_d||0)
+    +'&st_g='+(+r.st_g||0)+'&st_d='+(+r.st_d||0)+'&t='+Date.now();
+  window[cb]=function(){try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
+  const s=document.createElement('script');s.id=cb;s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+  s.onerror=window[cb];document.body.appendChild(s);
+  setTimeout(window[cb],8000);
+}
+/* 관리자: 선택 달 팀 전체를 시트로 내보내기 */
+function rcExportSheet(){
+  if(!isOwnerAccount(me))return;
+  const url=(typeof effectiveWebhook==='function')?effectiveWebhook():'';
+  if(!url||!/script\.google\.com/.test(url)){toast('먼저 구글시트 연동 주소(/exec)를 저장하세요');return;}
+  const mk=rcSel,mn=parseInt(mk.slice(5,7),10);
+  const list=teamRecruit(mk).members;
+  if(!list.length){toast(mn+'월 내보낼 기록이 없어요');return;}
+  toast('📤 '+mn+'월 리쿠르팅 '+list.length+'명 시트로 내보내는 중…');
+  list.forEach(function(m,i){setTimeout(function(){
+    const r=m.r,cb='__rcx_'+Date.now()+'_'+i;
+    const q='action=recwrite&callback='+cb+'&month='+encodeURIComponent(mk)
+      +'&name='+encodeURIComponent(m.name)+'&role='+encodeURIComponent(m.role||'')
+      +'&bk_g='+(+r.bk_g||0)+'&bk_d='+(+r.bk_d||0)+'&su_g='+(+r.su_g||0)+'&su_d='+(+r.su_d||0)
+      +'&st_g='+(+r.st_g||0)+'&st_d='+(+r.st_d||0)+'&t='+Date.now();
+    window[cb]=function(){try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
+    const s=document.createElement('script');s.id=cb;s.src=url+(url.indexOf('?')>=0?'&':'?')+q;s.onerror=window[cb];document.body.appendChild(s);
+    setTimeout(window[cb],8000);
+  },i*400);});
+}
 function pullFromSheet(){
   if(!isFounder(me))return;
   if(!confirm('구글시트의 과거 월별·일별 결과를 앱으로 가져올까요?\n시트에 적힌 값으로 해당 날짜·팀원이 채워집니다. (이전에 잘못 들어온 인컴 숫자·가짜 이름은 자동 정리돼요)'))return;
@@ -4067,23 +4172,45 @@ function renderMonthStats(mk){
   const mn=parseInt(mk.slice(5,7),10);
   box.innerHTML=rows.length?`<table class="mstat-table"><thead><tr><th>이름</th><th style="text-align:right">세일즈</th><th style="text-align:right">활동일</th><th style="text-align:right">AVG</th><th style="text-align:right">휴무</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)} <span style="color:var(--faint);font-size:10px">${esc(r.role)}</span></td><td class="num tot">${r.sales}</td><td class="num">${r.days}</td><td class="num">${r.days?(r.sales/r.days).toFixed(2):'-'}</td><td class="num">${r.na}</td></tr>`).join('')}</tbody></table><div class="mstat-foot">${mn}월 팀 합계 <b>${tsales}</b> · ${rows.length}명 · 총 활동일 <b>${tdays}</b></div><div class="mstat-avg">📊 ${mn}월 팀 평균(AVG) <b>${tavg}</b> <small>세일즈 ${tsales} ÷ 활동일 ${tdays}</small></div>`:'<div class="empty-row">이 달의 기록이 없어요</div>';
 }
+function rcPickMonth(mk){ if(!/^\d{4}-\d{2}$/.test(mk||''))return; rcSel=mk; renderCalling(); }
 function renderCalling(){
   const box=document.getElementById('recruitBody');if(!box||!me)return;
-  const mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);
-  const t=teamRecruit();
+  const cur=recruitMonth();
+  if(!/^\d{4}-\d{2}$/.test(rcSel))rcSel=cur;
+  const mk=rcSel,mn=parseInt(mk.slice(5,7),10),isPast=mk<cur,isFut=mk>cur;
+  const admin=canSeeAllRecruit(me);
+  const t=teamRecruit(mk);
+
+  // ── 달력(월 선택) ──
+  const months=rcMonthsAll();
+  const chips=months.map(m=>{const on=m===mk,tag=m===cur?' · 이번달':'';return `<button class="rc-mchip${on?' on':''}" onclick="rcPickMonth('${m}')">${parseInt(m.slice(5,7),10)}월<small>${m.slice(2,4)}${tag}</small></button>`;}).join('');
+  let html=`<div class="rc-cal"><div class="rc-cal-h">🗓️ 달 선택 <b>${mk.slice(0,4)}년 ${mn}월</b>${isPast?' <span class="rc-past">지난달 열람</span>':''}${isFut?' <span class="rc-past">예정</span>':''}</div><div class="rc-mchips">${chips}</div><label class="rc-mpick">다른 달: <input type="month" value="${mk}" max="${cur}" onchange="rcPickMonth(this.value)"></label></div>`;
+
+  // ── 전체 팀 종합(집계는 전원 공개) ──
   const ta=[];if(t.bk_g>0)ta.push(rcPct(t.bk_d,t.bk_g));if(t.su_g>0)ta.push(rcPct(t.su_d,t.su_g));if(t.st_g>0)ta.push(rcPct(t.st_d,t.st_g));
   const tov=ta.length?Math.round(ta.reduce((x,y)=>x+y,0)/ta.length):0;
   const trow=(label,emj,d,g)=>{const p=rcPct(d,g);return `<div class="rc-row"><div class="rc-row-top"><span class="rc-label">${emj} ${label}</span><span class="rc-val">${d}<span class="rc-goal"> / ${g}</span></span><span class="rc-pct">${p}%</span></div><div class="rc-bar"><i style="width:${p}%"></i></div></div>`;};
-  let html=`<div class="rc-card"><div class="sec-sub">🟣 전체 Presence · ${mn}월</div><div class="rc-overall team"><div class="rc-onum">${tov}<span>%</span></div><div class="rc-olab">전체 종합 달성률 · ${t.members.length}명 참여</div></div>${trow('부킹','📞',t.bk_d,t.bk_g)}${trow('쇼업','🙋',t.su_d,t.su_g)}${trow('스타터','🌱',t.st_d,t.st_g)}</div>`;
+  html+=`<div class="rc-card"><div class="sec-sub">🟣 전체 Presence · ${mn}월</div><div class="rc-overall team"><div class="rc-onum">${tov}<span>%</span></div><div class="rc-olab">전체 종합 달성률 · ${t.members.length}명 참여</div></div>${trow('부킹','📞',t.bk_d,t.bk_g)}${trow('쇼업','🙋',t.su_d,t.su_g)}${trow('스타터','🌱',t.st_d,t.st_g)}</div>`;
+
+  // ── 내 목표 입력/수정 (선택 달) ──
   html+=`<button class="btn block" onclick="openRecruitModal()">➕ 내 ${mn}월 목표 설정 / 수정</button>`;
-  const mem=t.members.slice().sort((a,b)=>b.pct-a.pct);
-  const cards=mem.length?mem.map(m=>`<div class="ind-card${m.uid===me.uid?' meind':''}"><div class="ind-top"><span class="ind-av" style="background:${avColor(m.name)}">${avInner(m.name)}</span><span class="ind-name">${esc(m.name)}<small> · ${esc(m.role)}</small></span><span class="ind-pct">${m.pct}%</span></div><div class="ind-metrics"><span>📞 부킹 ${(+m.r.bk_d||0)}/${(+m.r.bk_g||0)}</span><span>🙋 쇼업 ${(+m.r.su_d||0)}/${(+m.r.su_g||0)}</span><span>🌱 스타터 ${(+m.r.st_d||0)}/${(+m.r.st_g||0)}</span></div></div>`).join(''):'<p style="font-size:12px;color:var(--faint)">아직 목표를 등록한 팀원이 없어요. ➕ 버튼으로 내 목표를 추가해 보세요.</p>';
-  html+=`<div class="rc-card"><div class="sec-sub">👤 개별 통계 · ${mn}월</div>${cards}</div>`;
-  if(isFounder(me))html+=`<button class="reset-btn" onclick="rcReset()">🔄 이번 달 리쿠르팅 초기화</button>`;
+
+  // ── 개별 통계 : 관리자=전원 · 그 외=본인만 ──
+  let mem=t.members.slice().sort((a,b)=>b.pct-a.pct);
+  if(!admin)mem=mem.filter(m=>m.uid===me.uid);
+  const cardHTML=m=>`<div class="ind-card${m.uid===me.uid?' meind':''}"><div class="ind-top"><span class="ind-av" style="background:${avColor(m.name)}">${avInner(m.name)}</span><span class="ind-name">${esc(m.name)}<small> · ${esc(m.role)}</small></span><span class="ind-pct">${m.pct}%</span></div><div class="ind-metrics"><span>📞 부킹 ${(+m.r.bk_d||0)}/${(+m.r.bk_g||0)}</span><span>🙋 쇼업 ${(+m.r.su_d||0)}/${(+m.r.su_g||0)}</span><span>🌱 스타터 ${(+m.r.st_d||0)}/${(+m.r.st_g||0)}</span></div></div>`;
+  const cards=mem.length?mem.map(cardHTML).join(''):`<p style="font-size:12px;color:var(--faint)">${mn}월 기록이 아직 없어요. ➕ 버튼으로 내 목표를 추가해 보세요.</p>`;
+  const lockNote=admin?'':`<p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin:0 0 10px">🔒 개별 리쿠르팅 데이터는 <b>본인과 관리자만</b> 볼 수 있어요. 아래는 내 기록이에요.</p>`;
+  html+=`<div class="rc-card"><div class="sec-sub">👤 개별 통계 · ${mn}월${admin?' <small style="color:var(--faint);font-weight:600">(관리자 전체 열람)</small>':''}</div>${lockNote}${cards}</div>`;
+
+  if(admin){
+    html+=`<button class="btn ghost block" style="margin-top:8px" onclick="rcExportSheet()">📤 ${mn}월 리쿠르팅 시트로 내보내기</button>`;
+    html+=`<button class="reset-btn" onclick="rcReset()">🔄 ${mn}월 리쿠르팅 초기화</button>`;
+  }
   if(isTLplus(me.role)){html+=`<div class="rc-card" style="margin-top:22px"><div class="sec-sub">📞 콜링 페이지 · TL 이상</div><p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 13px">리쿠르팅 콜링 페이지를 새 창에서 열어요.</p><a class="btn block call-open" href="${CALLING_URL}" target="_blank" rel="noopener">📞 콜링 페이지 열기 →</a></div>`;}
   box.innerHTML=html;
 }
-function openRecruitModal(){const r=myRecruit(),mk=recruitMonth(),mn=parseInt(mk.slice(5,7),10);const av=document.getElementById('rmAv');av.innerHTML=avInner(me.name);av.style.background=avColor(me.name);document.getElementById('rmName').textContent=me.name+' · '+me.role;document.getElementById('rmMonth').textContent=`${mk.slice(0,4)}년 ${mn}월 리쿠르팅 목표`;const set=(id,v)=>document.getElementById(id).value=v||'';set('rm-bk-g',r.bk_g);set('rm-su-g',r.su_g);set('rm-st-g',r.st_g);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;openModal('recruitModal');}
+function openRecruitModal(){const r=myRecruit(),mk=rcSel,mn=parseInt(mk.slice(5,7),10);const av=document.getElementById('rmAv');av.innerHTML=avInner(me.name);av.style.background=avColor(me.name);document.getElementById('rmName').textContent=me.name+' · '+me.role;document.getElementById('rmMonth').textContent=`${mk.slice(0,4)}년 ${mn}월 리쿠르팅 목표`;const set=(id,v)=>document.getElementById(id).value=v||'';set('rm-bk-g',r.bk_g);set('rm-su-g',r.su_g);set('rm-st-g',r.st_g);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;openModal('recruitModal');}
 function rmAdj(f,delta){const r=myRecruit();r.bk_g=Math.max(0,parseInt(document.getElementById('rm-bk-g').value,10)||0);r.su_g=Math.max(0,parseInt(document.getElementById('rm-su-g').value,10)||0);r.st_g=Math.max(0,parseInt(document.getElementById('rm-st-g').value,10)||0);r[f]=Math.max(0,(+r[f]||0)+delta);rcSave(r);document.getElementById('rmv-bk').textContent=r.bk_d||0;document.getElementById('rmv-su').textContent=r.su_d||0;document.getElementById('rmv-st').textContent=r.st_d||0;}
 function saveRecruitModal(){const r=myRecruit();const gv=id=>Math.max(0,parseInt(document.getElementById(id).value,10)||0);r.bk_g=gv('rm-bk-g');r.su_g=gv('rm-su-g');r.st_g=gv('rm-st-g');rcSave(r);closeModal('recruitModal');toast('내 목표를 저장했어요 🎯');}
 function fmtLinks(s){return esc(s||'').replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--wepair);word-break:break-all">$1</a>');}
@@ -4183,7 +4310,37 @@ let cbFiles=[]; let cbViewUid=null;
 function subCbjournal(){
   if(!LIVE||!me)return;
   if(window._cbSubMine!==me.uid){window._cbSubMine=me.uid;DB.on('cbjournal/'+me.uid,v=>{state.cbMine=v||{};if(curTab==='cbjournal')renderCbBoard();});}
-  if(isFounder(me)&&!window._cbSubAll){window._cbSubAll=1;DB.on('cbjournal',v=>{state.cbAll=v||{};if(curTab==='cbjournal')renderCbBoard();});}
+  if(isOwnerAccount(me)){
+    state.cbAll=state.cbAll||{};
+    // ① 루트 전체 구독 (권한 열려 있으면 한 번에 전원 로드)
+    if(window._cbSubAll!=='1'){window._cbSubAll='1';DB.on('cbjournal',v=>{ if(v&&typeof v==='object')state.cbAll=Object.assign(state.cbAll||{},v); if(curTab==='cbjournal')renderCbBoard(); });}
+    // ② 폴백: 루트 읽기가 비거나 막혀도, 아는 팀원별로 개별 구독해 합침
+    cbSubEachMember();
+  }
+}
+/* 팀원 uid별 콜백싯 개별 구독 — 루트 읽기가 실패해도 확실히 모이도록 */
+function cbSubEachMember(){
+  if(!isOwnerAccount(me)||!LIVE)return;
+  window._cbSubU=window._cbSubU||{};
+  Object.values(state.users||{}).forEach(function(u){
+    if(!u||!u.uid||window._cbSubU[u.uid])return;
+    window._cbSubU[u.uid]=1;
+    DB.on('cbjournal/'+u.uid,function(v){
+      state.cbAll=state.cbAll||{};
+      if(v&&Object.keys(v).length)state.cbAll[u.uid]=v; else if(state.cbAll[u.uid])delete state.cbAll[u.uid];
+      if(curTab==='cbjournal')renderCbBoard();
+    });
+  });
+}
+/* 수동 새로고침 — 지금 즉시 전체 일지를 다시 긁어옴 */
+function cbRefresh(){
+  if(!isOwnerAccount(me)||!LIVE){renderCbBoard&&renderCbBoard();return;}
+  toast('🔄 콜백싯 일지 새로고침…');
+  cbSubEachMember();
+  DB.get('cbjournal').then(function(v){
+    if(v&&typeof v==='object'){state.cbAll=Object.assign(state.cbAll||{},v);toast('✅ 최신 일지를 불러왔어요');}
+    renderCbBoard();
+  }).catch(function(){renderCbBoard();});
 }
 function cbDate(t){const d=new Date(t);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' ('+'일월화수목금토'[d.getDay()]+')';}
 function cbTime(t){const d=new Date(t);let h=d.getHours();const ap=h<12?'오전':'오후';h=h%12||12;return ap+' '+h+':'+String(d.getMinutes()).padStart(2,'0');}
@@ -4191,7 +4348,7 @@ function cbEmpty(msg){return '<div class="wins-empty"><div class="we-ic">📓</d
 function renderCbjournal(){
   const wrap=document.getElementById('cbBody');if(!wrap||!me)return;
   const intro=document.getElementById('cbIntro');
-  if(intro)intro.innerHTML=isFounder(me)?'관리자는 <b>모든 팀원</b>의 콜백싯 일지를 볼 수 있어요. 아래에서 팀원을 선택하세요. (팀원끼리는 서로 절대 볼 수 없어요)':'여기 올린 콜백싯과 글은 <b>오직 나만</b> 볼 수 있어요. 매일 일기처럼 콜백싯을 올리고 솔직한 후기·보완점을 남겨보세요.';
+  if(intro)intro.innerHTML=isOwnerAccount(me)?'관리자는 <b>모든 팀원</b>의 콜백싯 일지를 볼 수 있어요. 아래에서 팀원을 선택하세요. (팀원끼리는 서로 절대 볼 수 없어요)':'여기 올린 콜백싯과 글은 <b>오직 나만</b> 볼 수 있어요. 매일 일기처럼 콜백싯을 올리고 솔직한 후기·보완점을 남겨보세요.';
   wrap.innerHTML='<div class="cb-compose"><div class="cb-prev" id="cbPrev"></div><button class="cb-photo" type="button" onclick="document.getElementById(\'cbFiles\').click()">📷 콜백싯 사진 첨부 (최대 2장)</button><input type="file" id="cbFiles" accept="image/*" multiple style="display:none" onchange="onCbFiles(this.files)"/><textarea id="cbText" rows="3" placeholder="오늘 콜백싯 후기 — 잘된 점, 솔직한 피드백, 보완하고 싶은 부분을 적어보세요"></textarea><button class="btn block" onclick="postCb()">📓 오늘 콜백싯 올리기</button></div><div id="cbBoard"></div>';
   renderCbCompose();renderCbBoard();
 }
@@ -4206,13 +4363,13 @@ function postCb(){
   const id='cb_'+Date.now();
   const entry={id,t:Date.now(),text,imgs:cbFiles.slice()};
   state.cbMine=state.cbMine||{};state.cbMine[id]=entry;
-  if(isFounder(me)){state.cbAll=state.cbAll||{};state.cbAll[me.uid]=state.cbAll[me.uid]||{};state.cbAll[me.uid][id]=entry;}
+  if(isOwnerAccount(me)){state.cbAll=state.cbAll||{};state.cbAll[me.uid]=state.cbAll[me.uid]||{};state.cbAll[me.uid][id]=entry;}
   if(LIVE)DB.set('cbjournal/'+me.uid+'/'+id,entry);
   cbFiles=[];const ta=document.getElementById('cbText');if(ta)ta.value='';
   renderCbjournal();toast('오늘의 콜백싯을 올렸어요 📓');
 }
 function delCb(uid,id){
-  if(!me)return;const own=uid===me.uid;if(!own&&!isFounder(me))return;
+  if(!me)return;const own=uid===me.uid;if(!own&&!isOwnerAccount(me))return;
   if(!confirm('이 콜백싯 기록을 삭제할까요?'))return;
   if(state.cbMine&&own)delete state.cbMine[id];
   if(state.cbAll&&state.cbAll[uid])delete state.cbAll[uid][id];
@@ -4220,7 +4377,7 @@ function delCb(uid,id){
   renderCbBoard();
 }
 function cbCardHTML(e,uid,name,showName){
-  const canDel=(uid===me.uid)||isFounder(me);
+  const canDel=(uid===me.uid)||isOwnerAccount(me);
   const imgs=(e.imgs||[]).map(src=>'<img class="cb-img" src="'+src+'" onclick="cbZoom(this.src)"/>').join('');
   return '<div class="cb-card">'+(canDel?'<button class="cb-del" onclick="delCb(\''+uid+'\',\''+e.id+'\')">✕</button>':'')+'<div class="cb-meta"><span class="cb-tm">'+cbTime(e.t)+'</span>'+(showName?'<span class="cb-by">'+esc(name)+'</span>':'')+'</div>'+(imgs?'<div class="cb-imgs">'+imgs+'</div>':'')+(e.text?'<div class="cb-text">'+fmtLinks(e.text)+'</div>':'')+'</div>';
 }
@@ -4233,13 +4390,13 @@ function cbEntries(uid,obj,name,showName){
 }
 function renderCbBoard(){
   const el=document.getElementById('cbBoard');if(!el||!me)return;
-  if(isFounder(me)){
+  if(isOwnerAccount(me)){cbSubEachMember();
     const all=state.cbAll||{};
     const uids=Object.keys(all).filter(u=>all[u]&&Object.keys(all[u]).length);
     const nameOf=u=>(state.users[u]&&state.users[u].name)||(u==='admin'?'관리자':u);
     if(cbViewUid==null)cbViewUid='__all';
     if(cbViewUid!=='__all'&&!uids.includes(cbViewUid))cbViewUid='__all';
-    let h='<div class="cb-pick"><label>📂 팀원 일지 열람 (관리자 전용)</label><select id="cbPick" onchange="cbViewUid=this.value;renderCbBoard()"><option value="__all"'+(cbViewUid==='__all'?' selected':'')+'>전체 (최근순)</option>'+uids.map(u=>'<option value="'+u+'"'+(u===cbViewUid?' selected':'')+'>'+esc(nameOf(u))+' · '+Object.keys(all[u]).length+'개</option>').join('')+'</select></div>';
+    let h='<div class="cb-pick"><label>📂 팀원 일지 열람 (관리자 전용)</label><select id="cbPick" onchange="cbViewUid=this.value;renderCbBoard()"><option value="__all"'+(cbViewUid==='__all'?' selected':'')+'>전체 (최근순)</option>'+uids.map(u=>'<option value="'+u+'"'+(u===cbViewUid?' selected':'')+'>'+esc(nameOf(u))+' · '+Object.keys(all[u]).length+'개</option>').join('')+'</select> <button class="btn ghost" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="cbRefresh()">🔄 새로고침</button></div>';
     if(!uids.length){el.innerHTML=h+cbEmpty('아직 올라온 콜백싯 일지가 없어요');return;}
     if(cbViewUid==='__all'){
       let flat=[];uids.forEach(u=>Object.values(all[u]).forEach(e=>flat.push({e:e,u:u})));
@@ -4255,6 +4412,108 @@ function renderCbBoard(){
   }
 }
 function cbZoom(src){let o=document.getElementById('cbLightbox');if(!o){o=document.createElement('div');o.id='cbLightbox';o.onclick=()=>o.classList.remove('on');document.body.appendChild(o);}o.innerHTML='<img src="'+src+'"/>';o.classList.add('on');}
+
+/* ============================================================
+   화상 미팅룸 — Jitsi 임베드 (관리자 개설/초대 · 팀원 입장/수락)
+   Firebase: meeting = {active,room,host,hostUid,server,t,invites:{uid:1},present:{uid:name}}
+   ============================================================ */
+let meetJoined=false;
+function meetServer(){ var s=(state.settings&&state.settings.meetServer)||''; return /^https?:\/\//.test(s)?s.replace(/\/+$/,''):'https://meet.jit.si'; }
+function meetSubscribe(){ if(!LIVE||window._meetSub)return; window._meetSub=1; DB.on('meeting',function(v){ state.meeting=v||{}; if(typeof curTab!=='undefined'&&curTab==='meeting')renderMeeting(); meetCheckInvite(); }); }
+function subMeeting(){ meetSubscribe(); }
+function meetActive(){ return !!(state.meeting&&state.meeting.active); }
+function meetRoomUrl(){
+  var m=state.meeting||{}; if(!m.room)return '';
+  var nm=encodeURIComponent(me.name||'게스트');
+  return meetServer()+'/'+encodeURIComponent(m.room)+'#config.prejoinPageEnabled=false&config.disableDeepLinking=true&userInfo.displayName=%22'+nm+'%22';
+}
+function meetCreate(){
+  if(!isOwnerAccount(me)){toast('관리자만 방을 열 수 있어요');return;}
+  var room='presence-'+Date.now().toString(36);
+  var m={active:true,room:room,host:me.name,hostUid:me.uid,server:meetServer(),t:Date.now(),invites:{},present:{}};
+  state.meeting=m; if(LIVE)DB.set('meeting',m);
+  toast('📹 미팅룸을 열었어요 — 팀원이 입장할 수 있어요'); meetJoin();
+}
+function meetEnd(){
+  if(!isOwnerAccount(me))return;
+  if(!confirm('미팅룸을 종료할까요? (모두 나가게 됩니다)'))return;
+  if(LIVE)DB.set('meeting',{active:false,t:Date.now()});
+  state.meeting={active:false}; meetLeave(); renderMeeting(); toast('미팅룸을 종료했어요');
+}
+function meetInviteAll(){
+  if(!isOwnerAccount(me)||!meetActive())return;
+  var inv={};
+  Object.values(state.users||{}).forEach(function(u){ if(u&&u.status==='active'&&!isTestBot(u)&&u.uid!==me.uid&&isLeader(u.role))inv[u.uid]=1; });
+  state.meeting.invites=inv; if(LIVE)DB.set('meeting/invites',inv);
+  Object.keys(inv).forEach(meetPushNotif);
+  toast('🔔 리더 전원에게 초대를 보냈어요'); renderMeeting();
+}
+function meetInvite(uid){
+  if(!isOwnerAccount(me)||!meetActive())return;
+  state.meeting.invites=state.meeting.invites||{}; state.meeting.invites[uid]=1;
+  if(LIVE)DB.set('meeting/invites/'+uid,1);
+  meetPushNotif(uid); renderMeeting();
+}
+function meetPushNotif(uid){ if(!LIVE)return; try{ if(typeof DB.push==='function')DB.push('notifs/'+uid,{t:Date.now(),type:'meeting',text:((me&&me.name)||'관리자')+'님이 화상미팅에 초대했어요',read:false}); }catch(e){} }
+function meetJoin(){
+  if(!meetActive()){toast('열린 미팅룸이 없어요');return;}
+  meetJoined=true;
+  if(me){ if(LIVE)DB.set('meeting/present/'+me.uid,me.name);
+    if(state.meeting.invites&&state.meeting.invites[me.uid]){ if(LIVE)DB.set('meeting/invites/'+me.uid,null); delete state.meeting.invites[me.uid]; } }
+  meetHideInvite(); renderMeeting();
+}
+function meetLeave(){ meetJoined=false; if(me&&LIVE)DB.set('meeting/present/'+me.uid,null); renderMeeting(); }
+function meetCheckInvite(){
+  if(!me||!meetActive()||meetJoined)return meetHideInvite();
+  var inv=(state.meeting&&state.meeting.invites)||{};
+  if(inv[me.uid])meetShowInvite(); else meetHideInvite();
+}
+function meetShowInvite(){
+  var o=document.getElementById('mtInviteModal');
+  if(!o){ o=document.createElement('div'); o.id='mtInviteModal'; o.className='mt-invite-modal';
+    o.innerHTML='<div class="mt-invite-box"><div class="ic">📹</div><h3>화상미팅 초대</h3><p id="mtInviteMsg"></p><div class="acts"><button class="btn ghost" onclick="meetDeclineInvite()">나중에</button><button class="btn" onclick="meetJoin()">수락하고 입장</button></div></div>';
+    document.body.appendChild(o); }
+  var msg=document.getElementById('mtInviteMsg'); if(msg)msg.innerHTML='<b>'+esc((state.meeting&&state.meeting.host)||'관리자')+'</b>님이 미팅룸에 초대했어요.<br>지금 입장할까요?';
+  o.classList.add('on');
+}
+function meetHideInvite(){ var o=document.getElementById('mtInviteModal'); if(o)o.classList.remove('on'); }
+function meetDeclineInvite(){ if(me&&state.meeting&&state.meeting.invites){ if(LIVE)DB.set('meeting/invites/'+me.uid,null); delete state.meeting.invites[me.uid]; } meetHideInvite(); }
+function meetServerBox(){
+  var cur=(state.settings&&state.settings.meetServer)||'https://meet.jit.si';
+  return '<div class="mt-card"><div class="sec-sub">⚙️ 미팅 서버 (선택)</div><p style="font-size:11.5px;color:var(--faint);line-height:1.6;margin:0 0 9px">기본은 무료 공개 서버(meet.jit.si). 자체/사설 Jitsi 서버가 있으면 주소를 넣으세요.</p><div style="display:flex;gap:7px"><input id="meetServerIn" value="'+esc(cur)+'" placeholder="https://meet.jit.si" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--fg,#fff);border-radius:8px;padding:8px 10px;font-size:12px"><button class="btn" style="flex:0 0 auto;padding:8px 14px" onclick="meetSaveServer()">저장</button></div></div>';
+}
+function meetSaveServer(){
+  if(!isOwnerAccount(me))return;
+  var el=document.getElementById('meetServerIn'),v=(el&&el.value||'').trim();
+  state.settings=state.settings||{}; state.settings.meetServer=v||null;
+  if(LIVE)DB.set('settings/meetServer',v||null);
+  toast('미팅 서버를 저장했어요'); renderMeeting();
+}
+function renderMeeting(){
+  var box=document.getElementById('meetBody'); if(!box||!me)return;
+  var admin=isOwnerAccount(me), active=meetActive(), m=state.meeting||{}, h='';
+  if(!active){
+    h+='<div class="mt-card"><p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0">'+(admin?'아직 열린 미팅룸이 없어요. 아래 버튼으로 방을 열면 팀원들이 입장할 수 있어요.':'아직 열린 미팅룸이 없어요. 관리자가 방을 열면 여기에서 입장할 수 있어요.')+'</p>';
+    if(admin)h+='<div class="mt-actions"><button class="btn" onclick="meetCreate()">📹 미팅룸 만들기 / 열기</button></div>';
+    h+='</div>'; if(admin)h+=meetServerBox(); box.innerHTML=h; return;
+  }
+  h+='<div class="mt-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="mt-live"><i></i>LIVE · '+esc(m.host||'')+'님 방</span><span style="font-size:11.5px;color:var(--faint)">'+esc(m.room||'')+'</span></div>';
+  var pres=m.present?Object.values(m.present):[];
+  if(pres.length)h+='<div class="mt-present">'+pres.map(function(n){return '<span>🟢 '+esc(n)+'</span>';}).join('')+'</div>';
+  if(!meetJoined){ h+='<div class="mt-actions"><button class="btn" onclick="meetJoin()">🚪 입장하기</button></div>'; }
+  else{ h+='<iframe class="mt-frame" allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write" src="'+meetRoomUrl()+'"></iframe><div class="mt-actions"><button class="btn ghost" onclick="meetLeave()">나가기</button></div>'; }
+  h+='</div>';
+  if(admin){
+    h+='<div class="mt-card"><div class="sec-sub">🔔 초대 (관리자)</div><div class="mt-actions"><button class="btn" onclick="meetInviteAll()">🔔 리더 전원 초대</button>'+(meetJoined?'':'<button class="btn ghost" onclick="meetJoin()">내가 입장</button>')+'<button class="btn ghost" onclick="meetEnd()">⛔ 미팅 종료</button></div>';
+    var others=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&!isTestBot(u)&&u.uid!==me.uid&&isLeader(u.role);});
+    if(others.length){ h+='<div style="margin-top:12px;display:flex;flex-direction:column;gap:7px">'+others.map(function(u){
+        var invited=m.invites&&m.invites[u.uid], here=m.present&&m.present[u.uid];
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px"><span>'+esc(u.name)+' <small style="color:var(--faint)">· '+esc(u.role)+'</small></span>'+(here?'<span style="font-size:11px;color:var(--green-soft,#8AE05C);font-weight:700">🟢 입장중</span>':'<button class="btn ghost" style="padding:5px 12px;font-size:12px" onclick="meetInvite(\''+u.uid+'\')">'+(invited?'다시 초대':'초대')+'</button>')+'</div>';
+      }).join('')+'</div>'; }
+    h+='</div>'; h+=meetServerBox();
+  }
+  box.innerHTML=h;
+}
 
 function renderTraining(){
   const box=document.getElementById('trainingBody');if(!box||!me)return;
@@ -4323,7 +4582,7 @@ const NAV=[
   {k:'sales',e:'📊',l:'성과',tabs:['sale','comp','perf','rejectnote']},
   {k:'team',e:'👥',l:'팀',tabs:['notice','kakao','net','act','wins']},
   {k:'learn',e:'📚',l:'배움',tabs:['manual','obj','callback','topics','training','cod']},
-  {k:'lead',e:'🎯',l:'리더',tabs:['leaderhit','cbjournal','teamtree','recap','calling','field']},
+  {k:'lead',e:'🎯',l:'리더',tabs:['leaderhit','cbjournal','meeting','teamtree','recap','calling','field']},
   {k:'sector',e:'🗺️',l:'섹터',tabs:['sites','setupkit']},
   {k:'admin',e:'⚙️',l:'관리',tabs:['daily','salesmgr','events','eventsurvey','survey','gsheet','admin']}
 ];
@@ -4334,6 +4593,7 @@ const TABMETA={
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성'},topics:{e:'🗂️',l:'토픽자료'},
   recap:{e:'📅',l:'리캡',g:()=>isFounder(me)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},leaderhit:{e:'🏅',l:'리더힛 계산기',g:()=>leaderhitVisible()},cbjournal:{e:'📓',l:'콜백싯 일지',g:()=>isFounder(me)||isLeader(me.role)},
+  meeting:{e:'📹',l:'미팅룸',g:()=>isLeader(me.role)},
   field:{e:'🧭',l:'필드도구',g:()=>isFounder(me)},
   sites:{e:'🗺️',l:'사이트 관리',g:()=>isSectorLeader(me)||isFounder(me)},
   daily:{e:'🗓️',l:'일일 결과',g:()=>canDaily(me)},
@@ -4416,6 +4676,7 @@ function goTab(name){
   if(name==='callback')renderCallback();
   if(name==='topics')renderTopics();
   if(name==='cbjournal'){subCbjournal();renderCbjournal();}
+  if(name==='meeting'){subMeeting();renderMeeting();}
   if(name==='manual')renderManual();
   if(name==='obj')renderObj();
   if(name==='recap')renderRecap();
@@ -5696,10 +5957,44 @@ function purgeDeparted(name){
 function syncMemberToSheet(name){ if(name&&typeof sheetAddMember==='function')sheetAddMember(name); }  // .gs의 addmember(JSONP) 사용
 function syncRosterToSheet(){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
-  const names=rosterMembers().filter(u=>!isAdminName(u.name)&&!isDeparted(u.name)).map(u=>u.name);
+  // dailyComplete가 실제로 기록하는 대상과 '똑같은' 명단(임재영 포함)을 시트에 채움
+  const names=rosterMembers().filter(u=>!isDeparted(u.name)).map(u=>u.name);
   if(!names.length){toast('동기화할 팀원이 없어요');return;}
-  toast('📋 시트에 명단 '+names.length+'명 동기화 중… (없던 사람만 추가돼요)');
-  names.forEach((n,i)=>setTimeout(()=>sheetAddMember(n), i*450));  // 순차 호출(시트 동시쓰기 충돌 방지)
+  const d=(typeof dailyDateVal==='function'?dailyDateVal():TODAY);
+  const mm=parseInt(String(d).slice(5,7),10);   // 지금 보고 대상 달(예: 7)
+  toast('📋 '+mm+'월 시트에 명단 '+names.length+'명 채우는 중…');
+  setSheetSync&&setSheetSync('sync');
+  sheetSeedMonth(names,mm,(res)=>{
+    if(res&&res.ok){
+      const a=res.addedCount||0,s=res.skippedCount||0;
+      toast(`✅ ${res.month} 이름칸 채움 — 새로 ${a}명${s?` · 이미있음 ${s}명`:''}`);
+      setSheetSync&&setSheetSync('ok');
+      setTimeout(()=>{if(typeof pullFromSheet==='function')pullFromSheet();else if(typeof autoPullSheet==='function')autoPullSheet();},900);   // 채운 뒤 보드 새로고침
+    }else{
+      const msg=(res&&res.error)||'배포/액세스(모든 사용자) 확인';
+      toast('❌ 명단 채우기 실패 — '+msg);
+      setSheetSync&&setSheetSync('err');
+      // 폴백: 예전 방식(1명씩) 시도
+      names.forEach((n,i)=>setTimeout(()=>sheetAddMember(n), i*450));
+    }
+  });
+}
+/* ★ 명단 일괄 시드 — 한 번의 JSONP 호출로 그 달 이름칸을 채움 (.gs의 seedmonth) */
+function sheetSeedMonth(names,mm,onDone){
+  const url=effectiveWebhook();
+  if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'연동 URL 없음'});return;}
+  const cb='__seed_'+Date.now()+'_'+Math.floor(Math.random()*1e5);let done=false;
+  const cleanup=()=>{try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
+  const finish=(r)=>{if(done)return;done=true;onDone&&onDone(r);cleanup();};
+  window[cb]=(res)=>finish(res||{ok:false});
+  const q='action=seedmonth&callback='+cb
+    +'&month='+encodeURIComponent(mm||'')
+    +'&names='+encodeURIComponent((names||[]).join(','))+'&t='+Date.now();
+  const s=document.createElement('script');s.id=cb;
+  s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+  s.onerror=()=>finish({ok:false,error:'연결 실패'});
+  document.body.appendChild(s);
+  setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),12000);
 }
 /* ===== 팀원 명단 관리 (시트/앱 동기화) ===== */
 function addMember(name){
@@ -5777,7 +6072,7 @@ function deleteMember(name){
     if(LIVE)DB.set('managers',state.managers);
   }
   renderMemberAdmin();if(typeof renderManagerAdmin==='function')renderManagerAdmin();if(document.getElementById('dailyList'))renderDaily();if(typeof renderAdmin==='function'&&me&&isFounder(me))renderAdmin();
-  try{renderWaterFeed();renderGb();renderWins();renderNotices&&renderNotices();renderGallery('net');renderGallery('act');renderCelebrations&&renderCelebrations();if(typeof renderScores==='function')renderScores();if(curTab==='cbjournal')renderCbBoard();}catch(e){}
+  try{renderWaterFeed();renderGb();renderWins();renderNotices&&renderNotices();renderGallery('net');renderGallery('act');renderCelebrations&&renderCelebrations();if(typeof renderScores==='function')renderScores();if(curTab==='cbjournal')renderCbBoard();if(typeof meetCheckInvite==='function')meetCheckInvite();}catch(e){}
   updateCounts&&updateCounts();
   toast('🗑️ '+name+'님과 본인이 남긴 기록을 모두 삭제했어요');
 }
@@ -5984,8 +6279,8 @@ function renderMember(){
   h+='<div class="mb-sec"><div class="mb-sh">📊 최근 결과 <span class="ed">자동 집계 · 실시간</span></div><div class="mb-stats">'+stat('이번 달 '+ck.slice(5)+'월',cm,'')+stat('지난 달 '+pk.slice(5)+'월',pm,' last')+spark+'</div></div>';
   /* 이번 달 리쿠르팅 — 콜링 허브 자동 연동 */
   var _ru=(typeof userByName==='function')?userByName(name):null;
-  var _rc=(_ru&&state.recruit&&state.recruit[_ru.uid])||null;
-  var _rcOn=_rc&&_rc.month===recruitMonth();
+  var _rc=(_ru&&typeof rcRec==='function')?rcRec(_ru.uid,recruitMonth()):null;
+  var _rcOn=!!_rc;
   function _rcCell(lbl,d,g){d=+(d||0);g=+(g||0);var pct=g>0?Math.min(100,Math.round(d/g*100)):0;return '<div class="mb-stat"><div class="k">'+lbl+'</div><div class="v">'+d+(g>0?'<small> / '+g+'</small>':'')+'</div><div class="k" style="margin-top:3px">'+(g>0?pct+'%':'목표 미설정')+'</div></div>';}
   h+='<div class="mb-sec"><div class="mb-sh">🧲 이번 달 리쿠르팅 <span class="ed">'+recruitMonth().slice(5)+'월 · 콜링허브 연동</span></div>';
   if(_rcOn){
@@ -6127,8 +6422,8 @@ function memberCardHTML(name){
   var html='<div class="p-card"><div class="p-hd"><h1>'+E(name)+' · '+E(role)+'</h1><div class="p-meta">팀: '+E(d.teamName||'-')+(d.upline?' · 상위: '+E(d.upline):'')+((ten&&ten.days!=null)?' · 근무 '+ten.days+'일차 (시작 '+E(ten.join)+')':'')+((ten&&ten.leaderHit)?' · 리더힛 '+E(ten.leaderHit):'')+' · 출력 '+new Date().toLocaleDateString('ko-KR')+'</div></div>';
   html+='<h2>기본 정보</h2><div class="p-grid">'+((function(){var _jn=((typeof miInfo==='function'?miInfo(name):{})||{}).join||a.firstField||'';return _jn?'<div><b>첫필드</b> '+E(_jn)+'</div>':'';})())+(a.leaderHit?'<div><b>리더힛</b> '+E(a.leaderHit)+'</div>':'')+(a.phone?'<div><b>연락처</b> '+E(a.phone)+'</div>':'')+(a.birth6?'<div><b>생일</b> '+E(a.birth6)+'</div>':'')+(a.email?'<div><b>이메일</b> '+E(a.email)+'</div>':'')+'</div>';
   html+='<h2>최근 결과 (자동 집계)</h2>'+sb(ck.slice(5)+'월',cm)+sb(pk.slice(5)+'월',pm);
-  var _prc=(u&&state.recruit&&state.recruit[u.uid])||null;
-  if(_prc&&_prc.month===recruitMonth()){
+  var _prc=(u&&typeof rcRec==='function')?rcRec(u.uid,recruitMonth()):null;
+  if(_prc){
     html+='<h2>이번 달 리쿠르팅 ('+recruitMonth().slice(5)+'월)</h2>'
       +'<span class="p-stat">📞 부킹 <b>'+(+_prc.bk_d||0)+'</b>'+(+_prc.bk_g>0?' / '+_prc.bk_g:'')+'</span>'
       +'<span class="p-stat">🙋 쇼업 <b>'+(+_prc.su_d||0)+'</b>'+(+_prc.su_g>0?' / '+_prc.su_g:'')+'</span>'
@@ -7024,6 +7319,7 @@ async function initFirebase(){
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
   DB.on('recruit',v=>{state.recruit=v||{};if(me)renderCalling()});
+  if(typeof meetSubscribe==='function')meetSubscribe();
   DB.on('rnPresets',v=>{state.rnPresets=v||null;if(typeof curTab!=='undefined'&&curTab==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();});
   DB.on('sales',v=>{
     state.sales={};
@@ -7266,7 +7562,7 @@ function ftRcReadM(){
   }).filter(function(x){return x&&x.n;});
 }
 function ftRcPRdata(){
-  try{ if(typeof teamRecruit==='function'){ return teamRecruit(); } }catch(e){}
+  try{ if(typeof teamRecruit==='function'){ return teamRecruit(recruitMonth()); } }catch(e){}
   return null;
 }
 function ftRcCalc(){
