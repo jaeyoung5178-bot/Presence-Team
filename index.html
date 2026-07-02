@@ -10222,7 +10222,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-02.11';
+const APP_VERSION='2026-07-03.auto';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -10232,15 +10232,23 @@ function showUpdateBanner(v){
   b.onclick=updDoUpdate;
   document.body.appendChild(b);
 }
-function updDoUpdate(){ try{location.replace(location.pathname+'?v='+Date.now());}catch(e){location.reload();} }
-function checkForUpdate(){
+function _updApply(){ try{location.replace(location.pathname+'?v='+Date.now());}catch(e){location.reload();} }
+function updDoUpdate(){ _updApply(); }
+/* 자동 적용해도 안전한 상태인지 — 입력 중이거나 화면 비활성이면 자동 새로고침 대신 배너로 */
+function _updSafe(){ try{ if(document.visibilityState!=='visible')return false; var ae=document.activeElement; if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return false; }catch(e){} return true; }
+function checkForUpdate(auto){
   try{
     fetch(location.pathname+'?_chk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(txt){
       var m=txt.match(/APP_VERSION='([^']+)'/); var remoteVer=m&&m[1];
       var sig=_updSig(txt);
-      if(_updBaseSig===null)_updBaseSig=sig;                 // 이 세션 기준선(첫 확인)
+      if(_updBaseSig===null){_updBaseSig=sig;return;}        // 첫 확인은 기준선만
       var stale=(remoteVer&&remoteVer!==APP_VERSION)||(sig!==_updBaseSig);
-      if(stale)showUpdateBanner(remoteVer||'최신');
+      if(!stale)return;
+      if(auto&&_updSafe()){                                  // 배포 끝나면 스스로 최신본으로
+        try{ if(sessionStorage.getItem('_updApplied')===sig){ showUpdateBanner(remoteVer||'최신'); return; } sessionStorage.setItem('_updApplied',sig); }catch(e){}
+        _updApply(); return;
+      }
+      showUpdateBanner(remoteVer||'최신');                    // 입력 중 등 안전하지 않으면 배너
     }).catch(function(){});
   }catch(e){}
 }
@@ -10253,9 +10261,9 @@ function checkForUpdate(){
   try{renderToday();}catch(e){}
   window.addEventListener('resize',()=>{try{syncTopOffset();}catch(e){}});
   setInterval(()=>{if(me){renderWaterFeed();renderGb();renderWins()}},60000);
-  setTimeout(checkForUpdate,4000);
-  setInterval(checkForUpdate,300000);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkForUpdate();});
+  setTimeout(function(){checkForUpdate(true);},2500);       // 진입 직후 자동 확인
+  setInterval(function(){checkForUpdate(false);},60000);     // 이후 1분마다 확인(배너)
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkForUpdate(true);}); // 탭 복귀 시 자동 적용
 })();
 </script>
 <style id="polish-css-2">
