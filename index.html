@@ -10222,12 +10222,13 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-02.9';
-let _updPrompted=false;
+const APP_VERSION='2026-07-02.10';
+let _updPrompted=false,_updBaseSig=null;
+function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
   if(_updPrompted)return;_updPrompted=true;
   var b=document.createElement('div');b.id='updBanner';
-  b.innerHTML='<span class="ub-tx">🔄 새 버전이 나왔어요 <b>('+(v||'')+')</b></span><button class="ub-go" onclick="event.stopPropagation();updDoUpdate()">지금 업데이트</button><button class="ub-x" title="나중에" onclick="event.stopPropagation();this.parentNode.remove()">✕</button>';
+  b.innerHTML='<span class="ub-tx">🔄 새 버전이 있어요 — 아래 버튼으로 최신 버전으로 업데이트해 주세요 <b>('+(v||'')+')</b></span><button class="ub-go" onclick="event.stopPropagation();updDoUpdate()">지금 업데이트</button><button class="ub-x" title="나중에" onclick="event.stopPropagation();this.parentNode.remove()">✕</button>';
   b.onclick=updDoUpdate;
   document.body.appendChild(b);
 }
@@ -10235,8 +10236,11 @@ function updDoUpdate(){ try{location.replace(location.pathname+'?v='+Date.now())
 function checkForUpdate(){
   try{
     fetch(location.pathname+'?_chk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(txt){
-      var m=txt.match(/APP_VERSION='([^']+)'/);
-      if(m&&m[1]&&m[1]!==APP_VERSION)showUpdateBanner(m[1]);
+      var m=txt.match(/APP_VERSION='([^']+)'/); var remoteVer=m&&m[1];
+      var sig=_updSig(txt);
+      if(_updBaseSig===null)_updBaseSig=sig;                 // 이 세션 기준선(첫 확인)
+      var stale=(remoteVer&&remoteVer!==APP_VERSION)||(sig!==_updBaseSig);
+      if(stale)showUpdateBanner(remoteVer||'최신');
     }).catch(function(){});
   }catch(e){}
 }
@@ -11987,11 +11991,17 @@ function spawnKernel(layer,cx,cy){
     '#homeArrangeBar button{border:none;border-radius:10px;padding:9px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap}'+
     '.ha-reset{background:var(--surface);color:var(--muted);border:1px solid var(--line)!important}'+
     '.ha-done{background:var(--green);color:var(--green-ink)}'+
-    'body.home-editing #m-home>.wrap>section.sec[id]{position:relative;border:1.5px dashed rgba(124,108,240,.6);border-radius:16px;pointer-events:auto;cursor:grab;-webkit-user-select:none;user-select:none;transition:box-shadow .14s ease}'+
-    'body.home-editing #m-home>.wrap>section.sec[id]>*{pointer-events:none!important}'+
-    'body.home-editing #m-home>.wrap>section.sec[id]::after{content:"≡ 꾹 눌러 이동";white-space:nowrap;position:absolute;top:8px;right:10px;z-index:4;background:rgba(124,108,240,.94);color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:8px;pointer-events:none;box-shadow:0 3px 8px rgba(0,0,0,.32)}'+
+    'body.home-editing #m-home>.wrap>section.sec[id]{position:relative;border:1.5px dashed rgba(124,108,240,.6);border-radius:16px;pointer-events:auto;-webkit-user-select:none;user-select:none;transition:box-shadow .14s ease}'+
+    'body.home-editing #m-home>.wrap>section.sec[id]>*:not(.ha-ctrl){pointer-events:none!important}'+
+    'body.home-editing .sec-caret{display:none!important}'+
+    '.ha-ctrl{position:absolute;top:8px;right:8px;z-index:6;display:flex;gap:5px;align-items:center;background:rgba(19,21,27,.94);border:1px solid var(--line);border-radius:12px;padding:4px;pointer-events:auto!important;box-shadow:0 4px 12px rgba(0,0,0,.42)}'+
+    '.ha-ctrl button{pointer-events:auto!important;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;border-radius:9px;background:rgba(124,108,240,.16);color:#c9c2ff;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;line-height:1;padding:0;-webkit-tap-highlight-color:transparent}'+
+    '.ha-ctrl button:not(:disabled):active{transform:scale(.88)}'+
+    '.ha-ctrl button:disabled{opacity:.26;cursor:default}'+
+    '.ha-ctrl .ha-grip{background:transparent;color:var(--muted);font-size:17px;cursor:grab;touch-action:none}'+
+    '.ha-bump{animation:haBump .34s ease}'+
+    '@keyframes haBump{0%{box-shadow:0 0 0 0 rgba(124,108,240,.55)}100%{box-shadow:0 0 0 9px rgba(124,108,240,0)}}'+
     '.ha-lift{position:fixed!important;z-index:99998!important;box-shadow:0 22px 48px -10px rgba(0,0,0,.72)!important;opacity:.98;pointer-events:none!important;border-color:#8b5cf6!important;background:var(--bg,#0e1014)}'+
-    '.ha-lift::after{display:none!important}'+
     '.ha-ph{border:2px dashed rgba(124,108,240,.75);border-radius:16px;background:rgba(124,108,240,.08);box-sizing:border-box}';
     document.head.appendChild(s);
   }
@@ -12025,7 +12035,7 @@ function spawnKernel(layer,cx,cy){
     fab.addEventListener('click',function(){ enter(); });
     document.body.appendChild(fab);
     var bar=document.createElement('div'); bar.id='homeArrangeBar';
-    bar.innerHTML='<div class="ha-tx">\uD83E\uDDE9 \uD648 \uBC30\uCE58 \uD3B8\uC9D1<small>\uCE74\uB4DC\uB97C \uAF2D \uB20C\uB7EC \uC704\u00B7\uC544\uB798\uB85C \uC62E\uAE30\uC138\uC694</small></div>'+
+    bar.innerHTML='<div class="ha-tx">🧩 홈 배치 편집<small>▲▼ 로 옮기거나 ⠿ 를 끌어서 이동</small></div>'+
       '<div class="ha-btns"><button class="ha-reset" type="button">\uAE30\uBCF8\uC21C\uC11C</button><button class="ha-done" type="button">\uC644\uB8CC</button></div>';
     bar.querySelector('.ha-reset').addEventListener('click',function(){ resetOrder(); });
     bar.querySelector('.ha-done').addEventListener('click',function(){ exit(true); });
@@ -12035,18 +12045,17 @@ function spawnKernel(layer,cx,cy){
   function syncFab(){ ensureUI(); var f=document.getElementById('homeArrangeFab'); if(!f)return; if(editing&&!ownerOnHome()){ exit(true); } f.style.display=(ownerOnHome()&&!editing)?'inline-flex':'none'; }
   window.__homeArrangeSync=syncFab;
 
-  function enter(){ if(!ownerOnHome())return; editing=true; dirty=false; ensureUI(); document.body.classList.add('home-editing'); attachDrag(); syncFab(); try{toast&&toast('\uD83E\uDDE9 \uD648 \uBC30\uCE58 \uD3B8\uC9D1 \u2014 \uCE74\uB4DC\uB97C \uAF2D \uB20C\uB7EC \uC62E\uAE30\uC138\uC694');}catch(e){} }
-  function exit(doSave){ if(!editing)return; editing=false; document.body.classList.remove('home-editing'); detachDrag(); cleanupDrag(); if(doSave&&dirty){ var arr=currentOrder(); persist(arr); try{toast&&toast('\u2713 \uD648 \uBC30\uCE58\uB97C \uC800\uC7A5\uD588\uC5B4\uC694 \u2014 \uD300\uC6D0 \uBAA8\uB450\uC5D0\uAC8C \uBC18\uC601\uB3FC\uC694');}catch(e){} } syncFab(); }
-  function resetOrder(){ order=DEFAULT_ORDER.slice(); apply(); dirty=true; try{toast&&toast('\uAE30\uBCF8 \uC21C\uC11C\uB85C \uB418\uB3CC\uB838\uC5B4\uC694 \u2014 \uC644\uB8CC\uB97C \uB204\uB974\uBA74 \uC800\uC7A5\uB3FC\uC694');}catch(e){} }
+  function enter(){ if(!ownerOnHome())return; editing=true; dirty=false; ensureUI(); document.body.classList.add('home-editing'); buildCtrls(); syncFab(); try{toast&&toast('🧩 홈 배치 편집 — ▲▼ 로 옮기거나 ⠿ 를 끌어서 이동하세요');}catch(e){} }
+  function exit(doSave){ if(!editing)return; editing=false; document.body.classList.remove('home-editing'); removeCtrls(); cleanupDrag(); teardown(); if(doSave&&dirty){ var arr=currentOrder(); persist(arr); try{toast&&toast('✓ 홈 배치를 저장했어요 — 팀원 모두에게 반영돼요');}catch(e){} } syncFab(); }
+  function resetOrder(){ order=DEFAULT_ORDER.slice(); apply(); dirty=true; if(editing){buildCtrls();} try{toast&&toast('기본 순서로 되돌렸어요 — 완료를 누르면 저장돼요');}catch(e){} }
 
   /* ── 포인터 기반 롱프레스 드래그(터치+마우스) ── */
   var drag=null, autoRAF=0, lastY=0;
-  function onDown(e){
+  function onGripDown(e){
     if(!editing||drag)return;
     if(e.button!==undefined&&e.button!==0)return;
-    var el=e.currentTarget;
-    drag={el:el,id:e.pointerId,x0:e.clientX,y0:e.clientY,lifted:false,timer:0,grabOff:0};
-    drag.timer=setTimeout(function(){ lift(e.clientX,e.clientY); }, 190);
+    var el=e.currentTarget.closest('section.sec[id]'); if(!el)return;
+    drag={el:el,id:e.pointerId,x0:e.clientX,y0:e.clientY,lifted:false,grabOff:0};
     window.addEventListener('pointermove',onMove,{passive:false});
     window.addEventListener('pointerup',onUp);
     window.addEventListener('pointercancel',onUp);
@@ -12067,8 +12076,8 @@ function spawnKernel(layer,cx,cy){
   function onMove(e){
     if(!drag)return;
     if(!drag.lifted){
-      if(Math.abs(e.clientY-drag.y0)>8||Math.abs(e.clientX-drag.x0)>8){ clearTimeout(drag.timer); teardown(); } // 스크롤 의도 → 취소
-      return;
+      if(Math.abs(e.clientY-drag.y0)>4||Math.abs(e.clientX-drag.x0)>4){ lift(e.clientX,e.clientY); }
+      if(!drag.lifted)return;
     }
     e.preventDefault();
     lastY=e.clientY;
@@ -12091,11 +12100,44 @@ function spawnKernel(layer,cx,cy){
     if(ph&&ph.parentNode){ c.insertBefore(el,ph); ph.parentNode.removeChild(ph); }
     drag.ph=null; dirty=true;
     try{ navigator.vibrate&&navigator.vibrate(8); }catch(e){}
+    try{ updateArrowStates(); }catch(e){}
   }
   function cleanupDrag(){ if(autoRAF){cancelAnimationFrame(autoRAF);autoRAF=0;} if(drag&&drag.el){ drag.el.classList.remove('ha-lift'); drag.el.style.width='';drag.el.style.left='';drag.el.style.top='';drag.el.style.margin=''; } if(drag&&drag.ph&&drag.ph.parentNode)drag.ph.parentNode.removeChild(drag.ph); drag=null; }
   function teardown(){ window.removeEventListener('pointermove',onMove); window.removeEventListener('pointerup',onUp); window.removeEventListener('pointercancel',onUp); if(autoRAF){cancelAnimationFrame(autoRAF);autoRAF=0;} drag=null; }
-  function attachDrag(){ secs().forEach(function(s){ s.addEventListener('pointerdown',onDown); }); }
-  function detachDrag(){ secs().forEach(function(s){ s.removeEventListener('pointerdown',onDown); }); }
+  function buildCtrls(){
+    removeCtrls();
+    secs().forEach(function(el){
+      var ctrl=document.createElement('div'); ctrl.className='ha-ctrl';
+      ctrl.innerHTML='<button type="button" class="ha-up" aria-label="위로 이동">▲</button>'+
+        '<button type="button" class="ha-dn" aria-label="아래로 이동">▼</button>'+
+        '<button type="button" class="ha-grip" aria-label="끌어서 이동" title="끌어서 이동">⠿</button>';
+      ctrl.querySelector('.ha-up').addEventListener('click',function(ev){ev.stopPropagation();moveSec(el.id,-1);});
+      ctrl.querySelector('.ha-dn').addEventListener('click',function(ev){ev.stopPropagation();moveSec(el.id,1);});
+      ctrl.querySelector('.ha-grip').addEventListener('pointerdown',onGripDown);
+      el.appendChild(ctrl);
+    });
+    updateArrowStates();
+  }
+  function removeCtrls(){ try{ document.querySelectorAll('#m-home .ha-ctrl').forEach(function(c){c.remove();}); }catch(e){} }
+  function updateArrowStates(){
+    var list=secs();
+    list.forEach(function(el,i){
+      var up=el.querySelector('.ha-up'), dn=el.querySelector('.ha-dn');
+      if(up)up.disabled=(i===0);
+      if(dn)dn.disabled=(i===list.length-1);
+    });
+  }
+  function moveSec(id,dir){
+    var c=container(), el=document.getElementById(id); if(!c||!el)return;
+    var list=secs(), i=list.indexOf(el); if(i<0)return;
+    if(dir<0){ if(i===0)return; c.insertBefore(el,list[i-1]); }
+    else { if(i===list.length-1)return; var nx=list[i+1]; c.insertBefore(el,nx.nextSibling); }
+    dirty=true;
+    try{ el.classList.remove('ha-bump'); void el.offsetWidth; el.classList.add('ha-bump'); }catch(e){}
+    try{ navigator.vibrate&&navigator.vibrate(8); }catch(e){}
+    try{ el.scrollIntoView({block:'nearest'}); }catch(e){}
+    updateArrowStates();
+  }
 
   /* goTab 감싸기 — 탭 이동 시 FAB 동기화 · 홈 떠나면 편집 자동 종료·저장 · 홈에서 순서 재적용 */
   function wrapGoTab(){
