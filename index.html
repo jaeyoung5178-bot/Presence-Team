@@ -200,7 +200,7 @@ main{padding-bottom:40px}
 .tree-stage{position:relative;min-height:340px;display:flex;align-items:flex-end;justify-content:center;padding:22px;border-right:1px solid var(--line);background:radial-gradient(130% 100% at 50% 110%,rgba(92,188,46,.12),transparent 62%)}
 @media(max-width:760px){.tree-stage{border-right:none;border-bottom:1px solid var(--line);min-height:300px}}
 .tree-stage .ground{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px dashed rgba(92,188,46,.22)}
-#treeSvg{position:relative;z-index:2;width:min(270px,76%);height:auto}
+#treeSvg{position:relative;z-index:2;width:min(320px,88%);height:auto}
 .tree-counter{position:absolute;top:20px;left:22px;z-index:3}
 .tree-counter .n{font-family:var(--disp);font-weight:700;font-size:40px;line-height:1;color:var(--green)}
 .tree-counter .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px}
@@ -5012,11 +5012,11 @@ const TREE_END=Date.parse('2026-12-31T23:59:59+09:00');
 const TREE_WEEKS=Math.max(1,Math.ceil((TREE_END-TREE_START)/(7*86400000)));
 const TREE_PREVIEW=[0,Math.round(TREE_WEEKS*0.3),Math.round(TREE_WEEKS*0.6),Math.round(TREE_WEEKS*0.85),TREE_WEEKS,'end'];
 let treePreviewStep=null;   // 관리자 미리보기 (실데이터 영향 없음)
-const TREE_STAGES=[{min:0,name:'새싹'},{min:.10,name:'떡잎'},{min:.20,name:'묘목'},{min:.32,name:'어린나무'},{min:.45,name:'자라는 나무'},{min:.58,name:'나무'},{min:.72,name:'큰나무'},{min:.86,name:'우거진 나무'},{min:1,name:'완성 트리'}];
+const TREE_STAGES=[{min:0,name:'새싹'},{min:.015,name:'떡잎'},{min:.035,name:'묘목'},{min:.09,name:'어린나무'},{min:.18,name:'자라는 나무'},{min:.32,name:'나무'},{min:.5,name:'큰나무'},{min:.72,name:'우거진 나무'},{min:1,name:'완성 트리'}];
 function treeDays(){return Math.floor((Date.now()-TREE_START)/86400000)}
 function treeWeek(){return Math.max(0,Math.min(TREE_WEEKS,Math.floor(treeDays()/7)))}
 function treeFrac(w){return Math.max(0,Math.min(1,(w==null?treeWeek():w)/TREE_WEEKS))}
-function treeG(w){return 0.08+0.92*treeFrac(w)}
+function treeG(w){var f=treeFrac(w);var base=0.26+0.66*Math.pow(f,0.6);var wb=Math.min(0.16,((typeof state!=='undefined'&&state&&state.pr)?state.pr:0)/650);return Math.min(1,base+wb);}
 function treeStage(f){let s=TREE_STAGES[0];for(const st of TREE_STAGES)if(f>=st.min)s=st;return s}
 function treeEnded(){return Date.now()>=TREE_END}
 function isTreeGrowthDay(){return !treeEnded() && treeWeek()>0 && treeDays()%7===0}
@@ -5230,13 +5230,13 @@ function renderTree(weekOverride){
     document.getElementById('treeSvg').innerHTML=s;return;
   }
   let svg=`<ellipse cx="${cx}" cy="${baseY+6}" rx="${28+g*34}" ry="${8+g*5}" fill="#1b140d" opacity=".5"/>`;
-  if(frac<0.04){
+  if(frac<0.02){
     svg+=`<rect x="${cx-3}" y="${baseY-28}" width="6" height="28" rx="3" fill="#6b4a2b"/>`;
     svg+=`<path d="M${cx} ${baseY-22} q-17 -5 -21 -21 q17 1 21 21" fill="#5CBC2E"/>`;
     svg+=`<path d="M${cx} ${baseY-27} q17 -5 21 -21 q-17 1 -21 21" fill="#7FD658"/>`;
     document.getElementById('treeSvg').innerHTML=svg;return;
   }
-  const trunkH=24+g*86,trunkW=7+g*15,cy=baseY-trunkH,R=20+g*54;
+  const trunkH=28+g*100,trunkW=8+g*17,cy=baseY-trunkH,R=22+g*64;
   svg+=`<path d="M${cx-trunkW/2} ${baseY} Q${cx-trunkW/2-2} ${cy+12} ${cx-trunkW/3} ${cy+2} L${cx+trunkW/3} ${cy+2} Q${cx+trunkW/2+2} ${cy+12} ${cx+trunkW/2} ${baseY} Z" fill="#6b4a2b"/>`;
   svg+=`<path d="M${cx-2} ${baseY-trunkH*.4} q-${trunkW*.6} ${trunkH*.18} -${trunkW*.3} ${trunkH*.34}" stroke="#52371f" stroke-width="2" fill="none" opacity=".6"/>`;
   const C=(x,y,r,col,op=1)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${col}" opacity="${op}"/>`;
@@ -10222,7 +10222,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-02.10';
+const APP_VERSION='2026-07-02.11';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -11979,7 +11979,7 @@ function spawnKernel(layer,cx,cy){
     if(document.getElementById('ha-style'))return;
     var s=document.createElement('style'); s.id='ha-style';
     s.textContent=
-    '#homeArrangeFab{position:fixed;left:14px;bottom:calc(74px + var(--safe-b,0px));z-index:70;display:none;align-items:center;gap:6px;background:linear-gradient(135deg,#6a5cf0,#8b5cf6);color:#fff;border:none;border-radius:999px;padding:11px 15px 11px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 8px 22px -6px rgba(90,70,220,.6)}'+
+    '#homeArrangeFab{position:fixed;right:14px;bottom:calc(166px + var(--safe-b,0px));z-index:var(--z-float,400);display:none;align-items:center;gap:6px;background:linear-gradient(135deg,#6a5cf0,#8b5cf6);color:#fff;border:none;border-radius:999px;padding:11px 15px 11px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 8px 22px -6px rgba(90,70,220,.6)}'+
     '#homeArrangeFab .ha-ic{font-size:15px}#homeArrangeFab:active{transform:scale(.96)}'+
     'body.home-editing #homeArrangeFab{display:none!important}'+
     'body.home-editing #previewBanner{display:none!important}'+
@@ -12152,5 +12152,5 @@ function spawnKernel(layer,cx,cy){
 })();
 </script>
 <script src="ps-hub.js"></script>
-</body>  
+</body>
 </html>
