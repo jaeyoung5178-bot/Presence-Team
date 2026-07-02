@@ -136,12 +136,13 @@
     if (document.getElementById('ps-ui-css')) return;
     var s = document.createElement('style'); s.id = 'ps-ui-css';
     s.textContent = [
-      /* 편집 런처 — 왼쪽 아래(오른쪽 네이티브 플로팅 스택과 겹치지 않도록) */
-      '#ps-launch{position:fixed;left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9600;',
-      'display:none;align-items:center;gap:7px;border:none;cursor:pointer;color:#fff;font-weight:800;font-size:12.5px;',
-      'padding:10px 14px;border-radius:999px;background:var(--grad,#6366f1);box-shadow:0 8px 22px -8px rgba(99,102,241,.7);font-family:inherit}',
-      '#ps-launch:active{transform:scale(.97)}',
-      '@media(min-width:980px){#ps-launch{left:20px;bottom:20px}}',
+      /* 편집 도크 — 왼쪽 아래(오른쪽 네이티브 플로팅 스택과 겹치지 않도록) */
+      '#ps-dock{position:fixed;left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9600;display:none;flex-direction:column;gap:9px;align-items:flex-start}',
+      '@media(min-width:980px){#ps-dock{left:20px;bottom:20px}}',
+      '.ps-fab{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;color:#fff;font-weight:800;font-size:12.5px;',
+      'padding:11px 15px;border-radius:999px;background:linear-gradient(135deg,#6a5cf0,#8b5cf6);box-shadow:0 8px 22px -8px rgba(90,70,220,.65);font-family:inherit}',
+      '.ps-fab.alt{background:var(--grad,#6366f1);box-shadow:0 8px 22px -8px rgba(99,102,241,.6)}',
+      '.ps-fab:active{transform:scale(.97)}',
       '#ps-ov{position:fixed;inset:0;z-index:99998;display:none;background:rgba(6,7,10,.55);backdrop-filter:blur(3px)}',
       '#ps-ov.on{display:block}',
       '#ps-panel{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--surface,#1B1E25);',
@@ -273,12 +274,34 @@
   }
   function closeStudio() { studioOpen = false; document.getElementById('ps-ov').classList.remove('on'); reloadAndApply(); }
 
-  function ensureLauncher() {
-    if (document.getElementById('ps-launch')) return;
-    var b = document.createElement('button'); b.id = 'ps-launch'; b.innerHTML = '🎨 디자인'; b.onclick = openStudio;
-    document.body.appendChild(b);
+  /* ---- 홈 배치: 데스크톱에서도 확실히 열기 (네이티브 타이밍/탭 조건 우회) ---- */
+  function psHomeArrange() {
+    try { if (typeof window.goTab === 'function') window.goTab('home'); } catch (e) {}   // curTab='home' 확정
+    setTimeout(function () {
+      try { if (typeof window.__homeArrangeSync === 'function') window.__homeArrangeSync(); } catch (e) {}
+      var fab = document.getElementById('homeArrangeFab');
+      if (fab) {
+        fab.style.display = 'inline-flex'; try { fab.click(); } catch (e) {}
+        setTimeout(function () {
+          if (!document.body.classList.contains('home-editing')) {
+            try { if (typeof window.__homeArrangeSync === 'function') window.__homeArrangeSync(); } catch (e) {}
+            var f2 = document.getElementById('homeArrangeFab'); if (f2) { f2.style.display = 'inline-flex'; try { f2.click(); } catch (e) {} }
+            setTimeout(function () { if (!document.body.classList.contains('home-editing')) toast('홈 화면에서 한 번 더 눌러 주세요'); }, 250);
+          }
+        }, 320);
+      } else { toast('홈 배치 기능을 찾지 못했어요 — 새로고침 후 다시 시도해 주세요'); }
+    }, 320);
   }
-  function syncLauncher() { var b = document.getElementById('ps-launch'); if (b) b.style.display = canManage() ? 'inline-flex' : 'none'; }
+
+  function ensureLauncher() {
+    if (document.getElementById('ps-dock')) return;
+    var dock = document.createElement('div'); dock.id = 'ps-dock';
+    var ha = document.createElement('button'); ha.id = 'ps-home'; ha.className = 'ps-fab'; ha.innerHTML = '🧩 홈배치'; ha.onclick = psHomeArrange;
+    var de = document.createElement('button'); de.id = 'ps-launch'; de.className = 'ps-fab alt'; de.innerHTML = '🎨 디자인'; de.onclick = openStudio;
+    dock.appendChild(ha); dock.appendChild(de);
+    document.body.appendChild(dock);
+  }
+  function syncLauncher() { var d = document.getElementById('ps-dock'); if (d) d.style.display = canManage() ? 'flex' : 'none'; }
 
   /* ---- 부팅 ---- */
   function start() {
@@ -286,7 +309,8 @@
     try { initTheme(); } catch (e) {}
     try { ensureLauncher(); } catch (e) {}
     window.openDesignStudio = openStudio;
-    // 주기 작업: (1) 디자인 버튼 표시 갱신  (2) 네이티브 '🧩 홈 배치' 버튼 표시 갱신(데스크톱 대응)
+    window.openHomeArrange = psHomeArrange;
+    window.__presenceStudioVersion = 3;
     setInterval(function () {
       try { syncLauncher(); } catch (e) {}
       try { if (typeof window.__homeArrangeSync === 'function') window.__homeArrangeSync(); } catch (e) {}
