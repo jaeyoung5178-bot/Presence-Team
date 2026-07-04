@@ -134,8 +134,11 @@
     if (document.getElementById('ps-ui-css')) return;
     var s = document.createElement('style'); s.id = 'ps-ui-css';
     s.textContent = [
-      '#ps-dock{position:fixed;left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9600;display:none;flex-direction:column;gap:9px;align-items:flex-start}',
-      '@media(min-width:980px){#ps-dock{left:20px;bottom:20px}}',
+      '#ps-dock{position:fixed;top:14px;right:356px;z-index:9600;display:none;flex-direction:row;gap:8px;align-items:center}',
+      '@media(max-width:1100px){#ps-dock{top:64px;right:12px}}',
+      '#ps-dock .ps-fab{width:34px;height:34px;padding:0;justify-content:center;border-radius:50%;font-size:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);box-shadow:none}',
+      '#ps-dock .ps-fab:hover{background:rgba(255,255,255,.16)}',
+      '@media(min-width:980px){#ps-dock{top:14px}}',
       '.ps-fab{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;color:#fff;font-weight:800;font-size:12.5px;padding:11px 15px;border-radius:999px;background:linear-gradient(135deg,#6a5cf0,#8b5cf6);box-shadow:0 8px 22px -8px rgba(90,70,220,.65);font-family:inherit}',
       '.ps-fab.alt{background:var(--grad,#6366f1);box-shadow:0 8px 22px -8px rgba(99,102,241,.6)}',
       '.ps-fab:active{transform:scale(.97)}',
@@ -298,8 +301,8 @@
   function ensureLauncher() {
     if (document.getElementById('ps-dock')) return;
     var dock = document.createElement('div'); dock.id = 'ps-dock';
-    var ha = document.createElement('button'); ha.className = 'ps-fab'; ha.innerHTML = '🧩 홈배치'; ha.onclick = openHomeArrange;
-    var de = document.createElement('button'); de.className = 'ps-fab alt'; de.innerHTML = '🎨 디자인'; de.onclick = openStudio;
+    var ha = document.createElement('button'); ha.className = 'ps-fab'; ha.innerHTML = '🧩'; ha.title = '홈배치'; ha.onclick = openHomeArrange;
+    var de = document.createElement('button'); de.className = 'ps-fab alt'; de.innerHTML = '🎨'; de.title = '디자인'; de.onclick = openStudio;
     dock.appendChild(ha); dock.appendChild(de); document.body.appendChild(dock);
   }
   function syncLauncher() { var d = document.getElementById('ps-dock'); if (d) d.style.display = canManage() ? 'flex' : 'none'; }
