@@ -19,7 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
 <style>
 :root{
   --ink:#0E1013; --surface:#1B1E25; --card:#232730; --card-2:#2A2F39;
@@ -32,14 +33,14 @@
   --oxfam:#43CD7D; --wepair:#46B6DD; --amber:#E6B052; --coral:#F2856A; --violet:#B98BE6; --danger:#FF6B6B;
   --radius:16px; --radius-lg:22px; --maxw:1040px;
   --mono:'JetBrains Mono',ui-monospace,monospace;
-  --disp:'Space Grotesk','Pretendard',sans-serif;
+  --disp:'Jua','Gowun Dodum','Space Grotesk','Pretendard',sans-serif;
   --shadow:0 10px 30px -12px rgba(0,0,0,.55);
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--ink);color:var(--cream);font-family:'Pretendard',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{background:var(--ink);color:var(--cream);font-family:'Gowun Dodum','Jua','Pretendard',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 a{color:inherit;text-decoration:none}
 input,select,textarea,button{font-family:inherit}
@@ -806,7 +807,7 @@ table.scores tr.top1 .big{color:var(--green)}
 .animal-bar-fill{height:100%;background:linear-gradient(90deg,#E8923C,#f5b860);border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
 .animal-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--line);max-width:300px;margin-left:auto;margin-right:auto}
 
-/* ===== 먹이 토큰 상점 ===== */
+/* ===== 먹이 먹이 토큰 상점 ===== */
 .token-shop{margin:12px auto 6px;max-width:330px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
 .token-shop.shake{animation:tkShake .42s}
 @keyframes tkShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
@@ -2376,12 +2377,12 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
         <div class="adm-card">
           <div class="ah tog" onclick="toggleAdmCard(this)"><h3>🪙 먹이 토큰 현황</h3><span class="badge zero" id="tokIssuedBadge">0</span><span class="ah-caret">▾</span></div>
           <div class="adm-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:11px"><b>먹이는 토큰으로만</b> 줘요(하루 한 번). 필드에서 결과(1건↑)를 낸 사람에게 <b>밤 11시 승인</b> 또는 아래 <b>[오늘 결과 토큰 발행]</b>으로 토큰을 1개씩 발행하고, 이벤트 토큰은 따로 줄 수 있어요. <b>누적 지급</b>=총 지급 · <b>사용</b>=먹이로 쓴 수 · <b>보유</b>=잔액. (− 는 회수)</p>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:11px"><b>먹이는 토큰으로만</b> 줘요(하루 한 번). 필드에서 결과(1건↑)를 낸 사람에게 <b>밤 11시 승인</b> 또는 아래 <b>[오늘 결과 토큰 발행]</b>으로 토큰을 1개씩 발행하고, 이벤트 먹이 토큰은 따로 줄 수 있어요. <b>누적 지급</b>=총 지급 · <b>사용</b>=먹이로 쓴 수 · <b>보유</b>=잔액. (− 는 회수)</p>
             <div class="tok-scroll"><table class="roster tok-table"><thead><tr><th>이름</th><th>누적 지급</th><th>사용</th><th>보유</th><th>지급</th></tr></thead><tbody id="tokenAdminBody"></tbody></table>
             <div id="tokenGrantLog" class="tok-log"></div></div>
             <div class="tok-date-row">📅 기준 날짜 <input type="date" id="tokWorkDate" onchange="renderTokenAdmin()"><span class="tok-date-hint">자정 넘으면 어제 날짜로 바꿔서 처리</span></div>
             <button class="gift-all-btn" onclick="openTokenIssue()" style="margin-bottom:8px">🪙 선택 날짜 결과 토큰 발행 (필드 출전자 1개씩 · 승인)</button>
-            <button class="gift-all-btn" onclick="grantGiftAll()">🎁 (이벤트) 오늘 전원에게 기념 토큰 1개씩 지급</button>
+            <button class="gift-all-btn" onclick="grantGiftAll()">🎁 (이벤트) 오늘 전원에게 먹이 토큰 1개씩 지급</button>
             <button class="gift-all-btn" onclick="resetTokenBaseline()" style="margin-top:8px;background:rgba(232,71,60,.16);border-color:rgba(232,71,60,.4)">🧹 선택 날짜 기준으로 토큰 정리 (지급내역 초기화)</button>
             <div class="gift-note">기념일용이에요 — 누르면 전원에게 1개씩 지급돼요. 평소엔 위 표에서 ＋ 로 개별 지급하면 돼요.</div>
           </div>
@@ -3424,7 +3425,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
-<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">환영합니다!</h3><div class="wc-msg" id="wcMsg"></div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>기념주화 1개</b>가 지급되었어요!</div><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
+<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">환영합니다!</h3><div class="wc-msg" id="wcMsg"></div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>먹이 토큰 1개</b>가 지급되었어요!</div><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
 <div class="modal" id="obNudgeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title" id="obNudgeName">첫 필드 축하!</h3><div class="wc-msg" id="obNudgeMsg"></div><div class="wc-token" id="obNudgeTrain" style="text-align:left;line-height:1.7"></div><button class="ann-ok" onclick="closeModal('obNudgeModal')">화이팅! 💪</button></div></div>
 <div class="modal" id="ldNudgeModal"><div class="box welcome-box"><div class="wc-icon">🌱</div><h3 class="wc-title">신입이 왔어요!</h3><div class="wc-msg" id="ldNudgeBody"></div><button class="ann-ok" onclick="closeModal('ldNudgeModal')">교육 준비할게요 💪</button></div></div>
 <div class="modal" id="giftWinModal"><div class="box gift-win-box">
@@ -4221,7 +4222,7 @@ function sheetRecWrite(mk){
   window[cb]=function(){try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
   const s=document.createElement('script');s.id=cb;s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
   s.onerror=window[cb];document.body.appendChild(s);
-  setTimeout(window[cb],8000);
+  setTimeout(window[cb],20000);
 }
 /* 관리자: 선택 달 팀 전체를 시트로 내보내기 */
 function rcExportSheet(){
@@ -4240,7 +4241,7 @@ function rcExportSheet(){
       +'&st_g='+(+r.st_g||0)+'&st_d='+(+r.st_d||0)+'&t='+Date.now();
     window[cb]=function(){try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
     const s=document.createElement('script');s.id=cb;s.src=url+(url.indexOf('?')>=0?'&':'?')+q;s.onerror=window[cb];document.body.appendChild(s);
-    setTimeout(window[cb],8000);
+    setTimeout(window[cb],20000);
   },i*400);});
 }
 function pullFromSheet(){
@@ -5033,7 +5034,7 @@ function goTab(name){
   document.querySelectorAll('#subRail .stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
-  var _hsb=document.getElementById('homeSearchBtn');if(_hsb)_hsb.style.display=(name==='home')?'flex':'none';
+  var _hsb=document.getElementById('homeSearchBtn');if(_hsb)_hsb.style.display='flex';
   if(name==='sale'||name==='comp'||name==='perf'){try{renderPerfSeg(name);}catch(e){}}
   if(name==='hall'){try{renderHall();}catch(e){}}
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
@@ -6154,13 +6155,13 @@ function grantGiftAll(){
   if(!isFounder(me)){toast('관리자만 지급할 수 있어요');return;}
   const names=rosterMembers().map(u=>u.name);
   if(!names.length){toast('팀원이 없어요');return;}
-  if(!confirm(`${names.length}명 전원에게 기념 토큰 1개씩 지급할까요?`))return;
+  if(!confirm(`${names.length}명 전원에게 먹이 토큰 1개씩 지급할까요?`))return;
   state.tokenLog=state.tokenLog||[];const now=Date.now();
   names.forEach((name,i)=>{state.tokens[name]=(state.tokens[name]||0)+1;state.tokenLog.push({name,t:now+i,by:me.name,amt:1,gift:true});});
   if(state.tokenLog.length>500)state.tokenLog=state.tokenLog.slice(-500);
   if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}
   renderTokenAdmin();renderTokenShop();
-  toast(`🎁 ${names.length}명에게 기념 토큰을 1개씩 지급했어요!`);
+  toast(`🎁 ${names.length}명에게 먹이 토큰을 1개씩 지급했어요!`);
 }
 /* ===== 오늘 먹이 출석부 (관리자가 오늘 먹이 준 사람 체크 → 공동 1위·로그 반영) ===== */
 function renderFeedAttend(){
@@ -6184,7 +6185,7 @@ function toggleFeedAttend(name){
   renderComp();renderTokenAdmin();renderTokenShop();
   toast(cur?(name+'님 먹이 취소 · 토큰 +1 환급'):('🌽 '+name+'님 먹이 기록 · 토큰 −1 사용'));
 }
-/* ===== 오늘의 기념주화 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
+/* ===== 오늘의 먹이 토큰 발행 (필드 출전자 1개씩 · 관리자 승인) ===== */
 function tokWorkDate(){const el=document.getElementById('tokWorkDate');return (el&&el.value)?el.value:TODAY;}
 function fieldersOn(d){
   d=d||TODAY;const out=[],roster={};rosterMembers().forEach(u=>roster[u.name]=u.role);
@@ -6199,7 +6200,7 @@ function tokensIssuedToday(){return tokensIssuedOn(TODAY);}
 function ensureTokenIssueModal(){
   if(document.getElementById('tokenIssueModal'))return;
   const m=document.createElement('div');m.className='modal';m.id='tokenIssueModal';
-  m.innerHTML='<div class="box"><h3>🪙 오늘의 기념주화 발행</h3><div id="tiBody"></div><div class="acts"><button class="btn ghost" onclick="holdTokenIssue()">보류</button><button class="btn" id="tiConfirmBtn" onclick="confirmTokenIssue()">발급</button></div></div>';
+  m.innerHTML='<div class="box"><h3>🪙 오늘의 먹이 토큰 발행</h3><div id="tiBody"></div><div class="acts"><button class="btn ghost" onclick="holdTokenIssue()">보류</button><button class="btn" id="tiConfirmBtn" onclick="confirmTokenIssue()">발급</button></div></div>';
   document.body.appendChild(m);
 }
 function openTokenIssue(){
@@ -6208,9 +6209,9 @@ function openTokenIssue(){
   const d=tokWorkDate();
   const f=fieldersOn(d),done=tokensIssuedOn(d);let body='';
   body+='<div class="ti-date">📅 기준 날짜 · <b>'+d+'</b></div>';
-  if(done)body+='<div class="ti-done">✅ '+d+' 기념주화는 이미 발행했어요. (하루 1개씩만)</div>';
-  if(!f.length){body+='<div class="ti-empty">'+d+'에 필드 결과(노제로 1건↑)를 낸 팀원이 없어요. 발행할 주화가 없습니다.</div>';}
-  else{body+='<div class="ti-sub">📋 '+d+' 최종 결과 — 필드에서 결과를 낸 <b>'+f.length+'명</b>에게 기념주화를 <b>1개씩</b> 발행해요.<br><small style="color:var(--faint)">0·NA인 팀원은 발행 대상이 아니에요. 이대로 발행할까요?</small></div><div class="ti-list">'+f.map(x=>'<div class="ti-row"><span class="ti-nm">'+esc(x.name)+' <small>'+esc(x.role)+'</small></span><span class="ti-cnt">'+x.count+'건</span><span class="ti-coin">🪙 +1</span></div>').join('')+'</div>';}
+  if(done)body+='<div class="ti-done">✅ '+d+' 먹이 토큰는 이미 발행했어요. (하루 1개씩만)</div>';
+  if(!f.length){body+='<div class="ti-empty">'+d+'에 필드 결과(노제로 1건↑)를 낸 팀원이 없어요. 발행할 먹이 토큰이 없습니다.</div>';}
+  else{body+='<div class="ti-sub">📋 '+d+' 최종 결과 — 필드에서 결과를 낸 <b>'+f.length+'명</b>에게 먹이 토큰를 <b>1개씩</b> 발행해요.<br><small style="color:var(--faint)">0·NA인 팀원은 발행 대상이 아니에요. 이대로 발행할까요?</small></div><div class="ti-list">'+f.map(x=>'<div class="ti-row"><span class="ti-nm">'+esc(x.name)+' <small>'+esc(x.role)+'</small></span><span class="ti-cnt">'+x.count+'건</span><span class="ti-coin">🪙 +1</span></div>').join('')+'</div>';}
   document.getElementById('tiBody').innerHTML=body;
   const ok=document.getElementById('tiConfirmBtn');if(ok){const can=f.length&&!done;ok.style.display=can?'':'none';ok.textContent='✅ 발급 ('+f.length+'명)';}
   openModal('tokenIssueModal');
@@ -6218,7 +6219,7 @@ function openTokenIssue(){
 function confirmTokenIssue(){
   if(!isFounder(me))return;
   const d=tokWorkDate();
-  if(tokensIssuedOn(d)){toast(d+' 기념주화는 이미 발행했어요');closeModal('tokenIssueModal');return;}
+  if(tokensIssuedOn(d)){toast(d+' 먹이 토큰는 이미 발행했어요');closeModal('tokenIssueModal');return;}
   const f=fieldersOn(d);if(!f.length){closeModal('tokenIssueModal');return;}
   const now=Date.now();state.tokenLog=state.tokenLog||[];state.tokens=state.tokens||{};
   f.forEach((x,i)=>{state.tokens[x.name]=(state.tokens[x.name]||0)+1;state.tokenLog.push({name:x.name,t:now+i,by:me.name,amt:1,earn:true});});
@@ -6226,7 +6227,7 @@ function confirmTokenIssue(){
   state.tokenIssueDays=state.tokenIssueDays||{};state.tokenIssueDays[d]=now;
   if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);DB.set('tokenIssueDays/'+d,now);}
   renderTokenAdmin();renderTokenShop();closeModal('tokenIssueModal');
-  toast('🪙 '+f.length+'명에게 '+d+' 기념주화를 1개씩 발행했어요!');
+  toast('🪙 '+f.length+'명에게 '+d+' 먹이 토큰를 1개씩 발행했어요!');
 }
 function holdTokenIssue(){const d=tokWorkDate();state.tokenHoldDays=state.tokenHoldDays||{};state.tokenHoldDays[d]=1;if(LIVE)DB.set('tokenHoldDays/'+d,1);window._tokPrompted=true;closeModal('tokenIssueModal');toast('⏸️ 보류했어요 · 그날은 다시 안 떠요. 필요하면 토큰 현황에서 직접 발행하세요');}
 function maybeTokenIssuePrompt(){
@@ -6379,7 +6380,7 @@ function sheetSeedMonth(names,mm,onDone){
   s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
   s.onerror=()=>finish({ok:false,error:'연결 실패'});
   document.body.appendChild(s);
-  setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),12000);
+  setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),25000);
 }
 /* ===== 팀원 명단 관리 (시트/앱 동기화) ===== */
 function addMember(name){
@@ -7232,7 +7233,7 @@ function scrollToGcard(key,gid){
   setTimeout(function(){el.classList.remove('flash');},2000);
 }
 function notifInner(n){
-  if(n.type==='tokengrant'){return `<div class="notif-top">🪙 <b>이벤트 토큰 지급 대기</b></div><div class="notif-prev"><b>${esc(n.title||'행사')}</b> 마감 · 참석 <b>${n.n||0}명</b> 집계 완료</div><div class="tg-acts"><button class="tg-give" onclick="evApproveGrant('${n.sid}')">🪙 지급 완료</button><button class="tg-hold" onclick="evHoldGrant('${n.sid}')">보류</button></div><div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='tokengrant'){return `<div class="notif-top">🪙 <b>이벤트 먹이 토큰 지급 대기</b></div><div class="notif-prev"><b>${esc(n.title||'행사')}</b> 마감 · 참석 <b>${n.n||0}명</b> 집계 완료</div><div class="tg-acts"><button class="tg-give" onclick="evApproveGrant('${n.sid}')">🪙 지급 완료</button><button class="tg-hold" onclick="evHoldGrant('${n.sid}')">보류</button></div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='cheer'){return `<div class="notif-top"><b>🎉 첫 필드 ${n.day}일차 응원</b></div>${n.msg?`<div class="notif-prev">${esc(n.msg)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='notice'){return `<div class="notif-top">📢 <b>${esc(n.title||'공지')}</b>${n.by?` · ${esc(n.by)}`:''}</div>${n.msg?`<div class="notif-prev">${esc(n.msg).replace(/\n/g,'<br>')}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
@@ -8834,7 +8835,7 @@ function renderTdCal(){
 const SEARCH_ALIASES={
   home:['홈','메인','나무','물주기','먹이','먹이주기','닭','닭장','성장'],
   sale:['세일즈','판매','넘버','보고'],
-  comp:['컴페티션','컴패티션','경쟁','순위','랭킹','토큰','상점','먹이토큰'],
+  comp:['컴페티션','컴패티션','경쟁','순위','랭킹','토큰','상점','먹이 토큰'],
   perf:['이번달 목표','목표','실적','퍼포먼스','달성률'],
   notice:['공지','알림'],kakao:['카톡','카카오','오픈채팅','링크'],
   net:['네트워킹','네트워크','인맥'],act:['액티비티','활동','모임','엠티','mt'],
@@ -11554,7 +11555,7 @@ function spawnKernel(layer,cx,cy){
     try{ evRenderHomeCard(); }catch(e){}
   }
 
-  /* ---------- 🪙 이벤트 토큰: 마감 자동 집계 → 관리자 벨 알림 → 승인 지급 ---------- */
+  /* ---------- 🪙 이벤트 먹이 토큰: 마감 자동 집계 → 관리자 벨 알림 → 승인 지급 ---------- */
   function evCheckTokenDeadlines(){
     if(!(me&&isFounder(me))||!LIVE)return;
     var now=Date.now();
@@ -11597,7 +11598,7 @@ function spawnKernel(layer,cx,cy){
     var who=g.attendees||[];
     if(g.status==='done'){toast&&toast('이미 지급 완료된 건이에요');return;}
     if(!who.length){ if(!confirm('마감 시각까지 참석한 대상자가 없어요. 그래도 처리(완료)할까요?'))return; }
-    else if(!confirm('"'+g.title+'" 참석자 '+who.length+'명에게 이벤트 토큰을 지급할까요?'))return;
+    else if(!confirm('"'+g.title+'" 참석자 '+who.length+'명에게 이벤트 먹이 토큰을 지급할까요?'))return;
     who.forEach(function(nm){ try{evGiveEventToken(nm,g.title);}catch(e){} });
     if(LIVE&&who.length){ DB.set('tokens',state.tokens); DB.set('tokenLog',state.tokenLog); }
     g.status='done'; g.grantedAt=Date.now(); evGrants[id]=g;
@@ -11610,7 +11611,7 @@ function spawnKernel(layer,cx,cy){
     try{if(typeof renderTokenShop==='function')renderTokenShop();}catch(e){}
     try{if(curTab==='eventsurvey')renderEventSurveyAdmin();}catch(e){}
     try{if(typeof confettiBurst==='function')confettiBurst();}catch(e){}
-    toast&&toast('🪙 이벤트 토큰 '+who.length+'명 지급 완료!');
+    toast&&toast('🪙 이벤트 먹이 토큰 '+who.length+'명 지급 완료!');
   };
   window.evHoldGrant=function(id){ try{if(typeof closeModal==='function')closeModal('notifModal');}catch(e){} toast&&toast('보류했어요 — 🔔 벨에서 다시 열 수 있어요'); };
 
@@ -11733,7 +11734,7 @@ function spawnKernel(layer,cx,cy){
           +'<div class="ev-cal" id="evCalBox"></div>'
           +'<label class="ev-chk" id="evOvWrap" style="display:none"><input type="checkbox" id="evOvern"><span>🌙 숙박 (체크 → <b>1박 2일</b> · 해제 → 그냥 며칠간)</span></label>'
           +'<div class="ev-prev" id="evPeriodPrev">기간을 선택하면 여기에 표시돼요</div>'
-          +'<label class="ev-chk"><input type="checkbox" id="evTokenOn"><span>🪙 이벤트 토큰(기념주화) 지급 — 마감 시각까지 \'참석\'한 대상자에게</span></label>'
+          +'<label class="ev-chk"><input type="checkbox" id="evTokenOn"><span>🪙 이벤트 먹이 토큰(먹이 토큰) 지급 — 마감 시각까지 \'참석\'한 대상자에게</span></label>'
           +'<div id="evTokenWrap" style="display:none">'
             +'<label class="ev-lab">토큰 지급 마감 (이 시각까지 참석 응답한 사람만 집계 · 이후에도 설문 응답은 가능)</label>'
             +'<div class="ev-dt"><input type="date" class="ev-f" id="evTokenDate"><input type="time" class="ev-f" id="evTokenTime" value="23:59"></div>'
@@ -11912,7 +11913,7 @@ function spawnKernel(layer,cx,cy){
     L.push('');
     L.push('📋 '+sv.title);
     L.push('🗓️ '+periodText(sv));
-    if(sv.tokenOn&&sv.deadline){var d=new Date(sv.deadline);L.push('🪙 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+'까지 참석하면 기념주화를 드려요!');}
+    if(sv.tokenOn&&sv.deadline){var d=new Date(sv.deadline);L.push('🪙 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+'까지 참석하면 먹이 토큰를 드려요!');}
     L.push('');
     L.push('👉 아래를 눌러 참석 여부만 응답해 주세요');
     L.push('https://presence.co.kr?openExternalBrowser=1');
@@ -12452,6 +12453,456 @@ window.__TERRI_ROWS="0\t묵호농협하나로마트평릉점\tJGRQ\n1\t금학상
   }
 })();
 
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   🌽 PMS 패치 v2 — 먹이(먹이 토큰) 누락 케어 · 11시 발행 리마인더
+   · 관리자 모드 기본 OFF · 검색 시맨틱 매칭 강화
+   (2026-07-05 · 임재영님 요청 반영 — 기존 기능은 전부 유지)
+   ════════════════════════════════════════════════════════════════ */
+(function(){
+  if(window.__pmsV2Loaded)return; window.__pmsV2Loaded=true;
+
+  /* ── 공통: 진짜 소유자 체크 (관리자 모드 OFF·미리보기 중에도 동작해야 하는 케어 기능용) ── */
+  function rf(u){ return !!u && (typeof FOUNDER!=='undefined') && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name); }
+  function dstr(d){ return d.toISOString().slice(0,10); }
+  function fmtD(s){ try{ return fmtMDW(s); }catch(e){ return s; } }
+
+  /* ════════════════════════════════════════════════
+     ① 지난 2주 먹이(먹이 토큰) 미발급 날짜 감지 + 벨 원탭 지급
+     — 결과(노제로 1건↑)를 냈는데 주화를 못 받은 날을 날짜별로 벨에 표시
+     ════════════════════════════════════════════════ */
+  window.feedMissedDays=function(){
+    var out=[];
+    if(typeof fieldersOn!=='function'||typeof tokensIssuedOn!=='function')return out;
+    for(var i=1;i<=14;i++){
+      var dt=new Date(); dt.setDate(dt.getDate()-i);
+      var d=dstr(dt);
+      var f=[]; try{ f=fieldersOn(d); }catch(e){}
+      if(!f.length)continue;
+      if(tokensIssuedOn(d))continue;
+      out.push({d:d,n:f.length,names:f.map(function(x){return x.name;}),held:!!((state.tokenHoldDays||{})[d])});
+    }
+    out.sort(function(a,b){return a.d<b.d?-1:1;});
+    return out;
+  };
+
+  window.issueTokensForDate=function(d,skipConfirm){
+    if(!rf(me)){ toast('관리자만 발행할 수 있어요'); return false; }
+    if(tokensIssuedOn(d)){ toast(fmtD(d)+' 먹이 토큰은 이미 발행했어요'); refreshFeedCare(); return false; }
+    var f=fieldersOn(d);
+    if(!f.length){ toast(fmtD(d)+'엔 발행 대상이 없어요'); return false; }
+    if(!skipConfirm && !confirm('🌽 '+fmtD(d)+' 필드 결과자 '+f.length+'명에게\n먹이 토큰(먹이 토큰)을 1개씩 지급할까요?\n\n· '+f.map(function(x){return x.name;}).join(' · ')))return false;
+    var now=Date.now(); state.tokenLog=state.tokenLog||[]; state.tokens=state.tokens||{};
+    f.forEach(function(x,i){ state.tokens[x.name]=(state.tokens[x.name]||0)+1; state.tokenLog.push({name:x.name,t:now+i,by:(me&&me.name)||'관리자',amt:1,earn:true}); });
+    if(state.tokenLog.length>500)state.tokenLog=state.tokenLog.slice(-500);
+    state.tokenIssueDays=state.tokenIssueDays||{}; state.tokenIssueDays[d]=now;
+    if(typeof LIVE!=='undefined'&&LIVE){ DB.set('tokens',state.tokens); DB.set('tokenLog',state.tokenLog); DB.set('tokenIssueDays/'+d,now); }
+    try{ renderTokenAdmin(); }catch(e){} try{ renderTokenShop(); }catch(e){} try{ renderComp(); }catch(e){}
+    toast('🪙 '+fmtD(d)+' — '+f.length+'명에게 먹이 토큰을 1개씩 지급했어요!');
+    refreshFeedCare();
+    return true;
+  };
+  window.issueAllMissed=function(){
+    var ms=feedMissedDays();
+    if(!ms.length){ toast('밀린 발행이 없어요 — 깔끔합니다!'); return; }
+    var tot=ms.reduce(function(s,m){return s+m.n;},0);
+    if(!confirm('🌽 밀린 '+ms.length+'일 전체를 한 번에 발행할까요?\n\n'+ms.map(function(m){return '· '+fmtD(m.d)+' — '+m.n+'명';}).join('\n')+'\n\n총 '+tot+'개의 먹이 토큰이 지급됩니다.'))return;
+    ms.forEach(function(m){ issueTokensForDate(m.d,true); });
+  };
+  function refreshFeedCare(){ try{ renderBell(); }catch(e){} var L=document.getElementById('notifList'); if(L&&L.offsetParent!==null){ try{ renderNotifList(); }catch(e){} } }
+
+  /* 벨 배지 — 미발급이 있으면 +1 표시 */
+  var _renderBell=renderBell;
+  window.renderBell=function(){
+    _renderBell();
+    var b=document.getElementById('bellBadge'); if(!b||!me)return;
+    var extra=(rf(me)&&feedMissedDays().length)?1:0;
+    if(!extra)return;
+    var un=myNotifs().filter(function(n){return !n.read;}).length + extra;
+    b.textContent=un>9?'9+':un; b.classList.add('show');
+  };
+
+  /* 벨 목록 맨 위 — 미발급 케어 카드 */
+  var _renderNotifList=renderNotifList;
+  window.renderNotifList=function(){
+    _renderNotifList();
+    if(!rf(me))return;
+    var box=document.getElementById('notifList'); if(!box)return;
+    var old=document.getElementById('feedCareCard'); if(old)old.remove();
+    var ms=feedMissedDays(); if(!ms.length)return;
+    var rows=ms.map(function(m){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed rgba(125,125,125,.25)">'
+        +'<span style="font-size:12.5px;line-height:1.45"><b>'+fmtD(m.d)+'</b> · 대상 <b>'+m.n+'명</b>'+(m.held?' <i style="opacity:.6;font-size:11px">(보류했던 날)</i>':'')
+        +'<br><span style="opacity:.65;font-size:11px">'+m.names.map(function(n){return esc(n);}).join(' · ')+'</span></span>'
+        +'<button onclick="issueTokensForDate(\''+m.d+'\')" style="flex:none;border:0;border-radius:8px;padding:6px 11px;background:#2E9E63;color:#fff;font-weight:800;font-size:12px;cursor:pointer">지급</button></div>';
+    }).join('');
+    var card=document.createElement('div');
+    card.id='feedCareCard';
+    card.style.cssText='border:1.5px solid #2E9E63;border-radius:12px;padding:11px 12px;margin-bottom:10px;background:rgba(46,158,99,.08)';
+    card.innerHTML='<div style="font-weight:900;font-size:13px;margin-bottom:2px">🌽 먹이 토큰이 밀린 날이 있어요 <span style="background:#2E9E63;color:#fff;border-radius:9px;padding:1px 7px;font-size:11px">'+ms.length+'일</span></div>'
+      +'<div style="font-size:11.5px;opacity:.7;margin-bottom:4px">결과를 냈는데 아직 먹이(먹이 토큰)를 못 받은 팀원들이에요. 지급하시겠어요?</div>'
+      +rows
+      +(ms.length>1?'<button onclick="issueAllMissed()" style="width:100%;margin-top:9px;border:0;border-radius:9px;padding:9px;background:#1F7A4C;color:#fff;font-weight:900;font-size:12.5px;cursor:pointer">🌽 밀린 '+ms.length+'일 모두 지급</button>':'');
+    box.insertBefore(card,box.firstChild);
+  };
+
+  /* ════════════════════════════════════════════════
+     ② 오전 11시 리마인더 — "팀원들이 먹이 토큰을 기다립니다"
+     — 관리자 모드 OFF여도 소유자에겐 뜸 · 하루 1회 · 5분마다 자동 체크
+     ════════════════════════════════════════════════ */
+  function ensureFeedRemindModal(){
+    if(document.getElementById('feedRemindModal'))return;
+    var m=document.createElement('div'); m.className='modal'; m.id='feedRemindModal';
+    m.innerHTML='<div class="box"><h3>🌽 팀원들이 먹이 토큰을 기다립니다</h3><div id="frBody"></div>'
+      +'<div class="acts"><button class="btn ghost" onclick="closeModal(\'feedRemindModal\')">나중에</button>'
+      +'<button class="btn ghost" onclick="frHold()">오늘은 보류</button>'
+      +'<button class="btn" id="frGo" onclick="frIssue()">✅ 발행하기</button></div></div>';
+    document.body.appendChild(m);
+  }
+  window.frHold=function(){
+    state.tokenHoldDays=state.tokenHoldDays||{}; state.tokenHoldDays[TODAY]=1;
+    if(typeof LIVE!=='undefined'&&LIVE)DB.set('tokenHoldDays/'+TODAY,1);
+    closeModal('feedRemindModal'); toast('⏸️ 오늘은 보류했어요 — 내일 다시 챙겨드릴게요');
+  };
+  window.frIssue=function(){ if(issueTokensForDate(TODAY,false))closeModal('feedRemindModal'); };
+  window.maybeTokenIssuePrompt=function(){
+    if(!me||!rf(me)||window._tokPrompted)return;
+    if(new Date().getHours()<11)return;                       // ⏰ 오전 11시부터
+    if(tokensIssuedOn(TODAY))return;
+    if((state.tokenHoldDays||{})[TODAY])return;
+    var f=fieldersOn(TODAY);
+    var ms=feedMissedDays();
+    if(!f.length&&!ms.length)return;
+    window._tokPrompted=true;
+    ensureFeedRemindModal();
+    var b='';
+    if(f.length){
+      b+='<div style="font-size:13px;line-height:1.6;margin-bottom:8px">오늘 <b>'+fmtD(TODAY)+'</b> 필드에서 결과를 낸 <b>'+f.length+'명</b>이 먹이 토큰(먹이 토큰)을 기다리고 있어요.</div>'
+        +'<div style="font-size:12px;background:rgba(46,158,99,.1);border-radius:9px;padding:8px 10px;margin-bottom:6px">'+f.map(function(x){return '🐔 <b>'+esc(x.name)+'</b> ('+x.count+'건)';}).join(' &nbsp; ')+'</div>';
+    }else{
+      b+='<div style="font-size:13px;line-height:1.6;margin-bottom:8px">오늘은 아직 결과 기록이 없지만, <b>밀린 발행</b>이 있어요.</div>';
+    }
+    if(ms.length){
+      b+='<div style="font-size:12px;opacity:.75;margin-top:4px">🔔 그리고 <b>지난 날짜 '+ms.length+'일</b>도 발행이 밀려 있어요 — 벨(🔔)에서 날짜별로 바로 지급할 수 있어요.</div>';
+    }
+    document.getElementById('frBody').innerHTML=b;
+    var go=document.getElementById('frGo');
+    if(go){ go.style.display=f.length?'':'none'; go.textContent='✅ 발행하기 ('+f.length+'명)'; }
+    openModal('feedRemindModal');
+  };
+  setTimeout(function(){ try{ maybeTokenIssuePrompt(); }catch(e){} },4000);
+  setInterval(function(){ try{ maybeTokenIssuePrompt(); }catch(e){} },5*60*1000);
+  setTimeout(function(){ try{ renderBell(); }catch(e){} },4500);
+
+  /* ════════════════════════════════════════════════
+     ③ 관리자 모드 — 기본 OFF (심플 화면) · 선택 기억
+     — 🛡️ 버튼을 켠 동안만 관리 기능 노출, 끄면 일반 AOP 화면
+     ════════════════════════════════════════════════ */
+  var savedAdm=null; try{ savedAdm=localStorage.getItem('pms_admin_on'); }catch(e){}
+  window.__adminOff = (savedAdm==='1') ? false : true;         // 기본 = OFF(심플)
+  if(typeof window.toggleAdminMode==='function'){
+    var _tam=window.toggleAdminMode;
+    window.toggleAdminMode=function(){
+      _tam();
+      try{ localStorage.setItem('pms_admin_on', window.__adminOff?'0':'1'); }catch(e){}
+    };
+  }
+
+  /* ════════════════════════════════════════════════
+     ④ 검색 — 시맨틱 별칭 + 오타 허용 매칭 강화
+     — "닭·병아리"→컴페티션(먹이) · "테리코드"→사이트 관리(테리코드 찾기) · "셋업"→셋업 비서
+     — 직급·역할별 노출(tabVisible)은 그대로 유지
+     ════════════════════════════════════════════════ */
+  try{
+    SEARCH_ALIASES.home=(SEARCH_ALIASES.home||[]).filter(function(a){return ['닭','먹이','먹이주기','닭장'].indexOf(a)<0;});
+    var add=function(k,arr){ SEARCH_ALIASES[k]=(SEARCH_ALIASES[k]||[]).concat(arr); };
+    add('comp',['닭','병아리','닭장','먹이','먹이주기','먹이주러','모이','옥수수','치킨','알','competition','콤페티션','컴페','경쟁전']);
+    add('sites',['테리코드','테리','테리토리','territory','terri','코드찾기','입지코드','지도','상권']);
+    add('setupkit',['setup','셋업키트','셋업도우미','부스준비','준비']);
+    add('daily',['노제로','nozero','실적','실적입력','오늘결과']);
+    add('calling',['알바몬','당근','당근pr','채용','면접','인터뷰']);
+    add('sale',['벨','공','bell','gong','종']);
+    add('meeting',['줌미팅','화상회의','구글밋']);
+    add('recap',['월말','결산']);
+    add('leaderhit',['승급계산','인컴','수당']);
+  }catch(e){}
+
+  /* 오타 1글자 허용(레벤슈타인 ≤1) 보조 매칭 */
+  function lev1(a,b){
+    if(a===b)return true;
+    var la=a.length,lb=b.length;
+    if(Math.abs(la-lb)>1)return false;
+    var i=0,j=0,diff=0;
+    while(i<la&&j<lb){
+      if(a[i]===b[j]){i++;j++;continue;}
+      if(++diff>1)return false;
+      if(la>lb)i++; else if(lb>la)j++; else {i++;j++;}
+    }
+    return diff+(la-i)+(lb-j)<=1;
+  }
+  var _hsSearch=hsSearch;
+  window.hsSearch=function(q){
+    window._hsQ=(q||'').trim().toLowerCase().replace(/\s/g,'');
+    var res=_hsSearch(q);
+    var qq=window._hsQ;
+    if(!qq||qq.length<2)return res;
+    // 기존 결과에 없더라도 오타 1글자 이내로 맞는 탭 보강
+    Object.keys(TABMETA).forEach(function(k){
+      if(!tabVisible(k))return;
+      if(res.some(function(r){return r.k===k;}))return;
+      var terms=[(TABMETA[k].l||'')].concat(SEARCH_ALIASES[k]||[]);
+      var hit=terms.some(function(t){
+        t=String(t).toLowerCase().replace(/\s/g,'');
+        return t.length>=2&&(lev1(t,qq)||(qq.length>=3&&t.indexOf(qq.slice(0,-1))===0));
+      });
+      if(hit)res.push({k:k,score:22});
+    });
+    res.sort(function(a,b){return b.score-a.score;});
+    return res.slice(0,8);
+  };
+  /* "테리코드" 검색으로 사이트 관리에 들어가면 → 테리코드 찾기 탭까지 자동 이동 */
+  var _hsGo=hsGo;
+  window.hsGo=function(k){
+    _hsGo(k);
+    try{
+      if(k==='sites'&&/테리|terri|코드/.test(window._hsQ||''))setTimeout(function(){try{siteTab('find');}catch(e){}},450);
+    }catch(e){}
+  };
+})();
+
+</script>
+<style id="pmsV21Style">
+/* ── 코어밸류: 이모지+영문 크게 · 한글 라벨 제거 ── */
+.values .val .ko{display:none!important}
+.values .val .emj{font-size:46px!important;display:block!important;margin-bottom:8px!important;line-height:1!important}
+.values .val .en{font-size:22px!important;font-weight:800!important;display:block!important;letter-spacing:.02em!important;margin-bottom:6px!important}
+@media(max-width:560px){.values .val .emj{font-size:38px!important}.values .val .en{font-size:19px!important}}
+/* ── 헤더 심플화: 👀·설치·FAB(홈배치/효과/소리)는 ⋯ 메뉴로 이동 ── */
+#eyeToggle,#installBtn,#fxToggle,#sndToggle,#homeArrangeFab{display:none!important}
+#moreBtn{font-size:20px;line-height:1;letter-spacing:1px}
+#moreMenu{position:fixed;top:58px;right:12px;z-index:99997;min-width:224px;background:#161B26;border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;padding:7px;box-shadow:0 18px 40px -12px rgba(0,0,0,.65);display:none}
+#moreMenu.on{display:block}
+#moreMenu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#E9EDF3;
+  font-family:inherit;font-size:14.5px;text-align:left;padding:12px 12px;border-radius:9px;cursor:pointer}
+#moreMenu button:hover{background:rgba(255,255,255,.08)}
+#moreMenu .mm-cap{font-size:10.5px;color:#8C96A5;padding:6px 12px 2px;letter-spacing:.06em}
+/* ── 검색: 전역 노출 + 모바일 가독성 (16px 입력=iOS 확대 방지 · 큰 터치영역) ── */
+#homeSearchBtn{display:flex!important}
+#hsInput{font-size:16px!important;padding:14px 16px!important}
+.hs-item{padding:13px 14px!important;font-size:15px!important;min-height:44px}
+@media(max-width:820px){
+  #homeSearchBtn{right:14px!important;bottom:calc(86px + env(safe-area-inset-bottom))!important;width:52px;height:52px;font-size:21px}
+  .hs-box{width:92vw!important;max-width:none!important;margin:12vh auto 0!important}
+}
+button,input,textarea,select{font-family:inherit}
+.auth-card,.auth-card *,.auth-box,.auth-box *,.modal .box,.modal .box *{font-family:'Gowun Dodum','Jua','Pretendard',sans-serif}
+.auth-h,.auth-logo{font-family:'Jua','Gowun Dodum',sans-serif!important}
+h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!important}
+</style>
+<script>
+/* ═══ PMS 패치 v2.1 — 헤더 ⋯ 더보기 메뉴 (홈배치·디자인·설치 수납) ═══ */
+(function(){
+  if(window.__pmsV21)return; window.__pmsV21=true;
+  function rf(u){ return !!u && (typeof FOUNDER!=='undefined') && (u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name); }
+  function item(emo,label,fn){ var b=document.createElement('button'); b.innerHTML=emo+' <span>'+label+'</span>'; b.onclick=function(e){e.stopPropagation();hide();try{fn();}catch(err){} }; return b; }
+  function hide(){ var m=document.getElementById('moreMenu'); if(m)m.classList.remove('on'); }
+  function build(){
+    var bell=document.getElementById('bellBtn');
+    if(!bell||document.getElementById('moreBtn'))return;
+    var btn=document.createElement('button');
+    btn.id='moreBtn'; btn.className='bell-btn'; btn.setAttribute('aria-label','더보기');
+    btn.title='더보기 — 홈 배치 · 디자인 · 설치'; btn.textContent='⋯';
+    btn.onclick=function(e){ e.stopPropagation(); var m=document.getElementById('moreMenu'); if(m)m.classList.toggle('on'); };
+    bell.parentNode.insertBefore(btn,bell);
+    var m=document.createElement('div'); m.id='moreMenu';
+    var cap=document.createElement('div'); cap.className='mm-cap'; cap.textContent='더보기'; m.appendChild(cap);
+    m.appendChild(item('✨','배경 효과 켜기/끄기',function(){ toggleFxLocal(); }));
+    m.appendChild(item('🔈','효과음 켜기/끄기',function(){ toggleSound(); }));
+    m.appendChild(item('📲','앱으로 설치',function(){ if(typeof installApp==='function')installApp(); }));
+    if(rf(window.me||(typeof me!=='undefined'?me:null))){
+      var cap2=document.createElement('div'); cap2.className='mm-cap'; cap2.textContent='관리자'; m.appendChild(cap2);
+      m.appendChild(item('🧩','홈 배치 편집',function(){ var f=document.getElementById('homeArrangeFab'); if(f)f.click(); }));
+      m.appendChild(item('👀','역할 미리보기',function(){ if(typeof openRolePreview==='function')openRolePreview(); }));
+    }
+    document.body.appendChild(m);
+    document.addEventListener('click',hide);
+  }
+  setInterval(build,1200); setTimeout(build,600);
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.2 — 리젝노트: 담당자 내 이름 자동 고정 + 장소·테리코드 자동완성 연결 ═══ */
+(function(){
+  if(window.__pmsV22)return; window.__pmsV22=true;
+  function meObj(){ try{ if(typeof me!=='undefined'&&me)return me; }catch(e){} return window.me||null; }
+
+  /* ① 담당자 = 로그인한 내 이름으로 자동 고정 (수정 불가) */
+  function fixOwner(){
+    var el=document.getElementById('rnOwner'); if(!el||el.dataset.pmsFix)return;
+    var u=meObj(); if(!u||!u.name)return;
+    el.value=u.name; el.readOnly=true; el.dataset.pmsFix='1';
+    el.style.background='rgba(92,188,46,.08)'; el.style.fontWeight='800'; el.style.cursor='default';
+    el.title='담당자는 내 이름으로 자동 저장돼요';
+  }
+
+  /* ② 장소 입력 ↔ 테리코드(2024 스트릿) 자동완성 */
+  var TR=null,tmr=null;
+  function parseTR(){
+    if(TR)return TR; TR=[];
+    try{
+      var loc=(window.__TERRI_LOC||'').split('\x1e').map(function(s){var p=s.split('\x1f');return ((p[0]||'')+' '+(p[1]||'')).trim();});
+      (window.__TERRI_ROWS||'').split('\n').forEach(function(l){
+        var t=l.split('\t'); if(t.length<3)return;
+        TR.push({nm:t[1],nn:t[1].replace(/\s+/g,'').toLowerCase(),code:t[2],loc:loc[+t[0]]||''});
+      });
+    }catch(e){}
+    return TR;
+  }
+  function nrm(s){return (s||'').replace(/\s+/g,'').toLowerCase();}
+  function search(q){
+    q=nrm(q); if(!q)return [];
+    var rows=parseTR(),out=[];
+    for(var i=0;i<rows.length;i++){
+      var r=rows[i],s=0,p=r.nn.indexOf(q);
+      if(r.nn===q)s=1000; else if(p===0)s=800-(r.nn.length-q.length); else if(p>0)s=600-Math.min(300,p);
+      else if(nrm(r.loc).indexOf(q)>=0)s=100;
+      if(s>0)out.push([s,r]);
+    }
+    out.sort(function(a,b){return b[0]-a[0]||a[1].nn.length-b[1].nn.length;});
+    return out.slice(0,6).map(function(x){return x[1];});
+  }
+  function esc2(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function wirePlace(){
+    var el=document.getElementById('rnPlace'); if(!el||el.dataset.pmsTerri)return;
+    el.dataset.pmsTerri='1';
+    el.placeholder='장소 검색 — 테리코드 자동 연결 (예: 부평역)';
+    el.setAttribute('autocomplete','off');
+    var box=document.createElement('div');
+    box.id='rnTerriBox';
+    box.style.cssText='display:none;margin-top:6px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface,#fff)';
+    el.parentNode.insertBefore(box,el.nextSibling);
+    function hide(){box.style.display='none';}
+    el.addEventListener('input',function(){
+      if(tmr)clearTimeout(tmr);
+      var v=el.value.trim();
+      el.dataset.code='';
+      if(v.length<1){hide();return;}
+      tmr=setTimeout(function(){
+        var rs=search(v);
+        if(!rs.length){hide();return;}
+        box.innerHTML=rs.map(function(r,i){
+          return '<div class="rnTerriRow" data-i="'+i+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;border-top:'+(i?'1px solid var(--line)':'none')+'">'
+            +'<div style="min-width:0"><div style="font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc2(r.nm)+'</div>'
+            +'<div style="font-size:11px;color:var(--muted)">📍 '+esc2(r.loc)+'</div></div>'
+            +'<span style="flex:none;font-weight:900;font-size:12px;letter-spacing:.5px;color:var(--green-soft,#5CBC2E);border:1.5px solid currentColor;border-radius:8px;padding:3px 8px">'+esc2(r.code)+'</span></div>';
+        }).join('');
+        box.style.display='block';
+        Array.prototype.forEach.call(box.querySelectorAll('.rnTerriRow'),function(row){
+          row.onmousedown=function(ev){ev.preventDefault();};
+          row.onclick=function(){
+            var r=rs[+row.dataset.i]; if(!r)return;
+            el.value=r.nm+' · '+r.code;
+            el.dataset.code=r.code;
+            hide();
+            if(typeof toast==='function')toast('📍 테리코드 '+r.code+' 연결됨 ✓');
+          };
+        });
+      },140);
+    });
+    el.addEventListener('blur',function(){setTimeout(hide,180);});
+  }
+  setInterval(function(){fixOwner();wirePlace();},900);
+})();
+</script>
+
+<!-- ═══ 관리자 전용 허브 귀환 버튼 (임재영만 표시) ═══ -->
+<script>
+(function(){
+  var HUB='https://jaeyoung5178-bot.github.io/Presence/';
+  var b=document.createElement('a');
+  b.id='pmsHubBack'; b.href=HUB; b.target='_blank'; b.rel='noopener';
+  b.textContent='⌂ 허브 귀환';
+  b.style.cssText='display:none;position:fixed;left:14px;bottom:14px;z-index:99998;'
+    +'padding:9px 15px;border-radius:22px;font-size:12.5px;font-weight:800;text-decoration:none;'
+    +'background:rgba(20,25,35,.92);color:#e8b466;border:1.5px solid rgba(232,180,102,.55);'
+    +'box-shadow:0 4px 16px rgba(0,0,0,.35);backdrop-filter:blur(6px);letter-spacing:.04em;';
+  b.onmouseenter=function(){b.style.color='#fff';};
+  b.onmouseleave=function(){b.style.color='#e8b466';};
+  document.body.appendChild(b);
+  function chk(){
+    try{
+      var u=null; try{u=me;}catch(e){} if(!u)u=window.me;
+      var yes=!!(u&&(u.uid==='admin'||u.name==='임재영'||u.id==='Presence'));
+      b.style.display=yes?'inline-block':'none';
+    }catch(e){}
+  }
+  chk(); setInterval(chk,1500);
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.2 — 구글시트 전송 안정화 (순차 큐 · 자동 재시도 · 대기 20초) ═══ */
+(function(){
+  if(window.__pmsV22)return; window.__pmsV22=true;
+
+  /* 개별 전송: JSONP 그대로, 대기시간 9초 → 20초 (앱스스크립트 콜드스타트 대응) */
+  window.sheetWrite=function(payload,onDone){
+    const url=effectiveWebhook();
+    if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'배포 URL 없음'});return;}
+    const cb='__sw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);let done=false;
+    const cleanup=()=>{try{delete window[cb];}catch(e){}const s=document.getElementById(cb);if(s)s.remove();};
+    const finish=(r)=>{if(done)return;done=true;onDone&&onDone(r);cleanup();};
+    window[cb]=(res)=>finish(res||{ok:false});
+    const q='action=write&callback='+cb
+      +'&date='+encodeURIComponent(payload.date)
+      +'&name='+encodeURIComponent(payload.name)
+      +'&role='+encodeURIComponent(payload.role||'')
+      +'&count='+encodeURIComponent(payload.count)
+      +'&na='+(payload.na?'1':'0')+'&rally='+(payload.rally?'1':'0')+'&t='+Date.now();
+    const s=document.createElement('script');s.id=cb;
+    s.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+    s.onerror=()=>finish({ok:false,error:'연결 실패'});
+    document.body.appendChild(s);
+    setTimeout(()=>finish({ok:false,error:'응답 시간초과'}),20000);
+  };
+
+  /* 검수 완료·결과보고: 동시 발사 → 한 명씩 순차 전송 + 실패 시 자동 2회 재시도 + 진행률 표시 */
+  window.dailyComplete=function(){
+    if(!canDaily(me)){toast('권한이 없어요');return;}
+    const d=dailyDateVal();
+    const list=rosterMembers().filter(u=>state.sales[d+'|'+u.name]);
+    if(!list.length){toast('입력된 결과가 없어요 — 먼저 +/− 로 점수를 입력하세요');return;}
+    const btn=document.getElementById('dailyDoneBtn');
+    setSheetSync&&setSheetSync('sync');
+    let ok=0;const fails=[],needRow=[];
+    function finishAll(){
+      if(btn){btn.disabled=false;btn.textContent='✅ 검수 완료 · 결과보고 (시트 전송)';}
+      const ss=document.getElementById('syncTxt');
+      if(ok===list.length){toast('✅ '+d+' 결과 '+ok+'명 시트에 기록 완료!');setSheetSync&&setSheetSync('ok');if(ss)ss.textContent=d+' · '+ok+'명 시트 기록 · '+new Date().toLocaleTimeString('ko-KR');}
+      else if(ok>0){toast('⚠️ '+ok+'명 기록 · 실패 '+fails.length+'명: '+fails.slice(0,2).join(', '));setSheetSync&&setSheetSync('err');if(ss)ss.textContent=ok+'/'+list.length+' 기록 · 일부 실패 — 다시 누르면 이어서 재전송';}
+      else{toast('❌ 시트 기록 실패 — '+(fails[0]||'배포/액세스(모든 사용자) 확인'));setSheetSync&&setSheetSync('err');if(ss)ss.textContent='시트 기록 실패 — 다시 한 번 눌러주세요';}
+      if(needRow.length)setTimeout(function(){toast('📋 시트에 행이 없던 '+needRow.join(', ')+' 자동 추가 — 다시 전송해 주세요');},1600);
+    }
+    function send(i){
+      if(i>=list.length){finishAll();return;}
+      if(btn){btn.disabled=true;btn.textContent='📤 시트 전송 중… ('+(i+1)+'/'+list.length+')';}
+      const u=list[i];const e=state.sales[d+'|'+u.name];
+      const cv=e.na?'na':(e.rally?'랠리':(+e.count||0));
+      (function attempt(tries){
+        sheetWrite({date:d,name:u.name,role:u.role,count:cv,na:!!e.na,rally:!!e.rally},function(res){
+          if(res&&res.written){ok++;send(i+1);return;}
+          if(tries<2){setTimeout(function(){attempt(tries+1);},900*(tries+1));return;}  // 자동 재시도 2회
+          const note=(res&&res.note)||(res&&res.error)||'';
+          if(/매칭 실패/.test(note)&&typeof sheetAddMember==='function'){needRow.push(u.name);sheetAddMember(u.name);}
+          fails.push(u.name+(note?' ('+note+')':''));
+          send(i+1);
+        });
+      })(0);
+    }
+    send(0);
+  };
+})();
 </script>
 </body>
 </html>
