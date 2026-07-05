@@ -12917,7 +12917,8 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
       var b=els[i];
       if(b.dataset&&b.dataset.pmsTuck)continue;
       if(b.closest&&(b.closest('#moreMenu')||b.closest('.modal')))continue;
-      if(b.id==='homeArrangeFab')continue;
+      if(b.id==='homeArrangeFab'||b.id==='moreBtn'||(b.closest&&b.closest('#moreMenu')))continue;
+      if((b.textContent||'').trim()==='⋯')continue;
       var raw=(b.textContent||'').trim();
       var n=norm(raw);
       var meta=((b.title||'')+' '+(b.getAttribute('aria-label')||''));
@@ -13051,6 +13052,69 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     }
   }
   function tick(){ wrapCb(); noticeSync(); herb(); }
+  tick(); setInterval(tick,1500);
+})();
+</script>
+
+<script>
+/* ═══ PMS 패치 v2.6 — 시트 전송 '응답 시간초과' 오탐 수정 (25초 대기 + 실기록 검증) + ⋯ 복구 ═══ */
+(function(){
+  if(window.__pmsV26)return; window.__pmsV26=true;
+  /* v2.3b가 숨겼던 ⋯ 버튼 복구 */
+  function restoreMore(){
+    var b=document.getElementById('moreBtn');
+    if(b&&b.dataset&&b.dataset.pmsTuck){ delete b.dataset.pmsTuck; b.style.removeProperty('display'); }
+  }
+  function install(){
+    if(typeof window.sheetWrite!=='function'||window.sheetWrite.__pms26)return;
+    var nw=function(payload,onDone){
+      var url=(typeof effectiveWebhook==='function')?effectiveWebhook():'';
+      if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'배포 URL 없음'});return;}
+      var cb='__sw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);var done=false;
+      function cleanup(){try{delete window[cb];}catch(e){}var el=document.getElementById(cb);if(el)el.remove();}
+      function finish(r){if(done)return;done=true;onDone&&onDone(r);cleanup();}
+      window[cb]=function(res){finish(res||{ok:false});};
+      var q='action=write&callback='+cb
+        +'&date='+encodeURIComponent(payload.date)
+        +'&name='+encodeURIComponent(payload.name)
+        +'&role='+encodeURIComponent(payload.role||'')
+        +'&count='+encodeURIComponent(payload.count)
+        +'&na='+(payload.na?'1':'0')+'&rally='+(payload.rally?'1':'0')+'&t='+Date.now();
+      var sc=document.createElement('script');sc.id=cb;
+      sc.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+      sc.onerror=function(){finish({ok:false,error:'연결 실패'});};
+      document.body.appendChild(sc);
+      setTimeout(function(){
+        if(done)return;
+        var cb2='__swv_'+Date.now();
+        window[cb2]=function(data){
+          try{
+            var okv=false;
+            if(data&&typeof data==='object'){
+              var row=data[payload.date]||{};
+              for(var nm in row){
+                if(String(nm).replace(/\s/g,'').indexOf(String(payload.name).replace(/\s/g,''))===0){
+                  var v=String(row[nm]).trim().toLowerCase();
+                  if(payload.rally) okv=(v==='랠리');
+                  else if(payload.na) okv=(v==='na');
+                  else okv=(v!==''&&Number(v)===Number(payload.count));
+                  break;
+                }
+              }
+            }
+            finish(okv?{ok:true,written:true,verified:true}:{ok:false,error:'응답 시간초과'});
+          }finally{try{delete window[cb2];}catch(e){}var e2=document.getElementById(cb2);if(e2)e2.remove();}
+        };
+        var sc2=document.createElement('script');sc2.id=cb2;
+        sc2.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb2+'&t='+Date.now();
+        sc2.onerror=function(){finish({ok:false,error:'응답 시간초과'});};
+        document.body.appendChild(sc2);
+        setTimeout(function(){finish({ok:false,error:'응답 시간초과'});},12000);
+      },25000);
+    };
+    nw.__pms26=true; window.sheetWrite=nw;
+  }
+  function tick(){ install(); restoreMore(); }
   tick(); setInterval(tick,1500);
 })();
 </script>
