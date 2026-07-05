@@ -12904,5 +12904,94 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
   };
 })();
 </script>
+
+<script>
+/* ═══ PMS 패치 v2.3b — '디자인'·'홈배치'(아이콘 포함) 버튼을 ⋯ 더보기 메뉴로 자동 수납 ═══ */
+(function(){
+  if(window.__pmsV23)return; window.__pmsV23=true;
+  function norm(t){ return (t||'').replace(/\s+/g,'').replace(/[^가-힣A-Za-z]/g,''); }
+  function tick(){
+    var menu=document.getElementById('moreMenu'); if(!menu)return;
+    var els=document.querySelectorAll('button, a');
+    for(var i=0;i<els.length;i++){
+      var b=els[i];
+      if(b.dataset&&b.dataset.pmsTuck)continue;
+      if(b.closest&&(b.closest('#moreMenu')||b.closest('.modal')))continue;
+      if(b.id==='homeArrangeFab')continue;
+      var raw=(b.textContent||'').trim();
+      var n=norm(raw);
+      var meta=((b.title||'')+' '+(b.getAttribute('aria-label')||''));
+      var tg=null;
+      if(n==='디자인')tg={emo:'🎨',label:'디자인'};
+      else if(n==='홈배치')tg={emo:'🧩',label:'홈 배치'};
+      else if((raw==='🎨'||raw==='🧩')&&getComputedStyle(b).position==='fixed')
+        tg=(raw==='🎨')?{emo:'🎨',label:'디자인'}:{emo:'🧩',label:'홈 배치'};
+      else if(/디자인/.test(meta)&&raw.length<=3)tg={emo:'🎨',label:'디자인'};
+      else if(/홈\s*배치/.test(meta)&&raw.length<=3)tg={emo:'🧩',label:'홈 배치'};
+      if(!tg)continue;
+      b.dataset.pmsTuck='1';
+      b.style.setProperty('display','none','important');
+      (function(orig,t){
+        var it=document.createElement('button');
+        it.innerHTML=t.emo+' <span>'+t.label+'</span>';
+        it.onclick=function(e){ e.stopPropagation(); menu.classList.remove('on'); try{orig.click();}catch(err){} };
+        menu.appendChild(it);
+      })(b,tg);
+    }
+  }
+  setInterval(tick,1200); setTimeout(tick,700);
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.4 — 사이트 탭 주간 날씨 (부평 · Open-Meteo · 귀여운 버전) ═══ */
+(function(){
+  if(window.__pmsV24)return; window.__pmsV24=true;
+  var WX={0:'☀️',1:'🌤️',2:'⛅️',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+  var css=document.createElement('style');
+  css.textContent='#pmsWx{margin:0 0 14px;padding:14px 14px 12px;border-radius:16px;background:linear-gradient(160deg,rgba(37,184,196,.13),rgba(107,201,58,.10));border:1px solid rgba(255,255,255,.12)}'
+   +'#pmsWx .wx-h{font-size:14.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}'
+   +'#pmsWx .wx-h small{font-weight:400;opacity:.65;font-size:11px}'
+   +'#pmsWx .wx-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}'
+   +'#pmsWx .wx-d{flex:0 0 78px;text-align:center;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 4px}'
+   +'#pmsWx .wx-d.today{border-color:rgba(107,201,58,.6);background:rgba(107,201,58,.10)}'
+   +'#pmsWx .wx-dow{font-size:11px;opacity:.75}'
+   +'#pmsWx .wx-emo{font-size:26px;line-height:1.3;margin:3px 0}'
+   +'#pmsWx .wx-t{font-size:12.5px;font-weight:700}'
+   +'#pmsWx .wx-t small{opacity:.6;font-weight:400}'
+   +'#pmsWx .wx-r{font-size:10.5px;color:#25B8C4;margin-top:2px}';
+  document.head.appendChild(css);
+  var data=null;
+  function fetchWx(cb){
+    if(data)return cb(data);
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.507&longitude=126.722&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=7')
+      .then(function(r){return r.json();}).then(function(d){data=d;cb(d);}).catch(function(){});
+  }
+  var DOW=['일','월','화','수','목','금','토'];
+  function build(){
+    var host=document.getElementById('m-sites'); if(!host)return;
+    if(document.getElementById('pmsWx'))return;
+    if(!host.innerHTML||host.innerHTML.length<40)return;   /* 탭이 아직 안 그려졌으면 대기 */
+    var wrap=host.querySelector('.wrap')||host;
+    var box=document.createElement('div'); box.id='pmsWx';
+    box.innerHTML='<div class="wx-h">🐣 이번 주 부평 날씨 <small>사이트 나가기 전에 살짝 확인!</small></div><div class="wx-row">불러오는 중…</div>';
+    wrap.insertBefore(box,wrap.firstChild);
+    fetchWx(function(d){
+      try{
+        var t=d.daily,row='';
+        for(var i=0;i<t.time.length;i++){
+          var dt=new Date(t.time[i]+'T12:00:00');
+          row+='<div class="wx-d'+(i===0?' today':'')+'">'
+            +'<div class="wx-dow">'+(i===0?'오늘':(dt.getMonth()+1)+'/'+dt.getDate()+' '+DOW[dt.getDay()]) +'</div>'
+            +'<div class="wx-emo">'+(WX[t.weather_code[i]]||'🌈')+'</div>'
+            +'<div class="wx-t">'+Math.round(t.temperature_2m_max[i])+'°<small>/'+Math.round(t.temperature_2m_min[i])+'°</small></div>'
+            +'<div class="wx-r">💧'+(t.precipitation_probability_max[i]!=null?t.precipitation_probability_max[i]:0)+'%</div></div>';
+        }
+        box.querySelector('.wx-row').innerHTML=row;
+      }catch(e){}
+    });
+  }
+  setInterval(build,1500); setTimeout(build,800);
+})();
+</script>
 </body>
 </html>
