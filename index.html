@@ -12993,5 +12993,66 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
   setInterval(build,1500); setTimeout(build,800);
 })();
 </script>
+
+<script>
+/* ═══ PMS 패치 v2.5 — 콜백싯 프라이버시(관리자 모드 OFF시 내 일지만) + 🌿 허브 버튼 ═══ */
+(function(){
+  if(window.__pmsV25)return; window.__pmsV25=true;
+
+  /* ① 콜백싯: 관리자 모드 OFF면 팀원 열람 뷰 차단 → 내 일지만 렌더 */
+  function wrapCb(){
+    var orig=window.renderCbBoard;
+    if(typeof orig!=='function'||orig.__pms25)return;
+    var w=function(){
+      try{
+        if(window.__adminOff){
+          var el=document.getElementById('cbBoard');
+          if(el&&typeof me!=='undefined'&&me&&typeof cbEntries==='function'){
+            el.innerHTML=cbEntries(me.uid,(typeof state!=='undefined'&&state.cbMine)||{},me.name,false);
+            return;
+          }
+        }
+      }catch(e){}
+      return orig.apply(this,arguments);
+    };
+    w.__pms25=true; window.renderCbBoard=w;
+    try{ w(); }catch(e){}
+  }
+  /* 관리자 안내 문구도 모드에 따라 표시/숨김 */
+  function noticeSync(){
+    var host=document.getElementById('m-cbjournal'); if(!host)return;
+    var els=host.querySelectorAll('p,div,span');
+    for(var i=0;i<els.length;i++){
+      var t=els[i].textContent||'';
+      if(t.indexOf('관리자는')>=0&&t.indexOf('콜백싯')>=0&&t.length<120){
+        els[i].style.display=window.__adminOff?'none':'';
+      }
+    }
+  }
+  /* ② 허브 귀환 버튼 → 🌿 귀여운 허브 화분 */
+  function herb(){
+    var b=document.getElementById('pmsHubBack'); if(!b)return;
+    if(!b.__herb){
+      b.__herb=1;
+      var disp=b.style.display;
+      b.innerHTML='<span style="font-size:17px;display:inline-block;transform-origin:60% 90%;animation:pmsSway 2.6s ease-in-out infinite">🌿</span> 허브';
+      b.title='프레젠스 허브로 갈래요 🌿';
+      b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99998;display:'+disp+';align-items:center;gap:4px;'
+        +'padding:10px 16px;border-radius:24px;font-size:14px;font-weight:800;text-decoration:none;'
+        +'background:linear-gradient(160deg,#14301d,#0d2013);color:#8fdd75;border:1.5px solid rgba(107,201,58,.55);'
+        +'box-shadow:0 4px 16px rgba(0,0,0,.35);letter-spacing:.02em;transition:.25s;';
+      b.onmouseenter=function(){b.style.transform='scale(1.08)';b.style.color='#d7ffc4';};
+      b.onmouseleave=function(){b.style.transform='';b.style.color='#8fdd75';};
+      if(!document.getElementById('pmsSwayCss')){
+        var st=document.createElement('style'); st.id='pmsSwayCss';
+        st.textContent='@keyframes pmsSway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}';
+        document.head.appendChild(st);
+      }
+    }
+  }
+  function tick(){ wrapCb(); noticeSync(); herb(); }
+  tick(); setInterval(tick,1500);
+})();
+</script>
 </body>
 </html>
