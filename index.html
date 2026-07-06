@@ -10368,7 +10368,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-07.cluck';
+const APP_VERSION='2026-07-07.cluck2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13189,8 +13189,8 @@ var layer=scene.querySelector('.coop-pokefx');
 if(!layer){ layer=document.createElement('div'); layer.className='coop-pokefx'; scene.appendChild(layer); }
 var sr=scene.getBoundingClientRect();
 for(var k=0;k<pokes.length;k++){(function(pk){
-pk.classList.remove('pms-cheer'); void pk.offsetWidth; pk.classList.add('pms-cheer');
-pk.addEventListener('animationend',function h(){ pk.classList.remove('pms-cheer'); pk.removeEventListener('animationend',h); });
+try{ pk.animate([{transform:'translate(0,0) rotate(0deg)'},{transform:'translate(-3px,-5px) rotate(-11deg)',offset:.14},{transform:'translate(3px,0) rotate(9deg)',offset:.3},{transform:'translate(-2px,-4px) rotate(-7deg)',offset:.46},{transform:'translate(2px,0) rotate(6deg)',offset:.62},{transform:'translate(-1px,-2px) rotate(-3deg)',offset:.8},{transform:'translate(0,0) rotate(0deg)'}],{duration:820,easing:'ease-in-out'}); }catch(e){}
+
 try{ var r=pk.getBoundingClientRect(); var cx=r.left-sr.left+r.width/2, cy=r.top-sr.top+r.height*0.4;
 for(var i=0;i<2;i++){(function(i){ var hh=document.createElement('div'); hh.className='poke-heart'; hh.textContent=(i%2?'💚':'💛'); hh.style.left=(cx+(Math.random()*20-10))+'px'; hh.style.top=cy+'px'; hh.style.setProperty('--dx',(Math.random()*24-12)+'px'); hh.style.animationDelay=(i*0.08)+'s'; layer.appendChild(hh); setTimeout(function(){hh.remove();},1300); })(i);} }catch(e){}
 })(pokes[k]);}
@@ -13202,7 +13202,7 @@ var f=document.createElement('div'); f.className='food-toss'; f.textContent=FOOD
 f.style.left=(32+Math.random()*36)+'%'; stg.appendChild(f); setTimeout(function(){f.remove();},1100);
 var em=CUTE[Math.floor(Math.random()*CUTE.length)];
 for(var i=0;i<3;i++){(function(i){var p=document.createElement('div');p.className='pms-cute';p.textContent=em;p.style.left=(30+i*16+Math.random()*8)+'%';p.style.top=(38+Math.random()*10)+'%';p.style.animationDelay=(i*0.07)+'s';stg.appendChild(p);setTimeout(function(){p.remove();},1100);})(i);}
-var svg=document.getElementById('animalSvg'); if(svg){svg.classList.remove('aegyo');void svg.offsetWidth;svg.classList.add('aegyo');}
+var svg=document.getElementById('animalSvg'); if(svg){ try{ svg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-11deg) scale(1.06)',offset:.18},{transform:'rotate(9deg) scale(1.07)',offset:.44},{transform:'rotate(-5deg) scale(1.03)',offset:.68},{transform:'rotate(3deg) scale(1.02)',offset:.86},{transform:'rotate(0deg)'}],{duration:720,easing:'ease-in-out'}); }catch(e){} }
 try{ if(typeof bumpAnimal==='function') bumpAnimal(Math.random()<0.5?'hop':'bounce'); }catch(e){}
 try{ pmsChickCheer(); }catch(e){}
 }
