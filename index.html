@@ -5371,6 +5371,31 @@ const GIFT_HUNT_START=Date.parse(new Date().getFullYear()+'-12-25T00:00:00+09:00
 const GIFT_HUNT_END=GIFT_HUNT_START+14*86400000;
 const GIFT_VALID_MS=14*86400000;
 const LOA_MSG='행운의 선물을 찾으셨습니다! 🎉\n\n당신은 LOA 왕 👑\n올해도 고생하셨습니다.\n내년도 Let\'s Go Presence!\n\n- 임재영 OP(진) -';
+/* ===== 동물농장 먹이주기 우승 축하 선물 (관리자 → 우승자 지정 지급) ===== */
+const FARM_THANKS='프레젠스 동물농장 식구들을 가장 사랑으로 챙기고, 팀 성장에 가장 많이 기여한 당신에게 진심으로 축하와 감사를 전합니다 🐾\n\n- 임재영 OP(진) -';
+function sendFarmGift(uid){
+  if(!me||!isFounder(me))return;
+  const u=state.users[uid];
+  if(!u||isTestBot(u)||isAdminName(u.name)){toast('선물을 보낼 수 있는 팀원 계정이 아니에요');return;}
+  if(!confirm(u.name+'님에게 🏆 동물농장 먹이주기 우승 축하 선물(트로피+쿠폰)을 보낼까요?\n\n· 본인 로그인 시 큰 축하 팝업이 떠요\n· 🔔 벨 알림에 트로피와 쿠폰이 남아요\n· 선물 쿠폰은 받은 날부터 2주 이내 유효'))return;
+  addNotif(uid,{type:'gift',by:'임재영 OP(진)',t:Date.now(),read:false,expire:Date.now()+GIFT_VALID_MS,msg:'🏆 동물농장 먹이주기 우승 축하해요!\n\n'+FARM_THANKS,popup:true,popupSeen:false,winner:true});
+  const ann={id:Date.now().toString(),text:'🏆 동물농장 먹이주기 우승자는 '+u.name+'님! 우리 농장 식구들을 가장 많이 챙겨준 '+u.name+'님께 진심으로 축하를 보내요 🎉🎉',by:'임재영 OP(진)',t:Date.now(),winner:true};
+  state.popupAnnounce=ann;if(LIVE)DB.set('popupAnnounce',ann);
+  state.farmGiftLog=state.farmGiftLog||[];state.farmGiftLog.push({name:u.name,uid:uid,t:Date.now()});if(LIVE)DB.set('farmGiftLog',state.farmGiftLog);
+  renderBell();renderRewardAdmin();
+  toast('🎁 '+u.name+'님에게 먹이주기 우승 축하 선물을 보냈어요!');
+}
+function sendFarmGiftFromSel(){
+  const sel=document.getElementById('farmGiftSel');
+  if(!sel||!sel.value){toast('축하 선물을 보낼 우승자를 선택해 주세요');return;}
+  sendFarmGift(sel.value);
+}
+function farmGiftPickerHTML(){
+  if(!me||!isFounder(me))return '';
+  const opts=Object.values(state.users).filter(u=>u&&u.status==='active'&&!isTestBot(u)&&!isAdminName(u.name)&&!isDeparted(u.name)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ko')).map(u=>`<option value="${u.uid}">${esc(u.name)} · ${ROLE_LABEL[u.role]||u.role}</option>`).join('');
+  return `<div style="background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:14px"><div style="font-weight:800;font-size:13.5px;margin-bottom:5px">🏆 먹이주기 우승 축하 선물 보내기</div><p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:9px">우승자를 고르면 🔔 벨에 <b style="color:var(--green-soft)">트로피+쿠폰</b>이 들어가고, 본인 로그인 때 <b style="color:var(--green-soft)">크게 축하 팝업</b>이 떠요 · 쿠폰 2주 유효</p><div style="display:flex;gap:8px;flex-wrap:wrap"><select id="farmGiftSel" style="flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13.5px"><option value="">— 우승자 선택 —</option>${opts}</select><button onclick="sendFarmGiftFromSel()" style="background:var(--grad);color:#fff;font-weight:800;border:none;border-radius:10px;padding:11px 16px;font-size:13.5px;cursor:pointer;white-space:nowrap">🎁 축하 선물 보내기</button></div></div>`;
+}
+
 function topWaterers(){const w=state.waters||{};const arr=[];Object.keys(w).forEach(uid=>{const x=w[uid];if(x&&x.count>0)arr.push({uid,name:x.name,role:x.role,count:x.count,ft:x.firstT||x.t||9e15});});arr.sort((a,b)=>(b.count-a.count)||(a.ft-b.ft));return arr;}
 function renderWaterAdmin(){
   const el=document.getElementById('waterAdmin');if(!el)return;
@@ -6284,7 +6309,7 @@ function renderRewardAdmin(){
   const rws=(state.rewards||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const pend=rws.filter(r=>!r.given).length;
   const bd=document.getElementById('rewardBadge');if(bd){bd.textContent=pend;bd.classList.toggle('zero',pend===0);}
-  box.innerHTML=rws.length?rws.map(r=>`<div class="rw-row"><div class="rw-info"><b>🏆 ${esc(r.winner)}</b><span class="rw-meta">${esc(r.date)} · 먹이 ${r.count}회 · ${esc(r.prize)}</span></div>${r.given?`<span class="rw-done">✓ 지급완료${r.givenAt?' · '+new Date(r.givenAt).toLocaleDateString('ko-KR'):''}</span>`:`<button class="rw-give" onclick="markRewardGiven('${r.id}')">🎁 지급완료</button>`}</div>`).join(''):'<div class="rw-none">아직 우승자 기록이 없어요. 매일 자정 이후 관리자가 접속하면 전날 우승자가 집계돼요.</div>';
+  box.innerHTML=farmGiftPickerHTML()+(rws.length?rws.map(r=>`<div class="rw-row"><div class="rw-info"><b>🏆 ${esc(r.winner)}</b><span class="rw-meta">${esc(r.date)} · 먹이 ${r.count}회 · ${esc(r.prize)}</span></div>${r.given?`<span class="rw-done">✓ 지급완료${r.givenAt?' · '+new Date(r.givenAt).toLocaleDateString('ko-KR'):''}</span>`:`<button class="rw-give" onclick="markRewardGiven('${r.id}')">🎁 지급완료</button>`}</div>`).join(''):'<div class="rw-none">아직 우승자 기록이 없어요. 매일 자정 이후 관리자가 접속하면 전날 우승자가 집계돼요.</div>');
 }
 function markRewardGiven(id){
   if(!isFounder(me))return;
@@ -7239,7 +7264,7 @@ function notifInner(n){
   if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='notice'){return `<div class="notif-top">📢 <b>${esc(n.title||'공지')}</b>${n.by?` · ${esc(n.by)}`:''}</div>${n.msg?`<div class="notif-prev">${esc(n.msg).replace(/\n/g,'<br>')}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='welcome'){return `<div class="notif-top"><b>🎉 환영합니다</b></div><div class="notif-prev">${n.msg?esc(n.msg).replace(/\n/g,'<br>'):''}</div><div class="notif-t">${ago(n.t)}</div>`;}
-  if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="gift-box">🎁<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎁 깜짝 선물 쿠폰이 도착했어요!'}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div>`;}
+  if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="gift-box">${n.winner?'🏆':'🎁'}<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':(n.winner?'🏆 먹이주기 우승 축하 · 쿠폰 도착!':'🎁 깜짝 선물 쿠폰이 도착했어요!')}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div>`;}
   return `<div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;
 }
 function notifIsReward(n){return n&&(n.type==='gift'||n.type==='giftwin');}
@@ -7454,7 +7479,7 @@ function maybeShowGiftPopup(){
   if(!g)return;
   window._giftPopupShown=true;
   const exp=g.expire?new Date(g.expire):null;
-  const t=document.getElementById('gwTitle');if(t)t.textContent=g.type==='giftwin'?'🎉 행운의 선물 당첨!':'🎉 깜짝 선물 쿠폰 도착!';
+  const t=document.getElementById('gwTitle');if(t)t.textContent=g.type==='giftwin'?'🎉 행운의 선물 당첨!':(g.winner?'🏆 먹이주기 우승 축하! 🎉':'🎉 깜짝 선물 쿠폰 도착!');
   const m=document.getElementById('gwMsg');if(m)m.innerHTML=(g.msg||'').replace(/\n/g,'<br>');
   const e=document.getElementById('gwExp');if(e)e.textContent=exp?('🎁 받은 날부터 2주 이내 · '+exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')+'까지 유효'):'';
   openModal('giftWinModal');
@@ -10334,7 +10359,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-06.loginfix';
+const APP_VERSION='2026-07-06.farmgift';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
