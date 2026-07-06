@@ -10368,7 +10368,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-07.restore';
+const APP_VERSION='2026-07-07.restweek';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13150,6 +13150,92 @@ nw.__pms26=true; window.sheetWrite=nw;
 }
 function tick(){ install(); restoreMore(); }
 tick(); setInterval(tick,1500);
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.7 — 쉬는 주간: 토큰 없이 무제한 먹이 + 닭 애교 애니메이션 + 축하 배너 ═══ */
+(function(){
+if(window.__pmsV27)return; window.__pmsV27=true;
+var REST_FROM='2026-07-06', REST_UNTIL='2026-07-13';   // 이번 주(쉬는 기간). 다음 주(7/13~)부터 컴페티션 재개
+function today(){ try{ if(typeof TODAY!=='undefined'&&TODAY)return TODAY; }catch(e){} return new Date().toISOString().slice(0,10); }
+function isRest(){ var t=today(); return t>=REST_FROM && t<REST_UNTIL; }
+window.isRestWeek=isRest;
+
+var st=document.createElement('style'); st.id='pmsRestCss';
+st.textContent='@keyframes pmsWiggle{0%,100%{transform:rotate(0)}18%{transform:rotate(-10deg) scale(1.05)}44%{transform:rotate(9deg) scale(1.07)}68%{transform:rotate(-5deg) scale(1.03)}86%{transform:rotate(3deg) scale(1.02)}}'
++'#animalSvg.aegyo{animation:pmsWiggle .72s ease}'
++'.pms-cute{position:absolute;font-size:23px;pointer-events:none;z-index:6;animation:pmsCute 1s ease forwards}'
++'@keyframes pmsCute{0%{opacity:0;transform:translateY(8px) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.2)}}'
++'.pms-rest-banner{margin:0 0 12px;padding:14px 16px;border-radius:16px;line-height:1.65;font-size:13.5px;background:linear-gradient(160deg,rgba(255,216,107,.16),rgba(107,201,58,.13));border:1px solid rgba(255,216,107,.42)}'
++'.pms-rest-banner b{color:var(--green-soft)}'
++'.pms-rest-banner .rb-h{font-size:15px;font-weight:800;margin-bottom:6px;display:block}'
++'.pms-rest-banner small{display:block;margin-top:7px;opacity:.72;font-size:11.5px}';
+document.head.appendChild(st);
+
+var FOODS=['🌽','🍞','🌾','🍚','🫘','🥬','🍙','🐛'];
+var CUTE=['💕','⭐','🎀','✨','😻','🥰','💛','🐥','💗'];
+var TOASTS=['🐔 꼬꼬~ 맛있게 먹었어요! 💕','🌽 냠냠… 애교 뿜뿜 🥰','🐥 삐약삐약~ 더 주세요! 🎀','😻 배부르고 행복해요~','💛 사랑 듬뿍 받았어요!'];
+
+function restFeedAnim(){
+var stg=document.querySelector('.animal-stage'); if(!stg)return;
+var f=document.createElement('div'); f.className='food-toss'; f.textContent=FOODS[Math.floor(Math.random()*FOODS.length)];
+f.style.left=(32+Math.random()*36)+'%'; stg.appendChild(f); setTimeout(function(){f.remove();},1100);
+var em=CUTE[Math.floor(Math.random()*CUTE.length)];
+for(var i=0;i<3;i++){(function(i){var p=document.createElement('div');p.className='pms-cute';p.textContent=em;p.style.left=(30+i*16+Math.random()*8)+'%';p.style.top=(38+Math.random()*10)+'%';p.style.animationDelay=(i*0.07)+'s';stg.appendChild(p);setTimeout(function(){p.remove();},1100);})(i);}
+var svg=document.getElementById('animalSvg'); if(svg){svg.classList.remove('aegyo');void svg.offsetWidth;svg.classList.add('aegyo');}
+try{ if(typeof bumpAnimal==='function') bumpAnimal(Math.random()<0.5?'hop':'bounce'); }catch(e){}
+}
+window.restFeedAnim=restFeedAnim;
+
+function wrapFeed(){
+if(typeof window.buyFeed!=='function'||window.buyFeed.__pms27)return;
+var orig=window.buyFeed;
+var w=function(){
+if(isRest()){
+if(typeof me==='undefined'||!me){ try{toast('로그인이 필요해요');}catch(e){} return; }
+restFeedAnim();
+try{ toast(TOASTS[Math.floor(Math.random()*TOASTS.length)]); }catch(e){}
+return;
+}
+return orig.apply(this,arguments);
+};
+w.__pms27=true; window.buyFeed=w;
+}
+function wrapShop(){
+if(typeof window.renderTokenShop!=='function'||window.renderTokenShop.__pms27)return;
+var orig=window.renderTokenShop;
+var w=function(){
+var r; try{ r=orig.apply(this,arguments); }catch(e){}
+if(isRest()){
+var el=document.getElementById('tokenBal'); if(el)el.textContent='∞';
+var btn=document.getElementById('buyFeedBtn'); if(btn){btn.classList.remove('disabled'); btn.innerHTML='🌽 먹이 주기 <span class="cost">무제한 🎉</span>';}
+}
+return r;
+};
+w.__pms27=true; window.renderTokenShop=w;
+}
+function wrapLead(){
+if(typeof window.renderRewardLead!=='function'||window.renderRewardLead.__pms27)return;
+var orig=window.renderRewardLead;
+var w=function(){
+if(isRest()){
+var el=document.getElementById('rewardLead');
+if(el){ el.innerHTML='<div class="pms-rest-banner"><span class="rb-h">🐔✨ 이번 주는 쉬어가는 주간!</span>'
++'이번 주 한 주 동안은 <b>많은 활동가님</b>과, 특히 <b>이번 시즌 간승학 리더님</b>께서 🐣 병아리가 🐔 닭으로 자라는 데 <b>가장 많이 기여</b>해 주셨어요. 진심으로 감사드립니다! 💛<br>'
++'그래서 이번 주는 <b>토큰 없이 먹이 무제한</b> — 우리 닭 마음껏 예뻐해 주세요 🌽🎀'
++'<small>이번 주는 쉬는 기간이에요 · 다음 주부터 새 컴페티션 시작! 🚀</small></div>';
+return;
+}
+}
+return orig.apply(this,arguments);
+};
+w.__pms27=true; window.renderRewardLead=w;
+}
+function tick(){
+wrapFeed(); wrapShop(); wrapLead();
+if(isRest()){ try{ if(typeof renderTokenShop==='function')renderTokenShop(); }catch(e){} try{ if(typeof renderRewardLead==='function')renderRewardLead(); }catch(e){} }
+}
+tick(); setInterval(tick,1500); setTimeout(tick,700);
 })();
 </script>
 </body>
