@@ -4145,7 +4145,7 @@ function enterApp(){
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
   showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
-  setTimeout(maybeAskFirstField,1100);
+  setTimeout(maybeAskFirstField,1100);setTimeout(maybeDemoFarmGift,1500);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
   setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
@@ -5396,6 +5396,15 @@ function farmGiftPickerHTML(){
   return `<div style="background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:14px"><div style="font-weight:800;font-size:13.5px;margin-bottom:5px">🏆 먹이주기 우승 축하 선물 보내기</div><p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:9px">우승자를 고르면 🔔 벨에 <b style="color:var(--green-soft)">트로피+쿠폰</b>이 들어가고, 본인 로그인 때 <b style="color:var(--green-soft)">크게 축하 팝업</b>이 떠요 · 쿠폰 2주 유효</p><div style="display:flex;gap:8px;flex-wrap:wrap"><select id="farmGiftSel" style="flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13.5px"><option value="">— 우승자 선택 —</option>${opts}</select><button onclick="sendFarmGiftFromSel()" style="background:var(--grad);color:#fff;font-weight:800;border:none;border-radius:10px;padding:11px 16px;font-size:13.5px;cursor:pointer;white-space:nowrap">🎁 축하 선물 보내기</button></div></div>`;
 }
 
+function maybeDemoFarmGift(){
+  try{
+    if(!me||!isFounder(me))return;
+    if(lsGet('presence_demo_farmgift'))return;
+    lsSet('presence_demo_farmgift',1);
+    addNotif(me.uid,{type:'gift',by:'임재영 OP(진)',t:Date.now(),read:false,expire:Date.now()+GIFT_VALID_MS,msg:'🏆 (체험) 동물농장 먹이주기 우승 축하 선물!\n\n'+FARM_THANKS,popup:true,popupSeen:false,winner:true});
+    renderBell();window._giftPopupShown=false;maybeShowGiftPopup();
+  }catch(e){}
+}
 function topWaterers(){const w=state.waters||{};const arr=[];Object.keys(w).forEach(uid=>{const x=w[uid];if(x&&x.count>0)arr.push({uid,name:x.name,role:x.role,count:x.count,ft:x.firstT||x.t||9e15});});arr.sort((a,b)=>(b.count-a.count)||(a.ft-b.ft));return arr;}
 function renderWaterAdmin(){
   const el=document.getElementById('waterAdmin');if(!el)return;
@@ -10359,7 +10368,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-06.farmgift';
+const APP_VERSION='2026-07-07.restore';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -12928,6 +12937,219 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     }
     send(0);
   };
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.3b — '디자인'·'홈배치'(아이콘 포함) 버튼을 ⋯ 더보기 메뉴로 자동 수납 ═══ */
+(function(){
+if(window.__pmsV23)return; window.__pmsV23=true;
+function norm(t){ return (t||'').replace(/\s+/g,'').replace(/[^가-힣A-Za-z]/g,''); }
+function tick(){
+var menu=document.getElementById('moreMenu'); if(!menu)return;
+var els=document.querySelectorAll('button, a');
+for(var i=0;i<els.length;i++){
+var b=els[i];
+if(b.dataset&&b.dataset.pmsTuck)continue;
+if(b.closest&&(b.closest('#moreMenu')||b.closest('.modal')))continue;
+if(b.id==='homeArrangeFab'||b.id==='moreBtn'||(b.closest&&b.closest('#moreMenu')))continue;
+if((b.textContent||'').trim()==='⋯')continue;
+var raw=(b.textContent||'').trim();
+var n=norm(raw);
+var meta=((b.title||'')+' '+(b.getAttribute('aria-label')||''));
+var tg=null;
+if(n==='디자인')tg={emo:'🎨',label:'디자인'};
+else if(n==='홈배치')tg={emo:'🧩',label:'홈 배치'};
+else if((raw==='🎨'||raw==='🧩')&&getComputedStyle(b).position==='fixed')
+tg=(raw==='🎨')?{emo:'🎨',label:'디자인'}:{emo:'🧩',label:'홈 배치'};
+else if(/디자인/.test(meta)&&raw.length<=3)tg={emo:'🎨',label:'디자인'};
+else if(/홈\s*배치/.test(meta)&&raw.length<=3)tg={emo:'🧩',label:'홈 배치'};
+if(!tg)continue;
+b.dataset.pmsTuck='1';
+b.style.setProperty('display','none','important');
+(function(orig,t){
+var it=document.createElement('button');
+it.innerHTML=t.emo+' <span>'+t.label+'</span>';
+it.onclick=function(e){ e.stopPropagation(); menu.classList.remove('on'); try{orig.click();}catch(err){} };
+menu.appendChild(it);
+})(b,tg);
+}
+}
+setInterval(tick,1200); setTimeout(tick,700);
+})();
+</script>
+<script>
+/* ═══ PMS 패치 v2.4 — 사이트 탭 주간 날씨 (부평 · Open-Meteo · 귀여운 버전) ═══ */
+(function(){
+if(window.__pmsV24)return; window.__pmsV24=true;
+var WX={0:'☀️',1:'🌤️',2:'⛅️',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+var css=document.createElement('style');
+css.textContent='#pmsWx{margin:0 0 14px;padding:14px 14px 12px;border-radius:16px;background:linear-gradient(160deg,rgba(37,184,196,.13),rgba(107,201,58,.10));border:1px solid rgba(255,255,255,.12)}'
++'#pmsWx .wx-h{font-size:14.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}'
++'#pmsWx .wx-h small{font-weight:400;opacity:.65;font-size:11px}'
++'#pmsWx .wx-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}'
++'#pmsWx .wx-d{flex:0 0 78px;text-align:center;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 4px}'
++'#pmsWx .wx-d.today{border-color:rgba(107,201,58,.6);background:rgba(107,201,58,.10)}'
++'#pmsWx .wx-dow{font-size:11px;opacity:.75}'
++'#pmsWx .wx-emo{font-size:26px;line-height:1.3;margin:3px 0}'
++'#pmsWx .wx-t{font-size:12.5px;font-weight:700}'
++'#pmsWx .wx-t small{opacity:.6;font-weight:400}'
++'#pmsWx .wx-r{font-size:10.5px;color:#25B8C4;margin-top:2px}';
+document.head.appendChild(css);
+var data=null;
+function fetchWx(cb){
+if(data)return cb(data);
+fetch('https://api.open-meteo.com/v1/forecast?latitude=37.507&longitude=126.722&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=7')
+.then(function(r){return r.json();}).then(function(d){data=d;cb(d);}).catch(function(){});
+}
+var DOW=['일','월','화','수','목','금','토'];
+function build(){
+var host=document.getElementById('m-sites'); if(!host)return;
+if(document.getElementById('pmsWx'))return;
+if(!host.innerHTML||host.innerHTML.length<40)return; /* 탭이 아직 안 그려졌으면 대기 */
+var wrap=host.querySelector('.wrap')||host;
+var box=document.createElement('div'); box.id='pmsWx';
+box.innerHTML='<div class="wx-h">🐣 이번 주 부평 날씨 <small>사이트 나가기 전에 살짝 확인!</small></div><div class="wx-row">불러오는 중…</div>';
+wrap.insertBefore(box,wrap.firstChild);
+fetchWx(function(d){
+try{
+var t=d.daily,row='';
+for(var i=0;i<t.time.length;i++){
+var dt=new Date(t.time[i]+'T12:00:00');
+row+='<div class="wx-d'+(i===0?' today':'')+'">'
++'<div class="wx-dow">'+(i===0?'오늘':(dt.getMonth()+1)+'/'+dt.getDate()+' '+DOW[dt.getDay()]) +'</div>'
++'<div class="wx-emo">'+(WX[t.weather_code[i]]||'🌈')+'</div>'
++'<div class="wx-t">'+Math.round(t.temperature_2m_max[i])+'°<small>/'+Math.round(t.temperature_2m_min[i])+'°</small></div>'
++'<div class="wx-r">💧'+(t.precipitation_probability_max[i]!=null?t.precipitation_probability_max[i]:0)+'%</div></div>';
+}
+box.querySelector('.wx-row').innerHTML=row;
+}catch(e){}
+});
+}
+setInterval(build,1500); setTimeout(build,800);
+})();
+</script>
+
+<script>
+/* ═══ PMS 패치 v2.5 — 콜백싯 프라이버시(관리자 모드 OFF시 내 일지만) + 🌿 허브 버튼 ═══ */
+(function(){
+if(window.__pmsV25)return; window.__pmsV25=true;
+
+/* ① 콜백싯: 관리자 모드 OFF면 팀원 열람 뷰 차단 → 내 일지만 렌더 */
+function wrapCb(){
+var orig=window.renderCbBoard;
+if(typeof orig!=='function'||orig.__pms25)return;
+var w=function(){
+try{
+if(window.__adminOff){
+var el=document.getElementById('cbBoard');
+if(el&&typeof me!=='undefined'&&me&&typeof cbEntries==='function'){
+el.innerHTML=cbEntries(me.uid,(typeof state!=='undefined'&&state.cbMine)||{},me.name,false);
+return;
+}
+}
+}catch(e){}
+return orig.apply(this,arguments);
+};
+w.__pms25=true; window.renderCbBoard=w;
+try{ w(); }catch(e){}
+}
+/* 관리자 안내 문구도 모드에 따라 표시/숨김 */
+function noticeSync(){
+var host=document.getElementById('m-cbjournal'); if(!host)return;
+var els=host.querySelectorAll('p,div,span');
+for(var i=0;i<els.length;i++){
+var t=els[i].textContent||'';
+if(t.indexOf('관리자는')>=0&&t.indexOf('콜백싯')>=0&&t.length<120){
+els[i].style.display=window.__adminOff?'none':'';
+}
+}
+}
+/* ② 허브 귀환 버튼 → 🌿 귀여운 허브 화분 */
+function herb(){
+var b=document.getElementById('pmsHubBack'); if(!b)return;
+if(!b.__herb){
+b.__herb=1;
+var disp=b.style.display;
+b.innerHTML='<span style="font-size:17px;display:inline-block;transform-origin:60% 90%;animation:pmsSway 2.6s ease-in-out infinite">🌿</span> 허브';
+b.title='프레젠스 허브로 갈래요 🌿';
+b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99998;display:'+disp+';align-items:center;gap:4px;'
++'padding:10px 16px;border-radius:24px;font-size:14px;font-weight:800;text-decoration:none;'
++'background:linear-gradient(160deg,#14301d,#0d2013);color:#8fdd75;border:1.5px solid rgba(107,201,58,.55);'
++'box-shadow:0 4px 16px rgba(0,0,0,.35);letter-spacing:.02em;transition:.25s;';
+b.onmouseenter=function(){b.style.transform='scale(1.08)';b.style.color='#d7ffc4';};
+b.onmouseleave=function(){b.style.transform='';b.style.color='#8fdd75';};
+if(!document.getElementById('pmsSwayCss')){
+var st=document.createElement('style'); st.id='pmsSwayCss';
+st.textContent='@keyframes pmsSway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}';
+document.head.appendChild(st);
+}
+}
+}
+function tick(){ wrapCb(); noticeSync(); herb(); }
+tick(); setInterval(tick,1500);
+})();
+</script>
+
+<script>
+/* ═══ PMS 패치 v2.6 — 시트 전송 '응답 시간초과' 오탐 수정 (25초 대기 + 실기록 검증) + ⋯ 복구 ═══ */
+(function(){
+if(window.__pmsV26)return; window.__pmsV26=true;
+/* v2.3b가 숨겼던 ⋯ 버튼 복구 */
+function restoreMore(){
+var b=document.getElementById('moreBtn');
+if(b&&b.dataset&&b.dataset.pmsTuck){ delete b.dataset.pmsTuck; b.style.removeProperty('display'); }
+}
+function install(){
+if(typeof window.sheetWrite!=='function'||window.sheetWrite.__pms26)return;
+var nw=function(payload,onDone){
+var url=(typeof effectiveWebhook==='function')?effectiveWebhook():'';
+if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'배포 URL 없음'});return;}
+var cb='__sw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);var done=false;
+function cleanup(){try{delete window[cb];}catch(e){}var el=document.getElementById(cb);if(el)el.remove();}
+function finish(r){if(done)return;done=true;onDone&&onDone(r);cleanup();}
+window[cb]=function(res){finish(res||{ok:false});};
+var q='action=write&callback='+cb
++'&date='+encodeURIComponent(payload.date)
++'&name='+encodeURIComponent(payload.name)
++'&role='+encodeURIComponent(payload.role||'')
++'&count='+encodeURIComponent(payload.count)
++'&na='+(payload.na?'1':'0')+'&rally='+(payload.rally?'1':'0')+'&t='+Date.now();
+var sc=document.createElement('script');sc.id=cb;
+sc.src=url+(url.indexOf('?')>=0?'&':'?')+q;
+sc.onerror=function(){finish({ok:false,error:'연결 실패'});};
+document.body.appendChild(sc);
+setTimeout(function(){
+if(done)return;
+var cb2='__swv_'+Date.now();
+window[cb2]=function(data){
+try{
+var okv=false;
+if(data&&typeof data==='object'){
+var row=data[payload.date]||{};
+for(var nm in row){
+if(String(nm).replace(/\s/g,'').indexOf(String(payload.name).replace(/\s/g,''))===0){
+var v=String(row[nm]).trim().toLowerCase();
+if(payload.rally) okv=(v==='랠리');
+else if(payload.na) okv=(v==='na');
+else okv=(v!==''&&Number(v)===Number(payload.count));
+break;
+}
+}
+}
+finish(okv?{ok:true,written:true,verified:true}:{ok:false,error:'응답 시간초과'});
+}finally{try{delete window[cb2];}catch(e){}var e2=document.getElementById(cb2);if(e2)e2.remove();}
+};
+var sc2=document.createElement('script');sc2.id=cb2;
+sc2.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb2+'&t='+Date.now();
+sc2.onerror=function(){finish({ok:false,error:'응답 시간초과'});};
+document.body.appendChild(sc2);
+setTimeout(function(){finish({ok:false,error:'응답 시간초과'});},12000);
+},25000);
+};
+nw.__pms26=true; window.sheetWrite=nw;
+}
+function tick(){ install(); restoreMore(); }
+tick(); setInterval(tick,1500);
 })();
 </script>
 </body>
