@@ -3989,7 +3989,8 @@ function doLogin(){
   const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
   me=u;
   if(u.mustChangePw){ authState.view='newpw'; renderAuth(); authMsg('임시 비밀번호로 로그인했어요 · 새 비밀번호를 설정해 주세요','info'); return; }
-  if(needsFirstField(u)){ askFirstField(function(){ continueLogin(u); }); return; }
+  /* [loginfix] 로그인 시점엔 firstField 모달(#ffAskModal)이 숨겨진 #app 안에 있어 표시 불가 → 로그인 멈춤.
+     첫필드 수집은 입장 후 enterApp()의 maybeAskFirstField로 위임한다. */
   continueLogin(u);
 }
 function submitNewPw(){
@@ -4006,7 +4007,7 @@ function submitNewPw(){
 function surveyDone(u,key){if(!u||!u.surveys)return false;var r=u.surveys[key];if(!r)return false;var a=r.answers;return !!(a&&typeof a==='object'&&Object.keys(a).length>0);}
 function continueLogin(u){
   const rk=reqSurvey(u.role,u.name);
-  if(rk && !surveyDone(u,rk)){ // 직급에 맞는 설문 미완료 → 게이팅
+  if(rk && SURVEYS[rk] && !surveyDone(u,rk)){ // 직급에 맞는 설문 미완료 → 게이팅
     authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
     authMsg(`✅ ${ROLE_LABEL[u.role]} 설문만 완료하면 바로 로그인돼요 · 마지막 한 단계예요!`,'info');return;
   }
@@ -4081,7 +4082,7 @@ function submitSurvey(){
   const _su=(authState.surveyCtx==='signup')?authState.draft:me;
   if(ans.firstField&&_su&&_su.name&&!isTestBot(_su)){const _mi=miGet(_su.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)DB.set('memberInfo/'+nk(_su.name),_mi);}
   if(authState.surveyCtx==='signup'){
-    const u=authState.draft;u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
+    const u=authState.draft;u.surveys=u.surveys||{};u.surveys[key]=rec;state.users[u.uid]=u;if(LIVE)DB.set('users/'+u.uid,u);
     if(!isTestBot(u)){
       const gotTok=(TODAY>=SIGNUP_TOKEN_FROM);
       if(gotTok){state.tokens=state.tokens||{};state.tokens[u.name]=(state.tokens[u.name]||0)+1;state.tokenLog=state.tokenLog||[];state.tokenLog.push({name:u.name,t:Date.now(),by:'가입기념',amt:1,gift:true});if(LIVE){DB.set('tokens',state.tokens);DB.set('tokenLog',state.tokenLog);}}
@@ -4092,8 +4093,8 @@ function submitSurvey(){
     authState.draftPw=null;
     authState.view='pending';renderAuth();
   }else{ // gate: 이미 active 사용자, 승격 설문 완료 → 바로 입장
-    if(isTestBot(me)){ me.surveys[key]=rec; me.lastLogin=Date.now(); enterApp(); toast('테스트봇 — 설문 체험 완료, 입장합니다'); }
-    else { me.surveys[key]=rec;if(LIVE)DB.set('users/'+me.uid+'/surveys/'+key,rec);
+    if(isTestBot(me)){ me.surveys=me.surveys||{}; me.surveys[key]=rec; me.lastLogin=Date.now(); enterApp(); toast('테스트봇 — 설문 체험 완료, 입장합니다'); }
+    else { me.surveys=me.surveys||{}; me.surveys[key]=rec;if(LIVE)DB.set('users/'+me.uid+'/surveys/'+key,rec);
       sendSurveyToSheet(me,key,rec);
       me.lastLogin=Date.now();enterApp();toast('설문 완료! 환영해요 🎉'); }
   }
@@ -7112,7 +7113,7 @@ function renderSurveyResponses(){
 function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · ${curMonthKey()} 시트에 등록 요청`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);u.mustChangePw=true;if(LIVE){DB.set('users/'+uid+'/pwHash',u.pwHash);DB.set('users/'+uid+'/mustChangePw',true);}alert(`${u.name}님의 임시 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.\n(${u.name}님이 처음 로그인하면 새 비밀번호를 직접 설정하게 됩니다.)`);toast('임시 비밀번호를 발급했어요 · 본인이 첫 로그인 시 변경합니다')}
-function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&!u.surveys[rk]?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
+function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&(!u.surveys||!u.surveys[rk])?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
 function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
 function gfAnswerHTML(v){
   if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
@@ -10333,7 +10334,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-03.auto';
+const APP_VERSION='2026-07-06.loginfix';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -12902,220 +12903,6 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     }
     send(0);
   };
-})();
-</script>
-
-<script>
-/* ═══ PMS 패치 v2.3b — '디자인'·'홈배치'(아이콘 포함) 버튼을 ⋯ 더보기 메뉴로 자동 수납 ═══ */
-(function(){
-  if(window.__pmsV23)return; window.__pmsV23=true;
-  function norm(t){ return (t||'').replace(/\s+/g,'').replace(/[^가-힣A-Za-z]/g,''); }
-  function tick(){
-    var menu=document.getElementById('moreMenu'); if(!menu)return;
-    var els=document.querySelectorAll('button, a');
-    for(var i=0;i<els.length;i++){
-      var b=els[i];
-      if(b.dataset&&b.dataset.pmsTuck)continue;
-      if(b.closest&&(b.closest('#moreMenu')||b.closest('.modal')))continue;
-      if(b.id==='homeArrangeFab'||b.id==='moreBtn'||(b.closest&&b.closest('#moreMenu')))continue;
-      if((b.textContent||'').trim()==='⋯')continue;
-      var raw=(b.textContent||'').trim();
-      var n=norm(raw);
-      var meta=((b.title||'')+' '+(b.getAttribute('aria-label')||''));
-      var tg=null;
-      if(n==='디자인')tg={emo:'🎨',label:'디자인'};
-      else if(n==='홈배치')tg={emo:'🧩',label:'홈 배치'};
-      else if((raw==='🎨'||raw==='🧩')&&getComputedStyle(b).position==='fixed')
-        tg=(raw==='🎨')?{emo:'🎨',label:'디자인'}:{emo:'🧩',label:'홈 배치'};
-      else if(/디자인/.test(meta)&&raw.length<=3)tg={emo:'🎨',label:'디자인'};
-      else if(/홈\s*배치/.test(meta)&&raw.length<=3)tg={emo:'🧩',label:'홈 배치'};
-      if(!tg)continue;
-      b.dataset.pmsTuck='1';
-      b.style.setProperty('display','none','important');
-      (function(orig,t){
-        var it=document.createElement('button');
-        it.innerHTML=t.emo+' <span>'+t.label+'</span>';
-        it.onclick=function(e){ e.stopPropagation(); menu.classList.remove('on'); try{orig.click();}catch(err){} };
-        menu.appendChild(it);
-      })(b,tg);
-    }
-  }
-  setInterval(tick,1200); setTimeout(tick,700);
-})();
-</script>
-<script>
-/* ═══ PMS 패치 v2.4 — 사이트 탭 주간 날씨 (부평 · Open-Meteo · 귀여운 버전) ═══ */
-(function(){
-  if(window.__pmsV24)return; window.__pmsV24=true;
-  var WX={0:'☀️',1:'🌤️',2:'⛅️',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
-  var css=document.createElement('style');
-  css.textContent='#pmsWx{margin:0 0 14px;padding:14px 14px 12px;border-radius:16px;background:linear-gradient(160deg,rgba(37,184,196,.13),rgba(107,201,58,.10));border:1px solid rgba(255,255,255,.12)}'
-   +'#pmsWx .wx-h{font-size:14.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}'
-   +'#pmsWx .wx-h small{font-weight:400;opacity:.65;font-size:11px}'
-   +'#pmsWx .wx-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}'
-   +'#pmsWx .wx-d{flex:0 0 78px;text-align:center;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 4px}'
-   +'#pmsWx .wx-d.today{border-color:rgba(107,201,58,.6);background:rgba(107,201,58,.10)}'
-   +'#pmsWx .wx-dow{font-size:11px;opacity:.75}'
-   +'#pmsWx .wx-emo{font-size:26px;line-height:1.3;margin:3px 0}'
-   +'#pmsWx .wx-t{font-size:12.5px;font-weight:700}'
-   +'#pmsWx .wx-t small{opacity:.6;font-weight:400}'
-   +'#pmsWx .wx-r{font-size:10.5px;color:#25B8C4;margin-top:2px}';
-  document.head.appendChild(css);
-  var data=null;
-  function fetchWx(cb){
-    if(data)return cb(data);
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.507&longitude=126.722&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=7')
-      .then(function(r){return r.json();}).then(function(d){data=d;cb(d);}).catch(function(){});
-  }
-  var DOW=['일','월','화','수','목','금','토'];
-  function build(){
-    var host=document.getElementById('m-sites'); if(!host)return;
-    if(document.getElementById('pmsWx'))return;
-    if(!host.innerHTML||host.innerHTML.length<40)return;   /* 탭이 아직 안 그려졌으면 대기 */
-    var wrap=host.querySelector('.wrap')||host;
-    var box=document.createElement('div'); box.id='pmsWx';
-    box.innerHTML='<div class="wx-h">🐣 이번 주 부평 날씨 <small>사이트 나가기 전에 살짝 확인!</small></div><div class="wx-row">불러오는 중…</div>';
-    wrap.insertBefore(box,wrap.firstChild);
-    fetchWx(function(d){
-      try{
-        var t=d.daily,row='';
-        for(var i=0;i<t.time.length;i++){
-          var dt=new Date(t.time[i]+'T12:00:00');
-          row+='<div class="wx-d'+(i===0?' today':'')+'">'
-            +'<div class="wx-dow">'+(i===0?'오늘':(dt.getMonth()+1)+'/'+dt.getDate()+' '+DOW[dt.getDay()]) +'</div>'
-            +'<div class="wx-emo">'+(WX[t.weather_code[i]]||'🌈')+'</div>'
-            +'<div class="wx-t">'+Math.round(t.temperature_2m_max[i])+'°<small>/'+Math.round(t.temperature_2m_min[i])+'°</small></div>'
-            +'<div class="wx-r">💧'+(t.precipitation_probability_max[i]!=null?t.precipitation_probability_max[i]:0)+'%</div></div>';
-        }
-        box.querySelector('.wx-row').innerHTML=row;
-      }catch(e){}
-    });
-  }
-  setInterval(build,1500); setTimeout(build,800);
-})();
-</script>
-
-<script>
-/* ═══ PMS 패치 v2.5 — 콜백싯 프라이버시(관리자 모드 OFF시 내 일지만) + 🌿 허브 버튼 ═══ */
-(function(){
-  if(window.__pmsV25)return; window.__pmsV25=true;
-
-  /* ① 콜백싯: 관리자 모드 OFF면 팀원 열람 뷰 차단 → 내 일지만 렌더 */
-  function wrapCb(){
-    var orig=window.renderCbBoard;
-    if(typeof orig!=='function'||orig.__pms25)return;
-    var w=function(){
-      try{
-        if(window.__adminOff){
-          var el=document.getElementById('cbBoard');
-          if(el&&typeof me!=='undefined'&&me&&typeof cbEntries==='function'){
-            el.innerHTML=cbEntries(me.uid,(typeof state!=='undefined'&&state.cbMine)||{},me.name,false);
-            return;
-          }
-        }
-      }catch(e){}
-      return orig.apply(this,arguments);
-    };
-    w.__pms25=true; window.renderCbBoard=w;
-    try{ w(); }catch(e){}
-  }
-  /* 관리자 안내 문구도 모드에 따라 표시/숨김 */
-  function noticeSync(){
-    var host=document.getElementById('m-cbjournal'); if(!host)return;
-    var els=host.querySelectorAll('p,div,span');
-    for(var i=0;i<els.length;i++){
-      var t=els[i].textContent||'';
-      if(t.indexOf('관리자는')>=0&&t.indexOf('콜백싯')>=0&&t.length<120){
-        els[i].style.display=window.__adminOff?'none':'';
-      }
-    }
-  }
-  /* ② 허브 귀환 버튼 → 🌿 귀여운 허브 화분 */
-  function herb(){
-    var b=document.getElementById('pmsHubBack'); if(!b)return;
-    if(!b.__herb){
-      b.__herb=1;
-      var disp=b.style.display;
-      b.innerHTML='<span style="font-size:17px;display:inline-block;transform-origin:60% 90%;animation:pmsSway 2.6s ease-in-out infinite">🌿</span> 허브';
-      b.title='프레젠스 허브로 갈래요 🌿';
-      b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99998;display:'+disp+';align-items:center;gap:4px;'
-        +'padding:10px 16px;border-radius:24px;font-size:14px;font-weight:800;text-decoration:none;'
-        +'background:linear-gradient(160deg,#14301d,#0d2013);color:#8fdd75;border:1.5px solid rgba(107,201,58,.55);'
-        +'box-shadow:0 4px 16px rgba(0,0,0,.35);letter-spacing:.02em;transition:.25s;';
-      b.onmouseenter=function(){b.style.transform='scale(1.08)';b.style.color='#d7ffc4';};
-      b.onmouseleave=function(){b.style.transform='';b.style.color='#8fdd75';};
-      if(!document.getElementById('pmsSwayCss')){
-        var st=document.createElement('style'); st.id='pmsSwayCss';
-        st.textContent='@keyframes pmsSway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}';
-        document.head.appendChild(st);
-      }
-    }
-  }
-  function tick(){ wrapCb(); noticeSync(); herb(); }
-  tick(); setInterval(tick,1500);
-})();
-</script>
-
-<script>
-/* ═══ PMS 패치 v2.6 — 시트 전송 '응답 시간초과' 오탐 수정 (25초 대기 + 실기록 검증) + ⋯ 복구 ═══ */
-(function(){
-  if(window.__pmsV26)return; window.__pmsV26=true;
-  /* v2.3b가 숨겼던 ⋯ 버튼 복구 */
-  function restoreMore(){
-    var b=document.getElementById('moreBtn');
-    if(b&&b.dataset&&b.dataset.pmsTuck){ delete b.dataset.pmsTuck; b.style.removeProperty('display'); }
-  }
-  function install(){
-    if(typeof window.sheetWrite!=='function'||window.sheetWrite.__pms26)return;
-    var nw=function(payload,onDone){
-      var url=(typeof effectiveWebhook==='function')?effectiveWebhook():'';
-      if(!url||!/script\.google\.com/.test(url)){onDone&&onDone({ok:false,error:'배포 URL 없음'});return;}
-      var cb='__sw_'+Date.now()+'_'+Math.floor(Math.random()*1e5);var done=false;
-      function cleanup(){try{delete window[cb];}catch(e){}var el=document.getElementById(cb);if(el)el.remove();}
-      function finish(r){if(done)return;done=true;onDone&&onDone(r);cleanup();}
-      window[cb]=function(res){finish(res||{ok:false});};
-      var q='action=write&callback='+cb
-        +'&date='+encodeURIComponent(payload.date)
-        +'&name='+encodeURIComponent(payload.name)
-        +'&role='+encodeURIComponent(payload.role||'')
-        +'&count='+encodeURIComponent(payload.count)
-        +'&na='+(payload.na?'1':'0')+'&rally='+(payload.rally?'1':'0')+'&t='+Date.now();
-      var sc=document.createElement('script');sc.id=cb;
-      sc.src=url+(url.indexOf('?')>=0?'&':'?')+q;
-      sc.onerror=function(){finish({ok:false,error:'연결 실패'});};
-      document.body.appendChild(sc);
-      setTimeout(function(){
-        if(done)return;
-        var cb2='__swv_'+Date.now();
-        window[cb2]=function(data){
-          try{
-            var okv=false;
-            if(data&&typeof data==='object'){
-              var row=data[payload.date]||{};
-              for(var nm in row){
-                if(String(nm).replace(/\s/g,'').indexOf(String(payload.name).replace(/\s/g,''))===0){
-                  var v=String(row[nm]).trim().toLowerCase();
-                  if(payload.rally) okv=(v==='랠리');
-                  else if(payload.na) okv=(v==='na');
-                  else okv=(v!==''&&Number(v)===Number(payload.count));
-                  break;
-                }
-              }
-            }
-            finish(okv?{ok:true,written:true,verified:true}:{ok:false,error:'응답 시간초과'});
-          }finally{try{delete window[cb2];}catch(e){}var e2=document.getElementById(cb2);if(e2)e2.remove();}
-        };
-        var sc2=document.createElement('script');sc2.id=cb2;
-        sc2.src=url+(url.indexOf('?')>=0?'&':'?')+'action=pull&callback='+cb2+'&t='+Date.now();
-        sc2.onerror=function(){finish({ok:false,error:'응답 시간초과'});};
-        document.body.appendChild(sc2);
-        setTimeout(function(){finish({ok:false,error:'응답 시간초과'});},12000);
-      },25000);
-    };
-    nw.__pms26=true; window.sheetWrite=nw;
-  }
-  function tick(){ install(); restoreMore(); }
-  tick(); setInterval(tick,1500);
 })();
 </script>
 </body>
