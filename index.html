@@ -10368,7 +10368,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-07.kakao';
+const APP_VERSION='2026-07-07.kakao2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -12330,6 +12330,15 @@ window.__TERRI_ROWS="0\t묵호농협하나로마트평릉점\tJGRQ\n1\t금학상
     }
   }
   function norm(s){return (s||'').replace(/\s+/g,'').toLowerCase();}
+var _tfDist=null;
+function tfDistSet(){ if(_tfDist)return _tfDist; _tfDist={}; try{ parse(); for(var i=0;i<LOC.length;i++){ var l=LOC[i]; if(l){ if(l.sigu)_tfDist[norm(l.sigu)]=1; if(l.sido)_tfDist[norm(l.sido)]=1; } } }catch(e){} return _tfDist; }
+function tfIsDistrictQ(q){ return !!tfDistSet()[q||'']; }
+function tfClass(loc,code){ var s1=/^[0-9]+$/.test((code||'').trim())?'E':'S'; var prov=(loc&&loc.sido)||''; var s2; if(tfIsDistrictQ(window._tfLastQ||''))s2='B'; else if(/서울|인천|경기|부산|대구|광주|대전|울산|세종/.test(prov))s2='C'; else s2='R'; return s1+'/'+s2; }
+function tfCopyFB(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.top='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
+function tfDoCopy(t){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).catch(function(){tfCopyFB(t);});}else tfCopyFB(t);}catch(e){tfCopyFB(t);} }
+function tfFull(idx){ var r=ROWS[idx]; if(!r)return ''; var loc=LOC[r[0]]||{}; return r[1]+'/'+tfClass(loc,r[2])+'/'+r[2]; }
+window.tfCopyFull=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); if(typeof toast==='function')toast('📋 복사됨 · '+s); };
+window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{ if(navigator.share)navigator.share({text:s}).catch(function(){}); }catch(e){} if(typeof toast==='function')toast('💬 복사했어요! 카톡에 붙여넣기'); };
   function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function highlight(name, terms){
     var out=esc(name);
@@ -12367,7 +12376,7 @@ window.__TERRI_ROWS="0\t묵호농협하나로마트평릉점\tJGRQ\n1\t금학상
     if(!box)return;
     if(raw.length<1){ box.innerHTML=''; if(hint)hint.style.display='block'; return; }
     if(hint)hint.style.display='none';
-    var q=norm(raw);
+    var q=norm(raw); window._tfLastQ=q;
     var tokens=raw.split(/\s+/).map(norm).filter(function(x){return x.length>0;});
     var out=[];
     for(var i=0;i<ROWS.length;i++){
@@ -12393,14 +12402,14 @@ window.__TERRI_ROWS="0\t묵호농협하나로마트평릉점\tJGRQ\n1\t금학상
     var terms=tokens.length?tokens:[q];
     var html=top.map(function(pair){
       var r=ROWS[pair[1]], loc=LOC[r[0]]||{sido:'',sigu:''}, nm=r[1], code=r[2];
-      var exact=(pair[0]>=1000);
+      var exact=(pair[0]>=1000); var idx=pair[1]; var cls=tfClass(loc,code);
       var locTxt=[loc.sido,loc.sigu].filter(Boolean).join(' ');
       var hl=highlight(nm, terms);
       return '<div class="tf-row'+(exact?' exact':'')+'">'
         +'<div class="tf-info"><div class="tf-nm">'+hl+(exact?'<span class="tf-badge">\uc815\ud655</span>':'')+'</div>'
         +'<div class="tf-loc">\ud83d\udccd '+esc(locTxt)+'</div></div>'
         +'<div class="tf-right">'
-        +'<button class="tf-code" title="\ud0ed\ud558\uba74 \ucf54\ub4dc \ubcf5\uc0ac" onclick="tfCopy(this,\''+code+'\')">'+code+'</button>'
+        +'<button class="tf-code" title="\ud0ed\ud558\uba74 \ucf54\ub4dc \ubcf5\uc0ac" onclick="tfCopyFull('+idx+')">'+esc(cls+'/'+code)+'</button>'+'<button class="tf-code" style="background:#FEE500;color:#3C1E1E;border-color:#FEE500;border-style:solid" title="카톡 공유·복사" onclick="tfKakao('+idx+')">💬 카톡</button>'
         +'<button class="tf-mapbtn" onclick="tfShowMap('+pair[1]+')"><svg viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 L3 6 V21 L9 18 L15 21 L21 18 V3 L15 6 Z"/><path d="M9 3 V18 M15 6 V21"/></svg>\uc9c0\ub3c4</button>'
         +'</div></div>';
     }).join('');
