@@ -11432,8 +11432,10 @@ function spawnKernel(layer,cx,cy){
       +'<div class="rn-statc"><div class="n" style="color:var(--danger)">'+rej+'</div><div class="l">리젝</div></div>'
       +'<div class="rn-statc"><div class="n" style="color:var(--amber)">'+rate+'%</div><div class="l">리젝률</div></div>';}
 
-  function renderTable(tbl,L,readonly){
-    tbl.innerHTML='<tr><th>날짜</th><th>담당</th><th>금액</th><th>후원번호·이름</th><th>오브젝션</th><th>상태</th><th>상중하</th>'+(readonly?'':'<th></th>')+'</tr>'
+  function renderTable(tbl,L,readonly,ownerUid){
+    /* 관리자는 조회(readonly) 화면에서도 ✎ 수정 가능 — 수정은 원본에 저장돼 모든 화면에 연동 */
+    const canEd=!readonly||(me&&isFounder(me));
+    tbl.innerHTML='<tr><th>날짜</th><th>담당</th><th>금액</th><th>후원번호·이름</th><th>오브젝션</th><th>상태</th><th>상중하</th>'+(canEd?'<th></th>':'')+'</tr>'
       +(L.length?'':'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">기록이 없어요.</td></tr>');
     L.forEach(r=>{const tr=document.createElement('tr');const due=isDue(r);
       const stPill=r.status==='pass'?'<span class="rn-pill rn-pass">패스</span>':r.status==='reject'?'<span class="rn-pill rn-rej">리젝</span>':('<span class="rn-pill '+(due?'rn-due':'rn-open')+'">'+(due?'리뷰필요':'관찰중')+'</span>');
@@ -11445,8 +11447,8 @@ function spawnKernel(layer,cx,cy){
         +'<td style="font-size:11px;max-width:110px">'+obj.slice(0,22)+'</td>'
         +'<td>'+stPill+(r.rejReason?'<br><span style="color:var(--muted);font-size:10px">'+r.rejReason.slice(0,14)+'</span>':'')+'</td>'
         +'<td class="rn-prob-'+(r.rejProb||'')+'">'+(r.rejProb||'-')+'</td>'
-        +(readonly?'':'<td><button class="pmsr-btn ghost sm rnEdit">⋯</button></td>');
-      if(!readonly){const b=tr.querySelector('.rnEdit');if(b)b.onclick=()=>openRNEdit(r);}
+        +(canEd?'<td><button class="pmsr-btn ghost sm rnEdit">✎</button></td>':'');
+      if(canEd){const b=tr.querySelector('.rnEdit');if(b)b.onclick=()=>openRNEdit(r,readonly?ownerUid:null);}
       tbl.appendChild(tr);});
   }
 
@@ -11491,7 +11493,7 @@ function spawnKernel(layer,cx,cy){
     const done=v=>{viewAll=Object.keys(v||{}).map(k=>({id:k,...v[k]})).sort((a,b)=>(b.t||0)-(a.t||0));
       const L=viewAll.filter(inPeriod);
       box.innerHTML='<div class="pmsr-help" style="margin-bottom:6px">📅 '+periodLabel()+' · '+L.length+'건</div><div class="rn-stat">'+statBlock(L)+'</div><div style="overflow-x:auto"><table class="rn-tbl" id="rnViewTbl"></table></div>';
-      renderTable(document.getElementById('rnViewTbl'),L,true);};
+      renderTable(document.getElementById('rnViewTbl'),L,true,viewUid);};
     if(LIVE)DB.get('rejectnotes/'+viewUid).then(v=>done(v||{}));else done(viewUid===(me&&me.uid)?myRN:{});}
 
   function exportPDF(name,notes,withSummary){
@@ -11540,13 +11542,80 @@ function spawnKernel(layer,cx,cy){
     if(LIVE)DB.get('rejectnotes').then(all=>compute(all||{}));else compute(state.rejectnotes||{[me&&me.uid]:myRN});
   }
 
-  function openRNEdit(r){
-    const choice=prompt('상태를 정해줘:\n1 = 패스(정상 유지)\n2 = 리젝(취소)\n0 = 관찰중으로\n(삭제하려면 d)', r.status==='reject'?'2':r.status==='pass'?'1':'0');
-    if(choice===null)return;const c=choice.trim().toLowerCase();
-    if(c==='1'){r.status='pass';r.rejReason='';r.rejProb='';saveRN(r);toast&&toast('패스 처리 ✓');return;}
-    if(c==='0'){r.status='open';saveRN(r);return;}
-    if(c==='2'){const why=prompt('리젝 사유:',r.rejReason||'');if(why===null)return;const p=prompt('리젝 가능성 (상/중/하):',r.rejProb||'중');if(p===null)return;r.status='reject';r.rejReason=why.trim();r.rejProb=(PROBS.includes(p.trim())?p.trim():'중');saveRN(r);toast&&toast('리젝 기록 ✓');return;}
-    if(c==='d')delRN(r.id);
+  /* ── 다른 사람(관리자 조회) 기록 저장/삭제 — 원본 경로에 저장돼 전 화면 연동 ── */
+  function saveRNAt(uid,r){
+    if(!uid||uid===(me&&me.uid)){saveRN(r);return;}
+    if(LIVE)DB.set('rejectnotes/'+uid+'/'+r.id,r);
+    if(viewUid===uid)loadView();
+  }
+  function delRNAt(uid,id){
+    if(!uid||uid===(me&&me.uid)){delRN(id);return;}
+    if(!confirm('이 기록을 삭제할까요?'))return;
+    if(LIVE)DB.set('rejectnotes/'+uid+'/'+id,null);
+    if(viewUid===uid)loadView();
+  }
+
+  /* ── 리젝노트 전체 내용 수정 모달 — 모든 항목 수정 가능, 저장하면 어디서든 연동 ── */
+  function openRNEdit(r,ownerUid){
+    const uid=ownerUid||(me&&me.uid);
+    const old=document.getElementById('rnEditOv');if(old)old.remove();
+    const ov=document.createElement('div');ov.id='rnEditOv';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(8,10,16,.62);z-index:9999;display:flex;align-items:center;justify-content:center;padding:14px';
+    const bx=document.createElement('div');
+    bx.style.cssText='background:var(--card,#161b26);border:1.5px solid var(--line,#2a3242);border-radius:16px;padding:18px;max-width:600px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 18px 60px rgba(0,0,0,.5)';
+    const V=v=>esc(v==null?'':String(v)).replace(/"/g,'&quot;');
+    const inp=(id,lab,v,ph)=>'<div><label class="sk-lab">'+lab+'</label><input class="sk-f rn-f" id="'+id+'" value="'+V(v)+'" placeholder="'+(ph||'')+'" style="width:100%"></div>';
+    const selc=(id,lab,opts,v)=>'<div><label class="sk-lab">'+lab+'</label><select class="sk-f rn-f" id="'+id+'" style="width:100%">'+opts.map(o=>'<option value="'+o[0]+'"'+(String(v)===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>';
+    const obj=Array.isArray(r.obj)?r.obj.join(', '):(r.obj||'');
+    bx.innerHTML=
+      '<div style="font-weight:900;font-size:16px;margin-bottom:2px">✎ 후원자 기록 수정</div>'
+      +'<p class="pmsr-help" style="margin-bottom:10px">저장하면 리젝노트 · 개인 스코어(필드 레코드) · 관리자 조회 · 콜백싯 연동분까지 <b>모든 화면에 실시간 반영</b>돼요.</p>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      +inp('rne-date','날짜 (YYYY-MM-DD)',r.date)
+      +inp('rne-name','후원자 이름',r.name,'홍길동')
+      +inp('rne-client','클라이언트',r.client,'옥스팜')
+      +selc('rne-chan','채널',[['스트릿','스트릿'],['이벤트','이벤트'],['B2B','B2B']].concat(r.chan&&!['스트릿','이벤트','B2B'].includes(r.chan)?[[r.chan,r.chan]]:[]),r.chan||'스트릿')
+      +selc('rne-city','구분',[['시티','시티'],['로드','로드']],r.city||'시티')
+      +inp('rne-code','후원번호',r.code,'C26024561')
+      +inp('rne-amount','금액',r.amount,'3만')
+      +selc('rne-pay','결제',[['계좌','계좌'],['카드','카드']],r.pay||'계좌')
+      +selc('rne-cycle','후원 주기',[['매월','매월'],['6개월','6개월'],['12개월','12개월']],r.cycle||'매월')
+      +inp('rne-birth','출생연도',r.birth,'1999')
+      +selc('rne-gender','성별',[['여','여'],['남','남']],r.gender||'여')
+      +inp('rne-owner','담당자',r.owner)
+      +'</div>'
+      +'<div style="margin-top:8px">'+inp('rne-place','장소 · 테리코드',r.place,'롯데마트시화점/E/C/22470')+'</div>'
+      +'<div style="margin-top:8px">'+inp('rne-obj','오브젝션 (쉼표로 구분)',obj,'금전부담, 배우자와 상의')+'</div>'
+      +'<div style="margin-top:8px"><label class="sk-lab">특이사항·메모</label><textarea class="sk-ta sm rn-f" id="rne-memo" style="width:100%">'+esc(r.memo||'')+'</textarea></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">'
+      +selc('rne-status','상태',[['open','관찰중'],['pass','패스'],['reject','리젝']],r.status||'open')
+      +selc('rne-prob','리젝 가능성',[['','-'],['상','상'],['중','중'],['하','하']],r.rejProb||'')
+      +inp('rne-reason','리젝 사유',r.rejReason)
+      +'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'
+      +'<button class="pmsr-btn grad" id="rne-save" style="flex:2">💾 저장 (전체 연동)</button>'
+      +'<button class="pmsr-btn ghost" id="rne-cancel" style="flex:1">취소</button>'
+      +'<button class="pmsr-btn" id="rne-del" style="flex:1;color:var(--danger);border:1.5px solid var(--danger);background:transparent">🗑 삭제</button>'
+      +'</div>';
+    ov.appendChild(bx);document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+    const g=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+    document.getElementById('rne-cancel').onclick=()=>ov.remove();
+    document.getElementById('rne-del').onclick=()=>{delRNAt(uid,r.id);ov.remove();};
+    document.getElementById('rne-save').onclick=()=>{
+      const st=g('rne-status');
+      Object.assign(r,{
+        date:g('rne-date')||r.date,name:g('rne-name'),client:g('rne-client'),chan:g('rne-chan'),city:g('rne-city'),
+        code:g('rne-code'),amount:g('rne-amount'),pay:g('rne-pay'),cycle:g('rne-cycle'),
+        birth:g('rne-birth'),gender:g('rne-gender'),owner:g('rne-owner'),place:g('rne-place'),
+        obj:g('rne-obj')?g('rne-obj').split(',').map(s=>s.trim()).filter(Boolean):[],
+        memo:g('rne-memo'),status:st,
+        rejProb:st==='reject'?(PROBS.includes(g('rne-prob'))?g('rne-prob'):'중'):g('rne-prob'),
+        rejReason:st==='reject'?g('rne-reason'):(st==='pass'?'':g('rne-reason'))
+      });
+      saveRNAt(uid,r);ov.remove();
+      toast&&toast('수정 완료 — 모든 화면에 연동 반영 ✓');
+    };
   }
   window.renderRejectNote=renderRejectNote;
 
