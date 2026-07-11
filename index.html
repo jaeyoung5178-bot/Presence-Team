@@ -1563,7 +1563,13 @@ body.can-mod #fxPanel #fxBar{display:grid}
 .sheet-conn .sc-row button{flex:0 0 auto;background:var(--wepair);color:#062330;border:none;border-radius:9px;padding:0 16px;font-weight:800;font-size:13px;cursor:pointer}
 .sheet-conn .sc-hint{font-size:10.5px;color:var(--faint);line-height:1.55;margin-top:8px}
 .sheet-conn .sc-hint b{color:var(--muted)}
-@media(max-width:979px){#fxDock{right:12px;bottom:calc(108px + var(--safe-b))}}
+@media(max-width:979px){
+  /* 모바일: ⚙ 도크를 반쯤 접어 오른쪽 가장자리에 — 콘텐츠(지금 버튼 등) 간섭 방지 (2026-07-11) */
+  #fxDock{right:-13px;bottom:calc(108px + var(--safe-b));transition:right .25s}
+  #fxDock.open{right:12px}
+  #fxGear{width:40px;height:40px;font-size:17px;opacity:.55}
+  #fxDock.open #fxGear,#fxGear:hover{opacity:1}
+}
 /* ── 리쿠르팅 달력(월 선택) ── */
 .rc-cal{background:var(--card,#14161B);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 13px 14px;margin-bottom:16px}
 .rc-cal-h{font-size:13px;color:var(--muted);margin-bottom:10px}
@@ -4030,6 +4036,7 @@ function submitNewPw(){
 /* 설문 '실제 완료' 판정 — 답이 1개 이상 들어있어야 완료로 인정(빈 껍데기·강제삽입은 미완료 처리) */
 function surveyDone(u,key){if(!u||!u.surveys)return false;var r=u.surveys[key];if(!r)return false;var a=r.answers;return !!(a&&typeof a==='object'&&Object.keys(a).length>0);}
 function continueLogin(u){
+  try{lsSet('presence_lastauth',Date.now());}catch(e){}   /* 실제 인증(비번/Face ID) 시점 — 30일 재인증 기준 */
   const rk=reqSurvey(u.role,u.name);
   if(rk && SURVEYS[rk] && !surveyDone(u,rk)){ // 직급에 맞는 설문 미완료 → 게이팅
     authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
@@ -4181,6 +4188,10 @@ function tryAutoLogin(){
   if(!rememberPref())return false;
   const s=lsGet('presence_sess');if(!s)return false;
   if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
+  /* 30일마다 한 번은 재인증 (Face ID 버튼 한 번이면 통과) — 로그아웃 없이 계속 유지되는 건 그대로 */
+  {let la=lsGet('presence_lastauth');
+   if(la===null){la=Date.now();lsSet('presence_lastauth',la);}
+   if(Date.now()-la>30*86400000)return false;}
   if(/^testbot[123]$/.test(s.uid||'')){me=testBotObj(s.uid);enterApp();return true;}
   const u=state.users[s.uid];if(!u||u.status!=='active')return false;
   if(u.mustChangePw){me=u;authState.view='newpw';renderAuth();return true;}
@@ -10417,7 +10428,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-11.mobilefix';
+const APP_VERSION='2026-07-11.faceid';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -10640,6 +10651,18 @@ html{ scrollbar-gutter:stable; }
   .me-pill{ padding:4px 5px 4px 9px; gap:6px; }
   .me-pill .mnm{ max-width:64px; font-size:12px; }
   .bell-btn{ width:34px; height:34px; }
+}
+/* ════════ 📱 헤더 워드마크-아이콘 간섭 방지 (2026-07-11) ════════
+   좁은 화면에서 'Presence.' 글자가 상태점·뱃지 밑으로 파고들지 않게
+   로고 영역을 잘라내고(…) 아이콘들과 최소 간격을 보장 */
+@media(max-width:640px){
+  .top .bar{ gap:7px; }
+  .top .bar .logo{ flex:1 1 auto; min-width:0; overflow:hidden; margin-right:2px; }
+  .top .bar .logo>span:not(.logo-chip){ min-width:0; overflow:hidden; }
+  .top .bar .logo .nm,
+  .top .bar .logo .tag{ display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  .top .spacer{ flex:0 0 2px; }
+  .conn-dot{ margin:0 3px; }
 }
 
 /* ════════ 📱 하단 탭바 견고화 ════════ */
@@ -13363,6 +13386,118 @@ function unlock(){ if(unlocked)return; unlocked=true; applyFxSafe(); playMusic()
 document.addEventListener('visibilitychange', function(){ if(!document.hidden){ applyFxSafe(); if(unlocked) playMusic(); } });
 /* 효과(파티클)는 오토플레이 제약 없음 — 진입 후 재적용해서 확실히 보이게 */
 setTimeout(applyFxSafe, 1800); setTimeout(applyFxSafe, 4200);
+})();
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Face ID 빠른 로그인 — WebAuthn 패스키 (2026-07-11)
+   · 첫 로그인 후 배너에서 "Face ID 로그인 켜기" → 이 기기에 패스키 등록
+   · 다음부터 로그인 화면에 "Face ID로 로그인" 버튼 → 생체인증만으로 입장
+   · 미지원 기기/취소 시엔 기존 아이디·비밀번호 로그인 그대로
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  var KEY='presence_bio', DIS='presence_bio_dismiss';
+  function sup(){ return location.protocol==='https:' && !!window.PublicKeyCredential && !!navigator.credentials; }
+  function bio(){ try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;} }
+  function setBio(v){ try{ v?localStorage.setItem(KEY,JSON.stringify(v)):localStorage.removeItem(KEY);}catch(e){} }
+  function b64(buf){ var u=new Uint8Array(buf),s=''; for(var i=0;i<u.length;i++)s+=String.fromCharCode(u[i]); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+  function unb64(s){ s=String(s).replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; var bin=atob(s),u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u.buffer; }
+  function rnd(n){ var u=new Uint8Array(n); crypto.getRandomValues(u); return u; }
+  function isBotUid(uid){ return /^testbot/.test(String(uid||'')); }
+
+  /* ── 등록 (로그인 상태에서, 버튼 탭으로만 — iOS 사용자 제스처 요구) ── */
+  window.bioRegister=async function(){
+    if(!sup()||!window.me||!me.uid||isBotUid(me.uid)){ return; }
+    try{
+      var cred=await navigator.credentials.create({publicKey:{
+        challenge:rnd(32),
+        rp:{name:'Presence 워크북', id:location.hostname},
+        user:{id:new TextEncoder().encode(me.uid), name:String(me.id||me.name||'presence'), displayName:String(me.name||'Presence')},
+        pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+        authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},
+        timeout:60000, attestation:'none'
+      }});
+      setBio({uid:me.uid,name:me.name,cred:b64(cred.rawId),t:Date.now()});
+      bioHideBanner();
+      try{toast('✅ 등록 완료 — 다음부터 Face ID로 바로 로그인돼요');}catch(e){}
+    }catch(e){
+      try{toast('등록이 취소됐어요 — 배너에서 언제든 다시 켤 수 있어요');}catch(_){ }
+    }
+  };
+
+  /* ── Face ID 로그인 (로그인 화면 버튼) ── */
+  window.bioLogin=async function(){
+    var b=bio(); if(!b||!sup())return;
+    var say=function(m,k){ try{authMsg(m,k||'info');}catch(e){} };
+    try{
+      await navigator.credentials.get({publicKey:{
+        challenge:rnd(32),
+        allowCredentials:[{type:'public-key',id:unb64(b.cred),transports:['internal']}],
+        userVerification:'required', rpId:location.hostname, timeout:60000
+      }});
+    }catch(e){ say('Face ID 인증이 취소됐어요 — 비밀번호로 로그인해 주세요','err'); return; }
+    var loaded=window.state&&state.users&&Object.keys(state.users).length>0;
+    if(!loaded){ say('팀 데이터를 불러오는 중이에요 — 2~3초 뒤 다시 눌러주세요','info'); return; }
+    var u=state.users[b.uid];
+    if(!u||u.status!=='active'){ setBio(null); say('계정 정보를 찾지 못했어요 — 일반 로그인 후 다시 등록해 주세요','err'); try{renderAuth();}catch(e){} return; }
+    try{lsSet('presence_remember',true);}catch(e){}
+    me=u;
+    if(u.mustChangePw){ authState.view='newpw'; renderAuth(); say('임시 비밀번호 상태예요 · 새 비밀번호를 설정해 주세요','info'); return; }
+    continueLogin(u);
+  };
+  window.bioUnlink=function(){ setBio(null); try{renderAuth();}catch(e){} try{toast('Face ID 로그인을 해제했어요');}catch(e){} };
+
+  /* ── 로그인 화면에 버튼 주입 (renderAuth 래핑) ── */
+  function injectLoginBtn(){
+    if(!sup())return;
+    var b=bio(); if(!b)return;
+    if(!window.authState||authState.view!=='login')return;
+    var v=document.getElementById('authView'); if(!v||document.getElementById('bioLoginBtn'))return;
+    var host=v.querySelector('.auth-foot')||v;
+    var wrap=document.createElement('div');
+    wrap.innerHTML=
+      '<button id="bioLoginBtn" class="btn block" style="margin-top:12px;background:linear-gradient(160deg,#3a3f4b,#23262e);border:1.5px solid rgba(165,180,252,.4)" onclick="bioLogin()">'
+      +'<span style="font-size:16px;vertical-align:-2px">🔒</span> Face ID로 로그인 — '+String(b.name||'').replace(/[<>&"]/g,'')+'</button>'
+      +'<div style="text-align:center;margin-top:7px"><span onclick="bioUnlink()" style="font-size:11.5px;color:var(--muted);cursor:pointer;text-decoration:underline">이 기기에서 Face ID 로그인 해제</span></div>';
+    host.parentNode.insertBefore(wrap,host);
+  }
+  if(typeof window.renderAuth==='function'){
+    var _ra=window.renderAuth;
+    window.renderAuth=function(){ _ra.apply(this,arguments); try{injectLoginBtn();}catch(e){} };
+  }
+  /* 첫 페인트가 이미 끝났을 수도 있으니 한 번 더 */
+  setTimeout(function(){ try{injectLoginBtn();}catch(e){} },800);
+
+  /* ── 로그인 후 등록 배너 (미등록 + 지원 기기 + 실계정일 때 1회 제안) ── */
+  function bioHideBanner(){ var el=document.getElementById('bioBanner'); if(el)el.remove(); }
+  window.bioDismiss=function(){ try{localStorage.setItem(DIS,'1');}catch(e){} bioHideBanner(); };
+  async function maybeOfferBanner(){
+    if(!sup()||bio())return;
+    try{ if(localStorage.getItem(DIS)==='1')return; }catch(e){}
+    if(!window.me||!me.uid||isBotUid(me.uid))return;
+    var ok=false;
+    try{ ok=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }catch(e){}
+    if(!ok||document.getElementById('bioBanner'))return;
+    var d=document.createElement('div'); d.id='bioBanner';
+    d.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:99997;'
+      +'background:rgba(20,25,35,.96);border:1.5px solid rgba(165,180,252,.45);border-radius:16px;padding:13px 14px;'
+      +'box-shadow:0 10px 30px rgba(0,0,0,.45);backdrop-filter:blur(8px);display:flex;align-items:center;gap:11px;max-width:520px;margin:0 auto;';
+    d.innerHTML='<span style="font-size:22px">🔒</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#eef2f7">Face ID 빠른 로그인</div>'
+      +'<div style="font-size:11.5px;color:#9aa3b2;margin-top:2px">다음부터 비밀번호 없이 얼굴 인증으로 바로 입장</div></div>'
+      +'<button onclick="bioRegister()" style="flex:none;border:0;border-radius:11px;padding:10px 14px;font-weight:800;font-size:12.5px;background:linear-gradient(160deg,#6d7cff,#4a5ae8);color:#fff;cursor:pointer">켜기</button>'
+      +'<button onclick="bioDismiss()" aria-label="닫기" style="flex:none;border:0;background:none;color:#6f7787;font-size:15px;cursor:pointer;padding:4px">✕</button>';
+    document.body.appendChild(d);
+    setTimeout(function(){ var el=document.getElementById('bioBanner'); if(el)el.remove(); },30000);
+  }
+  if(typeof window.enterApp==='function'){
+    var _ea=window.enterApp;
+    window.enterApp=function(){ _ea.apply(this,arguments); setTimeout(function(){ try{maybeOfferBanner();}catch(e){} },2200); };
+  }
+  /* 자동로그인으로 이미 입장해 있는 경우에도 배너 제안 */
+  setTimeout(function(){ if(document.body.classList.contains('app-on')){ try{maybeOfferBanner();}catch(e){} } },3000);
 })();
 </script>
 </body>
