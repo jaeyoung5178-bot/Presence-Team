@@ -412,6 +412,8 @@ body.can-mod .gcard .del{display:flex}
 .wc-title{font-size:18px;color:var(--cream);margin-bottom:12px;font-weight:800}
 .wc-msg{font-size:14px;color:var(--cream);line-height:1.75;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
 .wc-token{font-size:12.5px;color:var(--green-soft);font-weight:700;margin-bottom:14px}
+.wc-guide{display:block;text-align:center;background:#2563EB;color:#fff;font-weight:800;border:none;border-radius:11px;padding:12px;font-size:13.5px;text-decoration:none;margin-bottom:10px;transition:.15s}
+.wc-guide:hover{filter:brightness(1.08)}.wc-guide:active{transform:scale(.99)}
 #tokenIssueModal .ti-sub{font-size:13px;color:var(--cream);line-height:1.6;margin-bottom:10px}
 #tokenIssueModal .ti-list{max-height:42vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
 #tokenIssueModal .ti-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px}
@@ -3443,6 +3445,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <div id="mePhotoArea" style="display:flex;align-items:center;gap:14px;margin-bottom:16px"></div>
   <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="onProfilePhoto(this.files[0])"/>
   <div id="meBody" class="sv-view"></div>
+  <div style="text-align:center;margin-top:8px"><a href="https://jaeyoung5178-bot.github.io/Presence/workbook-guide.pdf" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--green-soft);text-decoration:underline">📘 이용 가이드 PDF</a></div>
   <div id="meVer" style="font-size:11px;color:var(--faint);text-align:center;margin-top:10px"></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('meModal')">닫기</button><button class="btn" id="meLogout" onclick="logout()">로그아웃</button></div>
 </div></div>
@@ -3455,7 +3458,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
-<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">환영합니다!</h3><div class="wc-msg" id="wcMsg"></div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>먹이 토큰 1개</b>가 지급되었어요!</div><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
+<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">첫 입장을 축하해요! 🎉</h3><div class="wc-msg" id="wcMsg"></div><div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">프레젠스 워크북에 오신 것을 환영해요. 이용설명 가이드를 꼭 읽어보세요!</div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>먹이 토큰 1개</b>가 지급되었어요!</div><!-- 가이드 PDF는 고정 경로 — 관리자가 같은 파일명으로 새 PDF를 올리면 항상 최신 버전이 받아짐 --><a class="wc-guide" href="https://jaeyoung5178-bot.github.io/Presence/workbook-guide.pdf" target="_blank" rel="noopener">📘 이용설명 가이드 PDF 받기</a><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
 <div class="modal" id="obNudgeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title" id="obNudgeName">첫 필드 축하!</h3><div class="wc-msg" id="obNudgeMsg"></div><div class="wc-token" id="obNudgeTrain" style="text-align:left;line-height:1.7"></div><button class="ann-ok" onclick="closeModal('obNudgeModal')">화이팅! 💪</button></div></div>
 <div class="modal" id="ldNudgeModal"><div class="box welcome-box"><div class="wc-icon">🌱</div><h3 class="wc-title">신입이 왔어요!</h3><div class="wc-msg" id="ldNudgeBody"></div><button class="ann-ok" onclick="closeModal('ldNudgeModal')">교육 준비할게요 💪</button></div></div>
 <div class="modal" id="giftWinModal"><div class="box gift-win-box">
@@ -4177,7 +4180,7 @@ function enterApp(){
   if(isFounder(me))finalizeComp();
   showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
   setTimeout(maybeAskFirstField,1100);setTimeout(maybeDemoFarmGift,1500);
-  if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();}
+  if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();setTimeout(function(){try{reconcileRetiredStatus();}catch(e){}},1600);}
   setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
@@ -6376,6 +6379,8 @@ function retireMember(name){
   if(!state.removedMembers.some(n=>(n||'').replace(/\s/g,'')===nm))state.removedMembers.push(name);
   state.extraMembers=(state.extraMembers||[]).filter(n=>n.replace(/\s/g,'')!==nm);
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
+  // 콜백싯 연동: users/{uid}/status를 'retired'로 동기화 — 워크북을 퇴사 상태의 단일 진실원본으로 유지
+  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='retired';if(LIVE)DB.set('users/'+ru.uid+'/status','retired');}})();
   renderMemberAdmin();if(typeof renderComp==='function')renderComp();if(typeof renderTokenAdmin==='function')renderTokenAdmin();if(document.getElementById('dailyList'))renderDaily();
   if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
   toast('👋 '+name+'님 퇴사 처리 — 기록은 그대로 보존돼요');
@@ -6389,10 +6394,27 @@ function rehireMember(name){
   DEPARTED_MEMBERS=DEPARTED_MEMBERS.filter(n=>n.replace(/\s/g,'')!==nm);
   if(!isAllowedName(name)){state.extraMembers=state.extraMembers||[];if(!state.extraMembers.some(n=>n.replace(/\s/g,'')===nm))state.extraMembers.push(name);}
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
+  // 콜백싯 연동: users/{uid}/status를 'active'로 복구
+  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='active';if(LIVE)DB.set('users/'+ru.uid+'/status','active');}})();
   syncMemberToSheet(name);
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
   toast('🔄 '+name+'님 재입사 — 이번 달부터 다시 명단에 포함돼요');
+}
+/* 퇴사 상태 정합화(세션당 1회) — memberInfo.left 유무를 기준으로 users/{uid}/status를 'retired'/'active'로 교정
+   (콜백싯이 users.status!=='retired' + removedMembers로 팀원 링크를 숨기므로, 과거에 어긋난 상태를 한 번 바로잡음) */
+window._retiredReconciled=false;
+function reconcileRetiredStatus(){
+  if(window._retiredReconciled)return;
+  if(!me||!isFounder(me))return;
+  if(!state.users||!state.memberInfo)return;
+  window._retiredReconciled=true;
+  Object.values(state.users).forEach(function(u){
+    if(!u||!u.uid||u.uid===FOUNDER.uid)return;
+    const left=!!(miInfo(u.name)||{}).left;
+    if(left&&u.status!=='retired'){u.status='retired';if(LIVE)DB.set('users/'+u.uid+'/status','retired');}
+    else if(!left&&u.status==='retired'){u.status='active';if(LIVE)DB.set('users/'+u.uid+'/status','active');}
+  });
 }
 function purgeDeparted(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
@@ -10428,7 +10450,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-11.header2';
+const APP_VERSION='2026-07-11.welcome-retire';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
