@@ -10428,7 +10428,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-11.faceid';
+const APP_VERSION='2026-07-11.header2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -10659,7 +10659,7 @@ html{ scrollbar-gutter:stable; }
   .top .bar{ gap:7px; }
   .top .bar .logo{ flex:1 1 auto; min-width:0; overflow:hidden; margin-right:2px; }
   .top .bar .logo>span:not(.logo-chip){ min-width:0; overflow:hidden; }
-  .top .bar .logo .nm,
+  .top .bar .logo .nm{ white-space:nowrap; }   /* Presence. 풀네임 — 잘리지 않음 */
   .top .bar .logo .tag{ display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
   .top .spacer{ flex:0 0 2px; }
   .conn-dot{ margin:0 3px; }
@@ -12801,6 +12801,12 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
 /* ── 헤더 심플화: 👀·설치·FAB(홈배치/효과/소리)는 ⋯ 메뉴로 이동 ── */
 #eyeToggle,#installBtn,#homeArrangeFab{display:none!important}
 #moreBtn{font-size:20px;line-height:1;letter-spacing:1px}
+/* 모바일: 종(🔔)·⋯만 남기고 나머지는 ⋯ 메뉴로 — Presence 이름은 절대 안 잘림 (2026-07-11) */
+#moreMenu .mm-mobile{display:none}
+@media(max-width:640px){
+  #connDot,#admToggle,.top .me-pill{display:none!important}
+  #moreMenu .mm-mobile{display:flex}
+}
 #moreMenu{position:fixed;top:58px;right:12px;z-index:99997;min-width:224px;background:#161B26;border:1px solid rgba(255,255,255,.14);
   border-radius:14px;padding:7px;box-shadow:0 18px 40px -12px rgba(0,0,0,.65);display:none}
 #moreMenu.on{display:block}
@@ -12841,15 +12847,29 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     m.appendChild(item('✨','배경 효과 켜기/끄기',function(){ toggleFxLocal(); }));
     m.appendChild(item('🔈','효과음 켜기/끄기',function(){ toggleSound(); }));
     m.appendChild(item('📲','앱으로 설치',function(){ if(typeof installApp==='function')installApp(); }));
-    if(rf(window.me||(typeof me!=='undefined'?me:null))){
-      var cap2=document.createElement('div'); cap2.className='mm-cap'; cap2.textContent='관리자'; m.appendChild(cap2);
-      m.appendChild(item('🧩','홈 배치 편집',function(){ var f=document.getElementById('homeArrangeFab'); if(f)f.click(); }));
-      m.appendChild(item('👀','역할 미리보기',function(){ if(typeof openRolePreview==='function')openRolePreview(); }));
-    }
+    /* 모바일 전용 — 헤더에서 ⋯ 안으로 들어온 항목 (헤더엔 이름·⋯·🔔만 남음) */
+    var mi;
+    mi=item('👤','내 정보 · 계정',function(){ if(typeof openMe==='function')openMe(); }); mi.className='mm-mobile'; m.appendChild(mi);
+    mi=item('📡','연결 상태',function(){ if(typeof showConnInfo==='function')showConnInfo(); }); mi.className='mm-mobile'; m.appendChild(mi);
     document.body.appendChild(m);
     document.addEventListener('click',hide);
   }
-  setInterval(build,1200); setTimeout(build,600);
+  /* 관리자 항목 — 로그인 시점과 무관하게 정확히 반영 (한 벌만, 로그아웃 시 제거) */
+  function syncAdmin(){
+    var m=document.getElementById('moreMenu'); if(!m)return;
+    var admin=rf(window.me||(typeof me!=='undefined'?me:null));
+    var have=m.querySelector('[data-mm-admin]');
+    if(admin&&!have){
+      var cap2=document.createElement('div'); cap2.className='mm-cap'; cap2.textContent='관리자'; cap2.setAttribute('data-mm-admin','1'); m.appendChild(cap2);
+      var a1=item('🧩','홈 배치 편집',function(){ var f=document.getElementById('homeArrangeFab'); if(f)f.click(); }); a1.setAttribute('data-mm-admin','1'); m.appendChild(a1);
+      var a2=item('👀','역할 미리보기',function(){ if(typeof openRolePreview==='function')openRolePreview(); }); a2.setAttribute('data-mm-admin','1'); m.appendChild(a2);
+      var a3=item('🛡️','관리자 모드 ON/OFF',function(){ if(typeof toggleAdminMode==='function')toggleAdminMode(); }); a3.setAttribute('data-mm-admin','1'); a3.className='mm-mobile'; m.appendChild(a3);
+    }else if(!admin&&have){
+      var olds=m.querySelectorAll('[data-mm-admin]');
+      for(var i=0;i<olds.length;i++) olds[i].remove();
+    }
+  }
+  setInterval(function(){build();syncAdmin();},1200); setTimeout(function(){build();syncAdmin();},600);
 })();
 </script>
 <script>
@@ -13064,11 +13084,12 @@ var n=norm(raw);
 var meta=((b.title||'')+' '+(b.getAttribute('aria-label')||''));
 var tg=null;
 if(n==='디자인')tg={emo:'🎨',label:'디자인'};
-else if(n==='홈배치')tg={emo:'🧩',label:'홈 배치'};
-else if((raw==='🎨'||raw==='🧩')&&getComputedStyle(b).position==='fixed')
-tg=(raw==='🎨')?{emo:'🎨',label:'디자인'}:{emo:'🧩',label:'홈 배치'};
+else if(raw==='🎨'&&getComputedStyle(b).position==='fixed')tg={emo:'🎨',label:'디자인'};
 else if(/디자인/.test(meta)&&raw.length<=3)tg={emo:'🎨',label:'디자인'};
-else if(/홈\s*배치/.test(meta)&&raw.length<=3)tg={emo:'🧩',label:'홈 배치'};
+else if(n==='홈배치'||raw==='🧩'||(/홈\s*배치/.test(meta)&&raw.length<=3)){
+/* 홈배치 중복 제거 — ⋯ 메뉴의 '홈 배치 편집'(관리자 전용) 하나만 사용, 떠다니는 버튼은 숨김 */
+b.dataset.pmsTuck='1'; b.style.setProperty('display','none','important'); continue;
+}
 if(!tg)continue;
 b.dataset.pmsTuck='1';
 b.style.setProperty('display','none','important');
