@@ -320,6 +320,172 @@
 })();
 
 /* ============================================================================
+ * Presence 개인 콜백싯 × 팀원 생명주기 브리지 v1
+ * - 로그인 UID 기준 개인 링크만 노출
+ * - 신입/승급/퇴사 상태를 Hub가 읽을 memberDirectory에 동기화
+ * - 퇴사자는 활성 화면과 개인 링크에서 제거하고 최소 감사 로그만 보존
+ * ==========================================================================*/
+(function () {
+  'use strict';
+  if (window.__presenceMemberBridge) return;
+  window.__presenceMemberBridge = true;
+
+  var installed = false, subscribed = false;
+  var knownCallbackGids = {
+    '임재영': '1335812619',
+    '천리안': '1537634904',
+    '장하영': '73952701',
+    '박상현': '888568669'
+  };
+  var callbackBook = '1S0aN-uLSiJl1CeLkgVz12tHWaL123i58tURgT1J63w4';
+
+  function clean(v) { return String(v || '').replace(/\s/g, ''); }
+  function safe(v) { return String(v == null ? '' : v).replace(/[&<>\"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+  function manager() { try { return !!me && (isOwnerAccount(me) || isFounder(me)); } catch (e) { return false; } }
+  function live() { try { return !!LIVE && DB && typeof DB.set === 'function'; } catch (e) { return false; } }
+  function currentUser() { try { return me || null; } catch (e) { return null; } }
+  function users() { try { return Object.values(state.users || {}).filter(Boolean); } catch (e) { return []; } }
+  function roleSection(role) { return /^(LR|TL|AOP|OP|O)$/.test(String(role || '')) ? 'LEADER' : 'IC'; }
+  function active(u) { return !!u && u.status !== 'retired' && u.status !== 'rejected'; }
+  function injectBridgeCss() {
+    if (document.getElementById('pcb-css')) return;
+    var style = document.createElement('style'); style.id = 'pcb-css';
+    style.textContent = '.pcb-card,.pcb-admin{margin:0 0 18px;padding:20px;border:1px solid color-mix(in srgb,var(--g2,#6366f1) 28%,var(--line,#30353f));border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--card,#232730) 92%,var(--g2,#6366f1)),var(--card,#232730));box-shadow:0 16px 38px -30px rgba(0,0,0,.8)}.pcb-top{display:flex;align-items:center;justify-content:space-between;gap:18px}.pcb-top span,.pcb-admin>div>span{display:block;color:var(--g3,#4fd1c5);font-size:9px;font-weight:900;letter-spacing:.18em}.pcb-top h3,.pcb-admin h3{margin:5px 0 4px;color:var(--cream,#f2efe8);font-size:17px}.pcb-top p,.pcb-admin p{margin:0;color:var(--muted,#a2abb9);font-size:11px;line-height:1.55}.pcb-top a,.pcb-top button,.pcb-form button{flex:0 0 auto;border:0;border-radius:10px;padding:10px 13px;background:var(--grad,#6366f1);color:#fff;font:inherit;font-size:11px;font-weight:900;text-decoration:none;cursor:pointer}.pcb-card iframe{width:100%;height:390px;margin-top:16px;border:0;border-radius:12px;background:#fff}.pcb-pending{display:flex;gap:8px;align-items:center;margin-top:14px;padding:12px 13px;border-radius:11px;background:rgba(255,255,255,.045);color:var(--muted,#a2abb9);font-size:10px}.pcb-pending b{color:var(--cream,#f2efe8);white-space:nowrap}.pcb-form{display:grid;grid-template-columns:180px 180px minmax(240px,1fr) auto;gap:8px;margin-top:14px}.pcb-form select,.pcb-form input{min-width:0;border:1px solid var(--line,#30353f);border-radius:10px;padding:10px;background:rgba(0,0,0,.16);color:var(--cream,#f2efe8);font:inherit;font-size:11px}.pcb-admin>small{display:block;margin-top:9px;color:var(--faint,#6b7280);font-size:9px}@media(max-width:800px){.pcb-top{align-items:flex-start;flex-direction:column}.pcb-top a,.pcb-top button{width:100%;text-align:center}.pcb-card iframe{height:310px}.pcb-form{grid-template-columns:1fr}.pcb-pending{align-items:flex-start;flex-direction:column}}';
+    document.head.appendChild(style);
+  }
+  function linkValue(u) {
+    if (!u) return '';
+    var links = (typeof state !== 'undefined' && state.callbackLinks) || {};
+    var raw = links[u.uid] || links[clean(u.name)] || links[u.name];
+    if (raw && typeof raw === 'object') raw = raw.url;
+    if (raw) return String(raw);
+    var gid = knownCallbackGids[clean(u.name)];
+    return gid ? 'https://docs.google.com/spreadsheets/d/' + callbackBook + '/edit#gid=' + gid : '';
+  }
+  function englishName(u) {
+    var d = ((typeof state !== 'undefined' && state.memberDirectory) || {})[u && u.uid] || {};
+    return String(d.englishName || (u && (u.englishName || u.enName)) || (u && u.id) || '').trim();
+  }
+  function payload(u, overrides) {
+    return Object.assign({
+      uid: u.uid,
+      name: u.name || '',
+      englishName: englishName(u),
+      role: u.role || 'IC',
+      hubSection: active(u) ? roleSection(u.role) : null,
+      status: u.status || 'active',
+      callbackUrl: active(u) ? linkValue(u) : null,
+      updatedAt: new Date().toISOString(),
+      source: 'presence-workbook'
+    }, overrides || {});
+  }
+  function syncOne(u, overrides) {
+    if (!u || !u.uid || !manager() || !live()) return;
+    var next = payload(u, overrides);
+    state.memberDirectory = state.memberDirectory || {};
+    state.memberDirectory[u.uid] = next;
+    DB.set('memberDirectory/' + u.uid, next);
+  }
+  function audit(type, u, before, after) {
+    if (!manager() || !live() || !u) return;
+    var id = Date.now() + '_' + String(u.uid || clean(u.name) || 'member');
+    DB.set('memberLifecycleLog/' + id, {
+      type: type, uid: u.uid || '', name: u.name || '', before: before || null,
+      after: after || null, by: (currentUser() || {}).name || '관리자', at: new Date().toISOString()
+    });
+  }
+  function syncAll() { if (manager()) users().forEach(function (u) { syncOne(u); }); }
+
+  function callbackCardHtml(id, compact) {
+    var u = currentUser(); if (!u || !active(u)) return '';
+    var url = linkValue(u), label = safe(u.name || '내') + '님의 콜백싯';
+    return '<section class="pcb-card" id="' + id + '"><div class="pcb-top"><div><span>PERSONAL CALLBACK</span><h3>📝 ' + label + '</h3><p>로그인한 본인의 콜백싯만 표시됩니다. 다른 팀원의 주소는 노출되지 않습니다.</p></div>' +
+      (url ? '<a href="' + safe(url) + '" target="_blank" rel="noopener noreferrer">새 창에서 열기 ↗</a>' : '<button type="button" onclick="openPersonalCallback()">내 기록 열기</button>') + '</div>' +
+      (url && !compact ? '<iframe title="' + label + '" loading="lazy" src="' + safe(url.replace(/\/edit(?:#.*)?$/, '/edit?rm=minimal')) + '"></iframe>' : '') +
+      (!url ? '<div class="pcb-pending"><b>개인 링크 연결 대기</b><span>계정용 콜백싯 창은 준비되어 있습니다. 관리자가 주소를 연결하면 여기와 검색에 즉시 나타납니다.</span></div>' : '') + '</section>';
+  }
+  function injectCards() {
+    var cb = document.getElementById('callbackBody');
+    if (cb && !document.getElementById('pcb-callback')) cb.insertAdjacentHTML('afterbegin', callbackCardHtml('pcb-callback', false));
+    var journal = document.getElementById('cbBody');
+    if (journal && !document.getElementById('pcb-journal')) journal.insertAdjacentHTML('afterbegin', callbackCardHtml('pcb-journal', false));
+  }
+  window.openPersonalCallback = function () {
+    var u = currentUser(), url = linkValue(u);
+    try { if (typeof hsClose === 'function') hsClose(); } catch (e) {}
+    if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
+    try { if (typeof goTab === 'function') goTab(u && roleSection(u.role) === 'LEADER' ? 'cbjournal' : 'callback'); } catch (e) {}
+    try { if (typeof toast === 'function') toast('개인 콜백싯 주소가 아직 연결되지 않았어요'); } catch (e) {}
+  };
+
+  function connectionAdminHtml() {
+    if (!manager()) return '';
+    var list = users().filter(active).sort(function (a, b) { return String(a.name).localeCompare(String(b.name), 'ko'); });
+    return '<section class="pcb-admin" id="pcb-admin"><div><span>MEMBER CONNECTION</span><h3>개인 콜백싯 · 허브 영문명 연결</h3><p>팀원을 선택한 뒤 본인 전용 주소와 허브에 표시할 영문명을 저장하세요.</p></div><div class="pcb-form"><select id="pcb-user" onchange="pcbPick(this.value)"><option value="">팀원 선택</option>' + list.map(function (u) { return '<option value="' + safe(u.uid) + '">' + safe(u.name) + ' · ' + safe(u.role || 'IC') + '</option>'; }).join('') + '</select><input id="pcb-en" placeholder="영문명 (예: Lim Jae Young)"><input id="pcb-url" type="url" placeholder="개인 콜백싯 주소"><button onclick="pcbSave()">연결 저장</button></div><small>신입은 가입 승인 즉시 기본 IC로 생성되며, 주소가 없어도 개인 콜백 창은 먼저 만들어집니다.</small></section>';
+  }
+  function injectAdmin() {
+    if (!manager() || document.getElementById('pcb-admin')) return;
+    var host = document.getElementById('memberAdminBody') || document.querySelector('#m-admin .wrap') || document.querySelector('#m-admin .sec');
+    if (host) host.insertAdjacentHTML('beforeend', connectionAdminHtml());
+  }
+  window.pcbPick = function (uid) {
+    var u = users().filter(function (x) { return x.uid === uid; })[0];
+    var en = document.getElementById('pcb-en'), url = document.getElementById('pcb-url');
+    if (en) en.value = u ? englishName(u) : '';
+    if (url) url.value = u ? linkValue(u) : '';
+  };
+  window.pcbSave = function () {
+    if (!manager()) return;
+    var uid = (document.getElementById('pcb-user') || {}).value;
+    var u = users().filter(function (x) { return x.uid === uid; })[0];
+    if (!u) { try { toast('팀원을 먼저 선택해 주세요'); } catch (e) {} return; }
+    var url = String((document.getElementById('pcb-url') || {}).value || '').trim();
+    var en = String((document.getElementById('pcb-en') || {}).value || '').trim();
+    if (url && !/^https:\/\//i.test(url)) { try { toast('https:// 로 시작하는 주소를 입력해 주세요'); } catch (e) {} return; }
+    state.callbackLinks = state.callbackLinks || {}; state.callbackLinks[uid] = url ? { url: url, updatedAt: new Date().toISOString() } : null;
+    if (live()) DB.set('callbackLinks/' + uid, state.callbackLinks[uid]);
+    state.memberDirectory = state.memberDirectory || {}; state.memberDirectory[uid] = Object.assign({}, state.memberDirectory[uid] || {}, { englishName: en });
+    syncOne(u, { englishName: en, callbackUrl: url || null }); audit('connection_updated', u, null, { englishName: en, callbackUrl: url || null });
+    try { toast(u.name + '님의 개인 연결을 저장했어요'); } catch (e) {}
+    injectCards();
+  };
+
+  function wrap(name, after) {
+    var fn = window[name]; if (typeof fn !== 'function' || fn.__pcbWrap) return;
+    window[name] = function () { var args = arguments, before = after.before ? after.before.apply(this, args) : null; var result = fn.apply(this, args); after.call(this, args, before); return result; };
+    window[name].__pcbWrap = true;
+  }
+  function install() {
+    if (installed || typeof state === 'undefined') return false;
+    installed = true;
+    wrap('renderCallback', function () { setTimeout(injectCards, 0); });
+    wrap('renderCbjournal', function () { setTimeout(injectCards, 0); });
+    wrap('renderAdmin', function () { setTimeout(injectAdmin, 0); });
+    wrap('hsRender', function () {
+      var q = String((document.getElementById('hsInput') || {}).value || '').replace(/\s/g, '').toLowerCase();
+      if (!/콜백|callback/.test(q)) return;
+      var box = document.getElementById('hsRes'); if (!box || box.querySelector('[data-personal-callback]')) return;
+      box.insertAdjacentHTML('afterbegin', '<div class="hs-item hl" data-personal-callback="1" onclick="openPersonalCallback()"><span class="he">🔗</span><span>내 콜백싯 사이트</span><span class="hg">개인 연결</span></div>');
+    });
+    wrap('approve', Object.assign(function (args, before) { var u = state.users && state.users[args[0]]; if (u && u.status === 'active') { syncOne(u); audit('member_activated', u, before, payload(u)); } }, { before: function (uid) { var u = state.users && state.users[uid]; return u ? payload(u) : null; } }));
+    wrap('changeRole', Object.assign(function (args, before) { var u = state.users && state.users[args[0]]; if (u && before && before.role !== u.role) { syncOne(u); audit('role_changed', u, before, payload(u)); } }, { before: function (uid) { var u = state.users && state.users[uid]; return u ? payload(u) : null; } }));
+    wrap('retireMember', Object.assign(function (args, before) { var u = users().filter(function (x) { return clean(x.name) === clean(args[0]); })[0]; if (!u || u.status !== 'retired') return; if (live()) DB.set('callbackLinks/' + u.uid, null); if (state.callbackLinks) delete state.callbackLinks[u.uid]; syncOne(u, { status: 'retired', hubSection: null, callbackUrl: null }); audit('member_retired', u, before, payload(u, { status: 'retired', hubSection: null, callbackUrl: null })); }, { before: function (name) { var u = users().filter(function (x) { return clean(x.name) === clean(name); })[0]; return u ? payload(u) : null; } }));
+    wrap('rehireMember', Object.assign(function (args, before) { var u = users().filter(function (x) { return clean(x.name) === clean(args[0]); })[0]; if (u && u.status === 'active') { syncOne(u); audit('member_rehired', u, before, payload(u)); } }, { before: function (name) { var u = users().filter(function (x) { return clean(x.name) === clean(name); })[0]; return u ? payload(u) : null; } }));
+    setTimeout(function () { injectCards(); injectAdmin(); syncAll(); }, 600);
+    return true;
+  }
+  function subscribe() {
+    if (subscribed || !live()) return; subscribed = true;
+    try { DB.on('callbackLinks', function (v) { state.callbackLinks = v || {}; injectCards(); }); } catch (e) {}
+    try { DB.on('memberDirectory', function (v) { state.memberDirectory = v || {}; injectAdmin(); }); } catch (e) {}
+  }
+  function start() { injectBridgeCss(); if (!install()) return; setTimeout(subscribe, 1200); setInterval(function () { subscribe(); injectCards(); injectAdmin(); }, 2500); }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(start, 900);
+  else window.addEventListener('DOMContentLoaded', function () { setTimeout(start, 900); });
+})();
+
+
+/* ============================================================================
  * Presence 비서실 × 워크북 · 면담 브리핑 v1
  * 상담 원본은 비서실, 워크북은 리더 범위의 읽기 전용 화면만 제공한다.
  * ==========================================================================*/
