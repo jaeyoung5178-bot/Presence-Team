@@ -344,6 +344,7 @@ body.can-mod .gcard .del{display:flex}
 .wins-empty b{color:var(--cream);font-size:15px}
 .wins-empty span{font-size:12.5px;color:var(--faint)}
 .cb-compose{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px}
+.cb-os-link{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;padding:16px;border:1px solid rgba(37,184,196,.28);border-radius:14px;background:linear-gradient(145deg,rgba(37,184,196,.11),rgba(107,201,58,.07));text-decoration:none;color:var(--cream)}.cb-os-link span{display:block;color:var(--green-soft);font-size:10px;font-weight:900;letter-spacing:.12em}.cb-os-link b{display:block;margin-top:4px;font-size:15px}.cb-os-link em{flex:none;border-radius:10px;padding:9px 12px;background:var(--green);color:#10220b;font-size:11.5px;font-style:normal;font-weight:900}@media(max-width:560px){.cb-os-link{align-items:flex-start;flex-direction:column}.cb-os-link em{width:100%;text-align:center}}
 .cb-compose textarea{width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:14px;line-height:1.6;resize:vertical;font-family:inherit;margin:10px 0}
 .cb-photo{background:var(--card);border:1px dashed var(--line);color:var(--muted);border-radius:10px;padding:11px;width:100%;cursor:pointer;font-size:13px;font-weight:700}
 .cb-photo:hover{color:var(--cream);border-color:var(--green)}
@@ -4705,8 +4706,12 @@ function renderRecap(){
   if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
 }
 function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
-/* ===== 콜백싯 일지 (리더 개인 일기 · 본인만 보기 / 관리자 전체 열람) ===== */
+/* ===== 콜백싯 (개인 Field Callback OS + 일지 · 본인만 보기 / 관리자 전체 열람) ===== */
 let cbFiles=[]; let cbViewUid=null;
+const CALLBACK_APP_URL='https://jaeyoung5178-bot.github.io/Presence/callback/';
+function callbackLinkFor(u){return u&&u.uid?CALLBACK_APP_URL+'?u='+encodeURIComponent(u.uid)+'&n='+encodeURIComponent(u.name||''):CALLBACK_APP_URL;}
+function callbackProfileFor(u){return {uid:u.uid,name:u.name||'',role:u.role||'IC',status:u.status||'active',url:callbackLinkFor(u),rejectNotePath:'rejectnotes/'+u.uid,callbackDataPath:'callbacksheets/'+u.uid,updatedAt:new Date().toISOString(),source:'presence-workbook'};}
+function syncCallbackProfile(u){if(!u||!u.uid||!LIVE)return;DB.set('callbackProfiles/'+u.uid,callbackProfileFor(u));}
 function subCbjournal(){
   if(!LIVE||!me)return;
   if(window._cbSubMine!==me.uid){window._cbSubMine=me.uid;DB.on('cbjournal/'+me.uid,v=>{state.cbMine=v||{};if(curTab==='cbjournal')renderCbBoard();});}
@@ -4749,7 +4754,7 @@ function renderCbjournal(){
   const wrap=document.getElementById('cbBody');if(!wrap||!me)return;
   const intro=document.getElementById('cbIntro');
   if(intro)intro.innerHTML=isOwnerAccount(me)?'관리자는 <b>모든 팀원</b>의 콜백싯 일지를 볼 수 있어요. 아래에서 팀원을 선택하세요. (팀원끼리는 서로 절대 볼 수 없어요)':'여기 올린 콜백싯과 글은 <b>오직 나만</b> 볼 수 있어요. 매일 일기처럼 콜백싯을 올리고 솔직한 후기·보완점을 남겨보세요.';
-  wrap.innerHTML='<div class="cb-compose"><div class="cb-prev" id="cbPrev"></div><button class="cb-photo" type="button" onclick="document.getElementById(\'cbFiles\').click()">📷 콜백싯 사진 첨부 (최대 2장)</button><input type="file" id="cbFiles" accept="image/*" multiple style="display:none" onchange="onCbFiles(this.files)"/><textarea id="cbText" rows="3" placeholder="오늘 콜백싯 후기 — 잘된 점, 솔직한 피드백, 보완하고 싶은 부분을 적어보세요"></textarea><button class="btn block" onclick="postCb()">📓 오늘 콜백싯 올리기</button></div><div id="cbBoard"></div>';
+  wrap.innerHTML='<a class="cb-os-link" href="'+esc(callbackLinkFor(me))+'" target="_blank" rel="noopener noreferrer"><div><span>MY FIELD CALLBACK OS</span><b>'+esc(me.name)+'님의 개인 콜백싯 · 리젝노트 자동 연동</b></div><em>내 콜백싯 열기 ↗</em></a><div class="cb-compose"><div class="cb-prev" id="cbPrev"></div><button class="cb-photo" type="button" onclick="document.getElementById(\'cbFiles\').click()">📷 콜백싯 사진 첨부 (최대 2장)</button><input type="file" id="cbFiles" accept="image/*" multiple style="display:none" onchange="onCbFiles(this.files)"/><textarea id="cbText" rows="3" placeholder="오늘 콜백싯 후기 — 잘된 점, 솔직한 피드백, 보완하고 싶은 부분을 적어보세요"></textarea><button class="btn block" onclick="postCb()">📓 오늘 콜백싯 올리기</button></div><div id="cbBoard"></div>';
   renderCbCompose();renderCbBoard();
 }
 function renderCbCompose(){const el=document.getElementById('cbPrev');if(!el)return;el.innerHTML=cbFiles.map((pp,i)=>'<div class="cb-thumb"><img src="'+pp+'" onclick="cbZoom(this.src)"/><button onclick="rmCbFile('+i+')">✕</button></div>').join('');}
@@ -6372,7 +6377,7 @@ function miSetJoin(name){if(!name)return;const m=miGet(name);if(!m.join)m.join=T
 function retireMember(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
   name=(name||'').trim();if(!name)return;
-  if(!confirm(name+'님을 퇴사 처리할까요?\n\n· 다음 달부터 명단/시트에서 빠져요\n· 이번 달까지의 결과·기록은 그대로 남아요\n· 가입 계정은 보관(재입사 가능)'))return;
+  if(!confirm(name+'님을 퇴사 처리할까요?\n\n· 활성 명단과 콜백싯 명단에서 즉시 제외됩니다\n· 개인 콜백·리젝노트·상담 기록은 삭제됩니다\n· 퇴사일과 최소 감사 로그만 보존됩니다'))return;
   const m=miGet(name);m.left=TODAY;
   const nm=name.replace(/\s/g,'');
   state.removedMembers=state.removedMembers||[];
@@ -6380,10 +6385,10 @@ function retireMember(name){
   state.extraMembers=(state.extraMembers||[]).filter(n=>n.replace(/\s/g,'')!==nm);
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
   // 콜백싯 연동: users/{uid}/status를 'retired'로 동기화 — 워크북을 퇴사 상태의 단일 진실원본으로 유지
-  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='retired';if(LIVE)DB.set('users/'+ru.uid+'/status','retired');}})();
+  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='retired';if(LIVE){DB.set('users/'+ru.uid+'/status','retired');DB.set('callbackProfiles/'+ru.uid,null);DB.set('callbacksheets/'+ru.uid,null);DB.set('rejectnotes/'+ru.uid,null);DB.set('cbjournal/'+ru.uid,null);DB.set('assistantMemberNotes/'+nk(name),null);DB.set('memberLifecycleLog/'+Date.now()+'_'+ru.uid,{type:'member_retired',uid:ru.uid,name:ru.name,at:new Date().toISOString(),by:(me&&me.name)||'관리자',recordsRemoved:true});}}})();
   renderMemberAdmin();if(typeof renderComp==='function')renderComp();if(typeof renderTokenAdmin==='function')renderTokenAdmin();if(document.getElementById('dailyList'))renderDaily();
   if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
-  toast('👋 '+name+'님 퇴사 처리 — 기록은 그대로 보존돼요');
+  toast('👋 '+name+'님 퇴사 처리 — 활성 명단과 개인 운영 데이터에서 제외했어요');
 }
 function rehireMember(name){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
@@ -6395,7 +6400,7 @@ function rehireMember(name){
   if(!isAllowedName(name)){state.extraMembers=state.extraMembers||[];if(!state.extraMembers.some(n=>n.replace(/\s/g,'')===nm))state.extraMembers.push(name);}
   if(LIVE){DB.set('memberInfo/'+nk(name),m);DB.set('removedMembers',state.removedMembers);DB.set('extraMembers',state.extraMembers);}
   // 콜백싯 연동: users/{uid}/status를 'active'로 복구
-  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='active';if(LIVE)DB.set('users/'+ru.uid+'/status','active');}})();
+  (function(){const ru=Object.values(state.users||{}).find(u=>u&&nk(u.name)===nk(name)&&u.uid!==FOUNDER.uid);if(ru){ru.status='active';if(LIVE)DB.set('users/'+ru.uid+'/status','active');syncCallbackProfile(ru);}})();
   syncMemberToSheet(name);
   renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();
   if(typeof renderAdmin==="function"&&me&&isFounder(me))renderAdmin();
@@ -6526,7 +6531,7 @@ function deleteMember(name){
     if(state.recruit)delete state.recruit[uid];
     if(state.notifs)delete state.notifs[uid];
     if(state.waters)delete state.waters[uid];
-    if(LIVE){DB.set('users/'+uid,null);DB.set('cbjournal/'+uid,null);DB.set('recruit/'+uid,null);DB.set('notifs/'+uid,null);DB.set('waters/'+uid,null);}
+    if(LIVE){DB.set('users/'+uid,null);DB.set('cbjournal/'+uid,null);DB.set('callbacksheets/'+uid,null);DB.set('rejectnotes/'+uid,null);DB.set('callbackProfiles/'+uid,null);DB.set('assistantMemberNotes/'+nk(name),null);DB.set('recruit/'+uid,null);DB.set('notifs/'+uid,null);DB.set('waters/'+uid,null);}
   });
   if(state.cbAll)uids.forEach(uid=>{delete state.cbAll[uid];});
   // 1b) 이름 기준 본인 작성물 소거 — 한마디·Wins·굳뉴스
@@ -7201,10 +7206,10 @@ function renderSurveyResponses(){
     legacy.innerHTML=total?rowsA.concat(rowsD).map(row).join(''):'<div class="empty-row">아직 제출된 설문이 없어요</div>';
   }
 }
-function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · ${curMonthKey()} 시트에 등록 요청`)}
+function approve(uid){const u=state.users[uid];if(!u)return;u.status='active';if(LIVE)DB.set('users/'+uid+'/status','active');syncCallbackProfile(u);miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · 개인 콜백싯·리젝노트 연결 생성 · ${curMonthKey()} 시트 등록 요청`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.pwHash=hash(np);u.mustChangePw=true;if(LIVE){DB.set('users/'+uid+'/pwHash',u.pwHash);DB.set('users/'+uid+'/mustChangePw',true);}alert(`${u.name}님의 임시 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.\n(${u.name}님이 처음 로그인하면 새 비밀번호를 직접 설정하게 됩니다.)`);toast('임시 비밀번호를 발급했어요 · 본인이 첫 로그인 시 변경합니다')}
-function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);const rk=reqSurvey(role,u.name);toast(rk&&(!u.surveys||!u.surveys[rk])?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
+function changeRole(uid,role){const u=state.users[uid];if(!u)return;u.role=role;if(LIVE)DB.set('users/'+uid+'/role',role);syncCallbackProfile(u);const rk=reqSurvey(role,u.name);toast(rk&&(!u.surveys||!u.surveys[rk])?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 콜백 프로필도 즉시 반영됐어요. 다음 로그인 때 ${ROLE_LABEL[role]||role} 설문을 완료하면 입장돼요`:`${u.name}님 직급과 콜백 프로필을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
 function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
 function gfAnswerHTML(v){
   if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
