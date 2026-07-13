@@ -318,3 +318,128 @@
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(start, 300);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(start, 300); });
 })();
+
+/* ============================================================================
+ * Presence 비서실 × 워크북 · 면담 브리핑 v1
+ * 상담 원본은 비서실, 워크북은 리더 범위의 읽기 전용 화면만 제공한다.
+ * ==========================================================================*/
+(function () {
+  'use strict';
+  if (window.__presenceCounselBriefing) return;
+  window.__presenceCounselBriefing = true;
+  var selectedName = '', subscribed = false;
+
+  function clean(v) { return String(v || '').replace(/\s/g, ''); }
+  function safe(v) { return String(v == null ? '' : v).replace(/[&<>\"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+  function dossierOf(name) {
+    var target = clean(name), ds = (typeof state !== 'undefined' && state.dossier) || {};
+    for (var k in ds) { var d = ds[k] || {}; if (clean(k) === target || clean(d.name) === target) return d; }
+    return {};
+  }
+  function canRead() {
+    try { return !!me && (isOwnerAccount(me) || isFounder(me)); } catch (e) { return false; }
+  }
+  function members() {
+    if (!canRead() || typeof rosterMembers !== 'function') return [];
+    return rosterMembers();
+  }
+  function notesOf(name) {
+    var target = clean(name), users = (typeof state !== 'undefined' && state.users) || {}, u = Object.values(users).filter(function (x) { return x && clean(x.name) === target; })[0], uid = u && u.uid, out = [];
+    var notes = (typeof state !== 'undefined' && state.assistantMemberNotes) || {};
+    for (var groupName in notes) { var group = notes[groupName] || {}; for (var id in group) { var n = group[id] || {}; if ((uid && n.memberUid === uid) || clean(n.name || groupName) === target) out.push(Object.assign({ id: id }, n)); } }
+    return out.sort(function (a, b) { return String(b.createdAt || b.t || '').localeCompare(String(a.createdAt || a.t || '')); });
+  }
+  function dateAgo(days) { var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function salesOf(name, start, end) {
+    var total = 0, days = {}, sales = (typeof state !== 'undefined' && state.sales) || {};
+    for (var k in sales) { var e = sales[k] || {}; if (e.date >= start && e.date <= end && clean(e.name) === clean(name) && !e.na && !e.rally) { total += Number(e.count || 0); if (Number(e.count || 0) > 0) days[e.date] = 1; } }
+    return { total: total, days: Object.keys(days).length };
+  }
+  function incomeOf(name, start, end) {
+    var total = 0, seen = false, weekly = (typeof state !== 'undefined' && state.incomeWk) || {};
+    for (var week in weekly) if (week >= start && week <= end) { var people = weekly[week] || {}; for (var key in people) if (clean(key) === clean(name)) { var value = Number(people[key]); if (Number.isFinite(value)) { total += value; seen = true; } } }
+    if (seen) return { value: total, label: '최근 30일', source: '주간 인컴 합계' };
+    var monthly = (typeof state !== 'undefined' && state.salesMeta) || {}, months = Object.keys(monthly).filter(function (m) { return m <= end.slice(0, 7); }).sort().reverse();
+    for (var i = 0; i < months.length; i++) { var month = months[i], rows = monthly[month] || {}; for (var n in rows) if (clean(n) === clean(name)) { var raw = (rows[n] || {}).income, v = Number(raw); if (raw !== '' && raw != null && Number.isFinite(v)) return { value: v, label: month.slice(5) + '월 기록', source: '월별 인컴' }; } }
+    return { value: null, label: '기록 없음', source: '인컴 데이터' };
+  }
+  function callbacksOf(name, start, end) {
+    var target = clean(name), users = (typeof state !== 'undefined' && state.users) || {}, u = Object.values(users).filter(function (x) { return x && clean(x.name) === target; })[0], uid = u && u.uid, list = [];
+    var sheets = (typeof state !== 'undefined' && state.callbackSheets) || {};
+    for (var ownerUid in sheets) { var days = sheets[ownerUid] || {}; for (var date in days) { var r = days[date] || {}, owner = clean((r.info || {}).name || (users[ownerUid] || {}).name); if (date >= start && date <= end && !r.deleted && ((uid && ownerUid === uid) || owner === target)) list.push({ date: date, record: r }); } }
+    list.sort(function (a, b) { return b.date.localeCompare(a.date); });
+    var counts = { contact: 0, stop: 0, presentation: 0, close: 0, rehash: 0 };
+    list.forEach(function (x) { var logs = Array.isArray(x.record.logs) ? x.record.logs : Object.values(x.record.logs || {}); logs.forEach(function (l) { var type = l && String(l.type || '').toLowerCase(); if (Object.prototype.hasOwnProperty.call(counts, type)) counts[type]++; }); });
+    return { records: list, counts: counts, latest: list[0] || null };
+  }
+  function fmtDate(v) { if (!v) return '날짜 없음'; var d = new Date(v); if (Number.isNaN(d.getTime())) return String(v); return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' }); }
+  function cell(label, value, full) { if (!value) return ''; return '<div class="cs-note-cell' + (full ? ' full' : '') + '"><b>' + safe(label) + '</b>' + safe(value) + '</div>'; }
+  function noteHtml(n) {
+    var tags = [n.sessionType, n.mood, n.planDate ? ('후속 ' + n.planDate) : ''].filter(Boolean).map(function (x) { return '<span class="cs-tag">' + safe(x) + '</span>'; }).join('');
+    return '<article class="cs-note"><div class="cs-note-top"><div class="cs-note-topic">' + safe(n.topic || '상담 기록') + '</div><div class="cs-note-meta">' + fmtDate(n.createdAt || n.t) + '</div></div><div class="cs-note-tags">' + tags + '</div><div class="cs-note-grid">' + cell('현재 상황', n.situation, true) + cell('상담 목표', n.goal) + cell('강점', n.strength) + cell('관찰 위험', n.risk) + cell('전달한 피드백', n.feedback) + cell('합의한 행동', n.action, true) + cell('다음 확인', n.followUp, true) + '</div></article>';
+  }
+  function avatar(name, cls) { var inner = safe((name || '?').slice(0, 1)); try { inner = avInner(name); } catch (e) {} var color = '#5CBC2E'; try { color = avColor(name); } catch (e) {} return '<span class="' + cls + '" style="background:' + color + '">' + inner + '</span>'; }
+  function money(v) { try { return won(v); } catch (e) { return Number(v || 0).toLocaleString('ko-KR'); } }
+
+  function render() {
+    var box = document.getElementById('counselBody'); if (!box || !canRead()) return;
+    var list = members();
+    if (!list.length) { box.innerHTML = '<div class="cs-empty">열람할 수 있는 팀원이 아직 연결되지 않았어요.<br>Team Tree에서 상위 리더와 팀을 먼저 연결해 주세요.</div>'; return; }
+    if (!list.some(function (u) { return u.name === selectedName; })) selectedName = (list.filter(function (u) { return u.name !== me.name; })[0] || list[0]).name;
+    var name = selectedName, start = dateAgo(29), end = dateAgo(0), sales = salesOf(name, start, end), income = incomeOf(name, start, end), callbacks = callbacksOf(name, start, end), notes = notesOf(name), latest = callbacks.latest && callbacks.latest.record, site = latest && latest.info && latest.info.site;
+    var previous = salesOf(name, dateAgo(59), dateAgo(30)), delta = sales.total - previous.total, trend = delta === 0 ? '이전 30일과 동일' : (delta > 0 ? '이전보다 +' + delta : '이전보다 ' + delta);
+    var people = list.map(function (u) { var count = notesOf(u.name).length, role = (typeof ROLE_LABEL !== 'undefined' && ROLE_LABEL[u.role]) || u.role || 'IC'; return '<button class="cs-person' + (u.name === name ? ' on' : '') + '" data-name="' + safe(u.name) + '">' + avatar(u.name, 'av') + '<span class="nm">' + safe(u.name) + '<small>' + safe(role) + '</small></span><span class="cs-note-dot">' + count + '</span></button>'; }).join('');
+    var noteList = notes.length ? notes.slice(0, 12).map(noteHtml).join('') : '<div class="cs-empty">아직 비서실에 저장된 상담 기록이 없어요.<br>상담 전 브리핑을 확인한 뒤 비서실에서 첫 기록을 남겨 주세요.</div>';
+    box.innerHTML = '<div class="cs-shell"><aside class="cs-side"><div class="cs-side-h"><span>팀원</span><small>' + list.length + '명 · 관리자 전체 열람</small></div><input class="cs-search" placeholder="이름 검색" aria-label="팀원 이름 검색"><div class="cs-people" id="counselPeople">' + people + '</div></aside><div class="cs-main"><div class="cs-head"><div class="cs-title">' + avatar(name, 'av') + '<div><h3>' + safe(name) + ' · 면담 브리핑</h3><p>' + start + ' ~ ' + end + ' · Firebase 실시간 연결</p></div></div><a class="cs-open" href="https://presence-ai-assistant.jaeyoung5178.chatgpt.site/members" target="_blank" rel="noopener noreferrer">🔐 비서실에서 작성·수정</a></div><div class="cs-kpis"><div class="cs-kpi"><div class="l">최근 30일 세일즈</div><div class="v">' + sales.total + '건</div><div class="s">' + trend + '</div></div><div class="cs-kpi"><div class="l">필드 활동일</div><div class="v">' + sales.days + '일</div><div class="s">활동일 평균 ' + (sales.days ? (sales.total / sales.days).toFixed(2) : '0.00') + '</div></div><div class="cs-kpi"><div class="l">' + income.label + ' 인컴</div><div class="v">' + (income.value == null ? '—' : '₩' + money(income.value)) + '</div><div class="s">' + income.source + '</div></div><div class="cs-kpi"><div class="l">콜백싯 기록</div><div class="v">' + callbacks.records.length + '일</div><div class="s">' + (site ? '최근 ' + safe(site) : '최근 사이트 없음') + '</div></div></div><div class="cs-flow"><div class="cs-flow-h"><span>콜백싯 활동 흐름</span><small>최근 30일 실제 기록</small></div><div class="cs-steps"><div class="cs-step"><b>' + callbacks.counts.contact + '</b><span>CONTACT</span></div><div class="cs-step"><b>' + callbacks.counts.stop + '</b><span>STOP</span></div><div class="cs-step"><b>' + callbacks.counts.presentation + '</b><span>PRESENT</span></div><div class="cs-step"><b>' + callbacks.counts.close + '</b><span>CLOSE</span></div><div class="cs-step"><b>' + callbacks.counts.rehash + '</b><span>REHASH</span></div></div></div><div class="cs-section-h"><span>최근 상담 기록</span><small>' + notes.length + '건 · 최신순 · 읽기 전용</small></div><div class="cs-notes">' + noteList + '</div></div></div>';
+    box.querySelectorAll('.cs-person').forEach(function (b) { b.onclick = function () { selectedName = b.dataset.name; render(); }; });
+    var search = box.querySelector('.cs-search'); if (search) search.oninput = function () { var q = clean(search.value).toLowerCase(); box.querySelectorAll('.cs-person').forEach(function (b) { b.style.display = !q || clean(b.dataset.name).toLowerCase().indexOf(q) >= 0 ? '' : 'none'; }); };
+  }
+
+  function injectCss() {
+    if (document.getElementById('cs-briefing-css')) return;
+    var s = document.createElement('style'); s.id = 'cs-briefing-css'; s.textContent = [
+      '.cs-shell{display:grid;grid-template-columns:minmax(210px,280px) 1fr;gap:18px;align-items:start}',
+      '.cs-privacy{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;margin:0 0 16px;border:1px solid rgba(92,188,46,.25);background:rgba(92,188,46,.08);border-radius:14px;color:var(--cream);font-size:12.5px;line-height:1.65}.cs-privacy b{color:var(--green-soft)}',
+      '.cs-side,.cs-main{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:16px;padding:14px}.cs-side-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:var(--cream);font-size:13px;font-weight:800}.cs-side-h small{font-size:10.5px;color:var(--faint);font-weight:650}',
+      '.cs-search{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--cream);padding:10px 11px;margin-bottom:9px;font:inherit;font-size:12.5px;outline:none}.cs-search:focus{border-color:rgba(92,188,46,.65)}',
+      '.cs-people{display:flex;flex-direction:column;gap:6px;max-height:620px;overflow:auto}.cs-person{width:100%;display:flex;align-items:center;gap:10px;border:1px solid transparent;background:transparent;color:var(--cream);border-radius:11px;padding:9px 10px;text-align:left;cursor:pointer}.cs-person:hover{background:rgba(255,255,255,.04)}.cs-person.on{border-color:rgba(92,188,46,.34);background:rgba(92,188,46,.11)}',
+      '.cs-person .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:900;overflow:hidden;flex:none}.cs-person .av img,.cs-title .av img{width:100%;height:100%;object-fit:cover}.cs-person .nm{min-width:0;flex:1;font-size:12.5px;font-weight:800}.cs-person .nm small{display:block;color:var(--faint);font-size:10.5px;margin-top:2px;font-weight:650}.cs-note-dot{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:rgba(92,188,46,.16);color:var(--green-soft);font-size:10px;display:grid;place-items:center;font-weight:850}',
+      '.cs-head{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}.cs-title{display:flex;align-items:center;gap:10px;min-width:0}.cs-title .av{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;font-size:17px;font-weight:900;overflow:hidden;flex:none}.cs-title h3{font-size:17px;color:var(--cream);margin:0}.cs-title p{font-size:11.5px;color:var(--muted);margin:3px 0 0}.cs-open{border:0;border-radius:11px;background:var(--green);color:#10220b;padding:10px 13px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;text-decoration:none}',
+      '.cs-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:14px}.cs-kpi{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:12px;min-height:82px}.cs-kpi .l{color:var(--faint);font-size:10.5px;font-weight:750}.cs-kpi .v{color:var(--cream);font-size:20px;font-weight:900;margin-top:7px;letter-spacing:-.5px}.cs-kpi .s{color:var(--muted);font-size:10px;margin-top:3px}',
+      '.cs-flow{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:13px;margin-bottom:14px}.cs-flow-h{display:flex;justify-content:space-between;gap:8px;color:var(--cream);font-size:12.5px;font-weight:850;margin-bottom:10px}.cs-flow-h small{color:var(--faint);font-size:10.5px;font-weight:650}.cs-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.cs-step{background:rgba(255,255,255,.035);border-radius:9px;padding:9px 5px;text-align:center}.cs-step b{display:block;color:var(--cream);font-size:15px}.cs-step span{display:block;color:var(--faint);font-size:9.5px;margin-top:3px}',
+      '.cs-section-h{display:flex;align-items:center;justify-content:space-between;margin:3px 0 9px;color:var(--cream);font-size:13px;font-weight:900}.cs-section-h small{font-size:10.5px;color:var(--faint);font-weight:650}.cs-notes{display:flex;flex-direction:column;gap:9px}.cs-note{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:13px}.cs-note-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.cs-note-topic{color:var(--cream);font-size:13px;font-weight:900}.cs-note-meta{color:var(--faint);font-size:10.5px;white-space:nowrap}.cs-note-tags{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.cs-tag{border:1px solid rgba(92,188,46,.25);background:rgba(92,188,46,.08);color:var(--green-soft);border-radius:999px;padding:3px 7px;font-size:9.5px;font-weight:750}.cs-note-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.cs-note-cell{background:rgba(255,255,255,.025);border-radius:9px;padding:9px;color:var(--muted);font-size:11.5px;line-height:1.55}.cs-note-cell b{display:block;color:var(--faint);font-size:9.5px;margin-bottom:3px}.cs-note-cell.full{grid-column:1/-1}.cs-empty{padding:32px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:13px;font-size:12.5px;line-height:1.7}',
+      '@media(max-width:760px){.cs-shell{grid-template-columns:1fr}.cs-people{max-height:220px}.cs-kpis{grid-template-columns:1fr 1fr}.cs-note-grid{grid-template-columns:1fr}.cs-note-cell.full{grid-column:auto}.cs-head{align-items:flex-start;flex-direction:column}.cs-open{width:100%;text-align:center}}'
+    ].join(''); document.head.appendChild(s);
+  }
+  function injectPanel() {
+    if (document.getElementById('m-counsel')) return;
+    var panel = document.createElement('div'); panel.className = 'mpanel'; panel.id = 'm-counsel';
+    panel.innerHTML = '<div class="wrap"><section class="sec"><div class="sec-head"><h2>🫶 면담 기록</h2><span class="ko">상담 전 한눈에 보는 팀원 브리핑</span><span class="meta">관리자 전용 · 읽기 전용</span></div><div class="cs-privacy"><span>🔐</span><div><b>상담 기록은 관리자 계정에서만 열람할 수 있습니다.</b><br>워크북에서는 최근 성과와 상담 내용을 읽기만 할 수 있으며 작성·수정·후속 조치는 비밀번호가 필요한 Presence 비서실에서 진행합니다.</div></div><div id="counselBody"></div></section></div>';
+    var meeting = document.getElementById('m-meeting'), main = document.querySelector('#app main'); if (meeting && meeting.parentNode) meeting.parentNode.insertBefore(panel, meeting); else if (main) main.appendChild(panel);
+  }
+  function addNavigation() {
+    try {
+      var lead = NAV.filter(function (g) { return g.k === 'lead'; })[0]; if (lead && lead.tabs.indexOf('counsel') < 0) lead.tabs.splice(Math.max(0, lead.tabs.indexOf('cbjournal')), 0, 'counsel');
+      TABMETA.counsel = { e: '🫶', l: '면담 기록', g: function () { return canRead(); } };
+      window.__counselNavReady = !!(lead && TABMETA.counsel);
+    } catch (e) { window.__counselLastError = 'navigation: ' + String(e && e.message || e); }
+  }
+  function wrapGoTab() {
+    if (typeof window.goTab !== 'function' || window.goTab.__counselWrap) return;
+    var original = window.goTab; window.goTab = function () { var r = original.apply(this, arguments); try { if (typeof curTab !== 'undefined' && curTab === 'counsel') render(); } catch (e) {} return r; }; window.goTab.__counselWrap = true;
+  }
+  function subscribe() {
+    if (subscribed) return;
+    try {
+      if (typeof DB === 'undefined' || typeof DB.on !== 'function' || String(DB.on).replace(/\s/g, '') === 'on(){}') return;
+      state.callbackSheets = state.callbackSheets || {}; state.assistantMemberNotes = state.assistantMemberNotes || {};
+      DB.on('callbacksheets', function (v) { state.callbackSheets = v || {}; if (typeof curTab !== 'undefined' && curTab === 'counsel') render(); });
+      DB.on('assistantMemberNotes', function (v) { state.assistantMemberNotes = v || {}; if (typeof curTab !== 'undefined' && curTab === 'counsel') render(); });
+      subscribed = true;
+    } catch (e) {}
+  }
+  function install() {
+    try { if (typeof NAV === 'undefined' || typeof TABMETA === 'undefined' || typeof state === 'undefined') return false; injectCss(); injectPanel(); window.renderCounsel = render; addNavigation(); wrapGoTab(); subscribe(); try { if (typeof buildRail === 'function' && typeof me !== 'undefined' && me) buildRail(); } catch (railError) { window.__counselLastError = 'rail: ' + String(railError && railError.message || railError); } return true; } catch (e) { window.__counselLastError = 'install: ' + String(e && e.message || e); return false; }
+  }
+  var attempts = 0, timer = setInterval(function () { attempts++; var ready = install(); subscribe(); if (ready && subscribed && attempts > 3) clearInterval(timer); if (attempts > 40) clearInterval(timer); }, 300);
+})();
