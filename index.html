@@ -3726,6 +3726,24 @@ function joinKey(name){
 }
 function joinSort(a,b){var ja=joinKey(a.name),jb=joinKey(b.name);return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));}
 function rosterMembers(){const seen={},out=[];Object.values(state.users).forEach(u=>{if(u.status==='active'&&!isTestBot(u)&&!seen[u.name]&&!isDeparted(u.name)){seen[u.name]=1;out.push({name:u.name,role:u.role,registered:true});}});allMembers().forEach(n=>{if(!seen[n]&&!isDeparted(n)&&!isAdminName(n)&&!isTestName_(n)){seen[n]=1;out.push({name:n,role:'IC',registered:false});}});var _jk={};out.forEach(function(u){_jk[u.name]=joinKey(u.name);});return out.sort(function(a,b){var ja=_jk[a.name]||'9999-12-31',jb=_jk[b.name]||'9999-12-31';return ja<jb?-1:(ja>jb?1:a.name.localeCompare(b.name,'ko'));});}
+/* 허브 상단 영문 명단용 경량 미러 — active 가입자만 저장하며 퇴사·대기·테스트 계정은 넣지 않는다. */
+const HUB_FIRST_NAMES=['고윤경','박인선','윤채영','간승학'];
+const HUB_ENGLISH_NAMES={'임재영':'Lim Jae Young','고윤경':'Ko Yun Kyung','박인선':'Park In Sun','윤채영':'Yoon Chae Young','간승학':'Gan Seung Hak','손예진':'Son Ye Jin','권영웅':'Kwon Young Woong','최이수':'Choi Yi Su','김하진':'Kim Ha Jin','이윤성':'Lee Yoon Sung','김수민':'Kim Su Min','민병준':'Min Byoung Jun'};
+const HUB_NAME_ORDER=['임재영','고윤경','박인선','윤채영','간승학','손예진','권영웅','최이수','김하진','이윤성','김수민','민병준'];
+function hubRomanize(name){
+  const L=['G','Kk','N','D','Tt','R','M','B','Pp','S','Ss','','J','Jj','Ch','K','T','P','H'],V=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'],T=['','k','k','ks','n','nj','nh','t','l','lk','lm','lb','ls','lt','lp','lh','m','p','ps','t','t','ng','t','t','k','t','p','h'];
+  return String(name||'').trim().split(/\s+/).map(function(part){return Array.from(part).map(function(ch){var n=ch.charCodeAt(0)-44032;if(n<0||n>11171)return ch;var l=Math.floor(n/588),v=Math.floor((n%588)/28),t=n%28;return L[l]+V[v]+T[t]}).join('')}).join(' ');
+}
+function hubEnglishName(u){return String((u&&(u.englishName||u.enName))||HUB_ENGLISH_NAMES[(u&&u.name)||'']||hubRomanize(u&&u.name)||'').trim()}
+function syncHubDirectory(){
+  if(!LIVE||!state||!state.users)return;
+  const out={};Object.values(state.users).forEach(function(u){
+    if(!u||u.status!=='active'||isTestBot(u)||isDeparted(u.name)||!u.uid)return;
+    var leader=/^(LR|TL)$/.test(u.role||'');
+    out[u.uid]={name:u.name||'',englishName:hubEnglishName(u),role:u.role||'IC',status:'active',hubTier:/^(AOP|OP|O)$/.test(u.role||'')?'AOP':(HUB_FIRST_NAMES.indexOf(u.name)>=0?'FIRST':(leader?'SECOND':'IC')),hubOrder:HUB_NAME_ORDER.indexOf(u.name)>=0?HUB_NAME_ORDER.indexOf(u.name)+1:9999,createdAt:u.createdAt||0};
+  });
+  DB.set('memberDirectory',out);
+}
 const SALES_TARGET = 60;     // 1인 월 목표 세일즈 (시트 연동 전 기본값)
 const TEAM_TARGET  = 215;    // 폴백 기본값
 const MONTHLY_TEAM_TARGET = {'2026-05':215,'2026-06':215,'2026-07':215,'2026-08':215,'2026-09':215,'2026-10':215,'2026-11':215,'2026-12':215}; // 🎯 타겟 탭 연동 전 폴백. 연동되면 시트값으로 자동 대체
@@ -7950,6 +7968,7 @@ async function initFirebase(){
     if(me)me=state.users[me.uid]||me;
     if(!me&&authState.view==='login'&&lsGet('presence_sess'))tryAutoLogin();
     if(me&&isFounder(me))renderAdmin();updateCounts();
+    if(me&&isFounder(me))syncHubDirectory();
   });
   }catch(e){console.warn('Firebase 연결 실패 — 로컬 모드로 동작합니다',e);}
 }
