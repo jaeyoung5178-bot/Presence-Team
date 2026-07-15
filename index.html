@@ -14242,9 +14242,9 @@ var THEMES={
   resort:{name:'휴양지',emoji:'🏝️',desc:'야자수 아래 코코넛 한 잔'}
 };
 var TIERS={
-  TL :{name:'TL',label:'팀리더',req:'First 리더 2인 이상',check:function(s){return s.first>=2;},reqTxt:function(s){return 'First 리더 '+s.first+'명 (필요 2)';}},
-  AOP:{name:'AOP',label:'Assistant OP',req:'First 리더 3인 이상 · 팀내 리더 5명 이상',check:function(s){return s.first>=3&&s.total>=5;},reqTxt:function(s){return 'First '+s.first+'/3 · 팀리더 '+s.total+'/5';}},
-  OP :{name:'OP',label:'Owner Partner',req:'First 리더 4인 이상 · 팀내 리더 10명 이상',check:function(s){return s.first>=4&&s.total>=10;},reqTxt:function(s){return 'First '+s.first+'/4 · 팀리더 '+s.total+'/10';}}
+  TL :{name:'TL',label:'팀리더',req:'직속 First 리더 2인 이상',check:function(s){return s.first>=2;},reqTxt:function(s){return '직속 First 리더 '+s.first+'명 (필요 2)';}},
+  AOP:{name:'AOP',label:'Assistant OP',req:'직속 First 리더 3인 이상 · 팀 전체 5명 이상',check:function(s){return s.first>=3&&s.total>=5;},reqTxt:function(s){return 'First '+s.first+'/3 · 팀 전체 '+s.total+'/5';}},
+  OP :{name:'OP',label:'Owner Partner',req:'직속 First 리더 4인 이상 · 팀 전체 10명 이상',check:function(s){return s.first>=4&&s.total>=10;},reqTxt:function(s){return 'First '+s.first+'/4 · 팀 전체 '+s.total+'/10';}}
 };
 function sceneHTML(theme){
   if(theme==='city'){
@@ -14326,8 +14326,8 @@ function jOrgTeams(){
     function descAll(n,acc){kids(n).forEach(function(c){acc.push(c);descAll(c,acc);});return acc;}
     var leaders=Object.keys(cm).filter(function(n){return kids(n).length;});
     return leaders.map(function(n){
-      var first=kids(n).filter(function(c){return kids(c).length;}).length;
-      return {name:n,first:first,total:descLeaders(n,[]).length,members:descAll(n,[]).length};
+      var members=descAll(n,[]).length;
+      return {name:n, first:kids(n).length /* 직속 팀원 전원 = First 리더 */, total:members /* 팀 전체 인원 */, members:members};
     }).sort(function(a,b){return b.members-a.members;});
   }catch(e){return null;}
 }
@@ -14414,7 +14414,7 @@ function jWizard(step,state){
       listHTML=teams.map(function(tm){
         var sel=W.teamName===tm.name?' sel':'';
         return '<div class="pj-pick'+sel+'" onclick="__jPickTeam(\''+encodeURIComponent(tm.name)+'\',this)" data-first="'+tm.first+'" data-total="'+tm.total+'">'
-          +'<div class="t">👥 '+esc(tm.name)+' 팀</div><div class="r">팀원 '+tm.members+'명 · First 리더 '+tm.first+' · 팀리더 '+tm.total+'</div></div>';
+          +'<div class="t">👥 '+esc(tm.name)+' 팀</div><div class="r">직속 First 리더 '+tm.first+'명 · 팀 전체 '+tm.members+'명</div></div>';
       }).join('');
     } else {
       listHTML='<div class="pj-field"><label>조직도를 불러올 수 없어 직접 입력해요</label>'
@@ -14428,7 +14428,7 @@ function jWizard(step,state){
   else if(step===3){ /* 직급/기준 */
     var stat={first:W._first||0,total:W._total||0};
     body='<div class="pj-steps">'+dots+'</div><h4 style="margin:2px 0 6px">🎖️ 도전 직급</h4>'
-      +'<p style="color:#889;font-size:13px;margin:0 0 12px">'+esc(W.teamName)+' 팀 기준 — First 리더 '+stat.first+'명 · 팀리더 '+stat.total+'명</p>'
+      +'<p style="color:#889;font-size:13px;margin:0 0 12px">'+esc(W.teamName)+' 팀 기준 — 직속 First 리더 '+stat.first+'명 · 팀 전체 '+stat.total+'명</p>'
       +'<div class="pj-tierlist">'
       +Object.keys(TIERS).map(function(tk){var T=TIERS[tk];var ok=T.check(stat);
         return '<div class="pj-pick'+(W.tier===tk?' sel':'')+'" onclick="__jPickTier(\''+tk+'\')">'
@@ -14768,7 +14768,7 @@ setInterval(function(){ patchTabs(); if(!el('m-oneonone'))mountPanel('oneonone')
 
 /* preview 편의 노출 */
 window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
-  sceneHTML:sceneHTML,meadowHTML:meadowHTML,kchar:kchar,monsterSVG:monsterSVG,bossSVG:bossSVG,jBossHTML:jBossHTML,injectCSS:injectCSS};
+  sceneHTML:sceneHTML,meadowHTML:meadowHTML,kchar:kchar,monsterSVG:monsterSVG,bossSVG:bossSVG,jBossHTML:jBossHTML,injectCSS:injectCSS,jOrgTeams:jOrgTeams};
 })();
 
 </script>
