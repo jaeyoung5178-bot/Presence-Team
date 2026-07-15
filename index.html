@@ -7058,8 +7058,14 @@ function orgBuildTree(){
   return {roots:roots,childMap:childMap,mem:mem,byk:byk};
 }
 function orgIsDescendant(val,name){var cur=val,g=0;while(cur&&g++<60){if(nk(cur)===nk(name))return true;cur=(dossierOf(cur).upline||'').trim();}return false;}
-function orgNodeHTML(name,childMap,seen){
+function orgBranchColor(name){
+  var colors=['#67D7B0','#60A5FA','#A78BFA','#F59E7A','#F6C453','#38BDF8','#F472B6','#84CC6A'];
+  var h=0;String(name||'').split('').forEach(function(c){h=(h*31+c.charCodeAt(0))>>>0;});
+  return colors[h%colors.length];
+}
+function orgNodeHTML(name,childMap,seen,parent,depth,branch){
   seen=seen||{};if(seen[nk(name)])return '';seen[nk(name)]=1;
+  depth=depth||0;branch=branch||name;
   var d=dossierOf(name),team=d.teamName||'',kids=childMap[nk(name)]||[];
   var safe=esc(name).replace(/'/g,"\\'");
   var node='<div class="onode" onclick="openMember(\''+safe+'\')" title="프로필 열기">'
@@ -7069,22 +7075,46 @@ function orgNodeHTML(name,childMap,seen){
     +(team?'<span class="onode-team">🏷️ '+esc(team)+'</span>':'')
     +(kids.length?'<span class="onode-cnt">'+kids.length+'</span>':'')
     +'</div>';
-  var ch=kids.length?'<ul>'+kids.map(function(k){return orgNodeHTML(k,childMap,seen);}).join('')+'</ul>':'';
-  return '<li>'+node+ch+'</li>';
+  var ch=kids.length?'<ul>'+kids.map(function(k){return orgNodeHTML(k,childMap,seen,name,depth+1,depth===0?k:branch);}).join('')+'</ul>':'';
+  var color=depth===0?'#94A3B8':orgBranchColor(branch);
+  return '<li data-org-key="'+esc(nk(name))+'" data-org-parent="'+esc(parent?nk(parent):'')+'" data-org-depth="'+depth+'" style="--org-branch:'+color+'">'+node+ch+'</li>';
+}
+function orgDrawConnectors(){
+  var tree=document.querySelector('#orgTreeBox .otree');if(!tree)return;
+  var old=tree.querySelector(':scope > svg.org-connectors');if(old)old.remove();
+  var rect=tree.getBoundingClientRect(),w=Math.max(tree.scrollWidth,tree.clientWidth),h=Math.max(tree.scrollHeight,tree.clientHeight);
+  if(!w||!h)return;
+  var ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('class','org-connectors');svg.setAttribute('width',w);svg.setAttribute('height',h);svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  var defs=document.createElementNS(ns,'defs');defs.innerHTML='<filter id="orgLineGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.7" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  svg.appendChild(defs);
+  var nodes={},items=tree.querySelectorAll('li[data-org-key]');
+  items.forEach(function(li){nodes[li.dataset.orgKey]=li.querySelector(':scope > .onode');});
+  items.forEach(function(li){
+    var pk=li.dataset.orgParent;if(!pk)return;var child=li.querySelector(':scope > .onode'),parent=nodes[pk];if(!child||!parent)return;
+    var pr=parent.getBoundingClientRect(),cr=child.getBoundingClientRect();
+    var x1=pr.left-rect.left+pr.width/2,y1=pr.bottom-rect.top+1,x2=cr.left-rect.left+cr.width/2,y2=cr.top-rect.top-1;
+    var mid=y1+Math.max(15,(y2-y1)*.48),color=getComputedStyle(li).getPropertyValue('--org-branch').trim()||'#67D7B0';
+    var path=document.createElementNS(ns,'path');path.setAttribute('d','M '+x1+' '+y1+' V '+mid+' H '+x2+' V '+y2);path.setAttribute('stroke',color);path.setAttribute('class','org-connector-path');svg.appendChild(path);
+    [ [x1,y1],[x2,y2] ].forEach(function(p){var c=document.createElementNS(ns,'circle');c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r','3.5');c.setAttribute('fill',color);c.setAttribute('class','org-connector-dot');svg.appendChild(c);});
+  });
+  tree.insertBefore(svg,tree.firstChild);
+  if(!window.__orgLineResize){window.__orgLineResize=1;var timer;window.addEventListener('resize',function(){clearTimeout(timer);timer=setTimeout(orgDrawConnectors,120);},{passive:true});}
 }
 function orgTreeHTML(){
   var t=orgBuildTree();
   if(!t.mem.length)return '<div class="empty-row">명단에 팀원이 없어요</div>';
   var seen={};
-  var tree='<div class="otree"><ul>'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen);}).join('')+'</ul></div>';
+  var tree='<div class="otree"><ul>'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen,'',0,r);}).join('')+'</ul></div>';
   var broken=[];t.mem.forEach(function(n){var up=(dossierOf(n).upline||'').trim();if(up&&!t.byk[nk(up)])broken.push(n+'→'+up);});
   var warn=broken.length?'<div class="org-warn">⚠️ 상위 리더가 명단에 없는 사람: '+broken.map(esc).join(', ')+' — 아래에서 다시 지정하세요.</div>':'';
   var teamCnt=Object.keys(t.childMap).length;
   var cnt={};t.mem.forEach(function(n){var r=roleOf(n);cnt[r]=(cnt[r]||0)+1;});
   var rbar=['O','OP','AOP','TL','LR','IC'].filter(function(r){return cnt[r];}).map(function(r){return '<span class="org-rc"><b>'+cnt[r]+'</b>'+esc(ROLE_LABEL[r]||r)+'</span>';}).join('');
-  return '<div class="org-rolebar">'+rbar+'</div><div class="org-meta">상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명</div>'+warn+tree;
+  setTimeout(orgDrawConnectors,0);
+  return '<div class="org-rolebar">'+rbar+'</div><div class="org-meta">상위 '+t.roots.length+' · 팀(하위 보유) '+teamCnt+' · 전체 '+t.mem.length+'명 <span class="org-linehint">● 같은 색 연결선 = 같은 팀</span></div>'+warn+tree;
 }
-function orgRefreshTree(){var box=document.getElementById('orgTreeBox');if(box)box.innerHTML=orgTreeHTML();}
+function orgRefreshTree(){var box=document.getElementById('orgTreeBox');if(box){box.innerHTML=orgTreeHTML();requestAnimationFrame(orgDrawConnectors);}}
 function orgSetTeam(name,val){if(!(me&&isFounder(me)))return;dossierSet(name,'teamName',(val||'').trim());orgRefreshTree();if(mbName&&nk(mbName)===nk(name)&&document.getElementById('memberModal').classList.contains('on'))renderMember();}
 function orgSaveEdits(){
   if(!(me&&isFounder(me)))return;
@@ -10563,25 +10593,24 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 .org-tools{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .org-seed{background:var(--green);color:var(--green-ink);border:none;border-radius:9px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
 .org-seed.ghost{background:var(--card-2);border:1px solid var(--line);color:var(--cream)}
-.org-meta{font-size:11.5px;color:var(--faint);margin-bottom:8px;font-family:var(--mono)}
+.org-meta{font-size:11.5px;color:var(--faint);margin-bottom:12px;font-family:var(--mono);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.org-linehint{color:var(--cream);font-family:var(--font);font-weight:750;background:rgba(103,215,176,.09);border:1px solid rgba(103,215,176,.25);border-radius:999px;padding:3px 9px}
 .org-warn{font-size:12px;color:var(--amber);background:rgba(245,180,40,.1);border:1px solid rgba(245,180,40,.28);border-radius:9px;padding:8px 11px;margin-bottom:10px;line-height:1.55}
 .org-treebox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 12px 16px;overflow-x:auto}
 /* top-down 조직도 (부모 위 · 자식 아래 · 연결선) */
-.otree{min-width:max-content;text-align:center;padding:4px 8px}
-.otree ul{display:flex;justify-content:center;list-style:none;margin:0;padding:22px 0 0;position:relative}
-.otree li{position:relative;padding:22px 9px 0;display:flex;flex-direction:column;align-items:center}
-.otree li::before,.otree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--line);width:50%;height:22px}
-.otree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
-.otree li:only-child::before,.otree li:only-child::after{display:none}
-.otree li:only-child{padding-top:22px}
-.otree li:first-child::before,.otree li:last-child::after{border:0}
-.otree li:last-child::before{border-right:2px solid var(--line);border-radius:0 7px 0 0}
-.otree li:first-child::after{border-radius:7px 0 0 0}
+.otree{min-width:max-content;text-align:center;padding:8px 14px 18px;position:relative;isolation:isolate}
+.otree ul{display:flex;justify-content:center;list-style:none;margin:0;padding:38px 0 0;position:relative;z-index:2}
+.otree li{position:relative;padding:38px 12px 0;display:flex;flex-direction:column;align-items:center}
+/* 실제 선은 노드 위치를 계산한 SVG로 그려 분기 관계가 정확히 맞는다. */
+.otree li::before,.otree li::after,.otree ul ul::before{display:none!important}
+.otree li:only-child{padding-top:38px}
 .otree>ul{padding-top:0}
 .otree>ul>li::before,.otree>ul>li::after{display:none}
-.otree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
-.onode{display:inline-flex;flex-direction:column;align-items:center;gap:3px;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:9px 13px;cursor:pointer;transition:border-color .18s,transform .18s;min-width:96px;position:relative}
-.onode:hover{border-color:var(--green-soft);transform:translateY(-2px)}
+.org-connectors{position:absolute;inset:0;overflow:visible;pointer-events:none;z-index:1}
+.org-connector-path{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;opacity:.92;filter:url(#orgLineGlow)}
+.org-connector-dot{opacity:.98;filter:url(#orgLineGlow)}
+.onode{display:inline-flex;flex-direction:column;align-items:center;gap:3px;background:var(--card-2);border:1.5px solid color-mix(in srgb,var(--org-branch) 54%,var(--line));border-radius:12px;padding:9px 13px;cursor:pointer;transition:border-color .18s,transform .18s,box-shadow .18s;min-width:96px;position:relative;z-index:3;box-shadow:0 8px 22px rgba(0,0,0,.14),0 0 0 1px color-mix(in srgb,var(--org-branch) 14%,transparent)}
+.onode:hover{border-color:var(--org-branch);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.22),0 0 0 2px color-mix(in srgb,var(--org-branch) 28%,transparent)}
 .onode-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;overflow:hidden;margin-bottom:2px}
 .onode-av img{width:100%;height:100%;object-fit:cover}
 .onode-nm{font-weight:800;font-size:13.5px;color:var(--cream);line-height:1.1}
@@ -10614,9 +10643,10 @@ details.mb-acc[open]>summary .mb-acc-c{transform:rotate(180deg)}
 @media(max-width:620px){
   .org-treebox{padding:10px 8px 12px}
   .otree{padding:2px 4px}
-  .otree ul{padding-top:17px}
-  .otree li{padding:17px 3px 0}
-  .otree li::before,.otree li::after,.otree ul ul::before{height:17px}
+  .otree ul{padding-top:26px}
+  .otree li{padding:26px 5px 0}
+  .otree li:only-child{padding-top:26px}
+  .org-connector-path{stroke-width:3}
   .onode{min-width:60px;padding:6px 7px;gap:2px;border-radius:9px}
   .onode-av{width:28px;height:28px;font-size:11px;border-radius:7px;margin-bottom:1px}
   .onode-nm{font-size:11.5px}
