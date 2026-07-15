@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json", ".firebaserc", "database.rules.json", "**/.*", "**/node_modules/**",
+      "index.html.bak-pj", "index (30).html", "audio/index.html", "presence-studio.js"
+    ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]
+      }
+    ]
+  },
+  "database": {"rules": "database.rules.json"},
+  "auth": {"providers": {"anonymous": true}}
+}

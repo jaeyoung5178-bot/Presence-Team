@@ -25,7 +25,7 @@
   function toast(m) { try { if (typeof window.toast === 'function') return window.toast(m); } catch (e) {} }
   function hasDB() { return window.DB && typeof window.DB.set === 'function' && typeof window.DB.on === 'function'; }
 
-  // 소유자(임재영 AOP)에게만 편집 노출 — 네이티브 홈배치와 동일 기준(isOwnerAccount) 우선
+  // 소유자에게만 편집 노출 — 네이티브 홈배치와 동일 기준(isOwnerAccount) 우선
   function canManage() {
     try { if (typeof window.isOwnerAccount === 'function' && window.me) return !!window.isOwnerAccount(window.me); } catch (e) {}
     try { if (typeof window.isFounder === 'function' && window.me) return !!window.isFounder(window.me); } catch (e) {}

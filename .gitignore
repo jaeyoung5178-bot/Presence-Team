@@ -1,0 +1,5 @@
+index.html.bak-*
+index (*).html
+audio/index.html
+.firebase/
+firebase-debug.log
