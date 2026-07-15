@@ -7063,7 +7063,7 @@ function orgBranchColor(name){
   var h=0;String(name||'').split('').forEach(function(c){h=(h*31+c.charCodeAt(0))>>>0;});
   return colors[h%colors.length];
 }
-function orgNodeHTML(name,childMap,seen,parent,depth,branch,branchColor){
+function orgNodeHTML(name,childMap,seen,parent,depth,branch){
   seen=seen||{};if(seen[nk(name)])return '';seen[nk(name)]=1;
   depth=depth||0;branch=branch||name;
   var d=dossierOf(name),team=d.teamName||'',kids=childMap[nk(name)]||[];
@@ -7075,9 +7075,8 @@ function orgNodeHTML(name,childMap,seen,parent,depth,branch,branchColor){
     +(team?'<span class="onode-team">🏷️ '+esc(team)+'</span>':'')
     +(kids.length?'<span class="onode-cnt">'+kids.length+'</span>':'')
     +'</div>';
-  var branchPalette=['#67D7B0','#60A5FA','#A78BFA','#F59E7A','#F6C453','#38BDF8','#F472B6','#84CC6A'];
-  var ch=kids.length?'<ul>'+kids.map(function(k,i){return orgNodeHTML(k,childMap,seen,name,depth+1,depth===0?k:branch,depth===0?branchPalette[i%branchPalette.length]:branchColor);}).join('')+'</ul>':'';
-  var color=depth===0?'#94A3B8':(branchColor||orgBranchColor(branch));
+  var ch=kids.length?'<ul>'+kids.map(function(k){return orgNodeHTML(k,childMap,seen,name,depth+1,depth===0?k:branch);}).join('')+'</ul>':'';
+  var color=depth===0?'#94A3B8':orgBranchColor(branch);
   return '<li data-org-key="'+esc(nk(name))+'" data-org-parent="'+esc(parent?nk(parent):'')+'" data-org-depth="'+depth+'" style="--org-branch:'+color+'">'+node+ch+'</li>';
 }
 function orgDrawConnectors(){
@@ -7106,7 +7105,7 @@ function orgTreeHTML(){
   var t=orgBuildTree();
   if(!t.mem.length)return '<div class="empty-row">명단에 팀원이 없어요</div>';
   var seen={};
-  var tree='<div class="otree"><ul>'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen,'',0,r,'#94A3B8');}).join('')+'</ul></div>';
+  var tree='<div class="otree"><ul>'+t.roots.map(function(r){return orgNodeHTML(r,t.childMap,seen,'',0,r);}).join('')+'</ul></div>';
   var broken=[];t.mem.forEach(function(n){var up=(dossierOf(n).upline||'').trim();if(up&&!t.byk[nk(up)])broken.push(n+'→'+up);});
   var warn=broken.length?'<div class="org-warn">⚠️ 상위 리더가 명단에 없는 사람: '+broken.map(esc).join(', ')+' — 아래에서 다시 지정하세요.</div>':'';
   var teamCnt=Object.keys(t.childMap).length;
