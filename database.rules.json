@@ -183,8 +183,25 @@
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
     },
     "pj_v1": {
-      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
-      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
+      "oneonone": {
+        "res": {
+          ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+          "$date": {
+            ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (!data.exists() && newData.child('uid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() && !newData.child('topic').exists()) || (data.child('uid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() && (!newData.exists() || (newData.child('uid').val() == data.child('uid').val() && !newData.child('topic').exists()))))"
+          }
+        },
+        "topic": {
+          ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'",
+          "$uid": {
+            ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+            ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')"
+          }
+        }
+      },
+      "journey": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+        ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
+      }
     },
     "popupAnnounce": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",

@@ -10477,7 +10477,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-11.welcome-retire';
+const APP_VERSION='2026-07-16.oneonone-privacy';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13671,6 +13671,11 @@ function meUser(){try{if(typeof me!=='undefined'&&me)return me;}catch(e){}return
 function meUid(){var u=meUser();return(u&&(u.uid||u.id))||'anon';}
 function meName(){var u=meUser();return(u&&(u.name||u.displayName||u.id))||'익명';}
 function amLeader(){try{var u=meUser();if(typeof isLeader==='function'&&u)return!!isLeader(u.role);}catch(e){}return true;}
+function ooCanViewDetails(){
+  var u=meUser();
+  try{if(typeof isOwnerAccount==='function')return!!isOwnerAccount(u);}catch(e){}
+  return!!u&&(u.uid==='admin'||u.id==='Presence'||u.name==='임재영');
+}
 
 /* toast ------------------------------------------------------------------ */
 function toast(msg,kind){
@@ -14142,10 +14147,10 @@ function jVSIntro(j,done){
 
 /* =========================================================================
    ① 1 ON 1  예약 캘린더
-   경로:  oneonone/res/{YYYY-MM-DD} = {uid,name,slot:'1'|'2',topic,ts}
+   경로:  oneonone/res/{YYYY-MM-DD} = {uid,name,slot:'1'|'2',ts}
           oneonone/topic/{uid}      = {name,topic,ts}
    ========================================================================= */
-var OO={res:{},topics:{},y:0,m:0,bound:false};
+var OO={res:{},topics:{},y:0,m:0,bound:false,scrubbed:{}};
 (function(){var d=new Date();OO.y=d.getFullYear();OO.m=d.getMonth();})();
 
 function ooMySlots(){
@@ -14154,8 +14159,31 @@ function ooMySlots(){
 }
 function ooBind(){
   if(OO.bound)return;OO.bound=true;
-  D.on('oneonone/res',function(v){OO.res=v||{};if(el('m-oneonone'))ooRender();});
-  D.on('oneonone/topic',function(v){OO.topics=v||{};if(el('m-oneonone'))ooRenderList();});
+  D.on('oneonone/res',function(v){
+    OO.res=v||{};
+    if(ooCanViewDetails()){
+      Object.keys(OO.res).forEach(function(k){
+        var r=OO.res[k];
+        if(r&&Object.prototype.hasOwnProperty.call(r,'topic')&&!OO.scrubbed[k]){
+          OO.scrubbed[k]=true;
+          D.update('oneonone/res/'+k,{topic:null});
+        }
+      });
+    }
+    if(el('m-oneonone'))ooRender();
+  });
+  if(ooCanViewDetails()){
+    D.on('oneonone/topic',function(v){
+      OO.topics=v||{};
+      var ta=el('ooTopic');if(ta&&document.activeElement!==ta)ta.value=(OO.topics[meUid()]||{}).topic||'';
+      if(el('m-oneonone'))ooRenderList();
+    });
+  }else{
+    D.on('oneonone/topic/'+meUid(),function(v){
+      OO.topics={};OO.topics[meUid()]=v||{};
+      var ta=el('ooTopic');if(ta&&document.activeElement!==ta)ta.value=(v||{}).topic||'';
+    });
+  }
 }
 function ooRender(){
   var host=el('m-oneonone');if(!host)return;ooBind();
@@ -14195,12 +14223,13 @@ function ooRender(){
    +'    <textarea id="ooTopic" placeholder="예) 이번달 세일즈 슬럼프 · 리더 승급 준비 · 팀 분위기 고민...">'+esc((OO.topics[meUid()]||{}).topic||'')+'</textarea>'
    +'    <div style="text-align:right;margin-top:8px"><button class="pj-btn" onclick="__ooSaveTopic()">주제 저장</button></div></div>'
    +'</div>'
-   +'<div class="pj-card"><div class="pj-h" style="margin:0 0 8px"><h2 style="font-size:17px">📋 예약 현황</h2></div><div class="oo-list" id="ooList"></div></div>'
+   +(ooCanViewDetails()?'<div class="pj-card"><div class="pj-h" style="margin:0 0 8px"><h2 style="font-size:17px">🔒 예약 현황 · 관리자 전용</h2></div><div class="oo-list" id="ooList"></div></div>':'')
    +'</div>';
   ooRenderList();
 }
 function ooRenderList(){
   var box=el('ooList');if(!box)return;
+  if(!ooCanViewDetails()){box.innerHTML='';return;}
   var rows=Object.keys(OO.res).map(function(k){var r=OO.res[k];return{dk:k,r:r};})
     .filter(function(x){return x.r;}).sort(function(a,b){return a.dk<b.dk?-1:1;});
   if(!rows.length){box.innerHTML='<div style="color:#99a;font-size:14px;padding:8px">아직 예약이 없어요.</div>';return;}
@@ -14223,10 +14252,9 @@ window.__ooTap=function(dk){
   var mine=ooMySlots();
   var slot=mine.length===0?'1':(mine.length===1?'2':null);
   if(!slot){toast('1안·2안을 이미 정했어요. 바꾸려면 기존 날짜를 눌러 취소하세요');return;}
-  var topic=(el('ooTopic')&&el('ooTopic').value)||'';
   D.tx('oneonone/res/'+dk,function(cur){
     if(cur)return undefined;                                        // 이미 누군가 잡음 → abort
-    return {uid:meUid(),name:meName(),slot:slot,topic:topic,ts:nowTs()};
+    return {uid:meUid(),name:meName(),slot:slot,ts:nowTs()};
   }).then(function(res){
     if(!res.committed){toast('해당일은 이미 예약되었습니다','err');}
     else{toast((slot==='1'?'1안':'2안')+' 예약 완료!','ok');}
@@ -14239,8 +14267,6 @@ window.__ooClear=function(){
 window.__ooSaveTopic=function(){
   var t=(el('ooTopic')&&el('ooTopic').value||'').trim();
   D.set('oneonone/topic/'+meUid(),{name:meName(),topic:t,ts:nowTs()});
-  // 내 예약 날짜에도 주제 반영
-  ooMySlots().forEach(function(x){D.update('oneonone/res/'+x.dk,{topic:t});});
   toast('주제를 저장했어요','ok');
 };
 
