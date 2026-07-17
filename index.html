@@ -2003,6 +2003,52 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   <button id="fxGear" onclick="toggleFxDock()" aria-label="홈 분위기 설정 열기" title="홈 분위기 설정">⚙️</button>
 </div>
 
+<!-- ===================== GAME LOADING + ENTRY LOBBY ===================== -->
+<style id="presence-game-entry-css">
+  #presenceGameLoader{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 18%,rgba(255,255,255,.22),transparent 38%),linear-gradient(145deg,#7453ee 0%,#526fea 46%,#36b7e2 100%);color:#fff;font-family:var(--font,inherit)}
+  #presenceGameLoader.show{display:flex}
+  #presenceGameLoader:before,#presenceGameLoader:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.09);filter:blur(1px);animation:pgFloat 7s ease-in-out infinite}
+  #presenceGameLoader:before{width:360px;height:360px;left:-120px;top:-100px}#presenceGameLoader:after{width:480px;height:480px;right:-190px;bottom:-230px;animation-delay:-2.8s}
+  .pg-load-card{position:relative;width:min(520px,calc(100vw - 38px));text-align:center;padding:42px 30px 34px;border:1px solid rgba(255,255,255,.22);border-radius:34px;background:rgba(31,37,91,.22);box-shadow:0 28px 80px rgba(28,32,89,.28);backdrop-filter:blur(18px)}
+  .pg-mark{font:900 16px/1 var(--disp,inherit);letter-spacing:.26em}.pg-mark b{color:#dfffbf}.pg-load-title{margin-top:11px;font-size:28px;font-weight:900;letter-spacing:-.04em}.pg-load-sub{margin-top:8px;font-size:14px;color:rgba(255,255,255,.78)}
+  .pg-orbit{position:relative;width:158px;height:158px;margin:27px auto 20px;border:2px solid rgba(255,255,255,.2);border-radius:50%;animation:pgSpin 4.8s linear infinite}.pg-orbit:before{content:"";position:absolute;inset:18px;border:1px dashed rgba(255,255,255,.22);border-radius:50%}
+  .pg-orbit-chick{position:absolute;left:50%;top:50%;width:72px;height:72px;display:grid;place-items:center;transform:translate(-50%,-50%);border-radius:26px;background:linear-gradient(145deg,#ffe26f,#ffb938);box-shadow:0 16px 32px rgba(41,31,80,.22);font-size:42px;animation:pgCounter 4.8s linear infinite,pgBounce .72s ease-in-out infinite alternate}
+  .pg-coin{position:absolute;width:29px;height:29px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(#ffe898,#ffc134);color:#8b5c0b;font-size:11px;font-weight:900;box-shadow:0 8px 18px rgba(31,36,88,.24)}.pg-coin.c1{left:4px;top:18px}.pg-coin.c2{right:-7px;top:58px}.pg-coin.c3{left:49px;bottom:-14px}
+  .pg-progress{width:min(330px,86%);height:9px;margin:0 auto;border-radius:999px;background:rgba(18,28,83,.24);overflow:hidden}.pg-progress i{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e5ff99,#fff,#7ff4e3);animation:pgProgress 1.35s ease-in-out infinite}
+  .pg-load-msg{margin-top:13px;min-height:22px;font-size:13px;font-weight:800;color:rgba(255,255,255,.9)}
+  @keyframes pgSpin{to{transform:rotate(360deg)}}@keyframes pgCounter{to{transform:translate(-50%,-50%) rotate(-360deg)}}@keyframes pgBounce{to{margin-top:-7px}}@keyframes pgProgress{0%{transform:translateX(-110%)}100%{transform:translateX(340%)}}@keyframes pgFloat{50%{transform:translate(24px,28px) scale(1.08)}}
+  @media(prefers-reduced-motion:reduce){.pg-orbit,.pg-orbit-chick,.pg-progress i,#presenceGameLoader:before,#presenceGameLoader:after{animation-duration:.001ms!important;animation-iteration-count:1!important}}
+
+  #presenceEntryLobby{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;padding:20px;overflow:auto;background:radial-gradient(circle at 18% 12%,rgba(101,226,255,.20),transparent 32%),radial-gradient(circle at 88% 82%,rgba(177,121,255,.20),transparent 34%),linear-gradient(145deg,#10182d,#151e38 52%,#20203e);color:#fff}
+  #presenceEntryLobby.show{display:flex}.pe-shell{width:min(1040px,100%);display:grid;grid-template-columns:minmax(0,1.06fr) minmax(330px,.94fr);gap:18px;padding:18px;border:1px solid rgba(255,255,255,.1);border-radius:36px;background:rgba(17,24,46,.78);box-shadow:0 32px 100px rgba(0,0,0,.4);backdrop-filter:blur(20px)}
+  .pe-stage{position:relative;min-height:570px;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 34%,rgba(255,229,112,.24),transparent 30%),linear-gradient(180deg,#83dcff 0 48%,#b8ec8a 48% 69%,#64bd58 69%);isolation:isolate}
+  .pe-stage:before{content:"";position:absolute;left:-8%;right:-8%;bottom:-15%;height:45%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 34px,transparent 34px 68px);border-radius:50%;z-index:-1}.pe-cloud{position:absolute;width:120px;height:38px;border-radius:999px;background:rgba(255,255,255,.78);filter:drop-shadow(0 8px 18px rgba(44,104,146,.15));animation:peCloud 9s ease-in-out infinite}.pe-cloud:before,.pe-cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.pe-cloud:before{width:54px;height:54px;left:20px;top:-25px}.pe-cloud:after{width:68px;height:68px;right:12px;top:-35px}.pe-cloud.a{left:8%;top:17%}.pe-cloud.b{right:6%;top:29%;transform:scale(.7);animation-delay:-4s}
+  @keyframes peCloud{50%{translate:24px 5px}}
+  .pe-kicker{position:absolute;left:24px;top:22px;font-size:12px;font-weight:900;letter-spacing:.2em;color:#18345d}.pe-avatar-wrap{position:relative;width:220px;height:220px;display:grid;place-items:center}.pe-aura{position:absolute;inset:14px;border-radius:48% 52% 50% 50%;background:rgba(255,255,255,.28);filter:blur(1px);animation:peAura 3s ease-in-out infinite}.pe-avatar{position:relative;font-size:124px;filter:drop-shadow(0 18px 16px rgba(71,89,55,.18));animation:peHop 1.8s ease-in-out infinite}.pe-avatar:after{content:attr(data-badge);position:absolute;right:-7px;top:8px;font-size:34px}@keyframes peHop{50%{transform:translateY(-11px) rotate(2deg)}}@keyframes peAura{50%{transform:scale(1.08);opacity:.65}}
+  .pe-pet-name{font-size:26px;font-weight:950;color:#173151;text-shadow:0 2px 0 rgba(255,255,255,.5)}.pe-pet-type{margin-top:7px;font-size:13px;font-weight:800;color:rgba(23,49,81,.7)}
+  .pe-panel{padding:20px 18px 18px;display:flex;min-width:0;flex-direction:column}.pe-brand{font-size:12px;font-weight:900;letter-spacing:.22em;color:#75b9ff}.pe-title{margin-top:8px;font-size:32px;font-weight:950;letter-spacing:-.045em}.pe-desc{margin-top:9px;font-size:14px;color:#aebbd2;line-height:1.65}.pe-label{margin:22px 0 10px;font-size:12px;font-weight:900;color:#d8e5ff;letter-spacing:.08em}
+  .pe-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.pe-choice{appearance:none;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:#202a44;color:#fff;padding:14px 7px 12px;cursor:pointer;transition:.2s;font:inherit}.pe-choice:hover{transform:translateY(-2px);border-color:rgba(116,191,255,.55)}.pe-choice.on{border-color:#7cc9ff;background:linear-gradient(160deg,#25365b,#243867);box-shadow:0 0 0 3px rgba(104,190,255,.12)}.pe-choice span{display:block;font-size:35px}.pe-choice b{display:block;margin-top:6px;font-size:12px}.pe-choice small{display:block;margin-top:3px;color:#93a5c1;font-size:10px}
+  .pe-name-row{display:flex;gap:9px}.pe-name-row input{min-width:0;flex:1;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:#141d33;color:#fff;padding:14px 15px;font:800 15px/1.2 inherit;outline:none}.pe-name-row input:focus{border-color:#6ab8ff;box-shadow:0 0 0 3px rgba(106,184,255,.12)}
+  .pe-enter{margin-top:auto;border:0;border-radius:18px;padding:17px 18px;background:linear-gradient(135deg,#5e8fff,#7a61ec);box-shadow:0 14px 30px rgba(72,97,217,.28);color:#fff;font:900 16px/1 inherit;cursor:pointer;transition:.2s}.pe-enter:hover{transform:translateY(-2px);filter:brightness(1.07)}.pe-foot{margin-top:10px;text-align:center;font-size:10.5px;color:#75849e}
+  @media(max-width:760px){#presenceEntryLobby{padding:10px}.pe-shell{grid-template-columns:1fr;padding:10px;border-radius:25px}.pe-stage{min-height:300px}.pe-avatar-wrap{width:150px;height:150px}.pe-avatar{font-size:88px}.pe-panel{padding:13px 12px 12px}.pe-title{font-size:25px}.pe-label{margin-top:14px}.pe-enter{margin-top:18px}.pe-cloud{transform:scale(.65)}}
+</style>
+<div id="presenceGameLoader" class="show" role="status" aria-live="polite">
+  <div class="pg-load-card"><div class="pg-mark">PRESENCE <b>PLAY</b></div><div class="pg-load-title">오늘의 팀 공간을 여는 중</div><div class="pg-load-sub">데이터와 병아리를 안전하게 깨우고 있어요</div><div class="pg-orbit"><span class="pg-coin c1">P</span><span class="pg-coin c2">P</span><span class="pg-coin c3">P</span><div class="pg-orbit-chick">🐥</div></div><div class="pg-progress"><i></i></div><div class="pg-load-msg" id="presenceGameLoaderMsg">Presence 서버에 연결하는 중…</div></div>
+</div>
+<div id="presenceEntryLobby" aria-hidden="true">
+  <div class="pe-shell"><section class="pe-stage"><div class="pe-kicker">WELCOME TO PRESENCE</div><div class="pe-cloud a"></div><div class="pe-cloud b"></div><div class="pe-avatar-wrap"><div class="pe-aura"></div><div class="pe-avatar" id="peAvatar" data-badge="☀️">🐥</div></div><div class="pe-pet-name" id="pePreviewName">나의 삐약이</div><div class="pe-pet-type" id="pePreviewType">햇살 병아리 · 밝고 씩씩해요</div></section><section class="pe-panel"><div class="pe-brand">PRESENCE CHARACTER LOBBY</div><div class="pe-title"><span id="peUserName">반가워요</span>님,<br>오늘도 함께 출발해요!</div><div class="pe-desc">입장할 캐릭터와 병아리 닉네임을 확인해 주세요.<br>선택한 병아리는 우리 닭장과 컴페티션에 함께 등장해요.</div><div class="pe-label">01 · 오늘의 캐릭터</div><div class="pe-choices"><button class="pe-choice on" data-pet="sun" onclick="selectPresencePet('sun',this)"><span>🐥</span><b>햇살이</b><small>밝고 씩씩함</small></button><button class="pe-choice" data-pet="mint" onclick="selectPresencePet('mint',this)"><span>🐣</span><b>새싹이</b><small>차분하고 다정함</small></button><button class="pe-choice" data-pet="peach" onclick="selectPresencePet('peach',this)"><span>🐤</span><b>노을이</b><small>용감하고 장난꾸러기</small></button></div><div class="pe-label">02 · 병아리 닉네임</div><div class="pe-name-row"><input id="peNickname" maxlength="12" placeholder="예: 삐약대장" oninput="previewPresencePetName()"/></div><button class="pe-enter" onclick="enterPresenceWorld()">Presence 입장하기&nbsp; →</button><div class="pe-foot">자동 로그인은 60일 동안 유지되며, 이후 안전을 위해 다시 로그인해요.</div></section></div>
+</div>
+<script>
+window.__presencePetChoice='sun';window.__presenceEntryPass=false;
+window.showPresenceLoader=function(msg){var el=document.getElementById('presenceGameLoader');if(!el)return;var m=document.getElementById('presenceGameLoaderMsg');if(m&&msg)m.textContent=msg;el.classList.add('show');};
+window.hidePresenceLoader=function(){var el=document.getElementById('presenceGameLoader');if(el)el.classList.remove('show');};
+window.selectPresencePet=function(k,btn){window.__presencePetChoice=k||'sun';document.querySelectorAll('.pe-choice').forEach(function(x){x.classList.toggle('on',x.dataset.pet===window.__presencePetChoice);});var map={sun:['🐥','☀️','햇살 병아리 · 밝고 씩씩해요'],mint:['🐣','🌱','새싹 병아리 · 차분하고 다정해요'],peach:['🐤','💗','노을 병아리 · 용감한 장난꾸러기예요']},v=map[window.__presencePetChoice]||map.sun,a=document.getElementById('peAvatar');if(a){a.textContent=v[0];a.dataset.badge=v[1];}var t=document.getElementById('pePreviewType');if(t)t.textContent=v[2];if(btn)btn.blur();};
+window.previewPresencePetName=function(){var i=document.getElementById('peNickname'),o=document.getElementById('pePreviewName');if(o)o.textContent=(i&&i.value.trim())||'나의 삐약이';};
+window.showPresenceEntryLobby=function(){if(typeof me==='undefined'||!me)return;window.hidePresenceLoader();var u=me,l=document.getElementById('presenceEntryLobby');if(!l)return;l.classList.add('show');l.setAttribute('aria-hidden','false');var un=document.getElementById('peUserName');if(un)un.textContent=u.name||'팀원';var fallback=(u.name||'나')+'의 삐약이';function fill(p){p=p||{};window.__presencePetChoice=p.variant||'sun';var i=document.getElementById('peNickname');if(i)i.value=p.nickname||fallback;window.selectPresencePet(window.__presencePetChoice);window.previewPresencePetName();try{if(typeof renderEntryCostume==='function')renderEntryCostume();}catch(e){}}fill((typeof state!=='undefined'&&state.petProfiles&&state.petProfiles[u.uid])||null);try{if(typeof DB!=='undefined'&&DB.get)DB.get('petProfiles/'+u.uid).then(function(p){if(p){state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;fill(p);}});}catch(e){}};
+window.enterPresenceWorld=function(){if(typeof me==='undefined'||!me)return;var u=me,i=document.getElementById('peNickname'),nickname=(i&&i.value||'').trim()||((u.name||'나')+'의 삐약이'),p={uid:u.uid,name:u.name||'',nickname:nickname,variant:window.__presencePetChoice||'sun',updatedAt:Date.now()};state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;try{if(typeof LIVE!=='undefined'&&LIVE&&DB.set)DB.set('petProfiles/'+u.uid,p);}catch(e){}var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true');}window.__presenceEntryPass=true;window.showPresenceLoader('오늘의 미션과 닭장을 준비하는 중…');setTimeout(function(){try{window.enterApp();}catch(e){window.hidePresenceLoader();}},520);};
+window.addEventListener('beforeunload',function(){window.showPresenceLoader('최신 Presence 공간으로 이동하는 중…');});
+</script>
+
 <!-- ===================== AUTH GATE ===================== -->
 <div id="authGate">
   <div class="auth-card">
@@ -2355,12 +2401,13 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
       <div class="animal-stage">
         <div class="animal-lv" id="animalLv">Lv.1</div>
         <div class="animal-food"><span id="animalFood">0</span> 먹이</div>
+        <div class="animal-pet-name" id="animalPetName"></div>
         <svg id="animalSvg" viewBox="0 0 200 220"></svg>
         <div class="animal-bar"><div class="animal-bar-fill" id="animalBar"></div></div>
         <div class="token-shop" id="tokenShop">
           <div class="coin-row"><span class="coin">P</span><b id="tokenBal">0</b><span class="coin-lbl">먹이 토큰</span></div>
           <button class="buy-feed-btn" id="buyFeedBtn" onclick="buyFeed()">🌽 먹이 주기 <span class="cost">−1<span class="coin xs">P</span></span></button>
-          <div class="token-note">결과(하루 1건↑)를 내면 관리자가 토큰을 1개 줘요 · 토큰으로만 먹이를 살 수 있어요 🪙</div>
+          <div class="token-note">시즌·비시즌 모두 코인이 쌓여요 · 먹이를 주거나 곧 열릴 코디샵에서 사용할 수 있어요 🪙</div>
         </div>
         <button class="interact-btn" id="interactBtn" onclick="interact()">🤚 쓰다듬기</button>
         <button class="preview-btn2" id="animalPreviewBtn" onclick="previewAnimal()">🐥 성장 과정 미리보기</button>
@@ -3764,7 +3811,8 @@ function teamTargetNow(){return MONTHLY_TEAM_TARGET[curMonthKey()]||TEAM_TARGET}
 function teamAchievedFor(mk){const live=sumMonth(null,mk);return live>0?live:(MONTHLY_TEAM_DONE[mk]||0);}  // 앱에 그 달 데이터가 있으면 실데이터, 없으면 과거 폴백 (이중합산 방지)
 /* ============================================================ */
 const LIVE=!!FIREBASE_CONFIG;
-const SESSION_DAYS=3650;        // 로그아웃 전까지 유지 (방문 시마다 갱신)
+const SESSION_DAYS=60;          // 자동 로그인은 60일 유지 · 이후 비밀번호 재인증
+const AUTH_POLICY_VERSION='2026-07-17.game-entry-v1';
 
 /* roles */
 const ROLES=['IC','LR','TL','AOP','OP','O'];
@@ -3877,6 +3925,7 @@ let state={
   homeFx:null,
   tokens:{},tokenGrants:{},tokenIssueDays:{},
   tokenLog:[],
+  petProfiles:{},leaderWishes:{},
   feedByDay:{},rewards:[],comp:{},
   feedLog:[],
   managers:[],sectorLeaders:[],sites:{},shadeSites:{},siteFeedback:{},siteApplyUrl:'',
@@ -3976,6 +4025,7 @@ state.sales={};   // 실데이터만 — 데모 세일즈 없음
 let authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};
 
 function renderAuth(){
+  try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
   const v=document.getElementById('authView');
   if(authState.view==='login'){
     v.innerHTML=`
@@ -3983,7 +4033,7 @@ function renderAuth(){
       <div class="auth-msg" id="authMsg"></div>
       <div class="field"><label>아이디</label><input id="liId" placeholder="아이디" autocomplete="username" /></div>
       <div class="field"><label>비밀번호</label><input id="liPw" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" /></div>
-      <label class="auth-remember"><input type="checkbox" id="liRemember" ${rememberPref()?'checked':''}/><span class="box"></span><span class="tx">자동 로그인 — 로그아웃 전까지 유지</span></label>
+      <label class="auth-remember"><input type="checkbox" id="liRemember" ${rememberPref()?'checked':''}/><span class="box"></span><span class="tx">자동 로그인 — 60일 동안 유지</span></label>
       <button class="btn block" style="margin-top:6px" onclick="doLogin()">로그인</button>
       <div class="auth-foot">처음이신가요? <b style="color:var(--green);cursor:pointer" onclick="goSignup()">회원가입하기</b></div>`;
   }else if(authState.view==='signup'){
@@ -4180,6 +4230,8 @@ function sendSurveyToSheet(user,key,rec){
 
 /* enter / leave */
 function enterApp(){
+  if(me&&!window.__presenceEntryPass){try{window.showPresenceEntryLobby();}catch(e){}return;}
+  window.__presenceEntryPass=false;
   if(rememberPref())lsSet('presence_sess',{uid:me.uid,t:Date.now()});else lsDel('presence_sess');
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
@@ -4195,7 +4247,7 @@ function enterApp(){
   
   window.__booting=true; try{loadBarStart();}catch(e){}
   buildRail();renderAll();goTab('home');startAutoPull();subCbjournal();
-  setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
+  setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
   try{logLogin();}catch(e){}
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
@@ -4206,17 +4258,18 @@ function enterApp(){
   setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
-function logout(){lsDel('presence_sess');DB.logout();me=null;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
+function logout(){lsDel('presence_sess');DB.logout();me=null;window.__presenceEntryPass=false;var l=document.getElementById('presenceEntryLobby');if(l)l.classList.remove('show');authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal')}
 
 function rememberPref(){const v=lsGet('presence_remember');return v===null?true:!!v;}
 async function tryAutoLogin(){
   if(!rememberPref())return false;
+  if(lsGet('presence_auth_policy')!==AUTH_POLICY_VERSION){lsSet('presence_auth_policy',AUTH_POLICY_VERSION);lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}
   const s=lsGet('presence_sess');if(!s)return false;
-  if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');return false}
-  /* 30일마다 한 번은 재인증 (Face ID 버튼 한 번이면 통과) — 로그아웃 없이 계속 유지되는 건 그대로 */
+  if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false}
+  /* 60일마다 한 번은 재인증 — 그 사이에는 자동 로그인 후 캐릭터 로비로 입장 */
   {let la=lsGet('presence_lastauth');
    if(la===null){la=Date.now();lsSet('presence_lastauth',la);}
-   if(Date.now()-la>30*86400000)return false;}
+   if(Date.now()-la>SESSION_DAYS*86400000){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}}
   let u=null;try{u=await DB.restoreSession(s.uid);}catch(e){}if(!u||u.status!=='active')return false;
   state.users[u.uid]=u;
   if(u.mustChangePw){me=u;authState.view='newpw';renderAuth();return true;}
@@ -5686,7 +5739,8 @@ function playAnim(){const stg=document.querySelector('.animal-stage');if(!stg)re
 function renderAnimal(){
   if(!document.getElementById('animalSvg'))return;
   const preview=previewStage!==null, food=displayFood(),st=animalStage(food),lv=ANIMAL_STAGES.indexOf(st)+1;
-  document.getElementById('animalSvg').innerHTML=animalSvg(food);
+  document.getElementById('animalSvg').innerHTML=animalSvg(food)+(typeof petCostumeSvg==='function'?petCostumeSvg((me&&state.petProfiles&&state.petProfiles[me.uid])||{},food):'');
+  try{const p=me&&state.petProfiles&&state.petProfiles[me.uid],nm=document.getElementById('animalPetName'),svg=document.getElementById('animalSvg');if(nm)nm.textContent=p&&p.nickname?'🐥 '+p.nickname:'';if(svg)svg.dataset.variant=p&&p.variant||'sun';}catch(e){}
   document.getElementById('animalLv').textContent='Lv.'+lv+' '+st.name+(preview?' · 미리보기':'');
   document.getElementById('animalFood').textContent=food;
   document.getElementById('animalBar').style.width=Math.min(100,food/ANIMAL_MAX*100)+'%';
@@ -7932,7 +7986,7 @@ async function initFirebase(){
   DB.on('goodnews',v=>{state.goodnews=v?(Array.isArray(v)?v:Object.values(v)):[];renderCelebrations();if(me)renderGnAdmin();});
   DB.on('homeFx',v=>{state.homeFx=v||null;applyHomeFx(v&&v.type?v.type:null);});
   DB.on('homeOrder',v=>{state.homeOrder=v||null;try{window.__applyHomeOrder&&window.__applyHomeOrder(v);}catch(e){}});
-  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(me&&isFounder(me))renderTokenAdmin();if(typeof renderRewardLead==='function')renderRewardLead();});
+  DB.on('tokens',v=>{state.tokens=v||{};renderTokenShop();if(typeof renderPetShop==='function')renderPetShop();if(me&&isFounder(me))renderTokenAdmin();if(typeof renderRewardLead==='function')renderRewardLead();});
   DB.on('tokenGrants',v=>{state.tokenGrants=v||{};if(me&&isFounder(me))renderTokenAdmin();});
   DB.on('tokenIssueDays',v=>{state.tokenIssueDays=v||{};});
   DB.on('tokenHoldDays',v=>{state.tokenHoldDays=v||{};});
@@ -10477,7 +10531,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-16.oneonone-privacy';
+const APP_VERSION='2026-07-17.game-lobby-leader-wish';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -10508,6 +10562,7 @@ function checkForUpdate(auto){
   }catch(e){}
 }
 (async function boot(){
+  try{window.showPresenceLoader&&window.showPresenceLoader('팀 데이터에 안전하게 연결하는 중…');}catch(e){}
   await initFirebase();
   loadSheets();
   FX.init();applyHomeFx(state.homeFx&&state.homeFx.type?state.homeFx.type:null);
@@ -14812,6 +14867,105 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   sceneHTML:sceneHTML,meadowHTML:meadowHTML,kchar:kchar,monsterSVG:monsterSVG,bossSVG:bossSVG,jBossHTML:jBossHTML,injectCSS:injectCSS,jOrgTeams:jOrgTeams};
 })();
 
+</script>
+<style id="presence-game-systems-css">
+  .animal-pet-name{min-height:24px;margin-top:8px;color:var(--amber);font:900 15px/1.4 var(--disp,inherit);letter-spacing:-.02em}.animal-stage #animalSvg[data-variant="mint"]{filter:hue-rotate(42deg) saturate(.82) drop-shadow(0 0 13px rgba(87,224,178,.18))}.animal-stage #animalSvg[data-variant="peach"]{filter:hue-rotate(-18deg) saturate(.92) drop-shadow(0 0 13px rgba(255,141,129,.18))}
+  .my-coop-pet{position:absolute;z-index:8;left:58%;bottom:8%;width:72px;text-align:center;pointer-events:none;animation:myPetWalk 8s ease-in-out infinite}.my-coop-pet .mcp-name{display:inline-block;max-width:98px;margin-left:50%;transform:translateX(-50%);padding:3px 7px;border-radius:999px;background:rgba(19,32,48,.78);border:1px solid rgba(255,255,255,.35);color:#fff;font:900 9px/1.2 inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 10px rgba(0,0,0,.18)}.my-coop-pet .mcp-chick{position:relative;margin-top:2px;font-size:35px;filter:drop-shadow(0 5px 3px rgba(54,88,43,.2));animation:myPetBob .55s ease-in-out infinite alternate}.my-coop-pet .mcp-badge{position:absolute;right:7px;top:15px;font-size:13px}.my-coop-pet[data-variant="mint"] .mcp-chick{filter:hue-rotate(35deg) drop-shadow(0 5px 3px rgba(54,88,43,.2))}.my-coop-pet[data-variant="peach"] .mcp-chick{filter:hue-rotate(-18deg) drop-shadow(0 5px 3px rgba(54,88,43,.2))}@keyframes myPetWalk{0%,100%{left:56%;transform:scaleX(1)}45%{left:78%;transform:scaleX(1)}50%{left:78%;transform:scaleX(-1)}95%{left:56%;transform:scaleX(-1)}}@keyframes myPetBob{to{translate:0 -4px}}
+
+  #m-leaderwish{--lw-blue:#66a8ff;--lw-violet:#8d6dff}.lw-wrap{max-width:1120px}.lw-hero{position:relative;overflow:hidden;border-radius:30px;border:1px solid rgba(255,255,255,.1);background:radial-gradient(circle at 82% 20%,rgba(104,95,255,.25),transparent 32%),radial-gradient(circle at 12% 78%,rgba(48,205,216,.18),transparent 32%),linear-gradient(145deg,#111729,#17172a 55%,#211d35);box-shadow:0 26px 70px rgba(0,0,0,.3);color:#fff}.lw-player{min-height:470px;display:grid;grid-template-columns:340px 1fr;align-items:center;gap:38px;padding:42px}.lw-disc-wrap{position:relative;width:270px;height:270px;margin:auto}.lw-disc{position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle,#161922 0 7px,#262a38 8px 10px);box-shadow:0 26px 45px rgba(0,0,0,.45);animation:lwSpin 10s linear infinite}.lw-disc:before{content:"PRESENCE";position:absolute;inset:75px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#53d3d8,#7763ff);color:#fff;font:900 13px/1 var(--disp,inherit);letter-spacing:.13em}.lw-disc:after{content:"";position:absolute;left:50%;top:50%;width:17px;height:17px;transform:translate(-50%,-50%);border-radius:50%;background:#0e1220;border:3px solid rgba(255,255,255,.65)}.lw-arm{position:absolute;right:-22px;top:2px;width:12px;height:190px;border-radius:8px;background:linear-gradient(90deg,#d6d9e0,#788091);transform:rotate(-22deg);transform-origin:top;box-shadow:0 8px 12px rgba(0,0,0,.3)}.lw-arm:after{content:"";position:absolute;bottom:-12px;left:-7px;width:25px;height:31px;border-radius:7px;background:#c3c7d0}@keyframes lwSpin{to{transform:rotate(360deg)}}
+  .lw-kicker{font-size:11px;font-weight:900;letter-spacing:.2em;color:#81c8ff}.lw-title{margin-top:10px;font:950 clamp(28px,4vw,48px)/1.13 var(--disp,inherit);letter-spacing:-.055em}.lw-sub{margin-top:12px;font-size:14px;color:#9eabc1;line-height:1.7}.lw-eq{height:38px;display:flex;align-items:flex-end;gap:5px;margin:28px 0 14px}.lw-eq i{width:5px;border-radius:99px;background:linear-gradient(#79e7d2,#7a69ff);animation:lwEq 1s ease-in-out infinite alternate}.lw-eq i:nth-child(2n){animation-delay:-.3s}.lw-eq i:nth-child(3n){animation-delay:-.6s}@keyframes lwEq{from{height:7px}to{height:34px}}
+  .lw-lyric{min-height:108px;display:flex;align-items:center;padding:20px 22px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font:800 21px/1.55 var(--disp,inherit);letter-spacing:-.03em;transition:.25s}.lw-lyric.changing{opacity:.15;transform:translateY(8px)}.lw-now{margin-top:10px;font-size:11px;color:#7e8da8}.lw-comments{margin-top:18px;border:1px solid var(--line);border-radius:24px;background:var(--card);padding:24px;box-shadow:var(--shadow)}.lw-comments-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.lw-comments-head h3{font-size:18px;color:var(--cream)}.lw-comments-head span{font-size:11px;color:var(--muted)}.lw-compose{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:end;padding-bottom:18px;border-bottom:1px solid var(--line)}.lw-me{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;color:#fff;font-weight:900}.lw-compose textarea{min-height:48px;max-height:120px;resize:vertical;border:1px solid var(--line);border-radius:15px;background:var(--surface);color:var(--cream);padding:13px 14px;font:700 14px/1.55 inherit;outline:none}.lw-compose textarea:focus{border-color:rgba(102,168,255,.72);box-shadow:0 0 0 3px rgba(102,168,255,.1)}.lw-send{border:0;border-radius:14px;padding:15px 18px;background:linear-gradient(135deg,#4f9cff,#8065ef);color:#fff;font:900 13px/1 inherit;cursor:pointer}.lw-list{display:flex;flex-direction:column}.lw-comment{position:relative;display:grid;grid-template-columns:42px 1fr;gap:12px;padding:17px 2px;border-bottom:1px solid var(--line)}.lw-comment:last-child{border-bottom:0}.lw-av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900}.lw-meta{display:flex;align-items:center;gap:8px}.lw-meta b{font-size:13px;color:var(--cream)}.lw-meta time{font-size:10.5px;color:var(--faint)}.lw-text{margin-top:6px;font-size:14px;line-height:1.7;color:var(--cream);white-space:pre-wrap}.lw-del{position:absolute;right:0;top:15px;border:0;background:transparent;color:var(--faint);cursor:pointer}.lw-empty{padding:32px 10px;text-align:center;color:var(--muted);line-height:1.7}
+  @media(max-width:760px){.lw-player{grid-template-columns:1fr;padding:28px 18px;gap:20px}.lw-disc-wrap{width:190px;height:190px}.lw-disc:before{inset:53px}.lw-arm{height:135px}.lw-title{font-size:30px}.lw-lyric{font-size:17px}.lw-compose{grid-template-columns:38px 1fr}.lw-me{width:38px;height:38px}.lw-send{grid-column:2;padding:13px}.lw-comments{padding:18px 14px}}
+</style>
+<script>
+(function(){
+  var wishTimer=null,wishIdx=0,subbed=false,rebalanced=false;
+  var PETS={sun:{emo:'🐥',badge:'☀️'},mint:{emo:'🐣',badge:'🌱'},peach:{emo:'🐤',badge:'💗'}};
+  function petProfile(){return (typeof me!=='undefined'&&me&&state.petProfiles&&state.petProfiles[me.uid])||{nickname:(typeof me!=='undefined'&&me?me.name:'나')+'의 삐약이',variant:'sun'};}
+  window.renderPresencePersonalPet=function(){
+    if(typeof me==='undefined'||!me)return;var p=petProfile(),v=PETS[p.variant]||PETS.sun,scene=document.querySelector('.coop-scene');
+    if(scene){var el=document.getElementById('myCoopPet');if(!el){el=document.createElement('div');el.id='myCoopPet';el.className='my-coop-pet';scene.appendChild(el);}el.dataset.variant=p.variant||'sun';el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-chick">'+v.emo+'<span class="mcp-badge">'+v.badge+'</span></div>';}
+    var nm=document.getElementById('animalPetName'),svg=document.getElementById('animalSvg');if(nm)nm.textContent='🐥 '+(p.nickname||'나의 삐약이');if(svg)svg.dataset.variant=p.variant||'sun';
+  };
+  function ensurePanel(){
+    if(document.getElementById('m-leaderwish'))return;var main=document.querySelector('#app main')||document.querySelector('main');if(!main)return;var d=document.createElement('div');d.className='mpanel';d.id='m-leaderwish';d.innerHTML='<div class="wrap lw-wrap"><section class="lw-hero"><div class="lw-player"><div class="lw-disc-wrap"><div class="lw-disc"></div><div class="lw-arm"></div></div><div><div class="lw-kicker">TEAM PRESENCE · WISH RADIO</div><div class="lw-title">난 이런 리더가<br>좋더라</div><div class="lw-sub">아프지 않게 듣고, 가볍게 넘기지 않기.<br>우리 팀이 바라는 리더의 모습을 한 줄씩 노래해요.</div><div class="lw-eq">'+Array(15).fill('<i></i>').join('')+'</div><div class="lw-lyric" id="lwActiveLine">결과보다 사람을 먼저 봐주는 리더가 좋아요.</div><div class="lw-now">NOW PLAYING · 팀원들의 희망사항</div></div></div></section><section class="lw-comments"><div class="lw-comments-head"><h3>💬 Team Presence - 희망사항</h3><span>댓글을 남기면 위 플레이어의 가사가 됩니다</span></div><div class="lw-compose"><div class="lw-me" id="lwMe">P</div><textarea id="lwInput" maxlength="240" placeholder="리더라면 이런 사람이 되려고 노력해줬으면 좋겠어요…"></textarea><button class="lw-send" onclick="postLeaderWish()">가사 남기기</button></div><div class="lw-list" id="lwList"></div></section></div>';main.appendChild(d);
+  }
+  function rebalanceNav(){
+    if(typeof TABMETA==='undefined'||typeof NAV==='undefined')return;ensurePanel();TABMETA.leaderwish=TABMETA.leaderwish||{e:'🎧',l:'난 이런 리더가 좋더라',g:function(){return !!me&&me.status==='active';}};
+    var lead=NAV.find(function(g){return g.k==='lead';}),team=NAV.find(function(g){return g.k==='team';}),sales=NAV.find(function(g){return g.k==='sales';}),admin=NAV.find(function(g){return g.k==='admin';});
+    var move=['teamtree','sites','setupkit','field','recap','leaderhit','leaderwish'];NAV.forEach(function(g){g.tabs=g.tabs.filter(function(k){return move.indexOf(k)<0;});});
+    if(lead)lead.tabs=['oneonone','leaderwish','journey','calling','cbjournal','meeting'];
+    if(team)['teamtree','sites','setupkit'].forEach(function(k){if(team.tabs.indexOf(k)<0)team.tabs.push(k);});
+    if(sales&&sales.tabs.indexOf('leaderhit')<0)sales.tabs.push('leaderhit');
+    if(admin)['field','recap'].forEach(function(k){if(admin.tabs.indexOf(k)<0)admin.tabs.push(k);});
+    rebalanced=true;try{if(me&&typeof buildRail==='function')buildRail();}catch(e){}
+  }
+  function wishes(){var v=state.leaderWishes||{};return Object.values(v).filter(function(x){return x&&x.text;}).sort(function(a,b){return (b.t||0)-(a.t||0);});}
+  function lyricLines(){var a=wishes().slice().reverse().map(function(x){return x.text;});return a.length?a:['결과보다 사람을 먼저 봐주는 리더가 좋아요.','잘못을 지적하기 전에 가능성을 먼저 믿어주는 리더가 좋아요.','약속을 기억하고, 말보다 행동으로 보여주는 리더가 좋아요.'];}
+  function playLyrics(){if(wishTimer)clearInterval(wishTimer);wishTimer=setInterval(function(){var lines=lyricLines(),el=document.getElementById('lwActiveLine');if(!el)return;el.classList.add('changing');setTimeout(function(){wishIdx=(wishIdx+1)%lines.length;el.textContent=lines[wishIdx];el.classList.remove('changing');},230);},3900);}
+  window.renderLeaderWishes=function(){ensurePanel();var list=document.getElementById('lwList'),meEl=document.getElementById('lwMe');if(meEl&&typeof me!=='undefined'&&me){meEl.style.background=avColor(me.name);meEl.textContent=(me.name||'P')[0];}if(!list)return;var a=wishes();list.innerHTML=a.length?a.map(function(w){var can=me&&(w.uid===me.uid||isFounder(me));return '<article class="lw-comment"><div class="lw-av" style="background:'+avColor(w.name||'P')+'">'+esc((w.name||'P')[0])+'</div><div><div class="lw-meta"><b>'+esc(w.name||'팀원')+'</b><time>'+ago(w.t||Date.now())+'</time></div><div class="lw-text">'+esc(w.text)+'</div></div>'+(can?'<button class="lw-del" onclick="deleteLeaderWish(\''+esc(w.id)+'\')" aria-label="삭제">✕</button>':'')+'</article>';}).join(''):'<div class="lw-empty">아직 첫 가사가 없어요.<br>우리가 바라는 리더의 모습을 따뜻한 한 줄로 시작해 보세요 🎧</div>';var lines=lyricLines(),active=document.getElementById('lwActiveLine');if(active&&lines.length)active.textContent=lines[Math.min(wishIdx,lines.length-1)];playLyrics();};
+  window.postLeaderWish=function(){if(!me)return;var ta=document.getElementById('lwInput'),text=(ta&&ta.value||'').trim();if(text.length<4){toast('희망사항을 네 글자 이상 적어주세요');return;}var id='wish_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),r={id:id,uid:me.uid,name:me.name,text:text,t:Date.now()};state.leaderWishes=state.leaderWishes||{};state.leaderWishes[id]=r;if(ta)ta.value='';renderLeaderWishes();if(!isTestBot(me)&&LIVE)DB.set('leaderWishes/'+id,r);toast('🎧 새 희망사항이 가사에 올라갔어요');};
+  window.deleteLeaderWish=function(id){var w=state.leaderWishes&&state.leaderWishes[id];if(!w||!me||(w.uid!==me.uid&&!isFounder(me)))return;if(!confirm('이 희망사항을 삭제할까요?'))return;delete state.leaderWishes[id];renderLeaderWishes();if(LIVE)DB.set('leaderWishes/'+id,null);};
+  function subscribe(){if(subbed||typeof DB==='undefined'||!LIVE)return;subbed=true;DB.on('petProfiles',function(v){state.petProfiles=v||{};renderPresencePersonalPet();try{renderAnimal();}catch(e){}});DB.on('leaderWishes',function(v){state.leaderWishes=v||{};if(typeof curTab!=='undefined'&&curTab==='leaderwish')renderLeaderWishes();});}
+  function wrapTab(){if(typeof window.goTab!=='function'||window.goTab.__leaderwishwrap)return;var orig=window.goTab;window.goTab=function(name){var r=orig.apply(this,arguments);if(name==='leaderwish')renderLeaderWishes();return r;};window.goTab.__leaderwishwrap=true;}
+  function bootPatch(){ensurePanel();rebalanceNav();subscribe();wrapTab();renderPresencePersonalPet();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bootPatch,130);});else setTimeout(bootPatch,130);
+  setInterval(function(){if(!rebalanced||!document.getElementById('m-leaderwish'))bootPatch();else{rebalanceNav();wrapTab();renderPresencePersonalPet();}},5000);
+})();
+</script>
+<style id="presence-responsive-shop-css">
+  /* 공통 가독성: 같은 정보 위계를 유지하되 화면별 밀도만 조절 */
+  .ps-shell{max-width:1120px}.ps-hero{display:grid;grid-template-columns:380px 1fr;gap:18px}.ps-preview,.ps-store{border:1px solid var(--line);border-radius:26px;background:var(--card);box-shadow:var(--shadow)}.ps-preview{position:sticky;top:92px;min-height:545px;display:flex;flex-direction:column;align-items:center;padding:25px;overflow:hidden;background:radial-gradient(circle at 50% 26%,rgba(255,224,109,.15),transparent 28%),linear-gradient(180deg,var(--card),var(--surface))}.ps-preview:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-20%;height:50%;border-radius:50%;background:linear-gradient(#72c861,#4b9b48);opacity:.42}.ps-kicker{position:relative;z-index:2;font-size:10.5px;font-weight:900;letter-spacing:.18em;color:var(--green-soft)}.ps-name{position:relative;z-index:2;margin-top:8px;font:950 25px/1.2 var(--disp,inherit);color:var(--cream)}.ps-coins{position:relative;z-index:2;margin-top:10px;display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-weight:900;color:var(--amber)}.ps-petstage{position:relative;z-index:2;flex:0 0 270px;width:240px;height:270px;display:grid;place-items:center;margin:20px auto 8px}.ps-pet{position:relative;font-size:148px;filter:drop-shadow(0 22px 15px rgba(0,0,0,.24));animation:psBob 1.8s ease-in-out infinite}.ps-pet[data-variant="mint"]{filter:hue-rotate(36deg) drop-shadow(0 22px 15px rgba(0,0,0,.24))}.ps-pet[data-variant="peach"]{filter:hue-rotate(-18deg) drop-shadow(0 22px 15px rgba(0,0,0,.24))}@keyframes psBob{50%{transform:translateY(-8px) rotate(1.5deg)}}.pet-costume-layer{position:absolute;inset:0;pointer-events:none}.pet-costume-layer .pc-head,.pet-costume-layer .pc-body,.pet-costume-layer .pc-prop{position:absolute;z-index:4;filter:drop-shadow(0 4px 3px rgba(0,0,0,.2))}.pet-costume-layer .pc-head{left:50%;top:35px;transform:translateX(-50%);font-size:62px}.pet-costume-layer .pc-body{left:50%;top:128px;transform:translateX(-50%);font-size:82px}.pet-costume-layer .pc-prop{right:-3px;bottom:23px;font-size:63px}.ps-style{position:relative;z-index:2;width:100%;display:flex;gap:7px}.ps-style button{flex:1;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--muted);padding:9px 4px;font:800 11px/1 inherit;cursor:pointer}.ps-style button.on{border-color:var(--green);color:var(--cream);background:rgba(92,188,46,.1)}
+  .ps-store{padding:24px}.ps-store-head{display:flex;align-items:start;justify-content:space-between;gap:12px}.ps-store-head h2{font:950 26px/1.2 var(--disp,inherit);color:var(--cream)}.ps-store-head p{margin-top:7px;font-size:12.5px;color:var(--muted);line-height:1.55}.ps-tabs{display:flex;gap:7px;margin:20px 0 14px;overflow-x:auto}.ps-tabs button{flex:none;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);padding:9px 13px;font:800 11.5px/1 inherit;cursor:pointer}.ps-tabs button.on{background:var(--cream);border-color:var(--cream);color:#151820}.ps-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ps-item{position:relative;min-width:0;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:14px;transition:.2s}.ps-item.equipped{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.08)}.ps-icon{height:86px;display:grid;place-items:center;border-radius:14px;background:radial-gradient(circle,#fff8d6,#e8eef7);font-size:49px}.ps-info{display:flex;align-items:end;justify-content:space-between;gap:8px;margin-top:11px}.ps-info b{display:block;color:var(--cream);font-size:13px}.ps-info small{display:block;margin-top:4px;color:var(--faint);font-size:10px}.ps-buy{flex:none;border:0;border-radius:11px;background:#2d67d1;color:#fff;padding:9px 10px;font:900 10.5px/1 inherit;cursor:pointer}.ps-buy.owned{background:rgba(92,188,46,.16);color:var(--green-soft);border:1px solid rgba(92,188,46,.28)}.ps-item-tag{position:absolute;left:21px;top:21px;padding:4px 7px;border-radius:999px;background:#171d2a;color:#fff;font-size:9px;font-weight:900}.ps-ready{margin-top:16px;padding:12px 14px;border-radius:14px;background:rgba(70,182,221,.08);border:1px solid rgba(70,182,221,.2);color:var(--muted);font-size:11.5px;line-height:1.6}.animal-stage .pet-shop-open{display:inline-flex;margin:9px 4px 0;border:1px solid rgba(230,176,82,.35);border-radius:999px;background:rgba(230,176,82,.1);color:var(--amber);padding:9px 14px;font:900 11.5px/1 inherit;cursor:pointer}
+  @media(min-width:1280px){#app main>.mpanel>.wrap{max-width:1440px}.sec-head h2{font-size:20px}.intro{font-size:14px;line-height:1.75}}
+  @media(min-width:980px) and (max-width:1279px){nav.rail{width:210px!important}#app main{margin-left:210px!important}.wrap{padding-left:20px;padding-right:20px}.mtab{font-size:12.5px!important}.ps-hero{grid-template-columns:320px 1fr}.ps-preview{min-height:530px}.ps-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(min-width:768px) and (max-width:979px){#app main{margin-left:0!important}.top .bar{padding-left:18px;padding-right:18px}nav.rail{max-height:none!important}.rail .row{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.rail .row::-webkit-scrollbar{display:none}.mtab{flex:none!important;white-space:nowrap}.mpanel>.wrap{padding-left:18px;padding-right:18px}.sec{border-radius:22px}.ps-hero{grid-template-columns:290px 1fr}.ps-preview{min-height:520px;top:135px}.ps-store{padding:19px}.ps-grid{grid-template-columns:1fr}.lw-player{grid-template-columns:250px 1fr;padding:30px}.lw-disc-wrap{width:220px;height:220px}.lw-disc:before{inset:62px}}
+  @media(max-width:767px){body{font-size:15px}.top .bar{padding:8px 11px;gap:7px}.top .logo .tag{display:none}.top .logo .nm{font-size:16px}.me-pill{padding:5px 7px!important}.me-pill .mnm{max-width:54px;overflow:hidden;text-overflow:ellipsis}.adm-toggle,.hdr-install{width:34px!important;height:34px!important}.mpanel>.wrap{padding-left:11px;padding-right:11px}.sec{border-radius:18px;padding:16px 13px}.sec-head{gap:6px;align-items:flex-start}.sec-head h2{font-size:17px;line-height:1.35}.sec-head .ko{font-size:11px;line-height:1.4}.sec-head .meta{font-size:10px}.intro{font-size:13px;line-height:1.7}.btn{min-height:42px}#presenceEntryLobby .pe-stage{min-height:240px}#presenceEntryLobby .pe-avatar-wrap{width:115px;height:115px}#presenceEntryLobby .pe-avatar{font-size:70px}#presenceEntryLobby .pe-stage-name{font-size:20px;margin-top:5px}#presenceEntryLobby .pe-stage-desc{margin-top:3px}#presenceEntryLobby .pe-panel{padding:12px}#presenceEntryLobby .pe-title{font-size:24px}#presenceEntryLobby .pe-sub{font-size:11px;margin-top:7px}#presenceEntryLobby .pe-label{margin-top:10px}#presenceEntryLobby .pe-enter{margin-top:12px}#peCostume .pc-head{top:19px;font-size:38px}#peCostume .pc-body{top:66px;font-size:49px}#peCostume .pc-prop{right:-5px;bottom:-2px;font-size:38px}.ps-hero{display:block}.ps-preview{position:relative;top:auto;min-height:430px;margin-bottom:12px;padding:18px}.ps-petstage{height:230px}.ps-pet{font-size:126px}.pet-costume-layer .pc-head{top:35px;font-size:53px}.pet-costume-layer .pc-body{top:113px;font-size:70px}.pet-costume-layer .pc-prop{right:15px;bottom:17px;font-size:52px}.ps-store{padding:17px 13px}.ps-store-head h2{font-size:22px}.ps-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ps-item{padding:9px}.ps-icon{height:70px;font-size:41px}.ps-info{display:block}.ps-buy{width:100%;margin-top:9px}.lw-comments-head{display:block}.lw-comments-head span{display:block;margin-top:6px}}
+  @media(max-width:767px){#presenceEntryLobby .pe-pet-name{font-size:20px;margin-top:5px}#presenceEntryLobby .pe-pet-type{margin-top:3px}}
+  .my-coop-pet .mcp-chick{position:relative;isolation:isolate}.my-coop-pet .coop-costume{inset:-2px -4px -5px;z-index:3}.my-coop-pet .coop-costume .pc-head{top:-14px;left:50%;font-size:24px;transform:translateX(-50%)}.my-coop-pet .coop-costume .pc-body{left:50%;bottom:2px;font-size:25px;transform:translateX(-50%) scale(.72)}.my-coop-pet .coop-costume .pc-prop{right:-10px;bottom:-2px;font-size:19px}.my-coop-pet .mcp-name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  @media(max-width:390px){.ps-grid{grid-template-columns:1fr}.pe-choices{gap:5px}.pe-choice{padding-left:3px;padding-right:3px}.pe-choice span{font-size:30px}.pe-choice small{display:none}.bell-btn{width:32px!important;height:32px!important}.top .logo-chip{display:none!important}.lw-player{padding:23px 13px}}
+</style>
+<script>
+(function(){
+  var SHOP_ITEMS={
+    shades:{id:'shades',cat:'head',name:'썸머 선글라스',desc:'햇빛 아래 자신감 +10',emo:'🕶️',price:4},
+    straw:{id:'straw',cat:'head',name:'라피아 밀짚모자',desc:'휴가 감성 한 스푼',emo:'👒',price:5},
+    wig:{id:'wig',cat:'head',name:'레인보우 가발',desc:'오늘의 주인공 모드',emo:'🌈',price:7},
+    swimsuit:{id:'swimsuit',cat:'body',name:'블루 수영복',desc:'시원한 여름 한정 룩',emo:'🩱',price:5},
+    floral:{id:'floral',cat:'body',name:'꽃무늬 원피스',desc:'피크닉 가고 싶은 날',emo:'🌺',price:6},
+    raincoat:{id:'raincoat',cat:'body',name:'개구리 우비',desc:'비 오는 필드도 씩씩하게',emo:'🧥',price:6},
+    leader:{id:'leader',cat:'body',name:'Presence 리더 재킷',desc:'작은 금장 배지 포함',emo:'🧥',price:8},
+    tube:{id:'tube',cat:'prop',name:'스트라이프 튜브',desc:'물놀이 필수 아이템',emo:'🛟',price:5},
+    ball:{id:'ball',cat:'prop',name:'비치볼',desc:'닭장에서도 통통!',emo:'🏐',price:3}
+  },shopCat='all';window.PRESENCE_SHOP_ITEMS=SHOP_ITEMS;
+  function prof(){var p=(me&&state.petProfiles&&state.petProfiles[me.uid])||{uid:me&&me.uid,name:me&&me.name,nickname:(me?me.name:'나')+'의 삐약이',variant:'sun'};p.owned=p.owned||{};p.equipped=p.equipped||{};return p;}
+  function save(p){p.updatedAt=Date.now();state.petProfiles=state.petProfiles||{};state.petProfiles[me.uid]=p;if(LIVE&&!isTestBot(me))DB.set('petProfiles/'+me.uid,p);renderPetShop();if(typeof renderPresencePersonalPet==='function')renderPresencePersonalPet();try{renderAnimal();}catch(e){}renderEntryCostume();}
+  function equippedItem(p,cat){var id=p.equipped&&p.equipped[cat];return id&&SHOP_ITEMS[id];}
+  window.petCostumeLayerHTML=function(p,cls){p=p||{};var h=equippedItem(p,'head'),b=equippedItem(p,'body'),r=equippedItem(p,'prop');return '<div class="pet-costume-layer '+(cls||'')+'">'+(h?'<span class="pc-head">'+h.emo+'</span>':'')+(b?'<span class="pc-body">'+b.emo+'</span>':'')+(r?'<span class="pc-prop">'+r.emo+'</span>':'')+'</div>';};
+  window.petCostumeSvg=function(p,food){p=p||{};var h=equippedItem(p,'head'),b=equippedItem(p,'body'),r=equippedItem(p,'prop'),idx=typeof animalStageIdx==='function'?animalStageIdx(food||0):1,y=idx<=1?158:(idx===2?148:(idx===3?135:(idx===4?126:119))),s='<g id="petCostumeSvg" pointer-events="none">';
+    if(h&&h.id==='shades')s+='<g transform="translate(100 '+y+')"><rect x="-25" y="-6" width="20" height="13" rx="5" fill="#17213a" stroke="#7cc8ff" stroke-width="2"/><rect x="5" y="-6" width="20" height="13" rx="5" fill="#17213a" stroke="#7cc8ff" stroke-width="2"/><path d="M-5 0 Q0 -4 5 0" fill="none" stroke="#7cc8ff" stroke-width="3"/><path d="M-25 -1 L-33 -5 M25 -1 L33 -5" stroke="#7cc8ff" stroke-width="2"/></g>';
+    if(h&&h.id==='straw')s+='<g transform="translate(100 '+(y-26)+')"><ellipse cx="0" cy="4" rx="38" ry="9" fill="#dcae4f"/><path d="M-22 3 Q-18 -25 0 -27 Q18 -25 22 3Z" fill="#f1cf79"/><path d="M-21 -2 Q0 5 21 -2" fill="none" stroke="#ff6c78" stroke-width="5"/></g>';
+    if(h&&h.id==='wig')s+='<g transform="translate(100 '+(y-22)+')"><path d="M-31 8 Q-31 -24 0 -29 Q31 -24 31 8 Q24 -4 17 8 Q9 -5 1 8 Q-8 -5 -16 8 Q-24 -4 -31 8Z" fill="#b86dff"/><path d="M-21 -8 Q0 -25 21 -8" stroke="#ff7bac" stroke-width="7" fill="none"/><path d="M-11 -19 Q0 -27 11 -19" stroke="#5bd8e6" stroke-width="6" fill="none"/></g>';
+    if(b&&b.id==='swimsuit')s+='<path d="M72 '+(y+22)+' Q100 '+(y+8)+' 128 '+(y+22)+' L120 '+(y+58)+' Q100 '+(y+70)+' 80 '+(y+58)+'Z" fill="#4c9dff" opacity=".94"/><path d="M78 '+(y+29)+' Q100 '+(y+40)+' 122 '+(y+29)+'" stroke="#fff" stroke-width="4" fill="none"/>';
+    if(b&&b.id==='floral')s+='<g><path d="M68 '+(y+22)+' Q100 '+(y+6)+' 132 '+(y+22)+' L143 '+(y+66)+' Q100 '+(y+82)+' 57 '+(y+66)+'Z" fill="#ff86a9" opacity=".94"/>'+[-24,0,23].map(function(x){return '<text x="'+(100+x)+'" y="'+(y+52+(Math.abs(x)%8))+'" text-anchor="middle" font-size="15">🌼</text>';}).join('')+'</g>';
+    if(b&&b.id==='raincoat')s+='<g><path d="M65 '+(y+20)+' Q100 '+(y+4)+' 135 '+(y+20)+' L139 '+(y+66)+' Q100 '+(y+75)+' 61 '+(y+66)+'Z" fill="#65cf5b" opacity=".96"/><path d="M100 '+(y+18)+' V'+(y+68)+'" stroke="#e9ff85" stroke-width="3"/><circle cx="91" cy="'+(y+42)+'" r="2.4" fill="#234c34"/><circle cx="109" cy="'+(y+42)+'" r="2.4" fill="#234c34"/></g>';
+    if(b&&b.id==='leader')s+='<g><path d="M67 '+(y+19)+' Q100 '+(y+5)+' 133 '+(y+19)+' L137 '+(y+65)+' Q100 '+(y+76)+' 63 '+(y+65)+'Z" fill="#203968" opacity=".97"/><path d="M83 '+(y+19)+' L100 '+(y+45)+' L117 '+(y+19)+'" fill="#fff" opacity=".9"/><circle cx="122" cy="'+(y+38)+'" r="5" fill="#f1c84d"/></g>';
+    if(r&&r.id==='tube')s+='<ellipse cx="100" cy="'+(y+57)+'" rx="48" ry="19" fill="none" stroke="#ff6c78" stroke-width="13"/><path d="M63 '+(y+45)+' L72 '+(y+57)+' M100 '+(y+39)+' V'+(y+52)+' M137 '+(y+45)+' L128 '+(y+57)+'" stroke="#fff" stroke-width="7"/>';
+    if(r&&r.id==='ball')s+='<g transform="translate(148 '+(y+58)+')"><circle r="20" fill="#fff" stroke="#79aefb" stroke-width="2"/><path d="M0 -20 Q10 -5 0 20 Q-14 7 0 -20Z" fill="#ff738d"/><path d="M0 -20 Q-16 -10 -19 4 Q-4 2 0 -20Z" fill="#ffd458"/></g>';
+    return s+'</g>';};
+  function ensureShop(){if(document.getElementById('m-petshop'))return;var main=document.querySelector('#app main');if(!main)return;var d=document.createElement('div');d.className='mpanel';d.id='m-petshop';d.innerHTML='<div class="wrap ps-shell"><div class="ps-hero"><section class="ps-preview"><div class="ps-kicker">MY PRESENCE PET</div><div class="ps-name" id="psName">나의 삐약이</div><div class="ps-coins"><span class="coin">P</span><b id="psCoin">0</b><span>코인</span></div><div class="ps-petstage"><div class="ps-pet" id="psPet">🐥</div><div id="psCostume"></div></div><div class="ps-style" id="psStyles"></div></section><section class="ps-store"><div class="ps-store-head"><div><h2>🛍️ 병아리 코디샵</h2><p>필드에서 모은 코인으로 아이템을 사고,<br>내 병아리에게 바로 입혀보세요.</p></div></div><div class="ps-tabs" id="psTabs"></div><div class="ps-grid" id="psGrid"></div><div class="ps-ready">착용한 아이템은 로그인 로비 · 우리 닭장 · 컴페티션 성장 화면에 모두 자동 반영됩니다.</div></section></div></div>';main.appendChild(d);}
+  window.setPetShopCat=function(cat){shopCat=cat||'all';renderPetShop();};
+  window.setPetVariant=function(v){var p=prof();p.variant=v;save(p);};
+  window.petShopAction=function(id){var item=SHOP_ITEMS[id],p=prof();if(!item)return;if(p.owned[id]){p.equipped[item.cat]=p.equipped[item.cat]===id?null:id;save(p);toast(p.equipped[item.cat]?'✨ '+item.name+' 착용 완료':'옷장에 잘 보관했어요');return;}var bal=+(state.tokens&&state.tokens[me.name]||0);if(bal<item.price){toast('코인이 '+(item.price-bal)+'개 부족해요 🪙');return;}function finish(){state.tokens[me.name]=bal-item.price;p.owned[id]=1;p.equipped[item.cat]=id;save(p);renderTokenShop();toast('🎁 '+item.name+' 구매·착용 완료!');}if(LIVE&&!isTestBot(me)&&DB.tx){DB.tx('tokens/'+me.name,function(cur){cur=+cur||0;return cur>=item.price?cur-item.price:undefined;}).then(function(r){if(r&&r.committed){bal=+(r.snapshot||0)+item.price;finish();}else toast('코인 잔액을 다시 확인해 주세요');});}else finish();};
+  window.renderPetShop=function(){ensureShop();if(!me)return;var p=prof(),meta={sun:['🐥','햇살이'],mint:['🐣','새싹이'],peach:['🐤','노을이']}[p.variant||'sun'];var n=document.getElementById('psName'),c=document.getElementById('psCoin'),pet=document.getElementById('psPet'),cost=document.getElementById('psCostume');if(n)n.textContent=p.nickname||'나의 삐약이';if(c)c.textContent=state.tokens&&state.tokens[me.name]||0;if(pet){pet.textContent=meta[0];pet.dataset.variant=p.variant||'sun';}if(cost)cost.innerHTML=petCostumeLayerHTML(p);var st=document.getElementById('psStyles');if(st)st.innerHTML=['sun','mint','peach'].map(function(v){return '<button class="'+(p.variant===v?'on':'')+'" onclick="setPetVariant(\''+v+'\')">'+({sun:'☀️ 햇살',mint:'🌱 새싹',peach:'💗 노을'}[v])+'</button>';}).join('');var cats=[['all','전체'],['head','모자·안경'],['body','의상'],['prop','소품']],tabs=document.getElementById('psTabs');if(tabs)tabs.innerHTML=cats.map(function(x){return '<button class="'+(shopCat===x[0]?'on':'')+'" onclick="setPetShopCat(\''+x[0]+'\')">'+x[1]+'</button>';}).join('');var grid=document.getElementById('psGrid'),items=Object.values(SHOP_ITEMS).filter(function(i){return shopCat==='all'||i.cat===shopCat;});if(grid)grid.innerHTML=items.map(function(i){var own=!!p.owned[i.id],eq=p.equipped[i.cat]===i.id;return '<article class="ps-item '+(eq?'equipped':'')+'"><div class="ps-item-tag">'+(eq?'착용 중':own?'보유':'NEW')+'</div><div class="ps-icon">'+i.emo+'</div><div class="ps-info"><div><b>'+i.name+'</b><small>'+i.desc+'</small></div><button class="ps-buy '+(own?'owned':'')+'" onclick="petShopAction(\''+i.id+'\')">'+(own?(eq?'해제':'착용'):'P '+i.price)+'</button></div></article>';}).join('');};
+  window.renderEntryCostume=function(){var wrap=document.querySelector('.pe-avatar-wrap');if(!wrap||!me)return;var el=document.getElementById('peCostume');if(!el){el=document.createElement('div');el.id='peCostume';wrap.appendChild(el);}el.innerHTML=petCostumeLayerHTML(prof());};
+  function decorateMainPet(){if(!document.getElementById('animalPetShopBtn')){var pv=document.getElementById('animalPreviewBtn');if(pv){var b=document.createElement('button');b.id='animalPetShopBtn';b.className='pet-shop-open';b.textContent='🛍️ 병아리 코디샵';b.onclick=function(){goTab('petshop');};pv.insertAdjacentElement('afterend',b);}}}
+  function nav(){if(typeof TABMETA==='undefined'||typeof NAV==='undefined')return;TABMETA.petshop=TABMETA.petshop||{e:'🛍️',l:'병아리 코디샵',g:function(){return !!me;}};var sales=NAV.find(function(g){return g.k==='sales';});if(sales&&sales.tabs.indexOf('petshop')<0){var at=sales.tabs.indexOf('comp');sales.tabs.splice(at<0?1:at+1,0,'petshop');}try{if(me)buildRail();}catch(e){}}
+  function wrap(){if(typeof window.goTab!=='function'||window.goTab.__petshopwrap)return;var orig=window.goTab;window.goTab=function(name){var r=orig.apply(this,arguments);if(name==='petshop')renderPetShop();return r;};window.goTab.__petshopwrap=true;}
+  function hookProfiles(){if(window.__petShopProfileHook)return;window.__petShopProfileHook=1;var old=window.renderPresencePersonalPet;window.renderPresencePersonalPet=function(){if(old)old.apply(this,arguments);if(!me)return;var p=prof(),el=document.getElementById('myCoopPet');if(el){var v={sun:['🐥','☀️'],mint:['🐣','🌱'],peach:['🐤','💗']}[p.variant||'sun'];el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-chick">'+v[0]+'<span class="mcp-badge">'+v[1]+'</span>'+petCostumeLayerHTML(p,'coop-costume')+'</div>';}};}
+  function boot(){ensureShop();nav();wrap();hookProfiles();decorateMainPet();renderPresencePersonalPet&&renderPresencePersonalPet();renderEntryCostume();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,230);});else setTimeout(boot,230);setInterval(function(){nav();wrap();decorateMainPet();},6000);
+})();
 </script>
 </body>
 </html>
