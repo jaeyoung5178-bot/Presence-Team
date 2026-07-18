@@ -5234,7 +5234,7 @@ var SUBRAIL_SECTIONS={
 function subTabBtn(k){const t=TABMETA[k];return `<button class="mtab stab${k===curTab?' active':''}" data-tab="${k}" onclick="goTab('${k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`;}
 function buildSubRail(){
   const sr=document.getElementById('subRail');if(!sr)return;
-  if(curGroup==='home'){sr.style.display='none';sr.innerHTML='';syncTopOffset();return;}
+  if(curGroup==='home'||curTab==='petshop'){sr.style.display='none';sr.innerHTML='';syncTopOffset();return;}
   const g=NAV.find(x=>x.k===curGroup)||NAV[0];
   var RAIL_HIDE={comp:1,perf:1};
   const tabs=g.tabs.filter(function(k){return tabVisible(k)&&!RAIL_HIDE[k];});
