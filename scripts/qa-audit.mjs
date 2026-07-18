@@ -60,6 +60,14 @@ for (const [label, file, root] of [
 new vm.Script(read(path.join(workbookRoot, 'ps-hub.js')), { filename: 'ps-hub.js' });
 new vm.Script(read(path.join(workbookRoot, 'presence-studio.js')), { filename: 'presence-studio.js' });
 new vm.Script(read(path.join(callbackRoot, 'script.js')), { filename: 'callback/script.js' });
+const quickslotSource = read(path.join(workbookRoot, 'assets/presence-home-quickslots.js'));
+new vm.Script(quickslotSource, { filename: 'assets/presence-home-quickslots.js' });
+if (!quickslotSource.includes('class="hqd-popover"') || !quickslotSource.includes('class="hqd-add"')) {
+  failures.push('home quickslots: compact popover and add box must both be present');
+}
+if (quickslotSource.includes("className='quickslot-modal'") || quickslotSource.includes('class="quickslot-modal"')) {
+  failures.push('home quickslots: full-screen picker modal must not return');
+}
 
 // Avatar catalogue quality gate: one visible name may not disguise a reused
 // bitmap/filter combination as a different costume.
