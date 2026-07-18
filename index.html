@@ -15092,7 +15092,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   function nav(){if(typeof TABMETA==='undefined'||typeof NAV==='undefined')return;TABMETA.petshop=TABMETA.petshop||{e:'🛍️',l:'병아리 코디샵',g:function(){return !!me;}};var progress=NAV.find(function(g){return g.k==='progress';});if(progress&&progress.tabs.indexOf('petshop')<0)progress.tabs.push('petshop');try{if(me)buildRail();}catch(e){}}
   function wrap(){if(typeof window.goTab!=='function'||window.goTab.__petshopwrap)return;var orig=window.goTab;window.goTab=function(name){var r=orig.apply(this,arguments);if(name==='petshop')renderPetShop();return r;};window.goTab.__petshopwrap=true;}
   function hookProfiles(){if(window.__petShopProfileHook)return;window.__petShopProfileHook=1;var old=window.renderPresencePersonalPet;window.renderPresencePersonalPet=function(){if(old)old.apply(this,arguments);if(!me)return;var p=prof(),el=document.getElementById('myCoopPet');if(el){var v={sun:['🐥','☀️'],mint:['🐣','🌱'],peach:['🐤','💗']}[p.variant||'sun'];el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-chick">'+v[0]+'<span class="mcp-badge">'+v[1]+'</span>'+petCostumeLayerHTML(p,'coop-costume')+'</div>';}};}
-  function boot(){ensureShop();nav();wrap();hookProfiles();decorateMainPet();renderPresencePersonalPet&&renderPresencePersonalPet();renderEntryCostume();}
+  function boot(){if(window.__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER)return;ensureShop();nav();wrap();hookProfiles();decorateMainPet();renderPresencePersonalPet&&renderPresencePersonalPet();renderEntryCostume();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,230);});else setTimeout(boot,230);setInterval(function(){nav();wrap();decorateMainPet();},6000);
 })();
 </script>
@@ -15264,7 +15264,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   };
   window.syncCallbackProfile=function(u){return window.ensureCallbackAccessProfile(u);};
   function ensureCallbackProfiles(){if(typeof me==='undefined'||!me||!LIVE||!state.users)return;window.ensureCallbackAccessProfile(me);if(typeof isFounder==='function'&&isFounder(me))Object.values(state.users).filter(function(u){return u&&u.uid&&u.status==='active';}).forEach(window.ensureCallbackAccessProfile);}
-  function correctiveBoot(){inventoryShell();patchInventoryNav();hookCoop();watchPersonalCoopPet();if(typeof me!=='undefined'&&me){renderPetShop();renderSingleCoopPet();ensureCallbackProfiles();}}
+  function correctiveBoot(){if(!window.__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER){inventoryShell();patchInventoryNav();hookCoop();watchPersonalCoopPet();if(typeof me!=='undefined'&&me){renderPetShop();renderSingleCoopPet();}}if(typeof me!=='undefined'&&me)ensureCallbackProfiles();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(correctiveBoot,320);});else setTimeout(correctiveBoot,320);setInterval(correctiveBoot,7000);
 })();
 </script>
@@ -15292,9 +15292,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){patch();wrapHomeDash();},260);});else setTimeout(function(){patch();wrapHomeDash();},260);setInterval(function(){patch();wrapHomeDash();},6500);
 })();
 </script>
-<link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-7">
+<link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-8">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<script src="assets/presence-avatar-studio.js?v=20260718-7"></script>
+<script src="assets/presence-avatar-studio.js?v=20260718-8"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 </body>

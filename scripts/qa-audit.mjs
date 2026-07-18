@@ -100,6 +100,20 @@ if (migratedAvatar.equipped.body !== 'body_raincoat_0') {
 if (migratedAvatar.equipped.head) {
   failures.push('avatar: unreviewed body/head composites must not render together');
 }
+avatarWindow.state.petProfiles['qa-avatar'] = {
+  color: 'sun', feather: 'legacy-spike', equipped: { prop: 'prop_tube_0' }, updatedAt: 2,
+};
+const repairedAvatar = avatarWindow.presenceAvatarProfile();
+const repairedArt = avatarWindow.presencePetArt(repairedAvatar);
+if (repairedAvatar.color !== 'honey' || repairedAvatar.feather !== 'classic') {
+  failures.push('avatar: invalid legacy body/feather traits must canonicalize before rendering');
+}
+if (!repairedArt.includes('presence-base-honey.webp') || !repairedArt.includes('presence-base-honey.png')) {
+  failures.push('avatar: every non-integrated render needs a valid body plus an image-error fallback');
+}
+if (!avatarSource.includes('__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER=true')) {
+  failures.push('avatar: external studio must explicitly own the inventory renderer');
+}
 
 if (failures.length) {
   console.error(failures.join('\n'));
