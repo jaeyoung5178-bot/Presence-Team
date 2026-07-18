@@ -10648,7 +10648,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-19.farm-village-v1';
+const APP_VERSION='2026-07-19.farm-village-v2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -15378,8 +15378,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 }
 .farm-hero{position:relative; border-radius:18px; overflow:hidden;
   border:1px solid rgba(201,168,106,.3); box-shadow:0 12px 34px rgba(0,0,0,.4);
-  aspect-ratio:16/9; background:#0a1024;}
-@media(max-width:767px){ .farm-hero{aspect-ratio:4/3;} }
+  aspect-ratio:1600/1322; max-height:680px; margin-inline:auto; background:#0a1024;}
+.farm-hero.farm-phase-day .farm-firefly,.farm-hero.farm-phase-day .farm-lantern,
+.farm-hero.farm-phase-dawn .farm-firefly,.farm-hero.farm-phase-dawn .farm-lantern{display:none;}
 .farm-hero-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
   transition:filter 1.2s ease; z-index:1;}
 .farm-hero-sky{position:absolute; inset:0; z-index:2; pointer-events:none; transition:background 1.2s ease;}
@@ -15481,7 +15482,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script id="farm-world-js">
 (function(){
   'use strict';
-  var FARM_IMG='assets/concept-village-night.webp';
+  var FARM_IMG='assets/farm-village-day.webp';
   function ce(t,c){var e=document.createElement(t); if(c)e.className=c; return e;}
   function safeToast(m){try{ if(typeof toast==='function') toast(m); }catch(e){}}
   function reduced(){try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}}
@@ -15542,12 +15543,6 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
           var ln=ce('div','farm-lantern');
           ln.style.left='calc('+p[0]+'% - 60px)'; ln.style.top='calc('+p[1]+'% - 60px)';
           ln.style.animationDelay=(Math.random()*2).toFixed(2)+'s'; layer.appendChild(ln);
-        });
-        [[8,'#0e1730',150],[24,'#0a1226',190]].forEach(function(c,idx){
-          var cl=ce('div','farm-cloud farm-cloud--drift');
-          cl.style.top=c[0]+'%'; cl.style.animationDuration=c[2]+'s';
-          cl.style.animationDelay=(idx*40)+'s';
-          cl.innerHTML=cloudSvg(c[1],200); layer.appendChild(cl);
         });
         g.insertBefore(layer, g.firstChild);
       }
@@ -15633,40 +15628,35 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
     var img=ce('img','farm-hero-img'); img.src=FARM_IMG; img.alt='프레젠스 동물농장 마을';
     img.loading='lazy';
     var phase=skyPhase();
-    if(phase==='day')img.style.filter='brightness(1.35) saturate(1.05) hue-rotate(-10deg)';
-    else if(phase==='dawn')img.style.filter='brightness(1.05) saturate(1.02) sepia(.08)';
-    else if(phase==='dusk')img.style.filter='brightness(.95) saturate(1.1) hue-rotate(-6deg)';
+    hero.classList.add('farm-phase-'+phase);
+    if(phase==='dawn')img.style.filter='brightness(1.02) sepia(.12) saturate(1.05)';
+    else if(phase==='dusk')img.style.filter='brightness(.9) sepia(.2) saturate(1.12) hue-rotate(-8deg)';
+    else if(phase==='night')img.style.filter='brightness(.52) saturate(.85) hue-rotate(8deg)';
     hero.appendChild(img);
     var sky=ce('div','farm-hero-sky farm-sky--'+phase); hero.appendChild(sky);
     var fx=ce('div','farm-hero-fx');
-    [[10,140],[22,180]].forEach(function(c,idx){
-      var cl=ce('div','farm-cloud farm-cloud--drift');
-      cl.style.top=c[0]+'%'; cl.style.animationDuration=c[1]+'s'; cl.style.animationDelay=(idx*50)+'s';
-      cl.innerHTML=cloudSvg(phase==='night'?'#1a2748':(phase==='day'?'#ffffff':'#ffd9b0'),160);
-      fx.appendChild(cl);
-    });
     hero.appendChild(fx);
     hero.appendChild(ce('div','farm-river'));
-    [[18,54],[50,46],[78,40]].forEach(function(p){
-      var ln=ce('div','farm-lantern'); ln.style.position='absolute'; ln.style.zIndex='4';
-      ln.style.left='calc('+p[0]+'% - 60px)'; ln.style.top='calc('+p[1]+'% - 60px)'; hero.appendChild(ln);
-    });
-    var i; for(i=0;i<6;i++){ var ff=ce('div','farm-firefly');
-      ff.style.left=(10+Math.random()*80).toFixed(1)+'%'; ff.style.top=(35+Math.random()*45).toFixed(1)+'%';
-      ff.style.animationDelay=(Math.random()*7).toFixed(2)+'s'; hero.appendChild(ff); }
-    [0,1].forEach(function(k){
-      var ch=ce('div','farm-chick'); ch.style.animationDelay=(k*7)+'s, '+(k*0.3)+'s';
-      var pi=ce('img'); pi.src='assets/pets/presence-pet-base.png'; pi.alt='병아리';
-      pi.onerror=function(){ ch.textContent='🐥'; };
-      ch.appendChild(pi); hero.appendChild(ch);
-    });
+    if(phase==='night'||phase==='dusk'){
+      [[18,54],[50,46],[78,40]].forEach(function(p){
+        var ln=ce('div','farm-lantern'); ln.style.position='absolute'; ln.style.zIndex='4';
+        ln.style.left='calc('+p[0]+'% - 60px)'; ln.style.top='calc('+p[1]+'% - 60px)'; hero.appendChild(ln);
+      });
+      var i; for(i=0;i<6;i++){ var ff=ce('div','farm-firefly');
+        ff.style.left=(10+Math.random()*80).toFixed(1)+'%'; ff.style.top=(35+Math.random()*45).toFixed(1)+'%';
+        ff.style.animationDelay=(Math.random()*7).toFixed(2)+'s'; hero.appendChild(ff); }
+      if(phase==='night'){ var si; for(si=0;si<12;si++){ var stn=ce('div','farm-star');
+        stn.style.position='absolute'; stn.style.zIndex='5';
+        stn.style.left=(Math.random()*100).toFixed(1)+'%'; stn.style.top=(Math.random()*20).toFixed(1)+'%';
+        stn.style.animationDelay=(Math.random()*3).toFixed(2)+'s'; hero.appendChild(stn); } }
+    }
     var greet=ce('div','farm-hero-greet'); greet.innerHTML=greetText(); hero.appendChild(greet);
     var hs=[
-      {x:18,y:56,label:'오늘',go:function(){farmScrollTo('#todaySec');}},
-      {x:48,y:50,label:'사랑',go:function(){farmScrollTo('#praiseSec');}},
-      {x:74,y:32,label:'성장',go:function(){farmScrollTo('#treeSecHome');}},
-      {x:82,y:58,label:'수익',go:function(){try{if(typeof goTab==='function')goTab('sale');}catch(e){}}},
-      {x:50,y:16,label:'관리자 집무실',go:function(){
+      {x:55,y:11,label:'Today',go:function(){farmScrollTo('#todaySec');}},
+      {x:17,y:16,label:'People',go:function(){farmScrollTo('#praiseSec');}},
+      {x:87,y:16,label:'Progress',go:function(){farmScrollTo('#treeSecHome');}},
+      {x:26,y:45,label:'Profit',go:function(){try{if(typeof goTab==='function')goTab('sale');}catch(e){}}},
+      {x:75,y:45,label:'Farm Office',go:function(){
          try{ if(typeof tabVisible==='function'&&tabVisible('admin')&&typeof goTab==='function')goTab('admin');
               else safeToast('관리자 전용 공간이에요 🏡'); }catch(e){ safeToast('관리자 전용 공간이에요 🏡'); } }}
     ];
