@@ -8,6 +8,7 @@ assets/pets/*.png
 !assets/pets/source-feather-styles-alpha.png
 !assets/pets/source-feather-styles-green.png
 !assets/pets/presence-pet-base.png
+!assets/pets/presence-base-*.png
 !assets/pets/presence-feather-*.png
 !assets/pets/presence-accessory-*.png
 assets/pets/presence-base-*.webp

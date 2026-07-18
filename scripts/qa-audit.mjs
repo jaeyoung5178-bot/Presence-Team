@@ -108,7 +108,7 @@ const repairedArt = avatarWindow.presencePetArt(repairedAvatar);
 if (repairedAvatar.color !== 'honey' || repairedAvatar.feather !== 'classic') {
   failures.push('avatar: invalid legacy body/feather traits must canonicalize before rendering');
 }
-if (!repairedArt.includes('presence-base-honey.webp') || !repairedArt.includes('presence-base-honey.png')) {
+if (!repairedArt.includes('presence-base-honey.png') || !repairedArt.includes('presence-pet-base.png')) {
   failures.push('avatar: every non-integrated render needs a valid body plus an image-error fallback');
 }
 if (!avatarSource.includes('__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER=true')) {

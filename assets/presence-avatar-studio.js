@@ -65,7 +65,7 @@
     var compact=context==='coop',extra=compact?['neck','waist']:['back','neck','waist','wrist','feet','prop','weapon'];
     var html='<div class="presence-game-pet '+(integrated?'pgp-integrated':'')+' '+(compact?'pgp-coop':'')+'" role="img" aria-label="'+escapeHtml(label)+'를 착용한 병아리" style="--pet-tone:'+tone+';--pet-tint:'+tint+'">';
     if(!compact)html+=itemLayer(chosen.back,'pgp-back');
-    html+=imageTag(integrated?'pgp-master':'pgp-base',master||ROOT+'presence-base-'+color+'.webp',ROOT+'presence-base-honey.png');
+    html+=imageTag(integrated?'pgp-master':'pgp-base',master||ROOT+'presence-base-'+color+'.png',ROOT+'presence-pet-base.png');
     if(!integrated){html+='<i class="pgp-tone" aria-hidden="true"></i>'+(feather!=='classic'?'<img class="pgp-feather" src="'+ROOT+'presence-feather-'+feather+'.png" alt="" draggable="false">':'')+itemLayer(chosen.body,'pgp-body')+itemLayer(chosen.head,'pgp-head');}
     extra.forEach(function(k){html+=itemLayer(chosen[k],'pgp-'+(k==='weapon'?'weapon':k));});
     return html+'</div>';
