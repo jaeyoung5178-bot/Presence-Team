@@ -1791,6 +1791,7 @@ textarea.rt-in{resize:vertical;line-height:1.5}
 .subrail-more{opacity:.82}
 .subrail-more .em{font-weight:900}
 .subrail-more:hover{opacity:1}
+.profile-personal-menu{margin:4px 0 15px}.profile-personal-menu button{display:grid;grid-template-columns:44px minmax(0,1fr) 24px;gap:11px;align-items:center;width:100%;padding:13px;border:1px solid rgba(126,182,255,.22);border-radius:17px;background:linear-gradient(135deg,rgba(86,148,238,.13),rgba(97,210,173,.07));color:var(--cream);text-align:left;cursor:pointer;transition:.18s ease}.profile-personal-menu button:hover{transform:translateY(-1px);border-color:rgba(126,182,255,.46);background:linear-gradient(135deg,rgba(86,148,238,.2),rgba(97,210,173,.1))}.profile-personal-menu .ppm-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.07);font-size:23px}.profile-personal-menu b{display:block;font-size:14px}.profile-personal-menu small{display:block;margin-top:4px;color:var(--muted);font-size:10.5px}.profile-personal-menu i{font-style:normal;color:#9bcaff;font-size:18px;text-align:center}
 .hd-chip.ai{background:rgba(122,200,74,.14);border-color:rgba(122,200,74,.5);color:var(--green-soft,#8AE05C);font-weight:700}
 /* ── AI 비서 ── */
 .ai-box{max-width:520px;width:100%;display:flex;flex-direction:column;max-height:82vh}
@@ -3563,6 +3564,13 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
   <h3 id="meName">—</h3><p id="meDesc">내 프로필</p>
   <div id="mePhotoArea" style="display:flex;align-items:center;gap:14px;margin-bottom:16px"></div>
   <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="onProfilePhoto(this.files[0])"/>
+  <div class="profile-personal-menu">
+    <button onclick="closeModal('meModal');goTab('petshop')">
+      <span class="ppm-icon">🐣</span>
+      <span><b>Avatar Studio</b><small>내 병아리의 모습과 코디를 바꿔요</small></span>
+      <i>→</i>
+    </button>
+  </div>
   <div id="meBody" class="sv-view"></div>
   <div style="text-align:center;margin-top:8px"><a href="https://jaeyoung5178-bot.github.io/Presence/workbook-guide.pdf" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--green-soft);text-decoration:underline">📘 이용 가이드 PDF</a></div>
   <div id="meVer" style="font-size:11px;color:var(--faint);text-align:center;margin-top:10px"></div>
@@ -5196,11 +5204,11 @@ function syncTopOffset(){
 }
 function buildBotbar(){
   var bb=document.getElementById('botbar'); if(!bb)return;
-  var groups=NAV.filter(function(g){return g.tabs.some(tabVisible);});
+  var groups=NAV.filter(function(g){return g.k!=='my'&&g.tabs.some(tabVisible);});
   bb.innerHTML=groups.map(function(g){return '<button class="'+(g.k===curGroup?'active':'')+'" data-group="'+g.k+'" onclick="selectGroup(\''+g.k+'\')"><span class="em">'+g.e+'</span>'+groupTitle(g,true)+'</button>';}).join('');
 }
 function buildRail(){
-  const groups=NAV.filter(g=>g.tabs.some(tabVisible));
+  const groups=NAV.filter(g=>g.k!=='my'&&g.tabs.some(tabVisible));
   if(curGroup!=='home'&&!groups.some(g=>g.k===curGroup))curGroup=groups.length?groups[0].k:'home';
   document.getElementById('rail').innerHTML=groups.map(g=>`<button class="mtab gtab${g.k===curGroup?' active':''}" data-group="${g.k}" onclick="selectGroup('${g.k}')"><span class="em">${g.e}</span>${groupTitle(g,false)}</button>`).join('');
   buildSubRail();
@@ -5235,7 +5243,7 @@ function buildSubRail(){
   var primary=(SUBRAIL_PRIMARY[curGroup]||tabs).filter(function(k){return tabs.indexOf(k)>=0;}).slice(0,SUBRAIL_MAX);
   if(curTab&&tabs.indexOf(curTab)>=0&&primary.indexOf(curTab)<0)primary=primary.slice(0,SUBRAIL_MAX-1).concat(curTab);
   var canCollapse=tabs.length>primary.length;
-  var compact=primary.map(subTabBtn).join('')+(canCollapse?`<button class="mtab stab subrail-more${subRailExpanded?' active':''}" onclick="subRailExpanded=!subRailExpanded;buildSubRail()" aria-expanded="${subRailExpanded?'true':'false'}"><span class="em">${subRailExpanded?'×':'⌘'}</span>${subRailExpanded?'닫기':'Menu'}</button>`:'');
+  var compact=primary.map(subTabBtn).join('')+(canCollapse?`<button class="mtab stab subrail-more${subRailExpanded?' active':''}" onclick="subRailExpanded=!subRailExpanded;buildSubRail()" aria-label="${subRailExpanded?'전체 메뉴 닫기':'전체 메뉴 더보기'}" aria-expanded="${subRailExpanded?'true':'false'}"><span class="em">${subRailExpanded?'×':'⋯'}</span>${subRailExpanded?'닫기':'더보기'}</button>`:'');
   var panel='';
   if(subRailExpanded&&canCollapse){
     var sections=SUBRAIL_SECTIONS[curGroup]||[['전체',tabs]];
@@ -15119,9 +15127,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   @media(min-width:980px){
     nav.rail{overflow-y:auto;overflow-x:hidden}
     #subRail.subrail-organized{width:100%;padding:7px 8px 12px!important}
-    .subrail-compact{display:grid;grid-template-columns:minmax(0,1fr) 42px;gap:6px;overflow:visible}
+    .subrail-compact{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:6px;overflow:visible}
     .subrail-compact .stab{display:none;min-width:0;margin:0!important;justify-content:flex-start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .subrail-compact .stab.active{display:flex}.subrail-compact .subrail-more{display:flex!important;width:42px;min-width:42px;padding:0!important;justify-content:center;font-size:0!important}.subrail-compact .subrail-more .em{font-size:13px}
+    .subrail-compact .stab.active{display:flex}.subrail-compact .subrail-more{display:flex!important;width:78px;min-width:78px;padding:0 8px!important;justify-content:center;gap:4px;font-size:10px!important}.subrail-compact .subrail-more .em{font-size:13px}
     .subrail-panel{width:100%;margin:7px 0 0;padding:8px;grid-template-columns:1fr;gap:7px;border-radius:13px;box-shadow:inset 0 1px rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.16)}
     .subrail-section{padding:8px}.subrail-section>div{grid-template-columns:repeat(2,minmax(0,1fr))}.subrail-section .stab{padding:8px 6px!important;font-size:9.6px!important;gap:4px}.subrail-section .stab .em{font-size:11px}
   }
