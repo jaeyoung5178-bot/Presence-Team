@@ -80,6 +80,13 @@ for (const fixture of cases) {
       dockParent: !!(dock && dock.parentElement && dock.parentElement.id === 'homeAtelierQuickslotHost'),
       premiumTree: !!document.querySelector('#treeSvg[data-premium-tree]'),
       companionCount: document.querySelectorAll('#treeSecHome .atelier-waterer').length,
+      companionDebug: (() => {
+        const el = document.querySelector('#treeSecHome .atelier-waterer');
+        const slot = el && el.querySelector('.atelier-pet-slot');
+        const rect = slot && slot.getBoundingClientRect();
+        const style = slot && getComputedStyle(slot);
+        return slot ? { className: el.className, html: slot.innerHTML.slice(0, 100), width: Math.round(rect.width), height: Math.round(rect.height), background: style.backgroundImage, opacity: style.opacity, display: style.display } : null;
+      })(),
       founderSummary: !!document.querySelector('[data-founder-only="true"]'),
       founderExpected: founder,
       uniqueIds,

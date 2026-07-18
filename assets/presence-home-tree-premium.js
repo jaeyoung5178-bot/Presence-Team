@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '1.1.0';
   var installed = false;
   var renderWrapped = false;
   var waterWrapped = false;
@@ -183,6 +183,23 @@
     var svg = document.getElementById('treeSvg');
     if (!svg) return;
     var info = resolveGrowth(weekOverride);
+    var stage = svg.closest ? svg.closest('.tree-stage') : document.querySelector('#m-home .tree-stage');
+    if (stage) {
+      var month = new Date().getMonth() + 1;
+      var season = month >= 3 && month <= 5 ? 'spring' :
+        month >= 6 && month <= 8 ? 'summer' :
+          month >= 9 && month <= 11 ? 'autumn' : 'winter';
+      var visual = stage.querySelector('.presence-tree-photoreal');
+      if (!visual) {
+        visual = document.createElement('div');
+        visual.className = 'presence-tree-photoreal';
+        visual.setAttribute('aria-hidden', 'true');
+        stage.appendChild(visual);
+      }
+      stage.dataset.treeSeason = season;
+      stage.dataset.treeGrowth = String(Math.round(info.fraction * 100));
+      stage.style.setProperty('--ph-tree-growth', String(clamp(.86 + info.growth * .14, .9, 1)));
+    }
     svg.innerHTML = treeMarkup(info);
     svg.dataset.premiumTree = VERSION;
     svg.dataset.growth = String(Math.round(info.fraction * 100));

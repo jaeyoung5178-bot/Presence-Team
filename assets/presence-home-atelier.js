@@ -325,7 +325,8 @@
     var signature = avatarSignature(profile);
     var slot = companion.querySelector('.atelier-pet-slot');
     if (slot && signature !== companionSignature && !companion.classList.contains('is-watering')) {
-      replaceMarkup(slot, companionArt(profile));
+      companion.classList.toggle('is-fallback', !profile);
+      replaceMarkup(slot, profile ? companionArt(profile) : '');
       companionSignature = signature;
     }
     return companion;
