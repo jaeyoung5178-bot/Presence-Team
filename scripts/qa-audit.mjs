@@ -61,6 +61,38 @@ new vm.Script(read(path.join(workbookRoot, 'ps-hub.js')), { filename: 'ps-hub.js
 new vm.Script(read(path.join(workbookRoot, 'presence-studio.js')), { filename: 'presence-studio.js' });
 new vm.Script(read(path.join(callbackRoot, 'script.js')), { filename: 'callback/script.js' });
 
+// Avatar catalogue quality gate: one visible name may not disguise a reused
+// bitmap/filter combination as a different costume.
+const avatarSource = read(path.join(workbookRoot, 'assets/presence-avatar-studio.js'));
+const avatarWindow = {};
+vm.runInNewContext(avatarSource, {
+  window: avatarWindow,
+  document: { readyState: 'loading', addEventListener() {} },
+  localStorage: { getItem() { return null; }, setItem() {} },
+  setTimeout() {},
+  setInterval() {},
+  console,
+}, { filename: 'assets/presence-avatar-studio.js' });
+const avatarItems = Object.values(avatarWindow.PRESENCE_SHOP_ITEMS || {});
+const duplicateArt = avatarItems
+  .map((item) => item.artKey)
+  .filter((key, index, all) => key && all.indexOf(key) !== index);
+if (duplicateArt.length) failures.push(`avatar: duplicate costume artwork: ${[...new Set(duplicateArt)].join(', ')}`);
+if (avatarItems.some((item) => item.filter && item.filter !== 'none')) {
+  failures.push('avatar: filtered copies must not be published as separate costume items');
+}
+avatarWindow.me = { uid: 'qa-avatar', name: 'QA' };
+avatarWindow.state = { petProfiles: { 'qa-avatar': {
+  equipped: { look: 'body_raincoat_5', head: 'head_shades_9' },
+} } };
+const migratedAvatar = avatarWindow.presenceAvatarProfile();
+if (migratedAvatar.equipped.body !== 'body_raincoat_0') {
+  failures.push('avatar: legacy filtered costume ids must migrate to the unique original artwork');
+}
+if (migratedAvatar.equipped.head) {
+  failures.push('avatar: unreviewed body/head composites must not render together');
+}
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
