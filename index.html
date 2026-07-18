@@ -12874,6 +12874,10 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
 (function(){
   if(window.__pmsV2Loaded)return; window.__pmsV2Loaded=true;
 
+  /* 대표 요청(2026-07-18): 다음 운영 재개 공지 전까지 먹이 토큰 케어는
+     완전히 일시중지한다. 기록은 보존하고 알림·배지·팝업만 생성하지 않는다. */
+  window.PRESENCE_FEED_TOKEN_CARE_PAUSED=true;
+
   /* ── 공통: 진짜 소유자 체크 (관리자 모드 OFF·미리보기 중에도 동작해야 하는 케어 기능용) ── */
   function rf(u){ return !!u && (typeof FOUNDER!=='undefined') && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name); }
   function dstr(d){ return d.toISOString().slice(0,10); }
@@ -12885,6 +12889,7 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
      ════════════════════════════════════════════════ */
   window.feedMissedDays=function(){
     var out=[];
+    if(window.PRESENCE_FEED_TOKEN_CARE_PAUSED)return out;
     if(typeof fieldersOn!=='function'||typeof tokensIssuedOn!=='function')return out;
     for(var i=1;i<=14;i++){
       var dt=new Date(); dt.setDate(dt.getDate()-i);
@@ -12978,6 +12983,7 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
   };
   window.frIssue=function(){ if(issueTokensForDate(TODAY,false))closeModal('feedRemindModal'); };
   window.maybeTokenIssuePrompt=function(){
+    if(window.PRESENCE_FEED_TOKEN_CARE_PAUSED)return;
     if(!me||!rf(me)||window._tokPrompted)return;
     if(new Date().getHours()<11)return;                       // ⏰ 오전 11시부터
     if(tokensIssuedOn(TODAY))return;
@@ -15288,7 +15294,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-5">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<script src="assets/presence-avatar-studio.js?v=20260718-5"></script>
+<script src="assets/presence-avatar-studio.js?v=20260718-6"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-1"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 </body>
