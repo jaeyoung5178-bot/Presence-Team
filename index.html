@@ -5229,7 +5229,7 @@ var SUBRAIL_SECTIONS={
   progress:[['성장',['journey','leaderhit','manual','obj']],['현장 학습',['callback','topics','training','cod']],['나의 공간',['petshop']]],
   profit:[['세일즈',['sale','perf','daily']],['후속 관리',['cbjournal','rejectnote']]],
   my:[['MY PRESENCE',['petshop']]],
-  admin:[['구성원·권한',['admin','survey']],['운영·승인',['events','eventsurvey','salesmgr']],['시스템',['gsheet','field','recap']]]
+  admin:[['Members & Access',['admin','survey']],['Operations',['events','eventsurvey','salesmgr']],['Systems',['gsheet','field','recap']]]
 };
 function subTabBtn(k){const t=TABMETA[k];return `<button class="mtab stab${k===curTab?' active':''}" data-tab="${k}" onclick="goTab('${k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`;}
 function buildSubRail(){
@@ -5245,9 +5245,13 @@ function buildSubRail(){
   var canCollapse=tabs.length>primary.length;
   var compact=primary.map(subTabBtn).join('')+(canCollapse?`<button class="mtab stab subrail-more${subRailExpanded?' active':''}" onclick="subRailExpanded=!subRailExpanded;buildSubRail()" aria-label="${subRailExpanded?'전체 메뉴 닫기':'전체 메뉴 더보기'}" aria-expanded="${subRailExpanded?'true':'false'}"><span class="em">${subRailExpanded?'×':'⋯'}</span>${subRailExpanded?'닫기':'더보기'}</button>`:'');
   var panel='';
-  if(subRailExpanded&&canCollapse){
+  /* Desktop is an operations console: keep the categorized second level in
+     sight so users do not have to remember which workspace hides a tool.
+     Tablet and mobile keep the compact disclosure to protect working space. */
+  var desktopMenu=window.matchMedia&&window.matchMedia('(min-width:980px)').matches;
+  if((subRailExpanded||desktopMenu)&&canCollapse){
     var sections=SUBRAIL_SECTIONS[curGroup]||[['전체',tabs]];
-    panel='<div class="subrail-panel" role="dialog" aria-label="'+groupTitle(g,false)+' 전체 메뉴">'+sections.map(function(section){var ks=section[1].filter(function(k){return tabs.indexOf(k)>=0;});if(!ks.length)return '';return '<section class="subrail-section"><h4>'+section[0]+'</h4><div>'+ks.map(subTabBtn).join('')+'</div></section>';}).join('')+'</div>';
+    panel='<div class="subrail-panel" role="navigation" aria-label="'+groupTitle(g,false)+' 기능 메뉴">'+sections.map(function(section){var ks=section[1].filter(function(k){return tabs.indexOf(k)>=0;});if(!ks.length)return '';return '<section class="subrail-section"><h4>'+section[0]+'</h4><div>'+ks.map(subTabBtn).join('')+'</div></section>';}).join('')+'</div>';
   }
   sr.classList.add('subrail-organized');sr.innerHTML='<div class="subrail-compact">'+compact+'</div>'+panel;
   syncTopOffset();
@@ -13013,11 +13017,11 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
   setTimeout(function(){ try{ renderBell(); }catch(e){} },4500);
 
   /* ════════════════════════════════════════════════
-     ③ 관리자 모드 — 기본 OFF (심플 화면) · 선택 기억
-     — 🛡️ 버튼을 켠 동안만 관리 기능 노출, 끄면 일반 AOP 화면
+     ③ 관리자 모드 — 관리자 계정은 기본 ON · 선택 기억
+     — 명시적으로 끈 경우에만 일반 AOP 화면을 유지한다.
      ════════════════════════════════════════════════ */
   var savedAdm=null; try{ savedAdm=localStorage.getItem('pms_admin_on'); }catch(e){}
-  window.__adminOff = (savedAdm==='1') ? false : true;         // 기본 = OFF(심플)
+  window.__adminOff = (savedAdm==='0');                        // 기본 = ON, 명시적 0만 OFF
   if(typeof window.toggleAdminMode==='function'){
     var _tam=window.toggleAdminMode;
     window.toggleAdminMode=function(){
@@ -15019,10 +15023,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
        오늘 무엇을 할까 / 누구와 일할까 / 어떻게 성장할까 / 어떤 성과를 만들까.
        탭의 실제 접근 권한은 기존 TABMETA[].g를 그대로 사용해 역할별 보안을 보존한다. */
     var workspaces=[
-      {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao','events','eventsurvey','survey','gsheet','admin']},
+      {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao']},
       {k:'people',e:'◎',l:'People',tabs:['teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
       {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod','petshop']},
-      {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily','salesmgr','field','recap']}
+      {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily']},
+      {k:'admin',e:'▣',l:'Admin',tabs:['admin','events','survey','eventsurvey','salesmgr','gsheet','field','recap']}
     ];
     NAV.splice.apply(NAV,[0,NAV.length].concat(workspaces));
     var activeGroup=typeof curTab==='string'&&typeof groupFor==='function'?groupFor(curTab):'home';
@@ -15167,6 +15172,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   @keyframes presencePetWalk{0%{left:52%}46%{left:72%}50%{left:72%}96%,100%{left:52%}}
   @media(min-width:768px) and (max-width:979px){#rail{display:grid;grid-template-columns:repeat(6,minmax(96px,1fr));gap:7px;padding:8px 14px}#rail .gtab{justify-content:center;margin:0!important;font-size:12px}.ps-preview{min-height:540px}.ps-petstage{width:250px}}
   @media(max-width:767px){.home-entry-btn{width:34px;min-width:34px;height:34px;padding:0;justify-content:center;margin-left:0}.home-entry-btn b{display:none}#subRail.subrail-organized{padding:6px 8px 8px!important}.subrail-compact{justify-content:flex-start}.subrail-compact .stab{padding:8px 9px!important;font-size:10.5px!important}.subrail-panel{width:100%;grid-template-columns:1fr;padding:10px;gap:8px;border-radius:15px}.subrail-section{padding:9px}.subrail-section>div{grid-template-columns:repeat(2,minmax(0,1fr))}.ps-preview{min-height:0!important;padding:22px 15px 17px!important}.ps-name{font-size:24px}.ps-petstage{flex-basis:250px;width:min(100%,270px);height:250px;margin-top:16px}.ps-petstage .ps-pet{width:207px;height:225px}.ps-petstage .ps-pet svg,.ps-petstage .ps-pet>img{width:203px;height:222px}.ps-icon{height:112px!important}.my-coop-pet{width:82px!important}.my-coop-pet .mcp-sprite,.my-coop-pet .mcp-sprite svg,.my-coop-pet .mcp-sprite img{width:80px!important;height:86px!important}.my-coop-pet .mcp-name{max-width:106px!important;padding:3px 6px!important;font-size:8px!important}#botbar{grid-template-columns:repeat(6,1fr)}#botbar button{font-size:9px;padding-left:2px;padding-right:2px}}
+  @media(max-width:1199px){.subrail-panel{max-height:min(58vh,520px);overflow-y:auto;overscroll-behavior:contain}.subrail-compact .stab,.subrail-compact .subrail-more{min-height:44px}}
+  @media(max-width:767px){#botbar button{min-height:48px;font-size:10px}.subrail-section .stab{min-height:44px}.subrail-panel{max-height:calc(100vh - 190px);padding-bottom:calc(12px + env(safe-area-inset-bottom))}}
   @media(prefers-reduced-motion:reduce){.ps-petstage .ps-pet{animation:none!important}}
 </style>
 <script id="presence-single-pet-inventory-patch">
@@ -15292,9 +15299,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){patch();wrapHomeDash();},260);});else setTimeout(function(){patch();wrapHomeDash();},260);setInterval(function(){patch();wrapHomeDash();},6500);
 })();
 </script>
-<link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-8">
+<link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-10">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<script src="assets/presence-avatar-studio.js?v=20260718-9"></script>
+<script src="assets/presence-avatar-studio.js?v=20260718-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 </body>

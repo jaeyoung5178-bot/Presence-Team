@@ -108,11 +108,30 @@ const repairedArt = avatarWindow.presencePetArt(repairedAvatar);
 if (repairedAvatar.color !== 'honey' || repairedAvatar.feather !== 'classic') {
   failures.push('avatar: invalid legacy body/feather traits must canonicalize before rendering');
 }
-if (!repairedArt.includes('presence-base-honey.png') || !repairedArt.includes('presence-pet-base.png')) {
-  failures.push('avatar: every non-integrated render needs a valid body plus an image-error fallback');
+if (!repairedArt.includes('presence-pet-base.png')) {
+  failures.push('avatar: every non-integrated render needs the audited canonical body');
+}
+if (repairedArt.includes('presence-base-') || repairedArt.includes('pgp-tone')) {
+  failures.push('avatar: generated rectangular tone variants and tint overlays must not reach production');
+}
+if (repairedArt.includes('pgp-prop')) {
+  failures.push('avatar: unreviewed props must not render over the face or torso');
 }
 if (!avatarSource.includes('__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER=true')) {
   failures.push('avatar: external studio must explicitly own the inventory renderer');
+}
+
+// Workspace IA quality gate: four member workspaces plus a separate founder
+// console. Admin tools must not be hidden inside Today or Profit.
+const workbookSource = read(workbookFile);
+for (const key of ["k:'today'", "k:'people'", "k:'progress'", "k:'profit'", "k:'admin'"]) {
+  if (!workbookSource.includes(key)) failures.push(`navigation: missing workspace ${key}`);
+}
+if (!workbookSource.includes("l:'Admin',tabs:['admin'")) {
+  failures.push('navigation: founder operations need a visible, dedicated Admin workspace');
+}
+if (!workbookSource.includes("matchMedia('(min-width:980px)')")) {
+  failures.push('navigation: desktop must expose categorized second-level tools without an extra click');
 }
 
 if (failures.length) {
