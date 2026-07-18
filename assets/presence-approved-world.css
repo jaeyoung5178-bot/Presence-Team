@@ -1,0 +1,646 @@
+/*
+ * Presence approved world
+ * Exact 1672 × 941 approved-art shell with responsive, accessible live controls.
+ * Keep this stylesheet last: it intentionally wins over legacy farm/basecamp skin rules.
+ */
+
+:root{
+  --approved-world-ratio:1672 / 941;
+  --approved-navy:#071827;
+  --approved-navy-soft:#102b45;
+  --approved-paper:#f3ead7;
+  --approved-paper-edge:#cfb98d;
+  --approved-gold:#c7a566;
+  --approved-olive:#788057;
+  --approved-focus:#fff3c4;
+}
+
+html:has(.approved-world-shell),
+body:has(.approved-world-shell){
+  max-width:100%;
+  overflow-x:clip!important;
+}
+
+/* ---------- Shared approved-image stage ---------- */
+.approved-world-shell,
+#presenceVillageWorld,
+#presenceTreeWorld,
+#presenceAvatarAtelierWorld{
+  box-sizing:border-box!important;
+  position:relative!important;
+  isolation:isolate!important;
+  display:block!important;
+  width:100vw!important;
+  max-width:100vw!important;
+  aspect-ratio:var(--approved-world-ratio)!important;
+  min-width:0!important;
+  margin-inline:calc(50% - 50vw)!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain;
+  background-color:var(--approved-navy)!important;
+  background-repeat:no-repeat!important;
+  background-position:50% 50%!important;
+  background-size:100% 100%!important;
+  box-shadow:none!important;
+  color:#fff;
+  contain:layout paint;
+}
+
+#presenceVillageWorld{
+  background-image:url("farm-world/approved/village-dashboard-approved.png")!important;
+}
+
+#presenceTreeWorld{
+  background-image:url("farm-world/approved/home-tree-approved.png")!important;
+}
+
+#presenceAvatarAtelierWorld{
+  background-image:url("farm-world/approved/avatar-atelier-approved.png")!important;
+}
+
+.approved-world-shell::before,
+#presenceVillageWorld::before,
+#presenceTreeWorld::before,
+#presenceAvatarAtelierWorld::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(2,10,18,.025),transparent 15%,transparent 84%,rgba(2,8,14,.04));
+}
+
+.approved-world-shell > *,
+#presenceVillageWorld > *,
+#presenceTreeWorld > *,
+#presenceAvatarAtelierWorld > *{
+  position:relative;
+  z-index:1;
+  min-width:0;
+  max-width:100%;
+}
+
+/* The approved artwork carries the visual labels; live hotspots remain invisible
+   until pointer/keyboard interaction, so the approved frame is preserved at rest. */
+.approved-world-shell .approved-hotspot,
+#presenceVillageWorld .approved-hotspot,
+#presenceTreeWorld .approved-hotspot,
+#presenceAvatarAtelierWorld .approved-hotspot{
+  position:absolute!important;
+  z-index:8!important;
+  min-width:44px!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:0!important;
+  border:2px solid transparent!important;
+  border-radius:14px!important;
+  outline:0!important;
+  background:transparent!important;
+  color:transparent!important;
+  box-shadow:none!important;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+
+.approved-world-shell .approved-hotspot:is(:hover,:focus-visible),
+#presenceVillageWorld .approved-hotspot:is(:hover,:focus-visible),
+#presenceTreeWorld .approved-hotspot:is(:hover,:focus-visible),
+#presenceAvatarAtelierWorld .approved-hotspot:is(:hover,:focus-visible){
+  border-color:var(--approved-focus)!important;
+  background:rgba(7,24,39,.14)!important;
+  box-shadow:0 0 0 3px rgba(12,37,55,.62),0 0 28px rgba(255,224,148,.5)!important;
+}
+
+.approved-world-shell .approved-hotspot:active{
+  transform:scale(.985);
+}
+
+/* Optional live labels/cards use the same materials as the approved art. */
+.approved-world-shell .approved-farmer-label,
+.approved-world-shell .approved-live-card,
+#presenceVillageWorld .approved-farmer-label,
+#presenceVillageWorld .approved-live-card,
+#presenceTreeWorld .approved-farmer-label,
+#presenceTreeWorld .approved-live-card,
+#presenceAvatarAtelierWorld .approved-farmer-label,
+#presenceAvatarAtelierWorld .approved-live-card{
+  box-sizing:border-box!important;
+  font-family:'Gowun Dodum','Pretendard',sans-serif!important;
+  text-wrap:balance;
+}
+
+.approved-world-shell .approved-farmer-label,
+#presenceVillageWorld .approved-farmer-label,
+#presenceTreeWorld .approved-farmer-label,
+#presenceAvatarAtelierWorld .approved-farmer-label{
+  position:absolute!important;
+  z-index:6!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:38px!important;
+  padding:8px 13px!important;
+  border:1px solid rgba(214,184,126,.72)!important;
+  border-radius:8px!important;
+  color:#f8e8c3!important;
+  background:linear-gradient(145deg,rgba(6,24,39,.96),rgba(16,43,65,.95))!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.32),inset 0 0 0 2px rgba(7,14,21,.52)!important;
+  font-size:clamp(12px,1vw,16px)!important;
+  line-height:1.25!important;
+}
+
+.approved-world-shell .approved-live-card,
+#presenceVillageWorld .approved-live-card,
+#presenceTreeWorld .approved-live-card,
+#presenceAvatarAtelierWorld .approved-live-card{
+  position:absolute!important;
+  z-index:5!important;
+  width:min(31.5vw,490px)!important;
+  max-height:min(66%,620px)!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  padding:clamp(18px,2vw,32px)!important;
+  border:7px solid rgba(72,48,28,.92)!important;
+  outline:1px solid rgba(255,239,198,.7)!important;
+  outline-offset:-13px!important;
+  border-radius:12px!important;
+  color:#263545!important;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 28px,rgba(87,65,37,.025) 29px),
+    linear-gradient(145deg,rgba(248,242,226,.98),rgba(232,218,190,.98))!important;
+  box-shadow:0 20px 50px rgba(0,0,0,.3)!important;
+  scrollbar-width:thin;
+  scrollbar-color:#9a7f55 transparent;
+}
+
+/* Approved default anchors. Inline/data-specific placement from JS may override. */
+#presenceVillageWorld .approved-live-card{right:1.2%;top:17.3%}
+#presenceTreeWorld .approved-live-card{right:2.2%;top:13.2%}
+#presenceTreeWorld .approved-farmer-label{left:6.5%;bottom:10%}
+#presenceAvatarAtelierWorld .approved-live-card{left:2%;top:17%;width:min(41.5vw,694px)!important}
+#presenceAvatarAtelierWorld .approved-farmer-label{left:49%;bottom:10%}
+
+/* ---------- Login: approved village + real, working parchment ---------- */
+#authGate,
+#authGate.presence-basecamp,
+#authGate.presence-basecamp:not(.hidden){
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:clamp(14px,2vh,24px)!important;
+  overflow:hidden!important;
+  background-color:#071827!important;
+  background-image:url("farm-world/approved/login-village-approved.png")!important;
+  background-repeat:no-repeat!important;
+  background-position:50% 50%!important;
+  background-size:cover!important;
+  animation:none!important;
+  isolation:isolate!important;
+}
+
+#authGate.hidden,
+#authGate.presence-basecamp.hidden{display:none!important}
+
+#authGate::before,
+#authGate::after,
+#authGate.presence-basecamp::before,
+#authGate.presence-basecamp::after{
+  content:none!important;
+  display:none!important;
+  animation:none!important;
+}
+
+#authGate .auth-basecamp-scene,
+#authGate.presence-basecamp .auth-basecamp-scene{display:none!important}
+
+#authGate > .auth-card,
+#authGate.presence-basecamp > .auth-card{
+  box-sizing:border-box!important;
+  position:relative!important;
+  z-index:3!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  width:clamp(388px,25.85vw,432px)!important;
+  max-width:calc(100vw - 28px)!important;
+  min-height:min(69.5dvh,654px)!important;
+  max-height:min(69.5dvh,654px)!important;
+  margin:0!important;
+  padding:clamp(24px,3.1vh,34px) clamp(30px,2.6vw,43px) clamp(20px,2.5vh,28px)!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  color:#263545!important;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 27px,rgba(75,55,35,.025) 28px),
+    linear-gradient(145deg,rgba(247,240,224,.995),rgba(234,222,197,.995))!important;
+  border:10px solid #2b1a11!important;
+  border-radius:2px!important;
+  outline:1px solid rgba(209,174,109,.72)!important;
+  outline-offset:-17px!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.48),0 0 0 2px #795235,0 0 0 5px rgba(12,19,24,.84)!important;
+  backdrop-filter:none!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:#8a6b47 transparent!important;
+}
+
+#authGate > .auth-card::before,
+#authGate.presence-basecamp > .auth-card::before{
+  content:"프레젠스 Work Book"!important;
+  display:block!important;
+  flex:none!important;
+  margin:0 0 10px!important;
+  color:#102b45!important;
+  font-family:'Gowun Batang','Nanum Myeongjo','Noto Serif KR',serif!important;
+  font-size:clamp(26px,2.3vw,36px)!important;
+  font-weight:800!important;
+  line-height:1.18!important;
+  letter-spacing:.035em!important;
+  text-align:center!important;
+}
+
+#authGate .auth-logo,
+#authGate.presence-basecamp .auth-logo{
+  display:block!important;
+  flex:none!important;
+  margin:0 0 16px!important;
+  padding:0 12px 15px!important;
+  border-bottom:1px solid rgba(85,63,40,.3)!important;
+  text-align:center!important;
+}
+
+#authGate .auth-logo::before,
+#authGate .auth-logo::after,
+#authGate.presence-basecamp .auth-logo::before,
+#authGate.presence-basecamp .auth-logo::after{content:none!important;display:none!important}
+
+#authGate .auth-logo .hero-plate,
+#authGate.presence-basecamp .auth-logo .hero-plate{
+  display:grid!important;
+  place-items:center!important;
+  width:62px!important;
+  height:48px!important;
+  margin:0 auto 8px!important;
+  padding:4px!important;
+  border-radius:10px!important;
+  background:#102b45!important;
+  box-shadow:0 5px 14px rgba(14,35,53,.2)!important;
+}
+
+#authGate .auth-logo .hero-plate img,
+#authGate.presence-basecamp .auth-logo .hero-plate img{
+  display:block!important;
+  width:auto!important;
+  height:34px!important;
+  max-width:52px!important;
+  object-fit:contain!important;
+  filter:none!important;
+}
+
+#authGate .auth-logo .sub,
+#authGate.presence-basecamp .auth-logo .sub{
+  display:block!important;
+  max-width:none!important;
+  margin:0!important;
+  color:#69705f!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  line-height:1.4!important;
+  letter-spacing:.03em!important;
+  text-align:center!important;
+  text-shadow:none!important;
+}
+
+#authGate .auth-box,
+#authGate.presence-basecamp .auth-box{
+  flex:0 1 auto!important;
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+
+#authGate .auth-tabs{gap:6px!important;margin:0 0 14px!important;padding:4px!important;border:1px solid rgba(46,56,54,.14)!important;border-radius:7px!important;background:rgba(30,44,54,.07)!important}
+#authGate .auth-tabs button{min-height:42px!important;padding:8px 10px!important;border-radius:5px!important;color:#6f6b61!important}
+#authGate .auth-tabs button.active{color:#fff6df!important;background:#102b45!important;box-shadow:0 6px 16px rgba(10,30,48,.2)!important}
+#authGate .auth-h,#authGate .status-screen h2{color:#13273b!important}
+#authGate .auth-p,#authGate .status-screen p{color:#615f57!important}
+#authGate .auth-box .field label{color:#4e4d46!important;font-weight:800!important}
+#authGate .auth-box .field input{
+  min-height:46px!important;
+  color:#17283b!important;
+  background:rgba(255,252,244,.84)!important;
+  border:1px solid rgba(78,64,45,.36)!important;
+  border-radius:4px!important;
+  box-shadow:inset 0 1px 2px rgba(43,31,21,.06)!important;
+  font-size:16px!important;
+}
+#authGate .auth-box .field input::placeholder{color:#8d887c!important}
+#authGate .auth-box .field input:focus{border-color:#415c70!important;outline:0!important;box-shadow:0 0 0 3px rgba(32,67,91,.13)!important}
+#authGate .auth-remember{color:#5f625a!important}
+#authGate .btn.block{min-height:48px!important;border:1px solid #061727!important;border-radius:5px!important;color:#fff5df!important;background:#102b45!important;box-shadow:0 7px 15px rgba(14,35,53,.2)!important}
+#authGate .btn.block:hover{transform:translateY(-1px)!important;background:#173b5c!important}
+#authGate .auth-foot{flex:none!important;margin-top:13px!important;color:#68665e!important;font-size:10px!important;text-align:center!important;text-shadow:none!important}
+
+/* ---------- Tablet: retain the approved subject and crop peripheral scenery ---------- */
+@media (min-width:601px) and (max-width:1199px){
+  .approved-world-shell,
+  #presenceVillageWorld,
+  #presenceTreeWorld,
+  #presenceAvatarAtelierWorld{
+    width:100vw!important;
+    height:max(100dvh,calc(100vw * 941 / 1672))!important;
+    min-height:700px!important;
+    aspect-ratio:auto!important;
+    background-size:cover!important;
+  }
+  #presenceVillageWorld{background-position:46% 50%!important}
+  #presenceTreeWorld{background-position:43% 50%!important}
+  #presenceAvatarAtelierWorld{background-position:58% 50%!important}
+
+  .approved-world-shell .approved-live-card,
+  #presenceVillageWorld .approved-live-card,
+  #presenceTreeWorld .approved-live-card,
+  #presenceAvatarAtelierWorld .approved-live-card{
+    width:min(42vw,430px)!important;
+    max-height:58%!important;
+    padding:20px!important;
+  }
+
+  #authGate,
+  #authGate.presence-basecamp,
+  #authGate.presence-basecamp:not(.hidden){background-position:50% 50%!important}
+  #authGate > .auth-card,
+  #authGate.presence-basecamp > .auth-card{
+    width:min(410px,calc(100vw - 40px))!important;
+    min-height:min(72dvh,620px)!important;
+    max-height:min(88dvh,700px)!important;
+  }
+}
+
+/* ---------- Phone: intentional close crop + bottom-safe live surfaces ---------- */
+@media (max-width:600px){
+  .approved-world-shell,
+  #presenceVillageWorld,
+  #presenceTreeWorld,
+  #presenceAvatarAtelierWorld{
+    width:100vw!important;
+    height:max(100dvh,680px)!important;
+    min-height:680px!important;
+    aspect-ratio:auto!important;
+    margin-inline:calc(50% - 50vw)!important;
+    background-size:auto 100%!important;
+  }
+  #presenceVillageWorld{background-position:34% 50%!important}
+  #presenceTreeWorld{background-position:38% 50%!important}
+  #presenceAvatarAtelierWorld{background-position:59% 50%!important}
+
+  .approved-world-shell .approved-hotspot,
+  #presenceVillageWorld .approved-hotspot,
+  #presenceTreeWorld .approved-hotspot,
+  #presenceAvatarAtelierWorld .approved-hotspot{min-width:48px!important;min-height:48px!important}
+
+  .approved-world-shell .approved-farmer-label,
+  #presenceVillageWorld .approved-farmer-label,
+  #presenceTreeWorld .approved-farmer-label,
+  #presenceAvatarAtelierWorld .approved-farmer-label{
+    max-width:calc(100vw - 24px)!important;
+    padding:8px 11px!important;
+    font-size:12px!important;
+  }
+
+  .approved-world-shell .approved-live-card,
+  #presenceVillageWorld .approved-live-card,
+  #presenceTreeWorld .approved-live-card,
+  #presenceAvatarAtelierWorld .approved-live-card{
+    left:12px!important;
+    right:12px!important;
+    top:auto!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    max-height:42dvh!important;
+    padding:18px!important;
+    border-width:5px!important;
+    outline-offset:-10px!important;
+  }
+
+  #authGate,
+  #authGate.presence-basecamp,
+  #authGate.presence-basecamp:not(.hidden){
+    align-items:flex-end!important;
+    padding:54px 12px calc(12px + env(safe-area-inset-bottom))!important;
+    overflow:hidden!important;
+    background-position:50% 50%!important;
+    background-size:auto 100%!important;
+  }
+  #authGate > .auth-card,
+  #authGate.presence-basecamp > .auth-card{
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:390px!important;
+    min-height:0!important;
+    max-height:calc(100dvh - 70px)!important;
+    padding:22px 20px 18px!important;
+    border-width:7px!important;
+    outline-offset:-12px!important;
+    border-radius:5px!important;
+  }
+  #authGate > .auth-card::before,
+  #authGate.presence-basecamp > .auth-card::before{font-size:27px!important;margin-bottom:7px!important}
+  #authGate .auth-logo,#authGate.presence-basecamp .auth-logo{margin-bottom:12px!important;padding-bottom:11px!important}
+  #authGate .auth-logo .sub,#authGate.presence-basecamp .auth-logo .sub{font-size:11px!important}
+}
+
+@media (max-width:380px){
+  #authGate,
+  #authGate.presence-basecamp,
+  #authGate.presence-basecamp:not(.hidden){padding-inline:8px!important}
+  #authGate > .auth-card,
+  #authGate.presence-basecamp > .auth-card{padding:19px 16px 15px!important}
+  #authGate > .auth-card::before,
+  #authGate.presence-basecamp > .auth-card::before{font-size:24px!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .approved-world-shell *,#authGate *{scroll-behavior:auto!important;animation:none!important;transition-duration:.01ms!important}
+}
+
+/* Runtime overlays fill the viewport. Approved art remains the visible source;
+   scene hit areas stay invisible until focus/hover. */
+#presenceVillageWorld,
+#presenceTreeWorld,
+#presenceAvatarAtelierWorld{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  contain:none!important;
+  overflow:hidden!important;
+  scrollbar-width:none!important;
+}
+
+#presenceVillageWorld::-webkit-scrollbar,
+#presenceTreeWorld::-webkit-scrollbar,
+#presenceAvatarAtelierWorld::-webkit-scrollbar{display:none!important}
+
+#presenceVillageWorld[hidden],
+#presenceTreeWorld[hidden],
+#presenceAvatarAtelierWorld[hidden]{display:none!important}
+
+#presenceVillageWorld .pv-world-nav{display:none!important}
+
+#presenceVillageWorld .pv-profile{
+  position:absolute!important;
+  right:23.9%!important;
+  top:4.4%!important;
+  min-width:185px!important;
+  min-height:58px!important;
+  padding:8px 14px!important;
+  border:1px solid rgba(214,184,126,.82)!important;
+  border-radius:10px!important;
+  background:linear-gradient(145deg,rgba(6,24,39,.98),rgba(16,43,65,.97))!important;
+  color:#f8e8c3!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+
+/* The approved tree art already contains its controls. Keep the working
+   buttons as transparent, keyboard-focusable hit areas so no second UI is
+   painted over the approved composition. */
+@media (min-width:601px){
+  #presenceTreeWorld .pv-close{
+    position:absolute!important;
+    left:28.5%!important;
+    right:auto!important;
+    top:0!important;
+    width:10%!important;
+    height:9%!important;
+    opacity:0!important;
+  }
+  #presenceTreeWorld .pv-water{
+    position:absolute!important;
+    left:48.3%!important;
+    top:45.2%!important;
+    width:14.5%!important;
+    min-width:0!important;
+    height:8.5%!important;
+    padding:0!important;
+    color:transparent!important;
+    border-color:transparent!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  #presenceTreeWorld .pv-tree-back{
+    position:absolute!important;
+    left:49%!important;
+    top:54.2%!important;
+    width:13.5%!important;
+    min-width:0!important;
+    height:6.5%!important;
+    padding:0!important;
+    color:transparent!important;
+    border-color:transparent!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  #presenceTreeWorld .pv-water:focus-visible,
+  #presenceTreeWorld .pv-tree-back:focus-visible{
+    opacity:1!important;
+    outline:3px solid #fff0b5!important;
+    outline-offset:2px!important;
+  }
+  #presenceTreeWorld .pv-close,
+  #presenceTreeWorld .pv-close:focus,
+  #presenceTreeWorld .pv-close:focus-visible{
+    color:transparent!important;
+    border-color:transparent!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    outline:0!important;
+    opacity:0!important;
+  }
+}
+
+#presenceVillageWorld .pv-profile-copy small{color:#c7a566!important;letter-spacing:.12em!important}
+#presenceVillageWorld .pv-profile-copy b{color:#fff0cd!important}
+#presenceVillageWorld .pv-hotspot-icon{display:none!important}
+
+#presenceVillageWorld .pv-scene-hotspots .pv-hotspot{
+  color:transparent!important;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+  font-size:0!important;
+}
+
+#presenceVillageWorld .pv-scene-hotspots .pv-hotspot:is(:hover,:focus-visible){
+  border-color:var(--approved-focus)!important;
+  background:rgba(7,24,39,.12)!important;
+  box-shadow:0 0 0 3px rgba(12,37,55,.58),0 0 26px rgba(255,224,148,.48)!important;
+}
+
+@media (min-width:601px){
+  #presenceVillageWorld .pv-mobile-sheet{display:none!important}
+}
+
+@media (max-width:600px){
+  #presenceVillageWorld{background-position:42% 50%!important;background-size:auto 100%!important}
+  #presenceVillageWorld,
+  #presenceTreeWorld,
+  #presenceAvatarAtelierWorld{
+    width:100dvw!important;
+    max-width:100dvw!important;
+    margin:0!important;
+  }
+  #presenceVillageWorld .pv-profile{
+    left:12px!important;
+    right:72px!important;
+    top:12px!important;
+    min-width:0!important;
+  }
+  #presenceVillageWorld .pv-scene-hotspots{display:none!important}
+  #presenceVillageWorld .pv-mobile-sheet{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    margin:47dvh 12px 12px!important;
+    padding:12px!important;
+    border:6px solid rgba(72,48,28,.94)!important;
+    outline:1px solid rgba(255,239,198,.7)!important;
+    outline-offset:-10px!important;
+    border-radius:14px!important;
+    background:linear-gradient(145deg,rgba(248,242,226,.98),rgba(232,218,190,.98))!important;
+    box-shadow:0 20px 50px rgba(0,0,0,.32)!important;
+  }
+  #presenceVillageWorld .pv-mobile-sheet .pv-hotspot{
+    position:relative!important;
+    inset:auto!important;
+    min-height:48px!important;
+    padding:10px 8px!important;
+    border:1px solid rgba(104,80,48,.42)!important;
+    border-radius:9px!important;
+    background:rgba(7,24,39,.94)!important;
+    color:#f8e8c3!important;
+    box-shadow:none!important;
+    font-size:13px!important;
+  }
+}
