@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.1.0';
+  var VERSION = '1.2.0';
   var installed = false;
   var renderWrapped = false;
   var waterWrapped = false;
@@ -25,6 +25,13 @@
     [2, -52, .78], [-62, 12, .72], [62, 14, .74]
   ];
 
+  var SEASON_PALETTE = {
+    spring: ['#dff2ad', '#83b950', '#315f35', '#f5d9dd'],
+    summer: ['#c7db78', '#5f8f3d', '#1f422b', '#fff1a3'],
+    autumn: ['#f4cc69', '#bc682e', '#60301f', '#ffd88a'],
+    winter: ['#aebf98', '#536e58', '#233c36', '#eef7f8']
+  };
+
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, Number(value) || 0));
   }
@@ -37,6 +44,22 @@
       if (name === 'today') return typeof TODAY !== 'undefined' ? TODAY : fallback;
     } catch (error) {}
     return fallback;
+  }
+
+  function resolveSeason(preview, previewStep) {
+    if (preview) {
+      if (previewStep <= 0) return 'spring';
+      if (previewStep === 1) return 'summer';
+      if (previewStep === 2) return 'autumn';
+      return 'winter';
+    }
+    try {
+      if (typeof treeSeason === 'function') return treeSeason();
+    } catch (error) {}
+    var month = new Date().getMonth() + 1;
+    return month >= 3 && month <= 5 ? 'spring' :
+      month >= 6 && month <= 8 ? 'summer' :
+        month >= 9 && month <= 11 ? 'autumn' : 'winter';
   }
 
   function resolveGrowth(weekOverride) {
@@ -71,7 +94,8 @@
         fraction: clamp(fraction, 0, 1),
         growth: clamp(growth, 0.2, 1),
         ended: Boolean(endedPreview || (endedNow && weekOverride == null && !preview)),
-        preview: preview
+        preview: preview,
+        season: resolveSeason(preview, previewStep)
       };
     } catch (error) {
       var label = (document.getElementById('stageTag') || {}).textContent || '';
@@ -82,7 +106,8 @@
         fraction: stageFraction,
         growth: clamp(.26 + .66 * Math.pow(stageFraction, .6), .2, 1),
         ended: /완성/.test(label),
-        preview: /미리보기/.test(label)
+        preview: /미리보기/.test(label),
+        season: resolveSeason(false, null)
       };
     }
   }
@@ -100,9 +125,9 @@
     return '<path d="' + d + '" transform="rotate(' + rotation + ' ' + x + ' ' + y + ')" fill="url(#phtLeaf)" opacity="' + tone + '"/>';
   }
 
-  function sproutMarkup() {
+  function sproutMarkup(info) {
     return '' +
-      '<defs>' + premiumDefs() + '</defs>' +
+      '<defs>' + premiumDefs(info.season) + '</defs>' +
       '<ellipse cx="100" cy="241" rx="31" ry="7" fill="#08130d" opacity=".32"/>' +
       '<path d="M55 239 C70 235 80 236 99 239 C118 235 132 235 148 239" fill="none" stroke="#846339" stroke-width="3" stroke-linecap="round" opacity=".62"/>' +
       '<path d="M99 239 C98 226 100 213 101 197" fill="none" stroke="url(#phtBark)" stroke-width="7" stroke-linecap="round"/>' +
@@ -111,13 +136,14 @@
       '<path d="M100 235 C89 238 80 241 73 246 M101 235 C112 238 122 242 130 246" fill="none" stroke="#6f4c29" stroke-width="2.5" stroke-linecap="round" opacity=".78"/>';
   }
 
-  function premiumDefs() {
+  function premiumDefs(season) {
+    var palette = SEASON_PALETTE[season] || SEASON_PALETTE.summer;
     return '' +
       '<linearGradient id="phtBark" x1="0" y1="0" x2="1" y2="1">' +
         '<stop offset="0" stop-color="#9a7447"/><stop offset=".48" stop-color="#5b3c22"/><stop offset="1" stop-color="#2f2116"/>' +
       '</linearGradient>' +
       '<radialGradient id="phtLeaf" cx="35%" cy="25%" r="78%">' +
-        '<stop offset="0" stop-color="#a9c765"/><stop offset=".46" stop-color="#587f35"/><stop offset="1" stop-color="#203d28"/>' +
+        '<stop offset="0" stop-color="' + palette[0] + '"/><stop offset=".46" stop-color="' + palette[1] + '"/><stop offset="1" stop-color="' + palette[2] + '"/>' +
       '</radialGradient>' +
       '<radialGradient id="phtFruit" cx="34%" cy="26%" r="72%">' +
         '<stop offset="0" stop-color="#fff8bd"/><stop offset=".34" stop-color="#efc969"/><stop offset="1" stop-color="#9e6b20"/>' +
@@ -129,15 +155,53 @@
       '<g id="phtFruitShape"><circle cx="0" cy="0" r="5.1" fill="url(#phtFruit)"/><circle cx="-1.4" cy="-1.5" r="1.25" fill="#fff" opacity=".82"/><path d="M0 -5 C2 -9 6 -9 8 -7 C5 -4 2 -4 0 -5 Z" fill="#6f8b3d"/></g>';
   }
 
+  function seasonalDecor(info) {
+    var season = info.season || 'summer';
+    var out = '';
+    var lights = [[48,112],[70,120],[94,122],[118,120],[143,111],[70,79],[99,72],[130,78]];
+    var buds = [[48,107],[64,78],[82,48],[105,41],[130,60],[148,92],[91,105],[122,106]];
+
+    if (season === 'spring') {
+      for (var b = 0; b < buds.length; b += 1) {
+        out += '<circle class="pht-spring-bud" cx="' + buds[b][0] + '" cy="' + buds[b][1] + '" r="' + (b % 3 === 0 ? '3.6' : '2.8') + '" fill="' + (b % 2 ? '#fff4e6' : '#f3cbd4') + '" opacity=".94"/>';
+      }
+      out += '<path d="M45 91 C62 77 76 66 91 55 M112 54 C129 65 141 77 153 95" fill="none" stroke="#d8ef9f" stroke-width="2" stroke-linecap="round" opacity=".65"/>';
+      return out;
+    }
+
+    out += '<path d="M43 111 C68 124 126 124 157 108 M59 75 C82 88 119 88 141 74" fill="none" stroke="#c6a668" stroke-width="1.35" opacity=".64"/>';
+    for (var l = 0; l < lights.length; l += 1) {
+      out += '<circle class="pht-light pht-light-' + (l % 3) + '" cx="' + lights[l][0] + '" cy="' + lights[l][1] + '" r="2.6" fill="' + (season === 'winter' ? '#f7fbff' : '#fff1a3') + '" filter="url(#phtGlow)"/>';
+    }
+
+    if (season === 'autumn') {
+      var falling = [[31,121,-30,.72],[167,104,24,.8],[44,55,-17,.66],[158,55,31,.7],[29,82,-42,.58]];
+      for (var a = 0; a < falling.length; a += 1) {
+        out += '<use class="pht-autumn-leaf" href="#phtLeafShape" transform="translate(' + falling[a][0] + ' ' + falling[a][1] + ') rotate(' + falling[a][2] + ') scale(' + falling[a][3] + ')" fill="' + (a % 2 ? '#d88737' : '#efb94e') + '"/>';
+      }
+    }
+
+    if (season === 'winter') {
+      out += '<path class="pht-snow" d="M56 63 Q71 48 88 57 Q82 64 65 68 Z" fill="#f5fbfb" opacity=".93"/>';
+      out += '<path class="pht-snow" d="M82 39 Q102 24 124 40 Q112 47 91 46 Z" fill="#ffffff" opacity=".95"/>';
+      out += '<path class="pht-snow" d="M116 57 Q137 47 151 64 Q139 69 122 66 Z" fill="#eaf4f4" opacity=".92"/>';
+      out += '<path class="pht-snow" d="M38 95 Q53 83 68 94 Q59 100 43 101 Z" fill="#f4f9f9" opacity=".9"/>';
+      out += '<path class="pht-snow" d="M133 93 Q148 82 162 96 Q151 101 137 100 Z" fill="#eef7f7" opacity=".9"/>';
+      out += '<path class="pht-snow" d="M87 132 Q101 125 116 134 Q105 140 91 138 Z" fill="#f8fcfc" opacity=".88"/>';
+    }
+
+    return out;
+  }
+
   function treeMarkup(info) {
-    if (info.fraction < .015) return sproutMarkup();
+    if (info.fraction < .015) return sproutMarkup(info);
 
     var growth = info.growth;
     var scale = (.46 + growth * .54).toFixed(3);
     var leafCount = Math.min(CANOPY.length, 8 + Math.round(growth * 10));
     var fruitCount = info.ended ? FRUIT.length :
       (info.fraction > .52 ? Math.min(FRUIT.length, 1 + Math.floor((info.fraction - .52) / .075)) : 0);
-    var content = '<defs>' + premiumDefs() + '</defs>';
+    var content = '<defs>' + premiumDefs(info.season) + '</defs>';
 
     content += '<ellipse cx="100" cy="244" rx="73" ry="12" fill="#09130e" opacity=".36"/>';
     content += '<g transform="translate(100 236) scale(' + scale + ') translate(-100 -236)">';
@@ -166,17 +230,52 @@
       content += '<use href="#phtFruitShape" transform="translate(' + (100 + fruit[0]) + ' ' + (100 + fruit[1]) + ') scale(' + fruit[2] + ')" filter="url(#phtGlow)"/>';
     }
 
+    content += seasonalDecor(info);
+
     if (info.ended) {
-      content += '<path d="M45 113 C72 126 126 122 154 107 M61 75 C82 87 119 86 139 73" fill="none" stroke="#d9b86a" stroke-width="1.35" opacity=".72"/>';
-      var lights = [[57,116],[79,121],[103,121],[127,117],[145,109],[76,80]];
-      for (var l = 0; l < lights.length; l += 1) {
-        content += '<circle cx="' + lights[l][0] + '" cy="' + lights[l][1] + '" r="2.5" fill="#fff1a3" filter="url(#phtGlow)"/>';
-      }
       content += '<path d="M100 34 l4 8 9 .8 -6.7 6 2.1 8.7 -8.4 -4.7 -8.4 4.7 2.1 -8.7 -6.7 -6 9 -.8 Z" fill="#edc86c" filter="url(#phtGlow)"/>';
     }
 
     content += '</g>';
     return content;
+  }
+
+  function ensurePhotorealSeason(visual, season) {
+    if (!visual || visual.dataset.seasonLayer === season) return;
+    var layer = visual.querySelector('.pht-seasonal-layer');
+    if (!layer) {
+      layer = document.createElement('span');
+      layer.className = 'pht-seasonal-layer';
+      layer.setAttribute('aria-hidden', 'true');
+      visual.appendChild(layer);
+    }
+
+    var positions = [[27,30],[42,19],[59,25],[72,38],[34,51],[53,47],[67,59],[44,68],[61,74]];
+    var markup = '';
+    if (season === 'spring') {
+      for (var s = 0; s < positions.length; s += 1) {
+        markup += '<i class="pht-photo-bud" style="--x:' + positions[s][0] + '%;--y:' + positions[s][1] + '%;--delay:' + (s * .16).toFixed(2) + 's"></i>';
+      }
+    } else {
+      for (var l = 0; l < positions.length; l += 1) {
+        markup += '<i class="pht-photo-light pht-photo-light-' + (l % 3) + '" style="--x:' + positions[l][0] + '%;--y:' + positions[l][1] + '%;--delay:' + (l * .13).toFixed(2) + 's"></i>';
+      }
+    }
+    if (season === 'autumn') {
+      var leaves = [[20,25,-24],[78,28,27],[28,58,-38],[75,61,34],[51,12,-8],[84,48,41]];
+      for (var a = 0; a < leaves.length; a += 1) {
+        markup += '<i class="pht-photo-autumn-leaf" style="--x:' + leaves[a][0] + '%;--y:' + leaves[a][1] + '%;--r:' + leaves[a][2] + 'deg;--delay:' + (a * .31).toFixed(2) + 's"></i>';
+      }
+    }
+    if (season === 'winter') {
+      var snow = [[26,26,24,8,-12],[52,14,31,9,3],[71,31,24,8,14],[32,51,21,7,-7],[64,55,25,8,9],[49,72,22,7,0]];
+      for (var w = 0; w < snow.length; w += 1) {
+        markup += '<i class="pht-photo-snow" style="--x:' + snow[w][0] + '%;--y:' + snow[w][1] + '%;--w:' + snow[w][2] + '%;--h:' + snow[w][3] + '%;--r:' + snow[w][4] + 'deg"></i>';
+      }
+    }
+    layer.className = 'pht-seasonal-layer is-' + season;
+    layer.innerHTML = markup;
+    visual.dataset.seasonLayer = season;
   }
 
   function enhanceTree(weekOverride) {
@@ -185,10 +284,6 @@
     var info = resolveGrowth(weekOverride);
     var stage = svg.closest ? svg.closest('.tree-stage') : document.querySelector('#m-home .tree-stage');
     if (stage) {
-      var month = new Date().getMonth() + 1;
-      var season = month >= 3 && month <= 5 ? 'spring' :
-        month >= 6 && month <= 8 ? 'summer' :
-          month >= 9 && month <= 11 ? 'autumn' : 'winter';
       var visual = stage.querySelector('.presence-tree-photoreal');
       if (!visual) {
         visual = document.createElement('div');
@@ -196,13 +291,15 @@
         visual.setAttribute('aria-hidden', 'true');
         stage.appendChild(visual);
       }
-      stage.dataset.treeSeason = season;
+      stage.dataset.treeSeason = info.season;
       stage.dataset.treeGrowth = String(Math.round(info.fraction * 100));
       stage.style.setProperty('--ph-tree-growth', String(clamp(.86 + info.growth * .14, .9, 1)));
+      ensurePhotorealSeason(visual, info.season);
     }
     svg.innerHTML = treeMarkup(info);
     svg.dataset.premiumTree = VERSION;
     svg.dataset.growth = String(Math.round(info.fraction * 100));
+    svg.dataset.season = info.season;
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', info.ended ? '완성된 프레젠스 나무' : '성장 중인 프레젠스 나무 ' + Math.round(info.fraction * 100) + '%');
   }

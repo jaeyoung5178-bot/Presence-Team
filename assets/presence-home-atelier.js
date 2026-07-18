@@ -5,6 +5,8 @@
   var rendering = false;
   var observedWrap = null;
   var wrapObserver = null;
+  var observedHomePanel = null;
+  var homePanelObserver = null;
   var waterTimer = 0;
   var companionSignature = '';
 
@@ -110,6 +112,122 @@
     }, 0);
   }
 
+  function workspaceGroup(key) {
+    try {
+      if (typeof NAV === 'undefined' || !Array.isArray(NAV)) return null;
+      return NAV.find(function (group) { return group && group.k === key; }) || null;
+    } catch (error) { return null; }
+  }
+
+  function firstVisibleWorkspaceTab(key) {
+    var group = workspaceGroup(key);
+    if (!group || !Array.isArray(group.tabs)) return '';
+    return group.tabs.find(function (tab) { return canOpenTab(tab); }) || '';
+  }
+
+  function workspaceVisible(key) {
+    if (key === 'home') return true;
+    if (key === 'admin' && !isFounderView(currentUser())) return false;
+    return !!firstVisibleWorkspaceTab(key);
+  }
+
+  function openWorkspace(key) {
+    if (!workspaceVisible(key)) return;
+    if (key === 'home') {
+      openTab('home');
+      return;
+    }
+    try {
+      if (typeof selectGroup === 'function') {
+        selectGroup(key);
+        return;
+      }
+    } catch (error) {}
+    openTab(firstVisibleWorkspaceTab(key));
+  }
+
+  function ensureRuntimeStyle() {
+    if (document.getElementById('presenceHomeAtelierRuntimeStyle')) return;
+    var style = document.createElement('style');
+    style.id = 'presenceHomeAtelierRuntimeStyle';
+    style.textContent =
+      'body.presence-atelier-home-active nav.rail,body.presence-atelier-home-active nav.botbar{display:none!important}' +
+      'body.presence-atelier-home-active #app main{margin-left:0!important;padding-top:var(--ph-home-top-offset,68px)!important}' +
+      'body.presence-atelier-home .phome-workspace-nav{position:relative;z-index:20;display:grid;grid-template-columns:minmax(210px,1fr) auto;align-items:center;gap:18px;margin:0 0 6px;padding:10px 12px 10px 18px;border:1px solid rgba(214,173,105,.3);border-radius:20px;background:linear-gradient(90deg,rgba(7,20,30,.96),rgba(15,30,38,.94));box-shadow:0 12px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.055)}' +
+      'body.presence-atelier-home .phome-workspace-brand{display:flex;align-items:center;gap:10px;min-width:0;color:var(--ph-paper-150);font:700 clamp(15px,1.2vw,20px)/1.35 var(--ph-serif);letter-spacing:-.02em;white-space:nowrap}' +
+      'body.presence-atelier-home .phome-workspace-brand>span{display:flex;flex-direction:column;min-width:0}' +
+      'body.presence-atelier-home .phome-workspace-brand small{margin-top:1px;color:rgba(249,239,217,.54);font:650 10px/1.35 var(--ph-sans);letter-spacing:.025em}' +
+      'body.presence-atelier-home .phome-workspace-brand i{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid rgba(237,199,127,.38);border-radius:50%;color:var(--ph-brass-300);background:rgba(216,170,98,.08);font:700 17px/1 var(--ph-serif);font-style:normal}' +
+      'body.presence-atelier-home .phome-workspace-list{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0}' +
+      'body.presence-atelier-home .phome-workspace-button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:80px;min-height:46px;padding:9px 12px;border:1px solid transparent;border-radius:13px;color:rgba(249,239,217,.68);background:transparent;font:750 14px/1.2 var(--ph-sans);cursor:pointer;transition:color .16s ease,background .16s ease,border-color .16s ease,transform .16s ease}' +
+      'body.presence-atelier-home .phome-workspace-button:hover,body.presence-atelier-home .phome-workspace-button:focus-visible{color:var(--ph-paper-100);border-color:rgba(216,170,98,.34);background:rgba(216,170,98,.09);outline:0;transform:translateY(-1px)}' +
+      'body.presence-atelier-home .phome-workspace-button[aria-current="page"]{color:var(--ph-paper-100);border-color:rgba(216,170,98,.42);background:linear-gradient(180deg,rgba(216,170,98,.14),rgba(216,170,98,.045));box-shadow:inset 0 -2px var(--ph-brass-400)}' +
+      'body.presence-atelier-home .phome-workspace-button[data-admin="true"]{color:var(--ph-brass-300)}' +
+      'body.presence-atelier-home .phome-nav-badge{display:grid;place-items:center;min-width:19px;height:19px;padding:0 5px;border-radius:999px;color:#fff7e8;background:#9b6039;font:800 10px/1 var(--ph-sans)}' +
+      'body.presence-atelier-home .phome-shortcuts-copy{margin:-5px 0 14px;color:rgba(249,239,217,.62);font:600 13px/1.6 var(--ph-sans)}' +
+      'body.presence-atelier-home #homeFieldJournalCard.phome-paper-journal{isolation:isolate}' +
+      '@media(max-width:1100px){body.presence-atelier-home .phome-workspace-nav{display:block;padding:12px}body.presence-atelier-home .phome-workspace-brand{padding:0 4px 8px}body.presence-atelier-home .phome-workspace-list{justify-content:flex-start;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;overscroll-behavior-inline:contain}body.presence-atelier-home .phome-workspace-list::-webkit-scrollbar{display:none}body.presence-atelier-home .phome-workspace-button{flex:0 0 auto}}' +
+      '@media(max-width:767px){body.presence-atelier-home-active #app main{padding-top:var(--ph-home-top-offset,58px)!important}body.presence-atelier-home .phome-workspace-nav{margin-bottom:4px;border-radius:16px}body.presence-atelier-home .phome-workspace-brand{font-size:16px}body.presence-atelier-home .phome-workspace-brand small{font-size:9px}body.presence-atelier-home .phome-workspace-button{min-width:78px;min-height:44px;padding:9px 10px;font-size:13px}body.presence-atelier-home .phome-workspace-button .phome-workspace-icon{display:none}}' +
+      '@media(prefers-reduced-motion:reduce){body.presence-atelier-home .phome-workspace-button{transition:none}}';
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  function syncHomeActiveState(home) {
+    home = home || document.getElementById('m-home');
+    var active = !!(home && home.classList.contains('active'));
+    document.body.classList.toggle('presence-atelier-home-active', active);
+    if (active) {
+      var header = document.querySelector('#app header.top, header.top');
+      var height = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+      document.body.style.setProperty('--ph-home-top-offset', Math.max(52, height) + 'px');
+    }
+  }
+
+  function observeHomePanel(home) {
+    if (!home || observedHomePanel === home) return;
+    if (homePanelObserver) homePanelObserver.disconnect();
+    observedHomePanel = home;
+    homePanelObserver = new MutationObserver(function () { syncHomeActiveState(home); });
+    homePanelObserver.observe(home, {attributes: true, attributeFilter: ['class']});
+    syncHomeActiveState(home);
+  }
+
+  function ensureWorkspaceNav(scene) {
+    if (!scene) return null;
+    var nav = document.getElementById('homeAtelierWorkspaceNav');
+    if (!nav) {
+      nav = document.createElement('nav');
+      nav.id = 'homeAtelierWorkspaceNav';
+      nav.className = 'phome-workspace-nav';
+      nav.setAttribute('aria-label', 'Presence 주요 공간');
+      scene.insertBefore(nav, scene.firstChild || null);
+    }
+    return nav;
+  }
+
+  function renderWorkspaceNav() {
+    var nav = ensureWorkspaceNav(document.getElementById('homeSceneSec'));
+    if (!nav) return;
+    var labels = [
+      {key: 'home', icon: '⌂', label: 'Home'},
+      {key: 'today', icon: '◉', label: 'Today'},
+      {key: 'people', icon: '◎', label: 'People'},
+      {key: 'progress', icon: '↗', label: 'Progress'},
+      {key: 'profit', icon: '◆', label: 'Profit'},
+      {key: 'admin', icon: '▣', label: 'Farm Office'}
+    ].filter(function (item) { return workspaceVisible(item.key); });
+    var buttons = labels.map(function (item) {
+      var admin = item.key === 'admin';
+      var badge = admin && pendingCount() ? '<span class="phome-nav-badge" aria-label="승인 대기 ' + pendingCount() + '건">' + pendingCount() + '</span>' : '';
+      return '<button type="button" class="phome-workspace-button" data-atelier-workspace="' + item.key + '"' +
+        (item.key === 'home' ? ' aria-current="page"' : '') + (admin ? ' data-admin="true" aria-label="관리자 전용 공간"' : '') + '>' +
+        '<span class="phome-workspace-icon" aria-hidden="true">' + item.icon + '</span><span>' + item.label + '</span>' + badge + '</button>';
+    }).join('');
+    replaceMarkup(nav,
+      '<div class="phome-workspace-brand"><i aria-hidden="true">P</i><span>프레젠스 워크북<small>함께 가꾸는 동물농장</small></span></div>' +
+      '<div class="phome-workspace-list">' + buttons + '</div>');
+  }
+
   function migrateLegacyHomeOrder() {
     var data = appState();
     var order = data && data.homeOrder;
@@ -138,6 +256,8 @@
 
     document.body.classList.add('presence-atelier-home');
     home.classList.add('phome-home');
+    ensureRuntimeStyle();
+    observeHomePanel(home);
 
     var scene = document.getElementById('homeSceneSec');
     if (!scene) {
@@ -163,6 +283,7 @@
         '</section>' +
         '<section class="phome-shortcuts" aria-labelledby="homeAtelierShortcutTitle">' +
           '<h2 id="homeAtelierShortcutTitle">나의 바로가기</h2>' +
+          '<p class="phome-shortcuts-copy">돋보기로 기능을 찾거나 ＋ 버튼으로 자주 쓰는 공간을 직접 구성하세요.</p>' +
           '<div id="homeAtelierQuickslotHost"></div>' +
         '</section>';
       var first = wrap.firstElementChild;
@@ -171,9 +292,21 @@
     }
 
     scene.classList.add('sec', 'phome-scene');
+    ensureWorkspaceNav(scene);
     migrateLegacyHomeOrder();
     var card = document.getElementById('homeAtelierCard');
     if (card && tree.parentNode !== card) card.appendChild(tree);
+    var journal = document.getElementById('homeFieldJournalCard');
+    if (journal) journal.classList.add('phome-paper-journal');
+    var shortcuts = scene.querySelector('.phome-shortcuts');
+    if (shortcuts && !shortcuts.querySelector('.phome-shortcuts-copy')) {
+      var shortcutTitle = shortcuts.querySelector('h2');
+      var shortcutCopy = document.createElement('p');
+      shortcutCopy.className = 'phome-shortcuts-copy';
+      shortcutCopy.textContent = '돋보기로 기능을 찾거나 ＋ 버튼으로 자주 쓰는 공간을 직접 구성하세요.';
+      if (shortcutTitle && shortcutTitle.nextSibling) shortcuts.insertBefore(shortcutCopy, shortcutTitle.nextSibling);
+      else shortcuts.appendChild(shortcutCopy);
+    }
     tree.classList.add('phome-tree-section');
     observeWrap(wrap);
     bindScene(scene);
@@ -225,7 +358,7 @@
       var pending = pendingCount();
       founderHtml =
         '<section class="phome-journal-section" data-founder-only="true">' +
-          '<div class="phome-journal-heading"><span>관리자 운영 요약</span><button type="button" data-atelier-action="admin">Admin ›</button></div>' +
+          '<div class="phome-journal-heading"><span>Farm Keeper 운영 요약</span><button type="button" data-atelier-action="admin">Farm Office ›</button></div>' +
           '<div class="phome-journal-metrics">' +
             '<div class="phome-journal-metric"><span>승인 대기</span><b>' + pending + '</b></div>' +
             '<div class="phome-journal-metric"><span>오늘 1 on 1</span><b>' + appointments.todayTotal + '</b></div>' +
@@ -381,6 +514,14 @@
     if (!scene || scene.dataset.atelierBound === 'true') return;
     scene.dataset.atelierBound = 'true';
     scene.addEventListener('click', function (event) {
+      var workspace = event.target.closest('[data-atelier-workspace]');
+      if (workspace && scene.contains(workspace)) {
+        var key = workspace.getAttribute('data-atelier-workspace');
+        if (key === 'admin' && !isFounderView(currentUser())) return;
+        openWorkspace(key);
+        window.setTimeout(function () { syncHomeActiveState(); }, 0);
+        return;
+      }
       var button = event.target.closest('[data-atelier-action]');
       if (!button || !scene.contains(button)) return;
       var action = button.getAttribute('data-atelier-action');
@@ -424,6 +565,7 @@
     rendering = true;
     try {
       if (!ensureScene()) return;
+      renderWorkspaceNav();
       renderGreeting();
       renderJournal();
       renderTimeline();

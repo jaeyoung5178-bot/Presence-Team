@@ -68,6 +68,7 @@ for (const fixture of cases) {
     const card = document.getElementById('homeAtelierCard');
     const dock = document.getElementById('homeQuickDock');
     const sceneRect = scene && scene.getBoundingClientRect();
+    const authGate = document.getElementById('authGate');
     const broken = [...document.querySelectorAll('#homeSceneSec img')]
       .filter((image) => image.complete && image.naturalWidth === 0)
       .map((image) => image.getAttribute('src'));
@@ -75,6 +76,7 @@ for (const fixture of cases) {
       .every((id) => document.querySelectorAll(`#${id}`).length === 1);
     return {
       bodyMode: document.body.classList.contains('presence-atelier-home'),
+      authHidden: !authGate || getComputedStyle(authGate).display === 'none',
       scene: !!scene,
       treeParent: !!(tree && tree.parentElement === card),
       dockParent: !!(dock && dock.parentElement && dock.parentElement.id === 'homeAtelierQuickslotHost'),
@@ -99,7 +101,7 @@ for (const fixture of cases) {
   const screenshot = `/tmp/presence-home-atelier-${fixture.name}.png`;
   await page.locator('#m-home').screenshot({ path: screenshot, fullPage: true, timeout: 20000 });
   reports.push({ fixture, report, errors, screenshot });
-  if (!report.bodyMode || !report.scene || !report.treeParent || !report.dockParent || !report.premiumTree ||
+  if (!report.bodyMode || !report.authHidden || !report.scene || !report.treeParent || !report.dockParent || !report.premiumTree ||
       report.companionCount !== 1 || report.founderSummary !== fixture.founder || !report.uniqueIds ||
       report.broken.length || report.sceneOverflow || report.pageOverflow || errors.length) {
     failures.push({ fixture, report, errors });

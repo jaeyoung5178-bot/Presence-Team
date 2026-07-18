@@ -5161,7 +5161,7 @@ const NAV=[
   {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod']},
   {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily']},
   {k:'my',e:'✦',l:'My',tabs:['petshop']},
-  {k:'admin',e:'▣',l:'Admin',tabs:['admin','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
+  {k:'admin',e:'▣',l:'Farm Office',tabs:['admin','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -5186,7 +5186,7 @@ const TABMETA={
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
-function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' Admin';return g&&g.l||'';}
+function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' · Farm Keeper';return g&&g.l||'';}
 function tabVisible(k){const t=TABMETA[k];return !!t&&(!t.g||t.g());}
 function groupFor(tab){if(tab==='home')return 'home';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
 function syncTopOffset(){
@@ -15306,11 +15306,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-10">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<link rel="stylesheet" href="assets/presence-home-atelier.css?v=20260718-2">
+<link rel="stylesheet" href="assets/presence-home-atelier.css?v=20260718-3">
+<link rel="stylesheet" href="assets/presence-farm-world.css?v=20260718-3">
 <script src="assets/presence-avatar-studio.js?v=20260718-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-atelier.js?v=20260718-2"></script>
-<script src="assets/presence-home-tree-premium.js?v=20260718-2"></script>
+<script src="assets/presence-home-atelier.js?v=20260718-4"></script>
+<script src="assets/presence-home-tree-premium.js?v=20260718-3"></script>
 </body>
 </html>
