@@ -5148,10 +5148,12 @@ function renderTopics(){const b=document.getElementById('topicsBody');if(!b)retu
 function topicFilter(cat,btn){document.querySelectorAll('#topicsBody .tf-chip').forEach(c=>c.classList.remove('on'));if(btn)btn.classList.add('on');document.querySelectorAll('#topicsBody .topic-sec').forEach(sec=>{sec.style.display=(cat==='all'||sec.dataset.cat===cat)?'':'none';});}
 
 const NAV=[
-  {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao','events','eventsurvey','survey','gsheet','admin']},
+  {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao']},
   {k:'people',e:'◎',l:'People',tabs:['teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
-  {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod','petshop']},
-  {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily','salesmgr','field','recap']}
+  {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod']},
+  {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily']},
+  {k:'my',e:'✦',l:'My',tabs:['petshop']},
+  {k:'admin',e:'▣',l:'Admin',tabs:['admin','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -5159,7 +5161,7 @@ const TABMETA={
   sale:{e:'🔔',l:'세일즈'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},hall:{e:'🏅',l:'명예의 전당'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
-  cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성법'},topics:{e:'🗂️',l:'토픽자료'},
+  cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성법'},topics:{e:'🗂️',l:'토픽자료'},petshop:{e:'✦',l:'Avatar'},
   recap:{e:'📅',l:'리캡',g:()=>isFounder(me)},calling:{e:'📞',l:'리쿠르팅',g:()=>isLeader(me.role)},leaderhit:{e:'🏅',l:'리더힛 계산기',g:()=>leaderhitVisible()},cbjournal:{e:'📓',l:'콜백싯',g:()=>!!me&&(isOwnerAccount(me)||me.status==='active')},
   meeting:{e:'📹',l:'미팅룸',g:()=>isLeader(me.role)},
   field:{e:'🧭',l:'필드도구',g:()=>isFounder(me)},
@@ -5176,6 +5178,7 @@ const TABMETA={
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
+function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' Admin';return g&&g.l||'';}
 function tabVisible(k){const t=TABMETA[k];return !!t&&(!t.g||t.g());}
 function groupFor(tab){if(tab==='home')return 'home';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
 function syncTopOffset(){
@@ -5194,12 +5197,12 @@ function syncTopOffset(){
 function buildBotbar(){
   var bb=document.getElementById('botbar'); if(!bb)return;
   var groups=NAV.filter(function(g){return g.tabs.some(tabVisible);});
-  bb.innerHTML=groups.map(function(g){return '<button class="'+(g.k===curGroup?'active':'')+'" onclick="selectGroup(\''+g.k+'\')"><span class="em">'+g.e+'</span>'+g.l+'</button>';}).join('');
+  bb.innerHTML=groups.map(function(g){return '<button class="'+(g.k===curGroup?'active':'')+'" data-group="'+g.k+'" onclick="selectGroup(\''+g.k+'\')"><span class="em">'+g.e+'</span>'+groupTitle(g,true)+'</button>';}).join('');
 }
 function buildRail(){
   const groups=NAV.filter(g=>g.tabs.some(tabVisible));
   if(curGroup!=='home'&&!groups.some(g=>g.k===curGroup))curGroup=groups.length?groups[0].k:'home';
-  document.getElementById('rail').innerHTML=groups.map(g=>`<button class="mtab gtab${g.k===curGroup?' active':''}" data-group="${g.k}" onclick="selectGroup('${g.k}')"><span class="em">${g.e}</span>${g.l}</button>`).join('');
+  document.getElementById('rail').innerHTML=groups.map(g=>`<button class="mtab gtab${g.k===curGroup?' active':''}" data-group="${g.k}" onclick="selectGroup('${g.k}')"><span class="em">${g.e}</span>${groupTitle(g,false)}</button>`).join('');
   buildSubRail();
   buildBotbar();
 }
@@ -5208,13 +5211,17 @@ var SUBRAIL_PRIMARY={
   today:['today','notice','kakao','events'],
   people:['teamtree','oneonone','calling','leaderwish'],
   progress:['journey','leaderhit','training','petshop'],
-  profit:['sale','cbjournal','daily','recap']
+  profit:['sale','cbjournal','daily','recap'],
+  my:['petshop'],
+  admin:['admin','events','salesmgr','gsheet']
 };
 var SUBRAIL_SECTIONS={
   today:[['오늘',['today','notice','kakao']],['일정·참여',['events','eventsurvey','survey']],['운영',['gsheet','admin']]],
   people:[['팀',['teamtree','sites','setupkit']],['대화',['oneonone','calling','meeting']],['문화',['net','act','wins','hall','leaderwish']]],
   progress:[['성장',['journey','leaderhit','manual','obj']],['현장 학습',['callback','topics','training','cod']],['나의 공간',['petshop']]],
-  profit:[['세일즈',['sale','perf','daily','salesmgr']],['후속 관리',['cbjournal','rejectnote','field']],['리뷰',['recap']]]
+  profit:[['세일즈',['sale','perf','daily']],['후속 관리',['cbjournal','rejectnote']]],
+  my:[['MY PRESENCE',['petshop']]],
+  admin:[['구성원·권한',['admin','survey']],['운영·승인',['events','eventsurvey','salesmgr']],['시스템',['gsheet','field','recap']]]
 };
 function subTabBtn(k){const t=TABMETA[k];return `<button class="mtab stab${k===curTab?' active':''}" data-tab="${k}" onclick="goTab('${k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`;}
 function buildSubRail(){
@@ -5232,7 +5239,7 @@ function buildSubRail(){
   var panel='';
   if(subRailExpanded&&canCollapse){
     var sections=SUBRAIL_SECTIONS[curGroup]||[['전체',tabs]];
-    panel='<div class="subrail-panel" role="dialog" aria-label="'+(g.l||'')+' 전체 메뉴">'+sections.map(function(section){var ks=section[1].filter(function(k){return tabs.indexOf(k)>=0;});if(!ks.length)return '';return '<section class="subrail-section"><h4>'+section[0]+'</h4><div>'+ks.map(subTabBtn).join('')+'</div></section>';}).join('')+'</div>';
+    panel='<div class="subrail-panel" role="dialog" aria-label="'+groupTitle(g,false)+' 전체 메뉴">'+sections.map(function(section){var ks=section[1].filter(function(k){return tabs.indexOf(k)>=0;});if(!ks.length)return '';return '<section class="subrail-section"><h4>'+section[0]+'</h4><div>'+ks.map(subTabBtn).join('')+'</div></section>';}).join('')+'</div>';
   }
   sr.classList.add('subrail-organized');sr.innerHTML='<div class="subrail-compact">'+compact+'</div>'+panel;
   syncTopOffset();
@@ -15099,8 +15106,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   #rail .gtab.active{background:linear-gradient(90deg,color-mix(in srgb,var(--ws) 16%,transparent),rgba(255,255,255,.025));border-color:color-mix(in srgb,var(--ws) 34%,var(--line));color:var(--cream)}
   #rail .gtab.active:after{opacity:1;transform:scaleY(1)}
   #rail .gtab .em{width:25px;height:25px;display:grid;place-items:center;border-radius:9px;background:color-mix(in srgb,var(--ws) 13%,transparent);color:var(--ws);font-size:13px;font-weight:950}
-  #rail .gtab[data-group="today"]{--ws:#7eb6ff}#rail .gtab[data-group="people"]{--ws:#67d7b4}#rail .gtab[data-group="progress"]{--ws:#aa91ff}#rail .gtab[data-group="profit"]{--ws:#f2bd58}
-  #botbar button{--ws:#84b7ff;position:relative;font-weight:850;letter-spacing:.015em}#botbar button:nth-child(1){--ws:#7eb6ff}#botbar button:nth-child(2){--ws:#67d7b4}#botbar button:nth-child(3){--ws:#aa91ff}#botbar button:nth-child(4){--ws:#f2bd58}#botbar button.active{color:var(--ws)}#botbar button.active:before{content:"";position:absolute;left:26%;right:26%;top:1px;height:3px;border-radius:3px;background:var(--ws)}
+  #rail .gtab[data-group="today"]{--ws:#7eb6ff}#rail .gtab[data-group="people"]{--ws:#67d7b4}#rail .gtab[data-group="progress"]{--ws:#aa91ff}#rail .gtab[data-group="profit"]{--ws:#f2bd58}#rail .gtab[data-group="my"]{--ws:#ff94c2}#rail .gtab[data-group="admin"]{--ws:#ff846f;margin-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+  #botbar button{--ws:#84b7ff;position:relative;font-weight:850;letter-spacing:.015em}#botbar button[data-group="today"]{--ws:#7eb6ff}#botbar button[data-group="people"]{--ws:#67d7b4}#botbar button[data-group="progress"]{--ws:#aa91ff}#botbar button[data-group="profit"]{--ws:#f2bd58}#botbar button[data-group="my"]{--ws:#ff94c2}#botbar button[data-group="admin"]{--ws:#ff846f}#botbar button.active{color:var(--ws)}#botbar button.active:before{content:"";position:absolute;left:26%;right:26%;top:1px;height:3px;border-radius:3px;background:var(--ws)}
   /* Secondary navigation — four calm shortcuts plus a grouped menu instead of a long tool strip. */
   #subRail.subrail-organized{display:block!important;position:relative;padding:7px 16px 9px!important;overflow:visible!important;background:color-mix(in srgb,var(--ink) 94%,transparent);border-top:1px solid var(--line)}
   .subrail-compact{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;overflow-x:auto;scrollbar-width:none}.subrail-compact::-webkit-scrollbar{display:none}
@@ -15144,8 +15151,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   .ps-icon{position:relative;height:142px!important;overflow:hidden;display:grid!important;place-items:center;background:radial-gradient(circle at 50% 38%,#fff9d8 0,#eef3f7 57%,#dce5ee 100%)!important}.ps-icon img{position:static!important;display:block!important;width:88%!important;height:88%!important;max-width:88%!important;max-height:88%!important;object-fit:contain!important;transform:none!important;filter:drop-shadow(0 12px 9px rgba(43,55,70,.2))!important;transition:transform .22s ease!important}.ps-item:hover .ps-icon img{transform:scale(1.04)!important}
   #peAvatar .presence-game-pet{width:100%;height:100%;filter:drop-shadow(0 10px 12px rgba(0,0,0,.2))}
   @keyframes presencePetWalk{0%{left:52%}46%{left:72%}50%{left:72%}96%,100%{left:52%}}
-  @media(min-width:768px) and (max-width:979px){#rail{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;padding:8px 14px}#rail .gtab{justify-content:center;margin:0}.ps-preview{min-height:540px}.ps-petstage{width:250px}}
-  @media(max-width:767px){.home-entry-btn{width:34px;min-width:34px;height:34px;padding:0;justify-content:center;margin-left:0}.home-entry-btn b{display:none}#subRail.subrail-organized{padding:6px 8px 8px!important}.subrail-compact{justify-content:flex-start}.subrail-compact .stab{padding:8px 9px!important;font-size:10.5px!important}.subrail-panel{width:100%;grid-template-columns:1fr;padding:10px;gap:8px;border-radius:15px}.subrail-section{padding:9px}.subrail-section>div{grid-template-columns:repeat(2,minmax(0,1fr))}.ps-preview{min-height:0!important;padding:22px 15px 17px!important}.ps-name{font-size:24px}.ps-petstage{flex-basis:250px;width:min(100%,270px);height:250px;margin-top:16px}.ps-petstage .ps-pet{width:207px;height:225px}.ps-petstage .ps-pet svg,.ps-petstage .ps-pet>img{width:203px;height:222px}.ps-icon{height:112px!important}.my-coop-pet{width:82px!important}.my-coop-pet .mcp-sprite,.my-coop-pet .mcp-sprite svg,.my-coop-pet .mcp-sprite img{width:80px!important;height:86px!important}.my-coop-pet .mcp-name{max-width:106px!important;padding:3px 6px!important;font-size:8px!important}#botbar{grid-template-columns:repeat(4,1fr)}#botbar button{font-size:10.5px}}
+  @media(min-width:768px) and (max-width:979px){#rail{display:grid;grid-template-columns:repeat(6,minmax(96px,1fr));gap:7px;padding:8px 14px}#rail .gtab{justify-content:center;margin:0!important;font-size:12px}.ps-preview{min-height:540px}.ps-petstage{width:250px}}
+  @media(max-width:767px){.home-entry-btn{width:34px;min-width:34px;height:34px;padding:0;justify-content:center;margin-left:0}.home-entry-btn b{display:none}#subRail.subrail-organized{padding:6px 8px 8px!important}.subrail-compact{justify-content:flex-start}.subrail-compact .stab{padding:8px 9px!important;font-size:10.5px!important}.subrail-panel{width:100%;grid-template-columns:1fr;padding:10px;gap:8px;border-radius:15px}.subrail-section{padding:9px}.subrail-section>div{grid-template-columns:repeat(2,minmax(0,1fr))}.ps-preview{min-height:0!important;padding:22px 15px 17px!important}.ps-name{font-size:24px}.ps-petstage{flex-basis:250px;width:min(100%,270px);height:250px;margin-top:16px}.ps-petstage .ps-pet{width:207px;height:225px}.ps-petstage .ps-pet svg,.ps-petstage .ps-pet>img{width:203px;height:222px}.ps-icon{height:112px!important}.my-coop-pet{width:82px!important}.my-coop-pet .mcp-sprite,.my-coop-pet .mcp-sprite svg,.my-coop-pet .mcp-sprite img{width:80px!important;height:86px!important}.my-coop-pet .mcp-name{max-width:106px!important;padding:3px 6px!important;font-size:8px!important}#botbar{grid-template-columns:repeat(6,1fr)}#botbar button{font-size:9px;padding-left:2px;padding-right:2px}}
   @media(prefers-reduced-motion:reduce){.ps-petstage .ps-pet{animation:none!important}}
 </style>
 <script id="presence-single-pet-inventory-patch">
@@ -15224,8 +15231,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   };
   function patchInventoryNav(){if(typeof TABMETA!=='undefined'&&TABMETA.petshop){TABMETA.petshop.e='🎒';TABMETA.petshop.l='인벤토리';}var b=document.getElementById('animalPetShopBtn');if(b){b.textContent='🎒 인벤토리';b.setAttribute('aria-label','병아리 인벤토리 열기');}try{if(me&&typeof buildRail==='function')buildRail();}catch(e){}}
   var coopRenderLock=false,coopObserver=null;
-  function renderSingleCoopPet(){if(typeof me==='undefined'||!me)return;var p=singleProfile(),scene=document.querySelector('.coop-scene');if(!scene)return;var el=document.getElementById('myCoopPet');if(!el){el=document.createElement('div');el.id='myCoopPet';el.className='my-coop-pet';scene.appendChild(el);}var food=typeof realFood==='function'?realFood():1,looks=equippedLooks(p),sig=[p.nickname,food,looks.head,looks.body,looks.prop].join('|');if(el.dataset.quality==='game9'&&el.dataset.sig===sig&&el.querySelector('.mcp-sprite .presence-game-pet'))return;coopRenderLock=true;el.dataset.variant='presence';el.dataset.quality='game9';el.dataset.sig=sig;el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-sprite">'+inventoryPreviewArt(p,food)+'</div>';coopRenderLock=false;}
-  function watchPersonalCoopPet(){var scene=document.querySelector('.coop-scene');if(!scene||coopObserver)return;coopObserver=new MutationObserver(function(){if(coopRenderLock)return;var el=document.getElementById('myCoopPet');if(el&&(!el.querySelector('.mcp-sprite .presence-game-pet')||el.dataset.quality!=='game9'))renderSingleCoopPet();});coopObserver.observe(scene,{childList:true,subtree:true,characterData:true});}
+  function renderSingleCoopPet(){if(typeof me==='undefined'||!me)return;var p=singleProfile(),scene=document.querySelector('.coop-scene');if(!scene)return;var el=document.getElementById('myCoopPet');if(!el){el=document.createElement('div');el.id='myCoopPet';el.className='my-coop-pet';scene.appendChild(el);}var food=typeof realFood==='function'?realFood():1,looks=equippedLooks(p),sig=[p.nickname,food,p.color||'honey',p.feather||'classic',looks.head,looks.body,looks.prop].join('|'),renderer=window.presencePetArt||inventoryPreviewArt;if(el.dataset.quality==='studio'&&el.dataset.sig===sig&&el.querySelector('.mcp-sprite .presence-game-pet'))return;coopRenderLock=true;el.dataset.variant='presence';el.dataset.quality='studio';el.dataset.sig=sig;el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-sprite">'+renderer(p,food)+'</div>';coopRenderLock=false;}
+  function watchPersonalCoopPet(){var scene=document.querySelector('.coop-scene');if(!scene||coopObserver)return;coopObserver=new MutationObserver(function(){if(coopRenderLock)return;var el=document.getElementById('myCoopPet');if(el&&(!el.querySelector('.mcp-sprite .presence-game-pet')||el.dataset.quality!=='studio'))renderSingleCoopPet();});coopObserver.observe(scene,{childList:true,subtree:true,characterData:true});}
   function hookCoop(){if(window.__singlePetCoopHook)return;window.__singlePetCoopHook=1;var old=window.renderPresencePersonalPet;window.renderPresencePersonalPet=function(){try{if(old)old.apply(this,arguments);}catch(e){}renderSingleCoopPet();};}
 
   function callbackAccessKey(){if(window.crypto&&crypto.randomUUID)return crypto.randomUUID().replace(/-/g,'')+crypto.randomUUID().replace(/-/g,'');var a=new Uint8Array(32);crypto.getRandomValues(a);return Array.from(a).map(function(n){return n.toString(16).padStart(2,'0');}).join('');}
@@ -15271,5 +15278,10 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){patch();wrapHomeDash();},260);});else setTimeout(function(){patch();wrapHomeDash();},260);setInterval(function(){patch();wrapHomeDash();},6500);
 })();
 </script>
+<link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-2">
+<link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
+<script src="assets/presence-avatar-studio.js?v=20260718-2"></script>
+<script src="assets/presence-home-quickslots.js?v=20260718-1"></script>
+<script src="assets/presence-basecamp.js?v=20260718-1"></script>
 </body>
 </html>

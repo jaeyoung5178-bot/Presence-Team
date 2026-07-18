@@ -32,6 +32,12 @@
         ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')"
       }
     },
+    "userPreferences": {
+      "$uid": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active'",
+        ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active'"
+      }
+    },
     "leaderWishes": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
       "$id": {
