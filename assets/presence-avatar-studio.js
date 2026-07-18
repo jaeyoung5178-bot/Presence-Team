@@ -21,8 +21,16 @@
     if(window.me)return window.me;
     try{return typeof me!=='undefined'?me:null;}catch(e){return null;}
   }
+  function currentState(){
+    if(window.state)return window.state;
+    try{return typeof state!=='undefined'?state:null;}catch(e){return null;}
+  }
+  function readLocalProfile(u){
+    if(!u)return null;
+    try{return JSON.parse(localStorage.getItem('presence_pet_'+u.uid)||'null');}catch(e){return null;}
+  }
   function normalizeEq(eq){eq=Object.assign({},eq||{});var legacy={leader:'body_leader_0',swimsuit:'body_swimsuit_0',floral:'body_floral_0',raincoat:'body_raincoat_0',shades:'head_shades_0',straw:'head_straw_0',wig:'head_wig_0',ball:'prop_ball_0',tube:'prop_tube_0'},slots=['back','body','neck','waist','head','wrist','feet','prop','weapon'];slots.forEach(function(k){if(legacy[eq[k]])eq[k]=legacy[eq[k]];if(eq[k]&&!ITEMS[eq[k]])eq[k]='';});return eq;}
-  function profile(){var u=currentUser(),raw=u&&window.state&&state.petProfiles&&state.petProfiles[u.uid]||{},p=Object.assign({},raw);p.uid=u&&u.uid||p.uid;p.name=u&&u.name||p.name||'';p.nickname=p.nickname||((p.name||'나')+'의 삐약이');p.color=p.color||'honey';p.feather=p.feather||'classic';p.equipped=normalizeEq(p.equipped);p.owned={};Object.keys(ITEMS).forEach(function(k){p.owned[k]=1;});return p;}
+  function profile(){var u=currentUser(),st=currentState(),remote=u&&st&&st.petProfiles&&st.petProfiles[u.uid]||{},local=readLocalProfile(u)||{},raw=Object.assign({},local,remote),p=Object.assign({},raw);p.uid=u&&u.uid||p.uid;p.name=u&&u.name||p.name||'';p.nickname=p.nickname||((p.name||'나')+'의 삐약이');p.color=p.color||'honey';p.feather=p.feather||'classic';p.equipped=normalizeEq(p.equipped);p.owned={};Object.keys(ITEMS).forEach(function(k){p.owned[k]=1;});return p;}
   function itemLayer(item,cls){if(!item)return '';var accessory=item.file==='accessory',file=accessory?'presence-accessory-':'presence-item-',ext=accessory?'.png':'.webp',shadow=accessory?' drop-shadow(0 5px 4px rgba(20,28,36,.2))':'';return '<img class="'+cls+'" src="'+ROOT+file+item.asset+ext+'" alt="" draggable="false" style="filter:'+item.filter+shadow+' !important">';}
   function integratedMaster(body,head){
     var bodies={raincoat:1,leader:1,floral:1,swimsuit:1},heads={shades:1,straw:1,wig:1};
@@ -49,7 +57,7 @@
     return html+'</div>';
   }
   window.presencePetArt=art;window.presenceAvatarProfile=profile;
-  function save(p,msg){var u=currentUser();if(!u)return;p.updatedAt=Date.now();p.adoptedAt=p.adoptedAt||Date.now();state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;try{localStorage.setItem('presence_pet_'+u.uid,JSON.stringify(p));}catch(e){}try{if(window.LIVE&&window.DB&&DB.set&&!isTestBot(u))DB.set('petProfiles/'+u.uid,p);}catch(e){}render();try{if(window.renderPresencePersonalPet)renderPresencePersonalPet();if(window.renderAnimal)renderAnimal();if(window.renderEntryCostume)renderEntryCostume();}catch(e){}if(msg&&window.toast)toast(msg);}
+  function save(p,msg){var u=currentUser(),st=currentState();if(!u||!st)return;p.updatedAt=Date.now();p.adoptedAt=p.adoptedAt||Date.now();st.petProfiles=st.petProfiles||{};st.petProfiles[u.uid]=p;try{localStorage.setItem('presence_pet_'+u.uid,JSON.stringify(p));}catch(e){}try{var live=typeof LIVE!=='undefined'?LIVE:window.LIVE,db=typeof DB!=='undefined'?DB:window.DB,test=typeof isTestBot==='function'&&isTestBot(u);if(live&&db&&db.set&&!test)db.set('petProfiles/'+u.uid,p);}catch(e){}render();try{if(window.renderPresencePersonalPet)renderPresencePersonalPet();if(window.renderAnimal)renderAnimal();if(window.renderEntryCostume)renderEntryCostume();}catch(e){}if(msg&&window.toast)toast(msg);}
   window.setPresencePetColor=function(id){var p=profile();p.color=COLORS.some(function(x){return x[0]===id;})?id:'honey';save(p,'🎨 병아리 색상이 자연스럽게 반영됐어요');};
   window.setPresencePetFeather=function(id){var p=profile();p.feather=FEATHERS.some(function(x){return x[0]===id;})?id:'classic';save(p,'✨ 새로운 털 모양을 적용했어요');};
   window.petShopAction=function(id){var item=ITEMS[id];if(!item)return;var p=profile(),eq=normalizeEq(p.equipped);eq[item.cat]=eq[item.cat]===id?'':id;p.equipped=eq;save(p,'✨ 선택한 아이템이 모든 화면에 반영됐어요');};
