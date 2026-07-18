@@ -1,0 +1,769 @@
+/*
+ * Presence Farm Office shell
+ * Visual-only theme for shared chrome, management workspaces, Admin, modals and toast.
+ * Deliberately excludes Home atelier and Avatar Studio. No permission or DOM behavior lives here.
+ */
+
+:root{
+  --pfo-night:#071521;
+  --pfo-night-2:#0b2030;
+  --pfo-navy:#10283a;
+  --pfo-navy-soft:#18394d;
+  --pfo-paper:#f3e8d0;
+  --pfo-paper-2:#e8d8b8;
+  --pfo-paper-3:#dbc7a2;
+  --pfo-ink:#172839;
+  --pfo-muted:#6f6658;
+  --pfo-brass:#b78b4c;
+  --pfo-brass-light:#dbc17e;
+  --pfo-olive:#66714b;
+  --pfo-olive-dark:#445036;
+  --pfo-walnut:#392419;
+  --pfo-walnut-2:#5a3925;
+  --pfo-danger:#984b40;
+  --pfo-paper-line:rgba(87,63,39,.24);
+  --pfo-night-line:rgba(207,174,111,.34);
+  --pfo-shadow:0 20px 54px rgba(0,0,0,.28);
+  --pfo-shadow-soft:0 10px 26px rgba(31,21,13,.15);
+}
+
+/* ─── Shared farm-world chrome ─────────────────────────────────────────── */
+body.app-on{
+  color:#f1e6ce;
+  background:
+    radial-gradient(circle at 74% 10%,rgba(143,105,54,.15),transparent 28%),
+    linear-gradient(180deg,var(--pfo-night-2),var(--pfo-night))!important;
+}
+
+body.app-on #app{
+  min-height:100dvh;
+  background:
+    linear-gradient(180deg,rgba(4,14,23,.68),rgba(4,14,23,.92)),
+    url("home/presence-home-orchard-dusk.png") center/cover fixed no-repeat!important;
+}
+
+body.app-on #app > header.top{
+  background:
+    linear-gradient(180deg,rgba(6,20,31,.97),rgba(7,24,37,.98)),
+    repeating-linear-gradient(90deg,rgba(115,74,40,.13) 0 2px,transparent 2px 24px)!important;
+  border-bottom:1px solid var(--pfo-night-line)!important;
+  box-shadow:0 8px 25px rgba(0,0,0,.3),inset 0 -2px rgba(72,43,26,.72)!important;
+}
+
+body.app-on #app .top .bar{min-width:0}
+body.app-on #app .top .logo{min-width:0}
+body.app-on #app .top .logo .nm{
+  color:#f2dfb4!important;
+  font-family:'Gowun Batang','Noto Serif KR',serif!important;
+  letter-spacing:.025em;
+}
+body.app-on #app .top .logo .nm b{color:var(--pfo-brass-light)!important}
+body.app-on #app .top .logo .tag{color:#b5b89d!important}
+body.app-on #app .top .logo-chip{
+  border:1px solid rgba(207,174,111,.34);
+  border-radius:9px;
+  padding:4px 7px;
+  background:rgba(11,31,45,.8);
+  box-shadow:inset 0 1px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.2);
+}
+
+body.app-on #app :is(.home-entry-btn,.bell-btn,.hdr-install,.adm-toggle,.me-pill){
+  color:#ecddbd!important;
+  border-color:rgba(207,174,111,.38)!important;
+  background:linear-gradient(180deg,rgba(24,52,68,.92),rgba(10,31,45,.92))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 5px 13px rgba(0,0,0,.16)!important;
+}
+body.app-on #app :is(.home-entry-btn,.bell-btn,.hdr-install,.adm-toggle,.me-pill):hover{
+  color:#fff0c9!important;
+  border-color:var(--pfo-brass-light)!important;
+  background:linear-gradient(180deg,#23485d,#102f42)!important;
+}
+body.app-on #app :is(.home-entry-btn,.bell-btn,.hdr-install,.adm-toggle,.me-pill):focus-visible,
+body.app-on #app nav button:focus-visible{
+  outline:3px solid rgba(219,193,126,.42)!important;
+  outline-offset:2px!important;
+}
+body.app-on #app .me-pill .mrole{
+  color:#fff6df!important;
+  background:linear-gradient(180deg,#748157,#4c583b)!important;
+  border:1px solid rgba(219,193,126,.32);
+}
+body.app-on #app .bell-badge{
+  background:#a85345!important;
+  color:#fff6df!important;
+  border:2px solid var(--pfo-night);
+}
+
+/* Desktop/tablet side rail and horizontal secondary rail share one material. */
+body.app-on #app > nav.rail{
+  background:
+    linear-gradient(180deg,rgba(7,24,37,.985),rgba(7,19,29,.99)),
+    repeating-linear-gradient(0deg,rgba(135,91,49,.09) 0 1px,transparent 1px 18px)!important;
+  border-color:var(--pfo-night-line)!important;
+  box-shadow:9px 0 26px rgba(0,0,0,.22),inset -2px 0 rgba(61,38,24,.72)!important;
+}
+body.app-on #app #rail .gtab{
+  --ws:var(--pfo-brass-light)!important;
+  color:#cfc2a6!important;
+  border:1px solid transparent!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.app-on #app #rail .gtab .em{
+  color:#ddc685!important;
+  background:rgba(183,139,76,.12)!important;
+  border:1px solid rgba(183,139,76,.18);
+}
+body.app-on #app #rail .gtab:hover{
+  color:#fff0c9!important;
+  background:rgba(183,139,76,.09)!important;
+  border-color:rgba(183,139,76,.2)!important;
+}
+body.app-on #app #rail .gtab.active{
+  color:#fff0c9!important;
+  background:linear-gradient(90deg,rgba(104,116,76,.28),rgba(183,139,76,.07))!important;
+  border-color:rgba(219,193,126,.36)!important;
+  box-shadow:inset 3px 0 var(--pfo-brass-light),inset 0 1px rgba(255,255,255,.04)!important;
+}
+body.app-on #app #rail .gtab.active::after{background:var(--pfo-brass-light)!important}
+body.app-on #app #rail .gtab[data-group="admin"]{
+  margin-top:14px!important;
+  padding-top:13px!important;
+  border-top-color:rgba(207,174,111,.2)!important;
+}
+
+body.app-on #app #subRail.subrail-organized,
+body.app-on #app nav.rail .subrail{
+  background:linear-gradient(180deg,rgba(13,34,48,.98),rgba(7,24,36,.98))!important;
+  border-color:rgba(207,174,111,.2)!important;
+}
+body.app-on #app .subrail-compact .stab{
+  color:#c7baa0!important;
+  border-color:transparent!important;
+}
+body.app-on #app .subrail-compact .stab:hover,
+body.app-on #app .subrail-compact .stab.active{
+  color:#fff0cf!important;
+  border-color:rgba(219,193,126,.34)!important;
+  background:rgba(183,139,76,.12)!important;
+}
+body.app-on #app .subrail-compact .subrail-more{
+  color:#e1ceaa!important;
+  border-color:rgba(219,193,126,.27)!important;
+  background:rgba(30,56,70,.75)!important;
+}
+body.app-on #app .subrail-panel{
+  color:#ecdfc2!important;
+  border:1px solid rgba(219,193,126,.34)!important;
+  border-radius:10px!important;
+  background:
+    linear-gradient(145deg,rgba(20,45,59,.99),rgba(7,25,38,.995)),
+    repeating-linear-gradient(90deg,rgba(165,111,63,.08) 0 1px,transparent 1px 18px)!important;
+  box-shadow:0 22px 44px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.05)!important;
+}
+body.app-on #app .subrail-section{
+  background:rgba(5,19,29,.38)!important;
+  border-color:rgba(219,193,126,.16)!important;
+}
+body.app-on #app .subrail-section h4{color:#cdb98e!important}
+body.app-on #app .subrail-section .stab{color:#eee0c3!important}
+body.app-on #app .subrail-section .stab:hover,
+body.app-on #app .subrail-section .stab.active{background:rgba(111,126,78,.22)!important}
+
+/* Mobile bottom navigation is a compact field ledger, not a SaaS tab strip. */
+body.app-on #app > .botbar{
+  background:
+    linear-gradient(180deg,rgba(16,42,56,.98),rgba(6,21,33,.995)),
+    repeating-linear-gradient(90deg,rgba(137,91,49,.09) 0 1px,transparent 1px 22px)!important;
+  border-top:1px solid rgba(219,193,126,.42)!important;
+  box-shadow:0 -10px 28px rgba(0,0,0,.34),inset 0 2px rgba(73,45,27,.75)!important;
+}
+body.app-on #app .botbar button{
+  --ws:var(--pfo-brass-light)!important;
+  min-width:0;
+  min-height:48px;
+  color:#bfb49c!important;
+  border-radius:9px!important;
+}
+body.app-on #app .botbar button.active{
+  color:#ffe9b7!important;
+  background:rgba(183,139,76,.12)!important;
+}
+body.app-on #app .botbar button.active::before{background:var(--pfo-brass-light)!important}
+
+/* ─── Common management journals (Home and Avatar explicitly excluded) ── */
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar){
+  --surface:var(--pfo-paper);
+  --card:rgba(255,250,238,.72);
+  --card-2:rgba(224,207,174,.56);
+  --cream:var(--pfo-ink);
+  --muted:var(--pfo-muted);
+  --faint:#8d8271;
+  --line:var(--pfo-paper-line);
+  --line-soft:rgba(87,63,39,.13);
+  --green:var(--pfo-olive);
+  --green-soft:#596440;
+  --green-ink:#fff8e7;
+  --amber:var(--pfo-brass);
+  --wepair:#355c6c;
+  --danger:var(--pfo-danger);
+  color:var(--pfo-ink)!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{
+  padding-top:clamp(14px,2.4vw,30px);
+  padding-bottom:clamp(24px,4vw,48px);
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap > .sec{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(22px,3vw,38px)!important;
+  color:var(--pfo-ink)!important;
+  border:1px solid rgba(99,70,41,.34)!important;
+  border-radius:8px!important;
+  background:
+    linear-gradient(rgba(246,238,219,.975),rgba(234,220,190,.975)),
+    repeating-linear-gradient(0deg,transparent 0 31px,rgba(82,64,43,.045) 32px)!important;
+  box-shadow:var(--pfo-shadow),inset 0 0 0 1px rgba(255,255,255,.55)!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap > .sec::before{
+  content:"";
+  position:absolute;
+  inset:9px;
+  border:1px solid rgba(150,112,62,.18);
+  pointer-events:none;
+  border-radius:3px;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec > *{
+  position:relative;
+  z-index:1;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head{
+  align-items:center!important;
+  gap:9px 13px!important;
+  margin-bottom:20px!important;
+  padding:0 2px 15px;
+  border-bottom:1px solid rgba(91,66,39,.23);
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head h2{
+  color:var(--pfo-ink)!important;
+  font-family:'Gowun Batang','Noto Serif KR',serif!important;
+  font-size:clamp(21px,2vw,28px)!important;
+  letter-spacing:-.02em!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head .ko{
+  color:#6d665b!important;
+  font-size:13px!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head .meta{
+  color:#6b714c!important;
+  border:1px solid rgba(102,113,75,.3);
+  border-radius:999px;
+  padding:5px 10px;
+  background:rgba(102,113,75,.08);
+  font-weight:800;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) :is(input,select,textarea){
+  color:var(--pfo-ink)!important;
+  border-color:rgba(87,63,39,.3)!important;
+  background:rgba(255,252,244,.75)!important;
+  box-shadow:inset 0 1px 3px rgba(54,38,24,.06);
+  color-scheme:light!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) :is(input,select,textarea):focus{
+  outline:none!important;
+  border-color:var(--pfo-olive)!important;
+  box-shadow:0 0 0 3px rgba(102,113,75,.14)!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .btn:not(.ghost){
+  color:#fff8e8!important;
+  border:1px solid #34412e!important;
+  border-radius:6px!important;
+  background:linear-gradient(180deg,#758157,#525f40)!important;
+  box-shadow:0 7px 14px rgba(53,63,40,.17),inset 0 1px rgba(255,255,255,.16)!important;
+}
+body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .btn.ghost{
+  color:#4d5961!important;
+  border-color:rgba(78,61,43,.3)!important;
+  border-radius:6px!important;
+  background:rgba(255,250,237,.5)!important;
+  box-shadow:none!important;
+}
+
+/* ─── Farm Office / Admin ──────────────────────────────────────────────── */
+body.app-on #m-admin > .wrap > .sec{
+  background:
+    linear-gradient(rgba(247,239,221,.985),rgba(232,216,185,.985)),
+    repeating-linear-gradient(0deg,transparent 0 30px,rgba(80,58,37,.05) 31px)!important;
+}
+body.app-on #m-admin .sec-head h2::after{
+  content:"FARM KEEPER DESK";
+  display:inline-block;
+  margin-left:12px;
+  color:#8b7147;
+  font:800 9px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.16em;
+  vertical-align:middle;
+}
+body.app-on #m-admin .adm-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  align-items:start!important;
+  width:100%;
+  max-width:1120px;
+  margin-inline:auto;
+  gap:14px!important;
+}
+body.app-on #m-admin .adm-grid > .adm-card{
+  grid-column:1!important;
+  width:100%;
+  min-width:0;
+}
+body.app-on #m-admin .adm-card{
+  overflow:hidden;
+  color:var(--pfo-ink)!important;
+  border:1px solid rgba(88,63,40,.3)!important;
+  border-radius:7px!important;
+  background:rgba(255,251,241,.55)!important;
+  box-shadow:var(--pfo-shadow-soft),inset 0 1px rgba(255,255,255,.62)!important;
+}
+body.app-on #m-admin .adm-card .ah{
+  min-height:54px;
+  padding:14px 17px!important;
+  color:#f5e8cc!important;
+  border-bottom:1px solid rgba(207,174,111,.26)!important;
+  background:
+    linear-gradient(180deg,rgba(20,50,66,.99),rgba(9,31,45,.99)),
+    repeating-linear-gradient(90deg,rgba(139,92,52,.08) 0 1px,transparent 1px 18px)!important;
+}
+body.app-on #m-admin .adm-card .ah h3{
+  color:#f4e7c9!important;
+  font-family:'Gowun Batang','Noto Serif KR',serif!important;
+  font-size:16px!important;
+  letter-spacing:-.01em;
+}
+html body.app-on #app main #m-admin.mpanel > .wrap > .sec .adm-grid > .adm-card > .ah > h3{
+  color:#fff3d7!important;
+  -webkit-text-fill-color:#fff3d7!important;
+  opacity:1!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.38)!important;
+}
+body.app-on #m-admin .adm-card .ah,
+body.app-on #m-admin .adm-card .ah :is(h3,span,b,strong,button,.badge){
+  color:#f4e7c9!important;
+  -webkit-text-fill-color:currentColor!important;
+  opacity:1!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.28);
+}
+body.app-on #m-admin .adm-card .ah button{
+  border-color:rgba(222,196,142,.28)!important;
+  background:rgba(255,255,255,.07)!important;
+}
+body.app-on #m-admin .adm-card .ah .badge{
+  color:#fff5dc!important;
+  background:#7b663f!important;
+  border:1px solid rgba(219,193,126,.34);
+}
+body.app-on #m-admin .adm-card .ah .badge.zero{
+  color:#d8ccb4!important;
+  background:rgba(255,255,255,.07)!important;
+}
+body.app-on #m-admin .adm-card .ah .ah-caret{color:#dfc994!important}
+body.app-on #m-admin .adm-card .ah.tog:hover{background:linear-gradient(180deg,#1b4358,#0d3347)!important}
+body.app-on #m-admin .adm-body{
+  min-width:0;
+  max-width:100%;
+  padding:16px 17px 18px!important;
+  overflow-x:auto;
+  color:var(--pfo-ink)!important;
+  scrollbar-color:#9b8158 rgba(97,69,42,.09);
+}
+body.app-on #m-admin .adm-body :is(p,label,small){
+  color:#554d42!important;
+}
+body.app-on #m-admin .adm-body :is(strong,b){
+  color:#273a43!important;
+}
+body.app-on #m-admin .adm-body :is(button,.btn,.vbtn){
+  min-height:44px;
+  font-weight:800!important;
+  -webkit-text-fill-color:currentColor!important;
+}
+body.app-on #m-admin .adm-body::-webkit-scrollbar{height:8px;width:8px}
+body.app-on #m-admin .adm-body::-webkit-scrollbar-thumb{background:#9b8158;border-radius:8px}
+body.app-on #m-admin :is(.pend,.mem-row,.surv-row,.notif-item,.org-treebox){
+  color:var(--pfo-ink)!important;
+  border-color:rgba(87,63,39,.23)!important;
+  background:rgba(255,252,243,.66)!important;
+  box-shadow:0 4px 11px rgba(57,40,25,.06);
+}
+body.app-on #m-admin :is(.pend .pn,.mem-row .mr-nm,.surv-nm,.roster .rn){color:var(--pfo-ink)!important}
+body.app-on #m-admin :is(.pend .pid,.surv-role,.surv-meta,.mem-row .mr-chev){color:var(--pfo-muted)!important}
+body.app-on #m-admin .pend .vbtn{
+  min-height:40px;
+  color:#4e5960!important;
+  border-color:rgba(87,63,39,.25)!important;
+  background:rgba(255,250,237,.7)!important;
+}
+body.app-on #m-admin .pend .vbtn.ok{
+  color:#fff8e8!important;
+  border-color:#4a573c!important;
+  background:#66714b!important;
+}
+body.app-on #m-admin .pend .vbtn:not(.ok){
+  color:#653d34!important;
+  border-color:rgba(116,66,53,.34)!important;
+  background:#fff8ef!important;
+}
+body.app-on #m-admin .roster{min-width:680px;color:var(--pfo-ink)!important}
+body.app-on #m-admin .roster th{
+  color:#706652!important;
+  border-bottom-color:rgba(87,63,39,.28)!important;
+  background:rgba(219,199,162,.22);
+}
+body.app-on #m-admin .roster td{border-bottom-color:rgba(87,63,39,.12)!important}
+body.app-on #m-admin .roster select{min-height:40px}
+body.app-on #m-admin .empty-row{
+  min-height:64px;
+  color:#62584a!important;
+  border:1px dashed rgba(87,63,39,.38);
+  border-radius:6px;
+  background:rgba(255,251,241,.62);
+  font-weight:700;
+}
+
+body.app-on #m-admin .sec-head{
+  width:100%;
+  max-width:1120px;
+  margin-inline:auto;
+}
+body.app-on #m-admin .sec-head .ko{
+  color:#5d5548!important;
+  font-weight:700!important;
+}
+body.app-on #m-admin .sec-head .meta{
+  color:#405037!important;
+  border-color:rgba(76,91,54,.38)!important;
+  background:rgba(238,238,209,.58)!important;
+}
+body.app-on #m-admin :is(.adm-card,.adm-card .ah,.adm-card .ah.tog):focus-visible,
+body.app-on #m-admin :is(button,.btn,.vbtn,select,input):focus-visible{
+  outline:3px solid rgba(94,112,65,.45)!important;
+  outline-offset:2px;
+}
+
+/* ─── Common modals, sheets and notifications ─────────────────────────── */
+body > .modal{
+  --surface:var(--pfo-paper);
+  --card:rgba(255,251,241,.72);
+  --card-2:rgba(226,208,174,.56);
+  --cream:var(--pfo-ink);
+  --muted:var(--pfo-muted);
+  --faint:#8c816f;
+  --line:var(--pfo-paper-line);
+  --line-soft:rgba(87,63,39,.13);
+  --green:var(--pfo-olive);
+  --green-soft:#596440;
+  --green-ink:#fff8e7;
+  --amber:var(--pfo-brass);
+  --wepair:#355c6c;
+  --danger:var(--pfo-danger);
+  padding:clamp(14px,2.5vw,28px)!important;
+  color:var(--pfo-ink)!important;
+  background:rgba(2,11,18,.74)!important;
+  backdrop-filter:blur(10px) saturate(.82)!important;
+}
+body > .modal > .box,
+body > .modal > .box.sv-modal{
+  position:relative;
+  width:min(100%,720px)!important;
+  max-width:720px!important;
+  max-height:min(88dvh,860px)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  color:var(--pfo-ink)!important;
+  border:10px solid var(--pfo-walnut)!important;
+  border-radius:5px!important;
+  outline:1px solid rgba(219,193,126,.6)!important;
+  outline-offset:-16px!important;
+  padding:clamp(24px,3vw,34px)!important;
+  background:
+    linear-gradient(rgba(247,239,221,.985),rgba(232,217,188,.985)),
+    repeating-linear-gradient(0deg,transparent 0 30px,rgba(82,61,39,.045) 31px)!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.58),0 0 0 2px #6b4930!important;
+  scrollbar-color:#927550 transparent;
+}
+body > .modal > .box::before{
+  content:"";
+  position:absolute;
+  inset:11px;
+  z-index:0;
+  pointer-events:none;
+  border:1px solid rgba(144,105,59,.18);
+}
+body > .modal > .box > *{position:relative;z-index:1}
+body > .modal :is(h1,h2,h3,.ai-ttl,.ann-title,.wc-title){
+  color:var(--pfo-ink)!important;
+  font-family:'Gowun Batang','Noto Serif KR',serif!important;
+}
+body > .modal :is(p,.ai-sub,.notif-prev,.notif-t){color:var(--pfo-muted)!important}
+body > .modal :is(input,select,textarea){
+  min-height:44px;
+  color:var(--pfo-ink)!important;
+  border-color:rgba(87,63,39,.3)!important;
+  border-radius:5px!important;
+  background:rgba(255,252,244,.78)!important;
+  color-scheme:light!important;
+}
+body > .modal :is(input,select,textarea):focus{
+  outline:none!important;
+  border-color:var(--pfo-olive)!important;
+  box-shadow:0 0 0 3px rgba(102,113,75,.14)!important;
+}
+body > .modal .acts{
+  position:sticky;
+  z-index:4;
+  bottom:-1px;
+  margin:20px -4px -4px!important;
+  padding:12px 4px 4px;
+  background:linear-gradient(180deg,rgba(238,226,201,0),rgba(238,226,201,.96) 34%);
+}
+body > .modal .btn:not(.ghost),
+body > .modal :is(.ann-ok,.ai-inbar button){
+  min-height:44px;
+  color:#fff8e8!important;
+  border:1px solid #37432f!important;
+  border-radius:6px!important;
+  background:linear-gradient(180deg,#748156,#505d3e)!important;
+  box-shadow:0 7px 15px rgba(53,63,40,.18)!important;
+}
+body > .modal .btn.ghost,
+body > .modal .acts .btn.ghost{
+  min-height:44px;
+  color:#48545c!important;
+  border-color:rgba(87,63,39,.32)!important;
+  border-radius:6px!important;
+  background:rgba(255,251,241,.66)!important;
+}
+body > .modal .ai-head{
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(87,63,39,.22);
+}
+body > .modal .ai-x{
+  min-width:44px;
+  min-height:44px;
+  color:#5a5146!important;
+  border:1px solid rgba(87,63,39,.25)!important;
+  background:rgba(255,251,241,.58)!important;
+}
+body > .modal .ai-chat{
+  color:var(--pfo-ink)!important;
+  border-color:rgba(87,63,39,.22)!important;
+  background:rgba(255,251,241,.47)!important;
+}
+body > .modal :is(.notif-item,.sv-view,.ai-inbar,.ai-chips button,.profile-personal-menu button){
+  color:var(--pfo-ink)!important;
+  border-color:rgba(87,63,39,.24)!important;
+  background:rgba(255,251,241,.66)!important;
+}
+body > .modal .notif-item.unread{
+  border-left:4px solid var(--pfo-olive)!important;
+  background:rgba(233,229,201,.78)!important;
+}
+body > .modal .notif-top{color:var(--pfo-ink)!important}
+body > .modal .notif-top b{color:#53613d!important}
+
+body.app-on #toast.toast{
+  bottom:calc(24px + var(--safe-b));
+  min-width:min(320px,calc(100vw - 32px));
+  max-width:min(560px,calc(100vw - 32px));
+  color:#f8ecd2!important;
+  border:1px solid rgba(219,193,126,.46)!important;
+  border-radius:7px!important;
+  background:
+    linear-gradient(180deg,rgba(25,54,68,.98),rgba(8,29,43,.99)),
+    repeating-linear-gradient(90deg,rgba(142,94,52,.09) 0 1px,transparent 1px 18px)!important;
+  box-shadow:0 18px 40px rgba(0,0,0,.43),inset 0 1px rgba(255,255,255,.06)!important;
+}
+
+body.app-on #app footer{
+  color:#b9ad95!important;
+  border-top-color:rgba(207,174,111,.26)!important;
+  background:linear-gradient(180deg,rgba(5,17,27,.18),rgba(5,17,27,.76));
+}
+body.app-on #app footer .punch{color:#ecddbd!important}
+body.app-on #app footer .punch b{color:#c6cf98!important}
+
+/* ─── Responsive gates ────────────────────────────────────────────────── */
+@media (min-width:1200px){
+  body.app-on #app > nav.rail{width:232px!important}
+  body.app-on #app main{margin-left:232px!important}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{max-width:1380px}
+  body.app-on #m-admin .adm-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+
+/* Tablet landscape / small desktop: keep the proven side rail, but preserve a useful canvas. */
+@media (min-width:980px) and (max-width:1199px){
+  body.app-on #app > nav.rail{width:232px!important}
+  body.app-on #app main{margin-left:232px!important}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{padding-inline:22px!important}
+  body.app-on #app #rail .gtab{min-height:46px!important;margin-inline:7px!important}
+  body.app-on #m-admin .adm-body{padding-inline:14px!important}
+}
+
+/* Tablet portrait: horizontal workspace rail with full-size touch targets. */
+@media (min-width:768px) and (max-width:979px){
+  body.app-on #app > nav.rail{box-shadow:0 10px 24px rgba(0,0,0,.25)!important}
+  body.app-on #app #rail{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(104px,1fr))!important;
+    gap:7px!important;
+    padding:8px 16px!important;
+    overflow-x:auto!important;
+  }
+  body.app-on #app #rail .gtab{
+    min-height:48px!important;
+    justify-content:center!important;
+    margin:0!important;
+    padding:10px 11px!important;
+  }
+  body.app-on #app .subrail-compact .stab,
+  body.app-on #app .subrail-compact .subrail-more{min-height:44px!important}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{padding-inline:18px!important}
+  body > .modal > .box,
+  body > .modal > .box.sv-modal{width:min(92vw,720px)!important;max-height:86dvh!important}
+}
+
+@media (max-width:767px){
+  body.app-on #app{overflow-x:clip}
+  body.app-on #app > header.top .bar{
+    height:60px!important;
+    gap:5px!important;
+    padding-inline:9px!important;
+  }
+  body.app-on #app .top .logo-chip{min-width:38px;height:38px;display:grid;place-items:center;padding:4px 6px}
+  body.app-on #app .top .logo > span:not(.logo-chip){display:none!important}
+  body.app-on #app :is(.home-entry-btn,.bell-btn,.hdr-install,.adm-toggle){
+    width:44px!important;
+    min-width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    justify-content:center;
+  }
+  body.app-on #app .home-entry-btn b{display:none!important}
+  body.app-on #app .me-pill{
+    width:44px!important;
+    min-width:44px!important;
+    height:44px!important;
+    padding:3px!important;
+    justify-content:center;
+  }
+  body.app-on #app .me-pill :is(.mnm,.mrole){display:none!important}
+  body.app-on #app .me-pill .mav{width:34px!important;height:34px!important}
+  body.app-on #app main{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{
+    width:100%;
+    padding:12px 10px 28px!important;
+  }
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap > .sec{
+    padding:18px 13px 21px!important;
+    border-width:1px!important;
+    border-radius:7px!important;
+    box-shadow:0 14px 28px rgba(0,0,0,.24),inset 0 0 0 1px rgba(255,255,255,.45)!important;
+  }
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap > .sec::before{inset:6px}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head{
+    display:grid!important;
+    grid-template-columns:1fr auto;
+    align-items:start!important;
+    gap:5px 8px!important;
+    padding:0 2px 12px;
+    margin-bottom:15px!important;
+  }
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head h2{
+    grid-column:1;
+    font-size:21px!important;
+    line-height:1.3!important;
+  }
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head .ko{
+    grid-column:1 / -1;
+    font-size:12px!important;
+    line-height:1.55;
+  }
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) .sec-head .meta{
+    grid-column:2;
+    grid-row:1;
+    margin-left:0!important;
+    padding:4px 8px;
+    font-size:9px!important;
+  }
+  body.app-on #m-admin .sec-head h2::after{display:block;margin:4px 0 0}
+  body.app-on #m-admin .adm-grid{gap:11px!important}
+  body.app-on #m-admin .adm-card .ah{min-height:56px;padding:12px 13px!important}
+  body.app-on #m-admin .adm-card .ah h3{font-size:15px!important;line-height:1.35}
+  body.app-on #m-admin .adm-body{padding:13px 12px 15px!important}
+  body.app-on #m-admin #dataUsageBody{width:100%;min-width:0}
+  body.app-on #m-admin #dataUsageBody .du-head{
+    align-items:flex-start!important;
+    flex-wrap:wrap!important;
+  }
+  body.app-on #m-admin #dataUsageBody .du-val{margin-left:auto}
+  body.app-on #m-admin #dataUsageBody :is(.du-note,.du-ref-i){overflow-wrap:anywhere}
+  body.app-on #m-admin .pend{align-items:flex-start!important;padding:11px!important}
+  body.app-on #m-admin .pend .pacts{width:100%;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  body.app-on #m-admin .pend .vbtn{min-height:44px!important}
+  body.app-on #m-admin .mem-row{align-items:flex-start!important;flex-wrap:wrap!important}
+  body.app-on #m-admin .mem-row .mr-perm{flex:1 1 100%!important;padding-left:38px}
+  body.app-on #m-admin .roster{min-width:620px}
+
+  body > .modal{
+    align-items:flex-end!important;
+    padding:10px 8px 0!important;
+  }
+  body > .modal > .box,
+  body > .modal > .box.sv-modal{
+    width:100%!important;
+    max-width:none!important;
+    max-height:calc(92dvh - env(safe-area-inset-top))!important;
+    margin:0!important;
+    padding:24px 16px calc(16px + env(safe-area-inset-bottom))!important;
+    border-width:7px 7px 0!important;
+    border-radius:12px 12px 0 0!important;
+    outline-offset:-12px!important;
+  }
+  body > .modal > .box::before{inset:8px 8px calc(8px + env(safe-area-inset-bottom))}
+  body > .modal :is(p,.ai-sub){font-size:14px!important;line-height:1.65}
+  body > .modal :is(input,select,textarea){font-size:16px!important}
+  body > .modal .acts{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px!important;
+    margin:18px -2px calc(-6px - env(safe-area-inset-bottom))!important;
+    padding:15px 2px calc(10px + env(safe-area-inset-bottom))!important;
+  }
+  body > .modal .acts > :only-child{grid-column:1 / -1}
+  body.app-on #toast.toast{bottom:calc(82px + var(--safe-b));font-size:14px;padding:13px 16px}
+}
+
+@media (max-width:430px){
+  body.app-on #app .top .bar{overflow:visible!important}
+  body.app-on #app .top .spacer{min-width:0;flex:1 1 auto!important}
+  body.app-on #app .conn-dot{margin-inline:1px!important}
+  body.app-on #app .botbar{gap:1px;padding-inline:3px!important}
+  body.app-on #app .botbar button{font-size:9.5px!important;padding-inline:1px!important}
+  body.app-on #app .botbar .em{font-size:19px!important}
+}
+
+@media (max-width:374px){
+  body.app-on #app .top .logo{display:none!important}
+  body.app-on #app .top .bar{gap:4px!important}
+  body.app-on #app .botbar button{font-size:9px!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  body.app-on #app :is(.mtab,.btn,.adm-card,.modal .box,.toast),
+  body > .modal > .box{animation:none!important;transition:none!important}
+}

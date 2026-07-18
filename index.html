@@ -3399,7 +3399,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
       <div class="sec-head"><h2>📣 공지·기념일</h2><span class="ko">팝업 공지 · 생일·기념일·굳뉴스</span><span class="meta">관리자</span></div>
       <div class="sec-sub">📣 팝업 공지</div>
       <p style="font-size:12px;color:var(--muted);margin:2px 0 10px;line-height:1.6">여기에 쓰면 팀원이 <b>로그인할 때 팝업으로 떠요.</b> 각자 <b>확인</b>을 한 번 누르면 닫히고 다시 안 떠요. 새 공지를 올리면 모두에게 다시 떠요.</p>
-      <textarea id="annInput" placeholder="예) 오늘은 프레젠스 동물농장 첫날이라 모두에게 기념 먹이 토큰 1개를 드려요 🎁 내일부터는 하루에 결과(1건↑)를 내면 토큰 1개가 자동 지급돼요!" rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
+      <textarea id="annInput" placeholder="예) 오늘은 프레젠스 Work Book의 새로운 시즌이 시작됩니다." rows="4" style="width:100%;background:var(--surface);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:11px;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit"></textarea>
       <button class="ann-post-btn" onclick="postAnnounce()">📣 공지 띄우기</button>
       <div id="annCurrent"></div>
       <div class="sec-sub" style="margin-top:24px">🎂 다음 7일 생일</div>
@@ -3585,7 +3585,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
   <div class="ann-by" id="annBy"></div>
   <button class="ann-ok" onclick="ackAnnounce()">확인</button>
 </div></div>
-<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title">첫 입장을 축하해요! 🎉</h3><div class="wc-msg" id="wcMsg"></div><div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">프레젠스 워크북에 오신 것을 환영해요. 이용설명 가이드를 꼭 읽어보세요!</div><div class="wc-token" id="wcToken">🪙 가입 축하 <b>먹이 토큰 1개</b>가 지급되었어요!</div><!-- 가이드 PDF는 고정 경로 — 관리자가 같은 파일명으로 새 PDF를 올리면 항상 최신 버전이 받아짐 --><a class="wc-guide" href="https://jaeyoung5178-bot.github.io/Presence/workbook-guide.pdf" target="_blank" rel="noopener">📘 이용설명 가이드 PDF 받기</a><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
+<div class="modal" id="welcomeModal"><div class="box welcome-box"><div class="wc-icon" aria-hidden="true"></div><h3 class="wc-title">첫 입장을 환영합니다</h3><div class="wc-msg" id="wcMsg"></div><div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">프레젠스 Work Book에 오신 것을 환영합니다. 이용설명 가이드를 확인해 주세요.</div><div class="wc-token" id="wcToken">가입을 축하합니다. <b>새로운 기록을 시작해 보세요.</b></div><!-- 가이드 PDF는 고정 경로 — 관리자가 같은 파일명으로 새 PDF를 올리면 항상 최신 버전이 받아짐 --><a class="wc-guide" href="https://jaeyoung5178-bot.github.io/Presence/workbook-guide.pdf" target="_blank" rel="noopener">이용설명 가이드 PDF</a><button class="ann-ok" onclick="closeModal('welcomeModal')">확인</button></div></div>
 <div class="modal" id="obNudgeModal"><div class="box welcome-box"><div class="wc-icon">🎉</div><h3 class="wc-title" id="obNudgeName">첫 필드 축하!</h3><div class="wc-msg" id="obNudgeMsg"></div><div class="wc-token" id="obNudgeTrain" style="text-align:left;line-height:1.7"></div><button class="ann-ok" onclick="closeModal('obNudgeModal')">화이팅! 💪</button></div></div>
 <div class="modal" id="ldNudgeModal"><div class="box welcome-box"><div class="wc-icon">🌱</div><h3 class="wc-title">신입이 왔어요!</h3><div class="wc-msg" id="ldNudgeBody"></div><button class="ann-ok" onclick="closeModal('ldNudgeModal')">교육 준비할게요 💪</button></div></div>
 <div class="modal" id="giftWinModal"><div class="box gift-win-box">
@@ -5610,7 +5610,7 @@ const GIFT_HUNT_END=GIFT_HUNT_START+14*86400000;
 const GIFT_VALID_MS=14*86400000;
 const LOA_MSG='행운의 선물을 찾으셨습니다! 🎉\n\n당신은 LOA 왕 👑\n올해도 고생하셨습니다.\n내년도 Let\'s Go Presence!\n\n- Presence -';
 /* ===== 동물농장 먹이주기 우승 축하 선물 (관리자 → 우승자 지정 지급) ===== */
-const FARM_THANKS='프레젠스 동물농장 식구들을 가장 사랑으로 챙기고, 팀 성장에 가장 많이 기여한 당신에게 진심으로 축하와 감사를 전합니다 🐾\n\n- Presence -';
+const FARM_THANKS='프레젠스 Work Book의 구성원을 따뜻하게 챙기고, 팀 성장에 가장 많이 기여한 당신에게 진심으로 축하와 감사를 전합니다.\n\n- Presence -';
 function sendFarmGift(uid){
   if(!me||!isFounder(me))return;
   const u=state.users[uid];
@@ -6535,7 +6535,7 @@ function finalizeComp(){
   state.rewards=state.rewards||[];
   if(!state.rewards.some(r=>r.id===cid)){
     state.rewards.push({id:cid,date:compRange().ed,winner:top.name,count:top.days,prize:'여름맞이 텀블러',given:false});
-    const a={id:'win-'+cid,text:`🏆 이번 컴페티션 우승자는 ${top.name}님!\n기간 동안 먹이를 ${top.days}일 주어 1위예요. (노제로 결과 + 기념토큰 합산) 축하합니다 🎉`,by:'프레젠스 동물농장',t:Date.now(),winner:true};
+    const a={id:'win-'+cid,text:`이번 컴페티션 우승자는 ${top.name}님입니다.\n기간 동안 ${top.days}일의 기록으로 1위를 달성했습니다. 축하합니다.`,by:'프레젠스 Work Book',t:Date.now(),winner:true};
     state.popupAnnounce=a;if(LIVE)DB.set('popupAnnounce',a);
   }
   state.comp=state.comp||{};state.comp.finalizedFor=cid;
@@ -15306,12 +15306,15 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-10">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<link rel="stylesheet" href="assets/presence-home-atelier.css?v=20260718-3">
-<link rel="stylesheet" href="assets/presence-farm-world.css?v=20260718-3">
+<link rel="stylesheet" href="assets/presence-home-atelier.css?v=20260718-4">
+<link rel="stylesheet" href="assets/presence-farm-world.css?v=20260718-6">
+<link rel="stylesheet" href="assets/presence-farm-office-shell.css?v=20260718-4">
+<link rel="stylesheet" href="assets/presence-farm-today-people.css?v=20260718-3">
+<link rel="stylesheet" href="assets/presence-farm-progress-profit.css?v=20260718-2">
 <script src="assets/presence-avatar-studio.js?v=20260718-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-atelier.js?v=20260718-4"></script>
+<script src="assets/presence-home-atelier.js?v=20260718-8"></script>
 <script src="assets/presence-home-tree-premium.js?v=20260718-3"></script>
 </body>
 </html>

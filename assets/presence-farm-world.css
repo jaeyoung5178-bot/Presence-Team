@@ -39,7 +39,7 @@
   background:radial-gradient(circle at 50% 46%,transparent 18%,rgba(2,8,14,.16) 62%,rgba(1,5,10,.52) 100%);
 }
 #authGate::after{
-  content:"프레젠스 동물농장";position:fixed;left:clamp(24px,4vw,70px);top:clamp(24px,5vh,62px);
+  content:"프레젠스 Work Book\A 함께 가꾸는 동물농장";white-space:pre;position:fixed;left:clamp(24px,4vw,70px);top:clamp(24px,5vh,62px);
   color:#f5dfae;font-family:'Gowun Batang','Noto Serif KR',serif;font-weight:700;
   font-size:clamp(21px,2.1vw,36px);letter-spacing:.06em;text-shadow:0 3px 16px #000;
 }
@@ -60,7 +60,7 @@
   border:10px solid #25170f!important;border-radius:3px!important;outline:1px solid rgba(209,174,109,.62)!important;outline-offset:-17px!important;
   box-shadow:0 28px 80px rgba(0,0,0,.62),0 0 0 2px #6b4930,0 0 0 5px rgba(15,22,28,.8)!important;backdrop-filter:none!important;
 }
-#authGate.presence-basecamp .auth-card::before{content:"프레젠스 워크북 출입 장부"!important;margin:0 0 12px!important;color:#75705f!important;text-align:center!important;font-size:9px!important;letter-spacing:.18em!important}
+#authGate.presence-basecamp .auth-card::before{content:"프레젠스 Work Book 출입 장부"!important;margin:0 0 12px!important;color:#75705f!important;text-align:center!important;font-size:9px!important;letter-spacing:.18em!important}
 #authGate .auth-logo{margin:0 0 18px!important;padding:5px 16px 17px;border-bottom:1px solid rgba(85,63,40,.34)}
 #authGate.presence-basecamp .auth-logo{display:block!important;margin:0 0 18px!important;padding:5px 16px 17px!important;text-align:center!important}
 #authGate .auth-logo .hero-plate{
@@ -73,7 +73,7 @@
 #authGate .auth-logo .hero-plate::after{display:none!important}
 #authGate .auth-logo .hero-plate img{display:block!important;height:48px!important;width:auto!important;filter:none!important}
 #authGate .auth-logo::before{
-  content:"프레젠스\A워크북";white-space:pre;display:block;color:#10243a;
+  content:"프레젠스\A Work Book";white-space:pre;display:block;color:#10243a;
   font-family:'Gowun Batang','Noto Serif KR',serif;font-size:clamp(30px,4vh,42px);font-weight:800;
   line-height:1.12;letter-spacing:.11em;
 }
@@ -102,7 +102,7 @@
 /* The signed-in product now shares one farm-world shell. */
 body.app-on{background:#071522!important}
 body.app-on #app{background:
-  linear-gradient(rgba(6,18,29,.80),rgba(6,18,29,.88)),
+  linear-gradient(rgba(6,18,29,.52),rgba(6,18,29,.74)),
   url("home/presence-home-orchard-dusk.png") center/cover fixed no-repeat!important}
 body.app-on header.top{
   background:linear-gradient(180deg,rgba(5,18,30,.98),rgba(8,27,42,.97))!important;
@@ -124,6 +124,43 @@ body.app-on nav.rail .row>button.active,body.app-on nav.rail .row>.grp-btn.activ
 }
 body.app-on .botbar{background:#081a29!important;border-top:1px solid rgba(196,164,106,.45)!important}
 body.app-on main{background:transparent!important}
+
+/* Final world lock: no generic SaaS skin or unrelated display type remains. */
+body.app-on #app,
+body.app-on #app :is(button,input,select,textarea,label,p,span,small,li,td,th){
+  font-family:'Gowun Dodum','Pretendard',-apple-system,BlinkMacSystemFont,sans-serif!important;
+}
+body.app-on #app :is(h1,h2,h3,.logo .nm,.phome-workspace-brand,.phome-intro h1,.tw-title,.sec>.ah h3){
+  font-family:'Gowun Batang','Nanum Myeongjo','Noto Serif KR',serif!important;
+  letter-spacing:-.025em;
+}
+body.app-on #app main>.mpanel:not(#m-home):not(#m-avatar){
+  background:
+    linear-gradient(180deg,rgba(5,18,28,.34),rgba(5,18,28,.68)),
+    url("home/presence-home-orchard-dusk.png") center/cover fixed no-repeat!important;
+}
+body.app-on #app main>.mpanel:not(#m-home):not(#m-avatar)>.wrap{
+  min-height:calc(100dvh - var(--header-h,64px));
+}
+body.app-on #app main>.mpanel:not(#m-home):not(#m-avatar) .sec{
+  border:1px solid rgba(128,92,52,.34)!important;
+  outline:1px solid rgba(255,250,231,.32);
+  outline-offset:-10px;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 29px,rgba(89,65,39,.026) 30px),
+    linear-gradient(145deg,rgba(247,239,219,.985),rgba(229,212,179,.975))!important;
+}
+body.app-on #app main>.mpanel:not(#m-home):not(#m-avatar) .sec>.ah :is(h2,h3,b)::before{
+  content:"";
+  display:inline-block;
+  width:4px;
+  height:.9em;
+  margin-right:10px;
+  border-radius:2px;
+  background:linear-gradient(180deg,#d9bd78,#7a633c);
+  box-shadow:0 0 0 1px rgba(62,43,25,.16);
+  vertical-align:-.04em;
+}
 
 /* Journal surfaces: calm paper on the farm backdrop. */
 body.app-on .mpanel:not(#m-avatar) .sec:not(.home-farm-scene),

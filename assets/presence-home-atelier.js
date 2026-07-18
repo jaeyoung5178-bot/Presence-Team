@@ -7,6 +7,8 @@
   var wrapObserver = null;
   var observedHomePanel = null;
   var homePanelObserver = null;
+  var observedQuickSlots = null;
+  var quickSlotsObserver = null;
   var waterTimer = 0;
   var companionSignature = '';
 
@@ -224,8 +226,30 @@
         '<span class="phome-workspace-icon" aria-hidden="true">' + item.icon + '</span><span>' + item.label + '</span>' + badge + '</button>';
     }).join('');
     replaceMarkup(nav,
-      '<div class="phome-workspace-brand"><i aria-hidden="true">P</i><span>프레젠스 워크북<small>함께 가꾸는 동물농장</small></span></div>' +
+      '<div class="phome-workspace-brand"><i aria-hidden="true">P</i><span>프레젠스 Work Book<small>함께 가꾸는 동물농장</small></span></div>' +
       '<div class="phome-workspace-list">' + buttons + '</div>');
+  }
+
+  function ensureGlobalBrand() {
+    var logo = document.querySelector('#app header.top .logo');
+    if (!logo) return;
+    var name = logo.querySelector('.nm');
+    var tag = logo.querySelector('.tag');
+    if (name && name.textContent.trim() !== '프레젠스 Work Book') name.textContent = '프레젠스 Work Book';
+    if (tag && tag.textContent.trim() !== '함께 가꾸는 동물농장') tag.textContent = '함께 가꾸는 동물농장';
+    var officeTitle = document.querySelector('#m-admin .sec-head h2');
+    if (officeTitle && officeTitle.textContent.trim() !== 'Farm Office') officeTitle.textContent = 'Farm Office';
+  }
+
+  function removeLegacyEmojiDecoration() {
+    var selectors = '#app main .mpanel h1,#app main .mpanel h2,#app main .mpanel h3,#app main .mpanel .ah b,#app main .mpanel button,#app main .mpanel .phome-tree-title';
+    document.querySelectorAll(selectors).forEach(function (element) {
+      var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      var textNode = walker.nextNode();
+      while (textNode && !textNode.nodeValue.trim()) textNode = walker.nextNode();
+      if (!textNode) return;
+      textNode.nodeValue = textNode.nodeValue.replace(/^[\s\uFE0F\u200D]*(?:\p{Extended_Pictographic}[\uFE0F\u200D]*)+\s*/u, '');
+    });
   }
 
   function migrateLegacyHomeOrder() {
@@ -248,6 +272,71 @@
     }
   }
 
+  var LEGACY_HOME_OWNERS = {
+    coopSec: 'profit',
+    homeDashSec: 'workspace-navigation',
+    quickSec: 'custom-quickslots',
+    gbSec: 'today',
+    todaySec: 'today',
+    attendSec: 'today',
+    celebSec: 'today',
+    praiseSec: 'today'
+  };
+
+  function saveLegacyVisibility(element) {
+    if (!element || element.dataset.atelierHomeLegacy === 'true') return;
+    element.dataset.atelierHomeLegacy = 'true';
+    element.dataset.atelierPreviousHidden = element.hidden ? 'true' : 'false';
+    element.dataset.atelierPreviousInert = element.hasAttribute('inert') ? 'true' : 'false';
+    element.dataset.atelierPreviousAriaHidden = element.hasAttribute('aria-hidden') ? element.getAttribute('aria-hidden') : '__none__';
+  }
+
+  function hideLegacyFromHome(element, owner) {
+    if (!element) return;
+    saveLegacyVisibility(element);
+    element.dataset.atelierWorkspaceOwner = owner || 'workspace';
+    element.hidden = true;
+    element.setAttribute('aria-hidden', 'true');
+    element.setAttribute('inert', '');
+  }
+
+  function restoreLegacyVisibility(element) {
+    if (!element || element.dataset.atelierHomeLegacy !== 'true') return;
+    element.hidden = element.dataset.atelierPreviousHidden === 'true';
+    if (element.dataset.atelierPreviousInert === 'true') element.setAttribute('inert', '');
+    else element.removeAttribute('inert');
+    if (element.dataset.atelierPreviousAriaHidden === '__none__') element.removeAttribute('aria-hidden');
+    else element.setAttribute('aria-hidden', element.dataset.atelierPreviousAriaHidden || 'false');
+    delete element.dataset.atelierHomeLegacy;
+    delete element.dataset.atelierPreviousHidden;
+    delete element.dataset.atelierPreviousInert;
+    delete element.dataset.atelierPreviousAriaHidden;
+  }
+
+  function relocateTodayLegacy() {
+    var todayHost = document.getElementById('todayWorkspaceBody');
+    var social = document.getElementById('gbSec');
+    if (!todayHost || !social || social.parentNode === todayHost) return;
+    restoreLegacyVisibility(social);
+    social.dataset.atelierWorkspaceOwner = 'today';
+    todayHost.appendChild(social);
+  }
+
+  function syncLegacyHomeOwnership(wrap) {
+    if (!wrap) return;
+    relocateTodayLegacy();
+
+    var hero = wrap.querySelector(':scope > .hero');
+    if (hero) hideLegacyFromHome(hero, 'home-scene');
+
+    Object.keys(LEGACY_HOME_OWNERS).forEach(function (id) {
+      var element = document.getElementById(id);
+      if (!element) return;
+      if (element.parentNode === wrap) hideLegacyFromHome(element, LEGACY_HOME_OWNERS[id]);
+      else restoreLegacyVisibility(element);
+    });
+  }
+
   function ensureScene() {
     var home = document.getElementById('m-home');
     var wrap = home && home.querySelector(':scope > .wrap');
@@ -268,8 +357,8 @@
       scene.innerHTML =
         '<header class="phome-intro">' +
           '<div class="phome-intro-copy">' +
-            '<span class="phome-kicker">PRESENCE ANIMAL FARM · HOME</span>' +
-            '<h1 id="homeAtelierTitle">프레젠스 동물농장</h1>' +
+            '<span class="phome-kicker">PRESENCE WORK BOOK · HOME</span>' +
+            '<h1 id="homeAtelierTitle">프레젠스 Work Book</h1>' +
             '<p id="homeAtelierGreeting">오늘의 작은 돌봄이 팀의 단단한 성장을 만듭니다.</p>' +
           '</div>' +
         '</header>' +
@@ -294,6 +383,7 @@
     scene.classList.add('sec', 'phome-scene');
     ensureWorkspaceNav(scene);
     migrateLegacyHomeOrder();
+    syncLegacyHomeOwnership(wrap);
     var card = document.getElementById('homeAtelierCard');
     if (card && tree.parentNode !== card) card.appendChild(tree);
     var journal = document.getElementById('homeFieldJournalCard');
@@ -400,10 +490,38 @@
       '<article class="phome-timeline-item"><time>MY 1 ON 1</time><b>' + (appointments.nextDate ? '다음 예약 확인' : '예약 없음') + '</b><br>' + escapeHtml(appointmentText) + '</article>');
   }
 
+  function syncQuickslotEmptyState() {
+    var host = document.getElementById('homeAtelierQuickslotHost');
+    var slots = document.getElementById('homeQuickSlots');
+    if (!host) return;
+    var empty = host.querySelector('.phome-quickslot-empty');
+    if (!empty) {
+      empty = document.createElement('button');
+      empty.type = 'button';
+      empty.className = 'phome-quickslot-empty';
+      empty.setAttribute('aria-label', '자주 쓰는 기능 추가');
+      empty.innerHTML = '<span aria-hidden="true">＋</span><b>자주 쓰는 기능 추가</b><small>필요한 공간을 바로가기로 등록하세요</small>';
+      empty.addEventListener('click', function () {
+        if (typeof window.openQuickslotPicker === 'function') window.openQuickslotPicker();
+      });
+      host.insertBefore(empty, host.firstChild);
+    }
+    var hasSlot = !!(slots && slots.querySelector('.hqd-slot'));
+    empty.hidden = hasSlot;
+
+    if (slots && observedQuickSlots !== slots) {
+      if (quickSlotsObserver) quickSlotsObserver.disconnect();
+      observedQuickSlots = slots;
+      quickSlotsObserver = new MutationObserver(syncQuickslotEmptyState);
+      quickSlotsObserver.observe(slots, {childList: true});
+    }
+  }
+
   function mountQuickDock() {
     var host = document.getElementById('homeAtelierQuickslotHost');
     var dock = document.getElementById('homeQuickDock');
     if (host && dock && dock.parentNode !== host) host.appendChild(dock);
+    syncQuickslotEmptyState();
   }
 
   function avatarProfile() {
@@ -541,9 +659,9 @@
     wrapObserver = new MutationObserver(function (mutations) {
       var relevant = mutations.some(function (mutation) {
         return Array.prototype.some.call(mutation.addedNodes, function (node) {
-          return node.nodeType === 1 && (node.id === 'homeQuickDock' || node.id === 'treeSecHome' || node.id === 'homeSceneSec');
+          return node.nodeType === 1 && (node.id === 'homeQuickDock' || node.id === 'treeSecHome' || node.id === 'homeSceneSec' || node.classList.contains('hero') || LEGACY_HOME_OWNERS[node.id]);
         }) || Array.prototype.some.call(mutation.removedNodes, function (node) {
-          return node.nodeType === 1 && (node.id === 'homeQuickDock' || node.id === 'treeSecHome' || node.id === 'homeSceneSec');
+          return node.nodeType === 1 && (node.id === 'homeQuickDock' || node.id === 'treeSecHome' || node.id === 'homeSceneSec' || node.classList.contains('hero') || LEGACY_HOME_OWNERS[node.id]);
         });
       });
       if (relevant) scheduleRender();
@@ -564,6 +682,8 @@
     if (rendering) return;
     rendering = true;
     try {
+      ensureGlobalBrand();
+      removeLegacyEmojiDecoration();
       if (!ensureScene()) return;
       renderWorkspaceNav();
       renderGreeting();
@@ -572,6 +692,7 @@
       mountQuickDock();
       ensureCompanion();
       hookWaterTree();
+      removeLegacyEmojiDecoration();
     } finally {
       rendering = false;
     }
