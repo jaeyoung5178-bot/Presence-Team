@@ -1,0 +1,1098 @@
+/*
+ * Presence Home · Orchard Atelier
+ * Approved visual direction: warm walnut, midnight navy, parchment, olive and brass.
+ * This sheet is deliberately scoped to body.presence-atelier-home and does not
+ * touch the existing loading-screen contract.
+ */
+
+body.presence-atelier-home {
+  --ph-navy-950: #07121b;
+  --ph-navy-900: #0b1b28;
+  --ph-navy-850: #102536;
+  --ph-navy-800: #153044;
+  --ph-walnut-950: #25170e;
+  --ph-walnut-900: #392317;
+  --ph-walnut-800: #563823;
+  --ph-walnut-700: #735039;
+  --ph-paper-100: #fffaf0;
+  --ph-paper-150: #f9efd9;
+  --ph-paper-200: #efe0c1;
+  --ph-paper-300: #ddc797;
+  --ph-ink: #30251b;
+  --ph-ink-soft: #6b5943;
+  --ph-olive-700: #59613a;
+  --ph-olive-600: #6d7746;
+  --ph-olive-500: #828d54;
+  --ph-brass-500: #bd8a43;
+  --ph-brass-400: #d8aa62;
+  --ph-brass-300: #edc77f;
+  --ph-line-dark: rgba(214, 173, 105, 0.28);
+  --ph-line-paper: rgba(91, 66, 39, 0.22);
+  --ph-shadow-deep: 0 24px 70px rgba(5, 10, 15, 0.42);
+  --ph-shadow-card: 0 16px 42px rgba(26, 15, 8, 0.22);
+  --ph-serif: "Nanum Myeongjo", "Noto Serif KR", "AppleMyungjo", Georgia, serif;
+  --ph-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  color: var(--ph-paper-100);
+  background:
+    radial-gradient(circle at 42% -10%, rgba(60, 95, 101, 0.24), transparent 36rem),
+    linear-gradient(145deg, var(--ph-navy-950), #101a20 48%, #17150f);
+}
+
+body.presence-atelier-home *,
+body.presence-atelier-home *::before,
+body.presence-atelier-home *::after {
+  box-sizing: border-box;
+}
+
+body.presence-atelier-home #m-home,
+body.presence-atelier-home #m-home > .wrap,
+body.presence-atelier-home #homeSceneSec,
+body.presence-atelier-home .phome-grid,
+body.presence-atelier-home .phome-grid > *,
+body.presence-atelier-home #homeAtelierCard,
+body.presence-atelier-home #homeFieldJournalCard {
+  min-width: 0;
+  max-width: 100%;
+}
+
+body.presence-atelier-home #m-home {
+  overflow-x: clip;
+  font-family: var(--ph-sans);
+}
+
+body.presence-atelier-home #m-home > .wrap {
+  width: min(100%, 1660px);
+  padding-inline: clamp(12px, 2vw, 30px);
+}
+
+/* Global frame shown while Home is active. English workspace labels stay legible. */
+body.presence-atelier-home header.top {
+  border-bottom-color: var(--ph-line-dark);
+  background:
+    linear-gradient(90deg, rgba(8, 23, 34, 0.98), rgba(12, 29, 41, 0.98)),
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,255,255,.012) 6px 7px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.3);
+}
+
+body.presence-atelier-home header.top .logo,
+body.presence-atelier-home header.top .nm,
+body.presence-atelier-home header.top .tag {
+  color: var(--ph-paper-150);
+}
+
+body.presence-atelier-home header.top button,
+body.presence-atelier-home header.top a,
+body.presence-atelier-home .mtab {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+body.presence-atelier-home .mtab {
+  color: rgba(249, 239, 217, 0.68);
+}
+
+body.presence-atelier-home .mtab.active {
+  color: var(--ph-paper-100);
+  border-color: var(--ph-brass-400);
+  background: linear-gradient(180deg, rgba(216, 170, 98, .12), rgba(216, 170, 98, .035));
+  box-shadow: inset 0 -2px var(--ph-brass-400);
+}
+
+/* New Home scene */
+body.presence-atelier-home #homeSceneSec.phome-scene {
+  position: relative;
+  isolation: isolate;
+  margin: clamp(10px, 1.5vw, 22px) auto clamp(24px, 4vw, 58px);
+  padding: clamp(10px, 1.2vw, 18px);
+  overflow: hidden;
+  border: 1px solid var(--ph-line-dark);
+  border-radius: clamp(22px, 2.1vw, 34px);
+  background:
+    linear-gradient(145deg, rgba(12, 28, 39, .98), rgba(18, 24, 25, .97)),
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(255,255,255,.012) 5px 6px);
+  box-shadow: var(--ph-shadow-deep), inset 0 1px rgba(255,255,255,.06);
+}
+
+body.presence-atelier-home #homeSceneSec.phome-scene::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 8%, rgba(232, 190, 111, .12), transparent 22rem),
+    linear-gradient(90deg, rgba(6, 16, 25, .26), transparent 32%, rgba(76, 48, 23, .08));
+}
+
+body.presence-atelier-home .phome-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: clamp(14px, 2vw, 28px) clamp(12px, 2vw, 30px);
+}
+
+body.presence-atelier-home .phome-intro > * {
+  min-width: 0;
+}
+
+body.presence-atelier-home .phome-intro h1,
+body.presence-atelier-home .phome-intro h2 {
+  margin: 0;
+  color: var(--ph-paper-100);
+  font-family: var(--ph-serif);
+  font-size: clamp(27px, 2.7vw, 46px);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+body.presence-atelier-home .phome-intro p {
+  max-width: 62ch;
+  margin: 9px 0 0;
+  color: rgba(249, 239, 217, .72);
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-intro .phome-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--ph-brass-300);
+  font: 700 12px/1.3 var(--ph-sans);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+body.presence-atelier-home .phome-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(340px, .68fr);
+  align-items: stretch;
+  gap: clamp(12px, 1.2vw, 20px);
+}
+
+body.presence-atelier-home #homeAtelierCard {
+  position: relative;
+  min-height: clamp(560px, 57vw, 760px);
+  overflow: hidden;
+  border: 1px solid rgba(225, 187, 119, .4);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(5, 13, 19, .05), rgba(16, 10, 6, .2)),
+    url("home/presence-home-orchard-dusk.png") center / cover no-repeat,
+    var(--ph-walnut-950);
+  box-shadow: var(--ph-shadow-card), inset 0 0 0 1px rgba(255,255,255,.035);
+}
+
+body.presence-atelier-home #homeAtelierCard::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(6, 11, 13, .25), transparent 38%, rgba(4, 9, 14, .17)),
+    linear-gradient(0deg, rgba(18, 10, 5, .32), transparent 42%);
+}
+
+body.presence-atelier-home #homeAtelierCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The live tree keeps every original ID and handler while wearing the new scene. */
+body.presence-atelier-home #treeSecHome {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.presence-atelier-home #treeSecHome > .sec-head {
+  position: absolute;
+  z-index: 9;
+  top: clamp(16px, 2vw, 30px);
+  left: clamp(16px, 2vw, 30px);
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(234, 199, 136, .34);
+  border-radius: 16px;
+  background: rgba(7, 19, 29, .83);
+  box-shadow: 0 12px 30px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.055);
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+}
+
+body.presence-atelier-home #treeSecHome > .sec-head h2 {
+  color: var(--ph-paper-100);
+  font-family: var(--ph-serif);
+  font-size: clamp(19px, 1.6vw, 27px);
+  line-height: 1.25;
+}
+
+body.presence-atelier-home #treeSecHome > .sec-head .ko,
+body.presence-atelier-home #treeSecHome > .sec-head .meta {
+  color: rgba(249, 239, 217, .68);
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home #treeSecHome .tree-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 30%);
+  min-height: clamp(560px, 57vw, 760px);
+  overflow: hidden;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.presence-atelier-home #treeSecHome .tree-stage {
+  position: relative;
+  align-items: flex-end;
+  min-width: 0;
+  min-height: inherit;
+  padding: clamp(82px, 9vw, 126px) clamp(16px, 3vw, 46px) clamp(28px, 4vw, 62px);
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+}
+
+body.presence-atelier-home #treeSecHome .tree-stage::after {
+  position: absolute;
+  z-index: 0;
+  right: 4%;
+  bottom: 2.5%;
+  left: 5%;
+  height: 34%;
+  content: "";
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(34, 20, 9, .27), transparent 68%);
+  transform: perspective(300px) rotateX(65deg);
+}
+
+body.presence-atelier-home #treeSecHome .tree-bg {
+  display: none;
+}
+
+body.presence-atelier-home #treeSecHome .ground {
+  z-index: 1;
+  right: 6%;
+  bottom: 5%;
+  left: 8%;
+  height: 14%;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(73, 89, 49, .34), transparent 68%);
+  filter: blur(1px);
+}
+
+body.presence-atelier-home #treeSvg {
+  z-index: 3;
+  width: min(56%, 440px);
+  height: auto;
+  max-height: 74%;
+  overflow: visible;
+  filter: drop-shadow(0 20px 19px rgba(7, 11, 7, .38)) saturate(.96) contrast(1.03);
+  transform-origin: 50% 100%;
+}
+
+body.presence-atelier-home #treeSecHome .tree-counter,
+body.presence-atelier-home #treeSecHome .stage-tag {
+  z-index: 8;
+  border: 1px solid rgba(224, 188, 121, .33);
+  color: var(--ph-paper-100);
+  background: rgba(8, 21, 31, .84);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+body.presence-atelier-home #treeSecHome .tree-counter .n {
+  color: var(--ph-brass-300);
+}
+
+body.presence-atelier-home #treeSecHome .tree-gifts,
+body.presence-atelier-home #treeSecHome .tree-float,
+body.presence-atelier-home #treeSecHome .tree-weather {
+  z-index: 7;
+}
+
+body.presence-atelier-home #treeSecHome .tree-side {
+  position: relative;
+  z-index: 6;
+  align-self: center;
+  width: calc(100% - clamp(18px, 2vw, 34px));
+  max-height: calc(100% - 38px);
+  margin: 19px clamp(10px, 1.3vw, 22px) 19px 0;
+  padding: clamp(20px, 2vw, 30px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(229, 194, 126, .42);
+  border-radius: 20px;
+  color: var(--ph-paper-150);
+  background:
+    linear-gradient(155deg, rgba(10, 29, 42, .95), rgba(7, 20, 31, .96)),
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(255,255,255,.012) 5px 6px);
+  box-shadow: 0 20px 52px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.07);
+  backdrop-filter: blur(14px) saturate(110%);
+  -webkit-backdrop-filter: blur(14px) saturate(110%);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ph-brass-500) transparent;
+}
+
+body.presence-atelier-home #treeSecHome .tree-side .label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ph-brass-300);
+  font: 700 12px/1.5 var(--ph-sans);
+  letter-spacing: .1em;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home #treeSecHome .tree-desc {
+  color: rgba(249, 239, 217, .78);
+  font-size: clamp(14px, 1vw, 16px);
+  line-height: 1.72;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home #treeSecHome .tree-desc b {
+  color: var(--ph-paper-100);
+}
+
+body.presence-atelier-home #treeSecHome button,
+body.presence-atelier-home .phome-journal-button {
+  min-height: 48px;
+  border-radius: 14px;
+  font-family: var(--ph-sans);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+body.presence-atelier-home #treeSecHome .water-btn {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid rgba(238, 205, 142, .55) !important;
+  color: var(--ph-paper-100) !important;
+  background: linear-gradient(180deg, #7a8450, #5a633c) !important;
+  box-shadow: 0 10px 24px rgba(27, 26, 12, .25), inset 0 1px rgba(255,255,255,.2);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+body.presence-atelier-home #treeSecHome .water-btn:hover {
+  filter: brightness(1.09);
+  transform: translateY(-1px);
+  box-shadow: 0 13px 28px rgba(27, 26, 12, .3), inset 0 1px rgba(255,255,255,.24);
+}
+
+body.presence-atelier-home #treeSecHome .water-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.45);
+  opacity: .62;
+  transform: none;
+}
+
+body.presence-atelier-home #treeSecHome .reset-btn {
+  min-height: 44px;
+  color: var(--ph-brass-300);
+  border-color: rgba(216, 170, 98, .36);
+  background: rgba(255,255,255,.035);
+}
+
+body.presence-atelier-home #treeSecHome .water-feed,
+body.presence-atelier-home #treeSecHome #waterAdmin,
+body.presence-atelier-home #treeSecHome #giftHunt {
+  color: rgba(249, 239, 217, .72);
+  overflow-wrap: anywhere;
+}
+
+/* Chick watering companion. JS toggles .is-watering after a successful save. */
+body.presence-atelier-home .atelier-waterer {
+  position: absolute;
+  z-index: 6;
+  left: clamp(10px, 3.3vw, 58px);
+  bottom: clamp(28px, 4vw, 66px);
+  display: grid;
+  place-items: end center;
+  width: clamp(116px, 15vw, 205px);
+  min-height: clamp(150px, 19vw, 248px);
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 18px 14px rgba(8, 8, 5, .36));
+}
+
+body.presence-atelier-home .atelier-waterer > img,
+body.presence-atelier-home .atelier-waterer .presence-pet-art,
+body.presence-atelier-home .atelier-waterer .presence-avatar-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+body.presence-atelier-home .atelier-waterer .atelier-can {
+  position: absolute;
+  right: -14%;
+  bottom: 10%;
+  width: 49%;
+  transform: rotate(-10deg);
+  transform-origin: 18% 58%;
+}
+
+body.presence-atelier-home .atelier-waterer .atelier-drops {
+  position: absolute;
+  right: -32%;
+  bottom: 2%;
+  width: 48%;
+  height: 44%;
+  opacity: 0;
+  background:
+    radial-gradient(circle, #d8f4ff 0 2px, transparent 3px) 8% 12% / 22px 28px,
+    radial-gradient(circle, #aee4f5 0 2px, transparent 3px) 60% 44% / 26px 34px;
+  transform: rotate(18deg);
+}
+
+body.presence-atelier-home .atelier-waterer.is-watering {
+  animation: ph-waterer-bob 1.55s ease-in-out both;
+}
+
+body.presence-atelier-home .atelier-waterer.is-watering .atelier-can {
+  animation: ph-can-pour 1.55s ease-in-out both;
+}
+
+body.presence-atelier-home .atelier-waterer.is-watering .atelier-drops {
+  animation: ph-drops 1.15s .28s ease-out both;
+}
+
+@keyframes ph-waterer-bob {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  36% { transform: translateY(-5px) rotate(-1.5deg); }
+  68% { transform: translateY(1px) rotate(1deg); }
+}
+
+@keyframes ph-can-pour {
+  0%, 100% { transform: rotate(-10deg); }
+  35%, 70% { transform: rotate(28deg) translate(4px, 2px); }
+}
+
+@keyframes ph-drops {
+  0%, 18% { opacity: 0; transform: translateY(-8px) rotate(18deg); }
+  36%, 76% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(24px) rotate(18deg); }
+}
+
+/* Parchment field journal */
+body.presence-atelier-home #homeFieldJournalCard {
+  position: relative;
+  padding: clamp(22px, 2.2vw, 34px);
+  overflow: hidden;
+  border: 1px solid rgba(100, 70, 37, .35);
+  border-radius: 24px;
+  color: var(--ph-ink);
+  background:
+    radial-gradient(circle at 8% 6%, rgba(255,255,255,.68), transparent 15rem),
+    repeating-linear-gradient(0deg, rgba(105,79,47,.02) 0 1px, transparent 1px 5px),
+    linear-gradient(145deg, var(--ph-paper-100), var(--ph-paper-150));
+  box-shadow: var(--ph-shadow-card), inset 0 0 0 1px rgba(255,255,255,.7);
+}
+
+body.presence-atelier-home #homeFieldJournalCard::before,
+body.presence-atelier-home #homeFieldJournalCard::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+body.presence-atelier-home #homeFieldJournalCard::before {
+  inset: 10px;
+  border: 1px solid rgba(102, 72, 38, .17);
+  border-radius: 17px;
+}
+
+body.presence-atelier-home #homeFieldJournalCard::after {
+  top: 16px;
+  right: 17px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #7f592c;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ffe4a4, #b7792e 68%, #704719);
+  box-shadow: 0 3px 7px rgba(78, 47, 16, .32);
+}
+
+body.presence-atelier-home #homeFieldJournalCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+body.presence-atelier-home .phome-journal-title {
+  margin: 0 0 18px;
+  padding-right: 30px;
+  color: var(--ph-ink);
+  font-family: var(--ph-serif);
+  font-size: clamp(22px, 1.9vw, 31px);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-journal-subtitle {
+  display: block;
+  margin-top: 6px;
+  color: var(--ph-ink-soft);
+  font: 600 12px/1.55 var(--ph-sans);
+  letter-spacing: .04em;
+}
+
+body.presence-atelier-home .phome-journal-section {
+  margin-top: 14px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--ph-line-paper);
+}
+
+body.presence-atelier-home .phome-journal-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+body.presence-atelier-home .phome-journal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+  color: var(--ph-ink);
+  font: 800 14px/1.45 var(--ph-sans);
+}
+
+body.presence-atelier-home .phome-journal-heading > * {
+  min-width: 0;
+}
+
+body.presence-atelier-home .phome-journal-heading a,
+body.presence-atelier-home .phome-journal-heading button {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--ph-ink-soft);
+  font: 700 12px/1.4 var(--ph-sans);
+}
+
+body.presence-atelier-home .phome-journal-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.presence-atelier-home .phome-journal-item {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 3px;
+  border-bottom: 1px dashed rgba(91, 66, 39, .22);
+  color: var(--ph-ink);
+  font-size: 14px;
+  line-height: 1.48;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-journal-item:last-child {
+  border-bottom: 0;
+}
+
+body.presence-atelier-home .phome-journal-index,
+body.presence-atelier-home .phome-journal-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(74, 79, 45, .26);
+  border-radius: 50%;
+  color: #fff8e7;
+  background: var(--ph-olive-600);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+body.presence-atelier-home .phome-journal-item strong,
+body.presence-atelier-home .phome-journal-item span,
+body.presence-atelier-home .phome-journal-item small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-journal-item strong {
+  font-weight: 800;
+}
+
+body.presence-atelier-home .phome-journal-item small {
+  color: var(--ph-ink-soft);
+  font-size: 12px;
+  text-align: right;
+}
+
+body.presence-atelier-home .phome-journal-item button,
+body.presence-atelier-home .phome-journal-item a {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+  color: var(--ph-ink);
+}
+
+body.presence-atelier-home .phome-journal-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  padding: 8px 0 3px;
+}
+
+body.presence-atelier-home .phome-journal-metric {
+  min-width: 0;
+  padding: 8px 10px;
+  border-right: 1px dashed var(--ph-line-paper);
+  text-align: center;
+}
+
+body.presence-atelier-home .phome-journal-metric:last-child {
+  border-right: 0;
+}
+
+body.presence-atelier-home .phome-journal-metric b {
+  display: block;
+  margin-top: 5px;
+  color: var(--ph-olive-700);
+  font-family: var(--ph-serif);
+  font-size: clamp(22px, 2.2vw, 32px);
+  line-height: 1.1;
+}
+
+body.presence-atelier-home .phome-journal-metric span {
+  color: var(--ph-ink-soft);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-journal-empty {
+  padding: 18px 12px;
+  border: 1px dashed rgba(91, 66, 39, .25);
+  border-radius: 14px;
+  color: var(--ph-ink-soft);
+  font-size: 14px;
+  line-height: 1.65;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Bottom farm journal: actual activity + user-owned quick access. */
+body.presence-atelier-home .phome-timeline,
+body.presence-atelier-home .phome-shortcuts {
+  position: relative;
+  margin-top: clamp(12px, 1.2vw, 18px);
+  padding: clamp(16px, 1.8vw, 26px);
+  border: 1px solid rgba(100, 70, 37, .36);
+  border-radius: 22px;
+  color: var(--ph-ink);
+  background:
+    repeating-linear-gradient(0deg, rgba(105,79,47,.018) 0 1px, transparent 1px 5px),
+    linear-gradient(145deg, var(--ph-paper-100), var(--ph-paper-150));
+  box-shadow: 0 12px 34px rgba(19, 11, 6, .2), inset 0 1px rgba(255,255,255,.75);
+}
+
+body.presence-atelier-home .phome-timeline h2,
+body.presence-atelier-home .phome-shortcuts h2 {
+  margin: 0 0 13px;
+  color: var(--ph-ink);
+  font: 700 clamp(19px, 1.5vw, 25px)/1.35 var(--ph-serif);
+}
+
+body.presence-atelier-home .phome-timeline-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.presence-atelier-home .phome-timeline-item {
+  min-width: 0;
+  min-height: 82px;
+  padding: 13px 14px;
+  border: 1px solid var(--ph-line-paper);
+  border-radius: 15px;
+  color: var(--ph-ink);
+  background: rgba(255,255,255,.2);
+  font-size: 14px;
+  line-height: 1.58;
+  overflow-wrap: anywhere;
+}
+
+body.presence-atelier-home .phome-timeline-item time {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ph-ink-soft);
+  font-size: 11px;
+}
+
+body.presence-atelier-home #homeQuickDock {
+  z-index: 40;
+  min-height: 52px;
+  margin: 12px 0 0;
+}
+
+body.presence-atelier-home #homeQuickDock .hqd-launch {
+  color: var(--ph-paper-100);
+  border-color: rgba(225, 188, 121, .42);
+  background: linear-gradient(145deg, var(--ph-olive-600), #475134);
+  box-shadow: 0 10px 24px rgba(27, 24, 13, .24), inset 0 1px rgba(255,255,255,.18);
+}
+
+body.presence-atelier-home #homeQuickDock .hqd-search,
+body.presence-atelier-home #homeQuickDock .hqd-popover {
+  border-color: rgba(225, 188, 121, .3);
+  background: linear-gradient(155deg, rgba(11, 27, 39, .99), rgba(7, 18, 28, .99));
+}
+
+body.presence-atelier-home #homeQuickDock .hqd-popover {
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.06);
+}
+
+body.presence-atelier-home #homeQuickDock button,
+body.presence-atelier-home #homeQuickDock input {
+  min-height: 44px;
+}
+
+body.presence-atelier-home #homeQuickDock input {
+  min-width: 0;
+  font-size: 16px;
+}
+
+/* Keep the rest of Home available, but visually subordinate to the new primary scene. */
+body.presence-atelier-home #m-home > .wrap > section.sec:not(#homeSceneSec),
+body.presence-atelier-home #m-home > .wrap > .home-section:not(#homeSceneSec) {
+  border-color: rgba(221, 199, 151, .14);
+}
+
+body.presence-atelier-home #m-home .sec-head h2 {
+  color: var(--ph-paper-100);
+}
+
+body.presence-atelier-home #m-home .sec-head .ko,
+body.presence-atelier-home #m-home .sec-head .meta {
+  color: rgba(249, 239, 217, .62);
+}
+
+body.presence-atelier-home button:focus-visible,
+body.presence-atelier-home a:focus-visible,
+body.presence-atelier-home input:focus-visible,
+body.presence-atelier-home [tabindex]:focus-visible {
+  outline: 3px solid #f4cf83;
+  outline-offset: 3px;
+}
+
+/* Tablet: focused workspace, journal becomes a wide second panel. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  body.presence-atelier-home #m-home > .wrap {
+    padding-inline: 16px;
+  }
+
+  body.presence-atelier-home .phome-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.presence-atelier-home #homeAtelierCard {
+    min-height: 610px;
+  }
+
+  body.presence-atelier-home #treeSecHome .tree-wrap {
+    min-height: 610px;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 33%);
+  }
+
+  body.presence-atelier-home #homeFieldJournalCard {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 22px;
+  }
+
+  body.presence-atelier-home #homeFieldJournalCard > .phome-journal-title,
+  body.presence-atelier-home #homeFieldJournalCard > .phome-journal-subtitle {
+    grid-column: 1 / -1;
+  }
+
+  body.presence-atelier-home .phome-journal-section {
+    min-width: 0;
+  }
+
+  body.presence-atelier-home .phome-timeline-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile: tree -> journal -> atelier/supporting sections, one dominant column. */
+@media (max-width: 767px) {
+  body.presence-atelier-home #m-home > .wrap {
+    width: 100%;
+    padding-inline: 8px;
+  }
+
+  body.presence-atelier-home #homeSceneSec.phome-scene {
+    margin-top: 8px;
+    padding: 7px;
+    border-radius: 20px;
+  }
+
+  body.presence-atelier-home .phome-intro {
+    display: block;
+    padding: 17px 12px 14px;
+  }
+
+  body.presence-atelier-home .phome-intro h1,
+  body.presence-atelier-home .phome-intro h2 {
+    font-size: clamp(26px, 8vw, 34px);
+    line-height: 1.27;
+  }
+
+  body.presence-atelier-home .phome-intro p {
+    font-size: 16px;
+    line-height: 1.62;
+  }
+
+  body.presence-atelier-home .phome-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  body.presence-atelier-home .phome-grid > #homeAtelierCard {
+    order: 1;
+  }
+
+  body.presence-atelier-home .phome-grid > #homeFieldJournalCard {
+    order: 2;
+  }
+
+  body.presence-atelier-home #homeAtelierCard {
+    min-height: auto;
+    border-radius: 18px;
+    background-position: 44% center;
+  }
+
+  body.presence-atelier-home #treeSecHome > .sec-head {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: block;
+    max-width: none;
+    margin: 10px 10px 0;
+    padding: 12px 13px;
+    border-radius: 14px;
+  }
+
+  body.presence-atelier-home #treeSecHome > .sec-head h2 {
+    font-size: 20px;
+  }
+
+  body.presence-atelier-home #treeSecHome > .sec-head .ko,
+  body.presence-atelier-home #treeSecHome > .sec-head .meta {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  body.presence-atelier-home #treeSecHome .tree-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  body.presence-atelier-home #treeSecHome .tree-stage {
+    min-height: clamp(440px, 125vw, 560px);
+    padding: 72px 12px 24px;
+    border-bottom: 0;
+  }
+
+  body.presence-atelier-home #treeSvg {
+    width: min(70%, 330px);
+    max-height: 70%;
+  }
+
+  body.presence-atelier-home #treeSecHome .tree-counter {
+    top: 13px;
+    left: 13px;
+  }
+
+  body.presence-atelier-home #treeSecHome .stage-tag {
+    top: 13px;
+    right: 13px;
+  }
+
+  body.presence-atelier-home .atelier-waterer {
+    left: 6px;
+    bottom: 20px;
+    width: clamp(104px, 32vw, 144px);
+    min-height: 145px;
+  }
+
+  body.presence-atelier-home #treeSecHome .tree-side {
+    width: auto;
+    max-height: none;
+    margin: 0 9px 9px;
+    padding: 18px 15px;
+    overflow: visible;
+    border-radius: 17px;
+  }
+
+  body.presence-atelier-home #homeFieldJournalCard {
+    padding: 23px 16px 18px;
+    border-radius: 18px;
+  }
+
+  body.presence-atelier-home .phome-journal-title {
+    font-size: 24px;
+  }
+
+  body.presence-atelier-home .phome-journal-heading {
+    align-items: flex-start;
+  }
+
+  body.presence-atelier-home .phome-journal-item {
+    grid-template-columns: 30px minmax(0, 1fr) 44px;
+    min-height: 58px;
+    font-size: 16px;
+  }
+
+  body.presence-atelier-home .phome-journal-item small {
+    font-size: 12px;
+  }
+
+  body.presence-atelier-home .phome-journal-metrics {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  body.presence-atelier-home .phome-journal-metric {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    border-right: 0;
+    border-bottom: 1px dashed var(--ph-line-paper);
+    text-align: left;
+  }
+
+  body.presence-atelier-home .phome-journal-metric:last-child {
+    border-bottom: 0;
+  }
+
+  body.presence-atelier-home .phome-journal-metric b {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    font-size: 25px;
+  }
+
+  body.presence-atelier-home .phome-journal-metric span {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 14px;
+  }
+
+  body.presence-atelier-home .phome-timeline,
+  body.presence-atelier-home .phome-shortcuts {
+    padding: 18px 13px;
+    border-radius: 17px;
+  }
+
+  body.presence-atelier-home .phome-timeline-list {
+    grid-template-columns: 1fr;
+  }
+
+  body.presence-atelier-home .phome-timeline-item {
+    min-height: 72px;
+    font-size: 16px;
+  }
+
+  body.presence-atelier-home #homeQuickDock {
+    min-height: 48px;
+  }
+
+  body.presence-atelier-home #homeQuickDock .hqd-popover {
+    position: fixed;
+    z-index: 260;
+    top: auto;
+    right: 8px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    max-height: min(70vh, 600px);
+    border-radius: 20px;
+  }
+
+  body.presence-atelier-home #homeQuickDock .hqd-slots,
+  body.presence-atelier-home #homeQuickDock .qsm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.presence-atelier-home #homeQuickDock .hqd-slot,
+  body.presence-atelier-home #homeQuickDock .hqd-add,
+  body.presence-atelier-home #homeQuickDock .qsm-option {
+    min-height: 56px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  body.presence-atelier-home #treeSecHome .tree-stage {
+    min-height: 430px;
+  }
+
+  body.presence-atelier-home #treeSvg {
+    width: 73%;
+  }
+
+  body.presence-atelier-home .atelier-waterer {
+    width: 108px;
+  }
+
+  body.presence-atelier-home .phome-journal-item {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  body.presence-atelier-home .phome-journal-item > :last-child:not(:nth-child(2)) {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.presence-atelier-home *,
+  body.presence-atelier-home *::before,
+  body.presence-atelier-home *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

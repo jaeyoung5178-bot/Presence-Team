@@ -12497,7 +12497,7 @@ function spawnKernel(layer,cx,cy){
 /* ═══════════════════ 🧩 홈 화면 배치 편집 (소유자 전용 · 꾹 눌러 드래그) ═══════════════════
    관리자가 홈 카드를 휴대폰 위젯처럼 끌어서 순서를 바꾸면 Firebase에 저장돼 팀원 모두에게 반영됩니다. */
 (function(){
-  var DEFAULT_ORDER=['treeSecHome','coopSec','homeDashSec','todaySec','celebSec','praiseSec','attendSec','quickSec','gbSec','fxSec'];
+  var DEFAULT_ORDER=['homeSceneSec','coopSec','homeDashSec','todaySec','celebSec','praiseSec','attendSec','quickSec','gbSec','fxSec'];
   var order=null, editing=false, dirty=false;
 
   function injectCss(){
@@ -12538,8 +12538,13 @@ function spawnKernel(layer,cx,cy){
   function apply(v){
     if(v!==undefined){ var n=norm(v); order = n && n.length ? n : null; }
     var c=container(); if(!c)return;
-    var use = order && order.length ? order : null;
+    var use = order && order.length ? order.slice() : null;
     if(!use)return;
+    /* 2026 Atelier Home migration: older saved layouts know treeSecHome as a
+       top-level card.  The live tree now remains intact inside homeSceneSec,
+       so place the new scene first without discarding the user's other order. */
+    if(document.getElementById('homeSceneSec')&&use.indexOf('homeSceneSec')<0)use.unshift('homeSceneSec');
+    use=use.filter(function(id){return id!=='treeSecHome';});
     var list=secs(), byId={}; list.forEach(function(s){byId[s.id]=s;});
     var placed={};
     use.forEach(function(id){ var el=byId[id]; if(el){ c.appendChild(el); placed[id]=1; } });
@@ -15301,8 +15306,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-10">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
+<link rel="stylesheet" href="assets/presence-home-atelier.css?v=20260718-1">
 <script src="assets/presence-avatar-studio.js?v=20260718-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
+<script src="assets/presence-home-atelier.js?v=20260718-1"></script>
+<script src="assets/presence-home-tree-premium.js?v=20260718-1"></script>
 </body>
 </html>
