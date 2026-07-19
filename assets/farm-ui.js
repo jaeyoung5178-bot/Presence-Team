@@ -1094,19 +1094,22 @@
       'box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 0 0 1px rgba(201,168,106,.4)}',
       '.fa-3v img{display:block;width:100%;height:96px;object-fit:cover}',
       '@media(max-width:767px){.fa-3v img{height:78px}}',
-      '.fa-npc{position:absolute;z-index:5;pointer-events:none;will-change:transform}',
-      '.fa-npc img{display:block;width:100%;filter:drop-shadow(0 6px 6px rgba(20,30,20,.35))}',
+      '.fa-npc{position:absolute;z-index:5;pointer-events:none;will-change:transform;contain:layout style}',
+      '.fa-npc .fa-flip{display:block;will-change:transform}',
+      '.fa-npc img{display:block;width:100%}',
       '.fa-npc::after{content:"";position:absolute;left:14%;right:14%;bottom:-3px;height:9px;border-radius:50%;',
       'background:radial-gradient(ellipse,rgba(15,25,15,.30),rgba(0,0,0,0) 70%)}',
-      '.fa-npc-a{width:6.5%;bottom:7%;animation:faWalkA 46s linear infinite}',
+      '.fa-npc-a{width:6.5%;bottom:7%;left:6%;animation:faWalkA 46s linear infinite}',
+      '.fa-npc-a .fa-flip{animation:faFlipA 46s step-end infinite}',
       '.fa-npc-a img{animation:faBob 1.1s ease-in-out infinite alternate}',
-      '.fa-npc-b{width:5.6%;bottom:14%;animation:faWalkB 58s linear infinite}',
+      '.fa-npc-b{width:5.6%;bottom:14%;left:20%;animation:faWalkB 58s linear infinite}',
+      '.fa-npc-b .fa-flip{animation:faFlipB 58s step-end infinite}',
       '.fa-npc-b img{animation:faBob 1.3s ease-in-out infinite alternate}',
       '@keyframes faBob{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-3.5%) rotate(2deg)}}',
-      '@keyframes faWalkA{0%{left:6%;transform:scaleX(1)}46%{left:64%;transform:scaleX(1)}50%{left:66%;transform:scaleX(-1)}',
-      '96%{left:8%;transform:scaleX(-1)}100%{left:6%;transform:scaleX(1)}}',
-      '@keyframes faWalkB{0%{left:70%;transform:scaleX(-1)}44%{left:22%;transform:scaleX(-1)}50%{left:20%;transform:scaleX(1)}',
-      '94%{left:68%;transform:scaleX(1)}100%{left:70%;transform:scaleX(-1)}}',
+      '@keyframes faWalkA{0%{transform:translateX(0)}48%{transform:translateX(880%)}52%{transform:translateX(880%)}100%{transform:translateX(0)}}',
+      '@keyframes faFlipA{0%{transform:scaleX(1)}48%{transform:scaleX(-1)}100%{transform:scaleX(-1)}}',
+      '@keyframes faWalkB{0%{transform:translateX(0)}46%{transform:translateX(820%)}54%{transform:translateX(820%)}100%{transform:translateX(0)}}',
+      '@keyframes faFlipB{0%{transform:scaleX(-1)}46%{transform:scaleX(1)}100%{transform:scaleX(1)}}',
       '@media(prefers-reduced-motion:reduce){.fa-npc,.fa-npc img{animation:none!important}}'
     ].join('');
     document.head.appendChild(s);
@@ -1149,9 +1152,10 @@
     if (!artbox || artbox.querySelector('.fa-npc')) return;
     ['fa-npc-a', 'fa-npc-b'].forEach(function (cls) {
       var d = document.createElement('div'); d.className = 'fa-npc ' + cls;
+      var fl = document.createElement('span'); fl.className = 'fa-flip';
       var im = new Image(); im.alt = ''; im.src = ART.npc;
       im.onerror = function () { try { d.remove(); } catch (e) { } };
-      d.appendChild(im); artbox.appendChild(d);
+      fl.appendChild(im); d.appendChild(fl); artbox.appendChild(d);
     });
   }
   function tick() { try { css(); treeArt(); atelier3v(); npcs(); } catch (e) { } }
