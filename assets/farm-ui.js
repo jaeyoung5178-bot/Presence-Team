@@ -1056,3 +1056,105 @@
     season: applySeason
   };
 })();
+
+/* ======================================================================== */
+/* 6. 파머트 모듈 — 원화 에셋 연동 (계절 나무 원화 · 아틀리에 3면 · NPC 병아리) */
+/*    독립 IIFE: 기존 코드 무접촉, DOM 후처리만. 이미지 실패 시 자동 폴백.      */
+/* ======================================================================== */
+(function () {
+  'use strict';
+  var ART = {
+    spring: 'assets/farmart-tree-spring.webp',
+    summer: 'assets/farmart-tree-base.webp',
+    autumn: 'assets/farmart-tree-autumn.webp',
+    winter: 'assets/farmart-tree-winter.webp',
+    avF: 'assets/farmart-av-front.webp',
+    avS: 'assets/farmart-av-side.webp',
+    avB: 'assets/farmart-av-back.webp',
+    npc: 'assets/pets/presence-pet-base.png'
+  };
+  function seasonKey() {
+    var m = new Date().getMonth() + 1;
+    if (m >= 3 && m <= 5) return 'spring';
+    if (m >= 6 && m <= 8) return 'summer';
+    if (m >= 9 && m <= 11) return 'autumn';
+    return 'winter';
+  }
+  function css() {
+    if (document.getElementById('farm-art-css')) return;
+    var s = document.createElement('style'); s.id = 'farm-art-css';
+    s.textContent = [
+      '.fa-treewrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(201,168,106,.35)}',
+      '.fa-tree{display:block;width:100%;max-height:430px;object-fit:cover;object-position:center 30%}',
+      '.fa-tree-tag{position:absolute;right:10px;top:10px;background:rgba(18,26,40,.82);color:#f0e6cf;',
+      'font:700 11px/1 Georgia,"Nanum Myeongjo",serif;padding:6px 11px;border-radius:999px;letter-spacing:.06em;',
+      'box-shadow:inset 0 0 0 1px rgba(201,168,106,.5)}',
+      '.fa-3v{display:flex;gap:10px;margin-top:12px}',
+      '.fa-3v figure{flex:1 1 0;margin:0;border-radius:12px;overflow:hidden;',
+      'box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 0 0 1px rgba(201,168,106,.4)}',
+      '.fa-3v img{display:block;width:100%;height:96px;object-fit:cover}',
+      '@media(max-width:767px){.fa-3v img{height:78px}}',
+      '.fa-npc{position:absolute;z-index:5;pointer-events:none;will-change:transform}',
+      '.fa-npc img{display:block;width:100%;filter:drop-shadow(0 6px 6px rgba(20,30,20,.35))}',
+      '.fa-npc::after{content:"";position:absolute;left:14%;right:14%;bottom:-3px;height:9px;border-radius:50%;',
+      'background:radial-gradient(ellipse,rgba(15,25,15,.30),rgba(0,0,0,0) 70%)}',
+      '.fa-npc-a{width:6.5%;bottom:7%;animation:faWalkA 46s linear infinite}',
+      '.fa-npc-a img{animation:faBob 1.1s ease-in-out infinite alternate}',
+      '.fa-npc-b{width:5.6%;bottom:14%;animation:faWalkB 58s linear infinite}',
+      '.fa-npc-b img{animation:faBob 1.3s ease-in-out infinite alternate}',
+      '@keyframes faBob{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-3.5%) rotate(2deg)}}',
+      '@keyframes faWalkA{0%{left:6%;transform:scaleX(1)}46%{left:64%;transform:scaleX(1)}50%{left:66%;transform:scaleX(-1)}',
+      '96%{left:8%;transform:scaleX(-1)}100%{left:6%;transform:scaleX(1)}}',
+      '@keyframes faWalkB{0%{left:70%;transform:scaleX(-1)}44%{left:22%;transform:scaleX(-1)}50%{left:20%;transform:scaleX(1)}',
+      '94%{left:68%;transform:scaleX(1)}100%{left:70%;transform:scaleX(-1)}}',
+      '@media(prefers-reduced-motion:reduce){.fa-npc,.fa-npc img{animation:none!important}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+  /* A. 계절 나무 원화 */
+  function treeArt() {
+    var svg = document.getElementById('treeSvg');
+    if (!svg || !svg.parentElement) return;
+    var host = svg.parentElement;
+    if (host.querySelector('.fa-treewrap')) { return; }
+    var key = seasonKey();
+    var wrap = document.createElement('div'); wrap.className = 'fa-treewrap';
+    var img = new Image(); img.className = 'fa-tree'; img.alt = '프레젠스 나무 — ' + key;
+    var tag = document.createElement('span'); tag.className = 'fa-tree-tag';
+    tag.textContent = { spring: '봄 · 벚꽃', summer: '여름 · 초록', autumn: '가을 · 단풍', winter: '겨울 · 눈과 불빛' }[key];
+    img.onload = function () { svg.style.display = 'none'; };
+    img.onerror = function () { try { wrap.remove(); svg.style.display = ''; } catch (e) { } };
+    img.src = ART[key];
+    wrap.appendChild(img); wrap.appendChild(tag);
+    host.insertBefore(wrap, svg);
+  }
+  /* B. 아틀리에 3면 */
+  function atelier3v() {
+    var p = document.getElementById('m-petshop');
+    if (!p || p.querySelector('.fa-3v')) return;
+    var stage = document.getElementById('asStage') || p.querySelector('.as-stage');
+    if (!stage || !stage.parentElement) return;
+    var row = document.createElement('div'); row.className = 'fa-3v';
+    [['앞면', ART.avF], ['옆면', ART.avS], ['뒷면', ART.avB]].forEach(function (pair) {
+      var f = document.createElement('figure');
+      var im = new Image(); im.alt = pair[0]; im.src = pair[1];
+      im.onerror = function () { try { f.remove(); } catch (e) { } };
+      f.appendChild(im); row.appendChild(f);
+    });
+    stage.parentElement.insertBefore(row, stage.nextSibling);
+  }
+  /* C. NPC 병아리 산책 */
+  function npcs() {
+    var artbox = document.querySelector('#farmSceneWrap .fs-art');
+    if (!artbox || artbox.querySelector('.fa-npc')) return;
+    ['fa-npc-a', 'fa-npc-b'].forEach(function (cls) {
+      var d = document.createElement('div'); d.className = 'fa-npc ' + cls;
+      var im = new Image(); im.alt = ''; im.src = ART.npc;
+      im.onerror = function () { try { d.remove(); } catch (e) { } };
+      d.appendChild(im); artbox.appendChild(d);
+    });
+  }
+  function tick() { try { css(); treeArt(); atelier3v(); npcs(); } catch (e) { } }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { tick(); setInterval(tick, 1600); });
+  else { tick(); setInterval(tick, 1600); }
+})();
