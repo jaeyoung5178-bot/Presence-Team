@@ -1,0 +1,947 @@
+/* ============================================================
+   프레젠스 동물농장 — farm-ui.css
+   "따뜻한 목조 농장 다이어리" 스킨 · body.farm-world 스코프 전용
+   ============================================================ */
+
+/* ── 1. 팔레트 재정의 ──────────────────────────────────────── */
+body.farm-world{
+  /* 바탕: 깊은 숲밤 */
+  --ink:#141d2b;
+  --chrome:#1a2534;
+
+  /* 어두운 목재 계열 (패널·카드·크롬) */
+  --surface:#1e2a3a;
+  --card:#243244;
+  --card-2:#2b3a4e;
+  --line:#3c4d63;
+  --line-soft:#2c3a4c;
+
+  /* 양피지 크림 계열 (종이형 표면 — 아래 개별 컴포넌트에서 사용) */
+  --paper:#f2ece0;
+  --paper-2:#e8dfcd;
+  --paper-line:#cbbb9c;
+  --paper-ink:#2c2418;
+  --paper-ink-2:#6a5a44;
+
+  /* 텍스트 */
+  --cream:#f0e9d6;
+  --muted:#a9b6ad;
+  --faint:#7f8d86;
+
+  /* 액센트 */
+  --forest:#5c7046;
+  --forest-2:#41522f;
+  --gold:#c9a86a;
+  --gold-2:#a8873f;
+  --terra:#c0603f;
+
+  --green:#8fae63;
+  --green-soft:#b6cf8e;
+  --green-ink:#182208;
+
+  --g1:#41522f; --g2:#c9a86a; --g3:#5c7046;
+  --grad:linear-gradient(160deg,#67804e,#4e6339 55%,#3f5230);
+  --grad-soft:linear-gradient(160deg,#7b9660,#5c7046 55%,#4a5e37);
+
+  --amber:#c9a86a;
+  --coral:#d98a6a;
+  --violet:#a89bc4;
+  --oxfam:#7fb98a;
+  --wepair:#6fb3c9;
+  --danger:#d97a56;
+
+  --radius:14px;
+  --radius-lg:18px;
+  --r-sm:10px; --r-md:14px; --r-lg:16px; --r-pill:999px;
+
+  --shadow:0 14px 34px -16px rgba(0,0,0,.72), 0 2px 0 rgba(201,168,106,.10);
+  --e1:0 2px 8px rgba(0,0,0,.30);
+  --e2:0 12px 28px -14px rgba(0,0,0,.6);
+
+  /* 스킨 공용 토큰 */
+  --wood-grad:linear-gradient(168deg,#2a3a4e 0%,#243244 52%,#1f2b3b 100%);
+  --paper-grad:linear-gradient(168deg,#f6f1e6 0%,#f2ece0 46%,#e9e0cd 100%);
+  --gold-line:rgba(201,168,106,.34);
+  --gold-line-s:rgba(201,168,106,.18);
+  --farm-t:.18s cubic-bezier(.4,0,.2,1);
+}
+
+/* 잎사귀 마커 / 워터마크 (SVG data-uri, 이모지 미사용) */
+body.farm-world{
+  --leaf:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%23c9a86a'/%3E%3C/svg%3E");
+  --leaf-dim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E");
+  --wheat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%23c9a86a' stroke-opacity='.5' stroke-width='1.4' fill='none' stroke-linecap='round'%3E%3Cpath d='M16 29V9'/%3E%3Cpath d='M16 12c-4 0-6-2-6-5 3 0 6 2 6 5zM16 12c4 0 6-2 6-5-3 0-6 2-6 5z'/%3E%3Cpath d='M16 19c-4 0-6-2-6-5 3 0 6 2 6 5zM16 19c4 0 6-2 6-5-3 0-6 2-6 5z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── 2. 바탕 · 전역 ────────────────────────────────────────── */
+body.farm-world{
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(92,112,70,.16), transparent 62%),
+    linear-gradient(180deg,#141d2b 0%,#121a26 46%,#0f1620 100%) fixed;
+  color:var(--cream);
+}
+body.farm-world #app main,
+body.farm-world .mpanel{ background:transparent; }
+
+body.farm-world ::selection{ background:rgba(201,168,106,.32); color:#fff; }
+
+/* 스크롤바 — 얇은 골드/목재 */
+body.farm-world *::-webkit-scrollbar{ width:9px; height:9px; }
+body.farm-world *::-webkit-scrollbar-track{ background:rgba(20,29,43,.5); }
+body.farm-world *::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#c9a86a,#8d7343);
+  border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+}
+body.farm-world *::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg,#dbbd83,#a08350); background-clip:padding-box; }
+body.farm-world{ scrollbar-color:#a8873f rgba(20,29,43,.5); scrollbar-width:thin; }
+
+/* ── 3. 타이포 ─────────────────────────────────────────────── */
+body.farm-world h1,
+body.farm-world h2,
+body.farm-world h3,
+body.farm-world .greet,
+body.farm-world .sec-head h2,
+body.farm-world .auth-h,
+body.farm-world .values .en,
+body.farm-world .logo .nm,
+body.farm-world .adm-card .ah h3,
+body.farm-world .modal h3,
+body.farm-world .today-h,
+body.farm-world .win .wt,
+body.farm-world .gcard .title{
+  font-family:'Gowun Batang','Nanum Myeongjo',serif !important;
+  letter-spacing:.012em;
+  font-weight:700;
+}
+body.farm-world .tree-counter .n,
+body.farm-world .num, body.farm-world .tot, body.farm-world .big,
+body.farm-world .cnt, body.farm-world .kpi, body.farm-world .today-prog,
+body.farm-world table td, body.farm-world table th{
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+body.farm-world .eyebrow,
+body.farm-world .sec-sub,
+body.farm-world .sec-head .meta{ color:var(--gold); letter-spacing:.16em; }
+body.farm-world .intro b{ color:var(--gold); }
+
+/* ── 4. 섹션 / 카드 — 목재 패널 ─────────────────────────────── */
+body.farm-world .sec{ position:relative; }
+body.farm-world .sec-head{
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:9px;
+  position:relative;
+}
+body.farm-world .sec-head::before{
+  content:""; width:15px; height:15px; flex:0 0 auto;
+  background:var(--leaf) center/contain no-repeat;
+  opacity:.9; margin-bottom:2px;
+}
+body.farm-world .sec-head h2{ color:var(--cream); }
+body.farm-world .sec-head .ko{ color:var(--muted); }
+
+/* 공통 목재 카드 스킨 */
+body.farm-world .gcard,
+body.farm-world .win,
+body.farm-world .val,
+body.farm-world .adm-card,
+body.farm-world .celeb-card,
+body.farm-world .celeb-up,
+body.farm-world .gb,
+body.farm-world .tree-wrap,
+body.farm-world .today-sec .today-card,
+body.farm-world #homeDash,
+body.farm-world .ft-card,
+body.farm-world .mt-card,
+body.farm-world .rc-card,
+body.farm-world .train-card,
+body.farm-world .pj-card,
+body.farm-world .gf-card,
+body.farm-world .mb-card,
+body.farm-world .recap-card,
+body.farm-world .gauge-card,
+body.farm-world .fc-m,
+body.farm-world .oxg-sec,
+body.farm-world .sfb-sec,
+body.farm-world .notice-compose,
+body.farm-world .sheet-conn,
+body.farm-world .dev-status,
+body.farm-world .mt-invite-box,
+body.farm-world .welcome-box{
+  background:var(--wood-grad) !important;
+  border:1px solid var(--gold-line) !important;
+  border-radius:16px;
+  box-shadow:0 12px 26px -18px rgba(0,0,0,.85),
+             inset 0 1px 0 rgba(255,255,255,.055);
+}
+body.farm-world .val,
+body.farm-world .gcard,
+body.farm-world .win{ border-radius:14px; }
+body.farm-world .tree-wrap,
+body.farm-world .gb{ border-radius:18px; }
+
+/* 카드 상단 목재 결 + 잎사귀 마커 */
+body.farm-world .adm-card .ah,
+body.farm-world .gauge-top,
+body.farm-world .ft-h,
+body.farm-world .fc-h,
+body.farm-world .oxg-h,
+body.farm-world .pj-h,
+body.farm-world .sfb-sech,
+body.farm-world .train-h,
+body.farm-world .mb-hd,
+body.farm-world .rn-stath{
+  border-bottom:1px solid var(--gold-line) !important;
+  position:relative;
+}
+body.farm-world .adm-card .ah::before,
+body.farm-world .ft-h::before,
+body.farm-world .fc-h::before{
+  content:""; width:13px; height:13px; flex:0 0 auto; display:inline-block;
+  background:var(--leaf) center/contain no-repeat; opacity:.85;
+}
+
+/* 등장 애니메이션 — 절제 */
+body.farm-world .mpanel.active{ animation:farmFadeUp .3s ease both; }
+@keyframes farmFadeUp{ from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:none} }
+
+/* ── 5. 버튼 — 목재/식목 명판 ───────────────────────────────── */
+body.farm-world .btn,
+body.farm-world .pmsr-btn,
+body.farm-world .water-btn,
+body.farm-world .today-act button,
+body.farm-world .gb-form .send,
+body.farm-world .qask button,
+body.farm-world .pj-btn,
+body.farm-world .ft-btn,
+body.farm-world .step-btn,
+body.farm-world .exp-btn,
+body.farm-world .reset-btn,
+body.farm-world .celeb-mng,
+body.farm-world .mb-mbtn{
+  font-family:'Gowun Batang','Nanum Myeongjo',serif;
+  font-weight:700;
+  border-radius:11px;
+  transition:transform var(--farm-t), box-shadow var(--farm-t), background var(--farm-t), border-color var(--farm-t);
+}
+
+/* 기본(주요 액션) = 포레스트 그린 명판 */
+body.farm-world .btn,
+body.farm-world .btn.pri,
+body.farm-world .pmsr-btn.grad,
+body.farm-world .pmsr-btn.green,
+body.farm-world .water-btn,
+body.farm-world .today-act button,
+body.farm-world .gb-form .send{
+  background:linear-gradient(178deg,#6c8552 0%,#59703f 46%,#485c33 100%) !important;
+  color:#f6f1e2 !important;
+  border:1px solid rgba(201,168,106,.55) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.09),
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -2px 0 rgba(0,0,0,.22),
+    0 6px 14px -8px rgba(0,0,0,.85) !important;
+  min-height:44px;
+  text-shadow:0 1px 1px rgba(0,0,0,.35);
+}
+body.farm-world .btn:hover,
+body.farm-world .pmsr-btn.grad:hover,
+body.farm-world .pmsr-btn.green:hover,
+body.farm-world .water-btn:hover,
+body.farm-world .today-act button:hover,
+body.farm-world .gb-form .send:hover{
+  background:linear-gradient(178deg,#7d9861,#657d49 48%,#526838) !important;
+  border-color:rgba(201,168,106,.85) !important;
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -2px 0 rgba(0,0,0,.22),
+    0 10px 20px -10px rgba(0,0,0,.9),
+    0 0 0 3px rgba(201,168,106,.14) !important;
+  filter:none;
+}
+
+/* 보조(.ghost) = 네이비 목재 명판 + 골드 2중 테두리 */
+body.farm-world .btn.ghost,
+body.farm-world .pmsr-btn.ghost,
+body.farm-world .pj-btn.ghost,
+body.farm-world .celeb-mng,
+body.farm-world .notif-clear,
+body.farm-world .feed-toggle,
+body.farm-world .qask button,
+body.farm-world .gcard .cmtbox button{
+  background:var(--wood-grad) !important;
+  color:var(--cream) !important;
+  border:1px solid var(--gold-line) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(201,168,106,.12),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 4px 12px -8px rgba(0,0,0,.8) !important;
+}
+body.farm-world .btn.ghost:hover,
+body.farm-world .pmsr-btn.ghost:hover,
+body.farm-world .celeb-mng:hover,
+body.farm-world .qask button:hover,
+body.farm-world .gcard .cmtbox button:hover{
+  color:var(--gold) !important;
+  border-color:rgba(201,168,106,.8) !important;
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(201,168,106,.28),
+    0 8px 18px -10px rgba(0,0,0,.85),
+    0 0 0 3px rgba(201,168,106,.12) !important;
+}
+
+body.farm-world .btn:active,
+body.farm-world .btn.ghost:active,
+body.farm-world .pmsr-btn:active,
+body.farm-world .water-btn:active,
+body.farm-world .today-act button:active{ transform:scale(.97); }
+
+body.farm-world .btn[disabled],
+body.farm-world .btn[disabled]:hover{
+  opacity:.45; transform:none; filter:grayscale(.5);
+}
+body.farm-world .btn.sm,
+body.farm-world .btn.ghost.sm,
+body.farm-world .pmsr-btn.sm{ min-height:34px; border-radius:9px; }
+
+/* 위험/삭제 = 테라코타 */
+body.farm-world .btn.danger,
+body.farm-world .del:hover,
+body.farm-world .gb-del:hover,
+body.farm-world .notif-x:hover,
+body.farm-world .qdel:hover,
+body.farm-world .cmt-del:hover,
+body.farm-world .kr-del:hover{
+  color:#f0b49a !important;
+  border-color:var(--terra) !important;
+  background:rgba(192,96,63,.16) !important;
+}
+body.farm-world .btn.danger{
+  background:linear-gradient(178deg,#c96b45,#a84f30) !important;
+  color:#fff5ef !important;
+}
+
+/* 헤더 원형 버튼 */
+body.farm-world .bell-btn,
+body.farm-world .hdr-install{
+  background:rgba(36,50,68,.8) !important;
+  border:1px solid var(--gold-line) !important;
+  color:var(--cream);
+}
+body.farm-world .bell-btn:hover,
+body.farm-world .hdr-install:hover{ border-color:var(--gold) !important; color:var(--gold); }
+body.farm-world .bell-badge{ background:var(--terra); }
+
+/* 포커스 링 — 골드 */
+body.farm-world button:focus-visible,
+body.farm-world a:focus-visible,
+body.farm-world input:focus-visible,
+body.farm-world select:focus-visible,
+body.farm-world textarea:focus-visible,
+body.farm-world [tabindex]:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+  border-radius:8px;
+}
+
+/* ── 6. 입력 — 크림 종이 + 갈색 밑줄 ────────────────────────── */
+body.farm-world .field input,
+body.farm-world .field select,
+body.farm-world .field textarea,
+body.farm-world .water-row input,
+body.farm-world .water-row select,
+body.farm-world .gb-form .name,
+body.farm-world .gb-form .msg,
+body.farm-world .qask input,
+body.farm-world .gcard .cmtbox input,
+body.farm-world .sk-f,
+body.farm-world .sk-ta,
+body.farm-world .rn-f,
+body.farm-world .ft-in,
+body.farm-world .ft-f,
+body.farm-world .pj-field input,
+body.farm-world .rm-field input,
+body.farm-world .modal input[type=file],
+body.farm-world .modal input[type=text],
+body.farm-world .modal input[type=number],
+body.farm-world .modal input[type=password],
+body.farm-world .modal textarea,
+body.farm-world .modal select{
+  background:var(--paper-grad) !important;
+  color:var(--paper-ink) !important;
+  border:1px solid var(--paper-line) !important;
+  border-bottom:2px solid #a9906a !important;
+  border-radius:10px !important;
+  box-shadow:inset 0 1px 2px rgba(90,72,44,.14);
+  transition:border-color var(--farm-t), box-shadow var(--farm-t);
+}
+body.farm-world .field input::placeholder,
+body.farm-world .field textarea::placeholder,
+body.farm-world .gb-form .msg::placeholder,
+body.farm-world .qask input::placeholder,
+body.farm-world .sk-f::placeholder,
+body.farm-world .rn-f::placeholder,
+body.farm-world .ft-in::placeholder,
+body.farm-world .gcard .cmtbox input::placeholder{ color:#8a7a5e !important; }
+
+body.farm-world .field input:focus,
+body.farm-world .field select:focus,
+body.farm-world .field textarea:focus,
+body.farm-world .water-row input:focus,
+body.farm-world .gb-form .name:focus,
+body.farm-world .gb-form .msg:focus,
+body.farm-world .qask input:focus,
+body.farm-world .sk-f:focus,
+body.farm-world .rn-f:focus,
+body.farm-world .ft-in:focus,
+body.farm-world .gcard .cmtbox input:focus{
+  outline:none !important;
+  border-color:var(--gold-2) !important;
+  box-shadow:0 0 0 3px rgba(201,168,106,.32), inset 0 1px 2px rgba(90,72,44,.12) !important;
+}
+body.farm-world .field label,
+body.farm-world .sk-lab,
+body.farm-world .rm-lab,
+body.farm-world .ev-lab{ color:var(--gold); font-weight:700; letter-spacing:.02em; }
+
+/* 체크박스/라디오 골드 */
+body.farm-world input[type=checkbox],
+body.farm-world input[type=radio]{ accent-color:#7d9861; }
+body.farm-world input[type=range]{ accent-color:var(--gold-2); }
+
+/* ── 7. 모달 — 양피지 시트 + 목재 프레임 ────────────────────── */
+body.farm-world .modal{
+  background:rgba(14,20,30,.78) !important;
+  backdrop-filter:blur(7px) saturate(.9);
+}
+body.farm-world .modal .box{
+  background:var(--paper-grad) !important;
+  color:var(--paper-ink) !important;
+  border:6px solid #2b3a4e !important;
+  border-radius:16px !important;
+  box-shadow:
+    0 0 0 1px rgba(201,168,106,.7),
+    inset 0 0 0 1px rgba(201,168,106,.55),
+    inset 0 2px 0 rgba(255,255,255,.7),
+    0 34px 70px -26px rgba(0,0,0,.85) !important;
+  animation:farmPop .22s ease;
+}
+@keyframes farmPop{ from{opacity:0;transform:translateY(10px) scale(.98)} to{opacity:1;transform:none} }
+body.farm-world .modal .box h3,
+body.farm-world .modal .box h2,
+body.farm-world .modal .box b,
+body.farm-world .modal .box strong,
+body.farm-world .modal .box label,
+body.farm-world .modal .box .nm,
+body.farm-world .modal .box li,
+body.farm-world .modal .box td,
+body.farm-world .modal .box span{ color:var(--paper-ink); }
+body.farm-world .modal .box h3{
+  border-bottom:1px solid var(--paper-line);
+  padding-bottom:8px; margin-bottom:10px;
+  display:flex; align-items:center; gap:7px;
+}
+body.farm-world .modal .box h3::before{
+  content:""; width:14px; height:14px; flex:0 0 auto;
+  background:var(--leaf) center/contain no-repeat; opacity:.95;
+}
+body.farm-world .modal .box p,
+body.farm-world .modal .box .meta,
+body.farm-world .modal .box .sub{ color:var(--paper-ink-2) !important; }
+body.farm-world .modal .acts{ border-top:1px solid var(--paper-line); padding-top:12px; }
+/* 종이 위 보조버튼은 잉크 대비 확보 */
+body.farm-world .modal .box .btn.ghost{
+  background:linear-gradient(178deg,#efe6d2,#e2d6bc) !important;
+  color:#3b3021 !important;
+  border:1px solid #b7a175 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 2px 6px -4px rgba(60,45,20,.6) !important;
+}
+body.farm-world .modal .box .btn.ghost:hover{ color:#2c2418 !important; border-color:#8d7343 !important; }
+body.farm-world .modal .box a{ color:#6a5320; text-decoration:underline; }
+
+/* ── 8. 테이블 — 장부(ledger) ───────────────────────────────── */
+body.farm-world table.scores,
+body.farm-world .roster,
+body.farm-world .sm-table,
+body.farm-world .mstat-table,
+body.farm-world .tok-table,
+body.farm-world .rn-tbl,
+body.farm-world .pj-tbl,
+body.farm-world #m-field table{
+  background:var(--paper-grad) !important;
+  color:var(--paper-ink) !important;
+  border:1px solid var(--paper-line) !important;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 10px 24px -16px rgba(0,0,0,.7);
+}
+body.farm-world table.scores th,
+body.farm-world .roster th,
+body.farm-world .sm-table th,
+body.farm-world .mstat-table th,
+body.farm-world .tok-table th,
+body.farm-world .rn-tbl th,
+body.farm-world .pj-tbl th,
+body.farm-world #m-field th{
+  background:linear-gradient(180deg,#3a4c33,#2e3d29) !important;
+  color:#efe7d2 !important;
+  border-bottom:2px solid var(--gold-2) !important;
+  letter-spacing:.08em;
+  font-weight:700;
+}
+body.farm-world table.scores td,
+body.farm-world .roster td,
+body.farm-world .sm-table td,
+body.farm-world .mstat-table td,
+body.farm-world .tok-table td,
+body.farm-world .rn-tbl td,
+body.farm-world .pj-tbl td,
+body.farm-world #m-field td{
+  color:var(--paper-ink) !important;
+  border-bottom:1px solid rgba(140,118,80,.30) !important;
+}
+body.farm-world table.scores tbody tr:nth-child(even) td,
+body.farm-world .roster tbody tr:nth-child(even) td,
+body.farm-world .sm-table tbody tr:nth-child(even) td,
+body.farm-world .tok-table tbody tr:nth-child(even) td{ background:rgba(180,158,110,.10); }
+body.farm-world table.scores tbody tr:hover td,
+body.farm-world .roster tbody tr:hover td,
+body.farm-world .sm-table tbody tr:hover td{ background:rgba(201,168,106,.20); }
+body.farm-world table.scores .big{ color:#3c3122 !important; }
+body.farm-world table.scores tr.top1 .big{ color:#4c6a2c !important; }
+body.farm-world table.scores .nm .rk{ color:#8a7a5e !important; }
+body.farm-world table.scores .nm .role{ background:#8a7a5e !important; color:#faf6ec !important; }
+body.farm-world table.scores .nm .role.lr{ background:var(--gold-2) !important; }
+body.farm-world table.scores .nm .role.tl{ background:#4d7f92 !important; }
+body.farm-world table.scores .nm .role.aop{ background:#6d5f8c !important; }
+body.farm-world .tok-table tr.tok-sum td{ border-top:2px solid var(--gold-2) !important; background:rgba(201,168,106,.22) !important; }
+body.farm-world .tok-scroll .tok-table thead th,
+body.farm-world .rn-tbl th{ background:linear-gradient(180deg,#3a4c33,#2e3d29) !important; }
+body.farm-world #m-field tr.flag td{ background:rgba(192,96,63,.16) !important; }
+
+/* ── 9. 헤더 / 레일 / 하단 탭바 — 목재 패널 ─────────────────── */
+body.farm-world header.top{
+  background:linear-gradient(180deg,#22303f,#1a2534) !important;
+  border-bottom:1px solid var(--gold-line) !important;
+  box-shadow:0 2px 0 rgba(201,168,106,.10), 0 8px 22px -14px rgba(0,0,0,.9);
+}
+body.farm-world .logo .nm b{ color:var(--gold); }
+body.farm-world .logo .tag{ color:var(--muted); }
+body.farm-world .logo-chip{
+  background:rgba(36,50,68,.9);
+  border:1px solid var(--gold-line);
+  border-radius:10px;
+}
+body.farm-world .me-pill{
+  background:linear-gradient(178deg,#2b3a4e,#22303f) !important;
+  border:1px solid var(--gold-line) !important;
+}
+body.farm-world .me-pill:hover{ border-color:var(--gold) !important; }
+body.farm-world .me-pill .mrole{
+  background:linear-gradient(178deg,#6c8552,#4e6339) !important;
+  color:#f4efdf !important;
+}
+
+body.farm-world nav.rail{
+  background:linear-gradient(180deg,#22303f,#1b2735) !important;
+  border-bottom:1px solid var(--gold-line) !important;
+}
+body.farm-world .mtab{
+  color:var(--muted);
+  font-family:'Gowun Batang','Nanum Myeongjo',serif;
+  transition:color var(--farm-t), background var(--farm-t);
+}
+body.farm-world .mtab:hover{ color:var(--cream); }
+body.farm-world .mtab.active{ color:#fbf4e1; }
+body.farm-world .mtab.active::after{
+  background:linear-gradient(90deg,transparent,var(--gold),transparent) !important;
+  height:3px !important;
+}
+body.farm-world .mtab .count{
+  background:rgba(20,29,43,.75);
+  border:1px solid var(--gold-line-s);
+  color:var(--gold);
+}
+body.farm-world .mtab.lock{ color:var(--gold-2); }
+
+@media(min-width:980px){
+  body.farm-world nav.rail{
+    background:linear-gradient(200deg,#253445 0%,#1e2a3a 60%,#1a2534 100%) !important;
+    border-right:1px solid var(--gold-line) !important;
+    border-bottom:none !important;
+    box-shadow:inset -1px 0 0 rgba(201,168,106,.14);
+  }
+  body.farm-world nav.rail .row.subrail{ border-top:1px solid var(--gold-line-s) !important; }
+  body.farm-world nav.rail .mtab{ border-radius:10px; }
+  body.farm-world nav.rail .mtab:hover{ background:rgba(201,168,106,.09); }
+  body.farm-world nav.rail .mtab.active{
+    background:linear-gradient(90deg,rgba(201,168,106,.22),rgba(201,168,106,.05)) !important;
+    box-shadow:inset 3px 0 0 var(--gold) !important;
+  }
+  body.farm-world nav.rail .mtab.active::after{ display:none; }
+}
+
+body.farm-world .botbar{
+  background:linear-gradient(0deg,#1a2534,#22303f) !important;
+  border-top:1px solid var(--gold-line) !important;
+  box-shadow:0 -2px 0 rgba(201,168,106,.10), 0 -10px 24px -16px rgba(0,0,0,.9);
+}
+body.farm-world .botbar button{ color:var(--muted); font-family:'Gowun Batang','Nanum Myeongjo',serif; }
+body.farm-world .botbar button.active{ color:var(--gold); }
+@media(max-width:979px){
+  body.farm-world .botbar button.active::before{
+    background:linear-gradient(90deg,transparent,var(--gold),transparent) !important;
+  }
+}
+
+/* ── 10. 뱃지 · 칩 · 토스트 — 왁스 씰 ───────────────────────── */
+body.farm-world .badge,
+body.farm-world .chip,
+body.farm-world .hd-chip,
+body.farm-world .td-chip,
+body.farm-world .ev-chip,
+body.farm-world .oxg-chip,
+body.farm-world .pmsr-chip,
+body.farm-world .mem-chip,
+body.farm-world .rn-pill,
+body.farm-world .ev-pill,
+body.farm-world .tf-chip,
+body.farm-world .stage-tag,
+body.farm-world .chant,
+body.farm-world #m-field .badge,
+body.farm-world #m-sites .badge2{
+  background:linear-gradient(178deg,rgba(201,168,106,.24),rgba(168,135,63,.14)) !important;
+  border:1px solid var(--gold-line) !important;
+  color:var(--gold) !important;
+  border-radius:999px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+  font-weight:700;
+}
+body.farm-world .hd-chip b,
+body.farm-world .chip b,
+body.farm-world .badge b{ color:#f2e5c6 !important; }
+body.farm-world .hd-chip:hover,
+body.farm-world .td-chip:hover,
+body.farm-world .mem-chip:hover{
+  border-color:var(--gold) !important;
+  color:#f2e5c6 !important;
+  background:linear-gradient(178deg,rgba(201,168,106,.36),rgba(168,135,63,.2)) !important;
+}
+body.farm-world .hd-chip.hot,
+body.farm-world .badge.zero{ border-color:rgba(192,96,63,.55) !important; color:#eaa184 !important; }
+body.farm-world .hd-chip.hot b{ color:#f5c0a8 !important; }
+body.farm-world .hd-chip.ai{
+  background:linear-gradient(178deg,rgba(124,152,96,.34),rgba(78,99,57,.2)) !important;
+  border-color:rgba(143,174,99,.6) !important;
+  color:var(--green-soft) !important;
+}
+body.farm-world .adm-card .ah .badge{ background:linear-gradient(178deg,#c9a86a,#a8873f) !important; color:#221b0c !important; }
+body.farm-world .adm-card .ah .badge.zero{ background:rgba(20,29,43,.7) !important; color:var(--faint) !important; }
+body.farm-world .chant{ padding:8px 16px; }
+body.farm-world .chant .lab{ color:var(--gold) !important; }
+body.farm-world .chant .spark{ background:var(--gold) !important; }
+body.farm-world .mention{ color:var(--gold) !important; background:rgba(201,168,106,.16) !important; }
+
+body.farm-world .toast{
+  background:linear-gradient(178deg,#f4eee1,#e6dcc6) !important;
+  color:#2c2418 !important;
+  border:2px solid #2b3a4e !important;
+  border-radius:999px !important;
+  font-family:'Gowun Batang','Nanum Myeongjo',serif;
+  box-shadow:0 0 0 1px rgba(201,168,106,.75), 0 18px 34px -18px rgba(0,0,0,.85) !important;
+}
+
+/* ── 11. 알림 · 피드 · 목록 ─────────────────────────────────── */
+body.farm-world .notif-item,
+body.farm-world .wf-item,
+body.farm-world .qitem,
+body.farm-world .today-item,
+body.farm-world .mem-row,
+body.farm-world .mb-item,
+body.farm-world .sf-row,
+body.farm-world .rw-row,
+body.farm-world .kedit-row,
+body.farm-world .ft-row{
+  background:linear-gradient(178deg,#28374a,#22303f) !important;
+  border:1px solid var(--gold-line-s) !important;
+  border-radius:11px;
+}
+body.farm-world .notif-item.unread{
+  border-color:var(--gold) !important;
+  background:linear-gradient(178deg,rgba(201,168,106,.16),#22303f) !important;
+}
+body.farm-world .notif-top b,
+body.farm-world .wf-item .tx b,
+body.farm-world .mlist li b{ color:var(--gold) !important; }
+body.farm-world .today-item:hover{ background:linear-gradient(178deg,#31425a,#28374a) !important; }
+body.farm-world .today-item.on .box{ background:#6c8552 !important; border-color:#6c8552 !important; color:#f4efdf !important; }
+body.farm-world .today-item .box{ border-color:var(--gold-line) !important; }
+body.farm-world .mlist li::before{ background:var(--gold) !important; }
+body.farm-world .qitem .qm{ color:var(--gold) !important; }
+body.farm-world .gb-item{ border-bottom:1px solid var(--gold-line-s) !important; border-right:1px solid var(--gold-line-s) !important; }
+body.farm-world .gb-nm,
+body.farm-world .gb-msg{ color:var(--cream); }
+body.farm-world .gb-form{ border-bottom:1px solid var(--gold-line) !important; }
+body.farm-world .gcard .cmts,
+body.farm-world .gcard .cmtbox{ border-top:1px solid var(--gold-line-s) !important; }
+body.farm-world .gcard .cmt-tx b,
+body.farm-world .gcard .cmt b{ color:var(--gold) !important; }
+body.farm-world .gcard .ph{ background:#1b2735 !important; }
+body.farm-world .val .ko{ color:var(--gold) !important; }
+body.farm-world .win{ background:linear-gradient(165deg,rgba(201,168,106,.13),#243244 48%) !important; }
+body.farm-world .celeb-card{ background:linear-gradient(100deg,rgba(201,168,106,.18),rgba(92,112,70,.14)) !important; }
+body.farm-world .celeb-card.bday{ background:linear-gradient(100deg,rgba(201,168,106,.28),rgba(192,96,63,.14)) !important; border-color:rgba(201,168,106,.55) !important; }
+body.farm-world .celeb-tx b{ color:var(--cream); }
+body.farm-world .today-alert{
+  background:linear-gradient(135deg,rgba(192,96,63,.24),rgba(201,168,106,.12)) !important;
+  border:1px solid var(--terra) !important;
+  color:#f6d9cb !important;
+}
+
+/* ── 12. 나무 / 닭장 무대 ───────────────────────────────────── */
+body.farm-world .tree-stage{
+  background:
+    radial-gradient(130% 100% at 50% 112%, rgba(92,112,70,.30), transparent 64%),
+    linear-gradient(180deg,#1d2836,#233245) !important;
+  border-right-color:var(--gold-line) !important;
+}
+@media(max-width:760px){ body.farm-world .tree-stage{ border-bottom-color:var(--gold-line) !important; } }
+body.farm-world .tree-stage .ground{ border-top:1px dashed rgba(201,168,106,.35) !important; }
+body.farm-world .tree-counter .n{ color:var(--gold) !important; }
+body.farm-world .tree-counter .l,
+body.farm-world .tree-side .label{ color:var(--muted) !important; letter-spacing:.14em; }
+body.farm-world .stage-tag{ background:rgba(20,29,43,.72) !important; }
+body.farm-world .gift .glab{
+  background:rgba(20,29,43,.85) !important;
+  border-color:var(--gold-line) !important;
+  color:var(--gold) !important;
+}
+body.farm-world .tree-side{ background:linear-gradient(178deg,#243244,#1e2a3a); }
+
+/* ── 13. 빈 상태 — 잎사귀 워터마크 ──────────────────────────── */
+body.farm-world .empty-row,
+body.farm-world .ms-empty,
+body.farm-world .rank-empty,
+body.farm-world .td-empty,
+body.farm-world .wins-empty,
+body.farm-world .mb-empty,
+body.farm-world .ev-nm-empty,
+body.farm-world .si-empty,
+body.farm-world .celeb-empty,
+body.farm-world .rw-none{
+  position:relative;
+  color:var(--faint) !important;
+  border:1px dashed var(--gold-line-s) !important;
+  border-radius:14px;
+  background:
+    var(--leaf-dim) center 40% / 54px 54px no-repeat,
+    linear-gradient(178deg,rgba(36,50,68,.55),rgba(30,42,58,.35)) !important;
+  font-family:'Gowun Batang','Nanum Myeongjo',serif;
+  letter-spacing:.01em;
+}
+body.farm-world .wins-empty b,
+body.farm-world .ms-empty b{ color:var(--muted) !important; }
+
+/* ── 14. 게이지 · 진행바 ────────────────────────────────────── */
+body.farm-world .bar,
+body.farm-world .slider,
+body.farm-world .perfseg,
+body.farm-world .pj-gauge{
+  background:rgba(20,29,43,.7) !important;
+  border:1px solid var(--gold-line-s) !important;
+  border-radius:999px;
+  overflow:hidden;
+}
+body.farm-world .bar > *,
+body.farm-world .pj-gauge > *{
+  background:linear-gradient(90deg,#5c7046,#8fae63 60%,#c9a86a) !important;
+}
+body.farm-world .today-prog{ color:var(--gold) !important; }
+
+/* ── 15. 아코디언 · 접이식 ──────────────────────────────────── */
+body.farm-world .ob-q,
+body.farm-world .msec-head,
+body.farm-world .surv-acc,
+body.farm-world .manual-acc,
+body.farm-world .lacc,
+body.farm-world .ah{
+  border-bottom:1px solid var(--gold-line-s);
+  transition:background var(--farm-t);
+}
+body.farm-world .ob-q:hover,
+body.farm-world .msec-head:hover{ background:rgba(201,168,106,.07); }
+body.farm-world .ob-q .qn,
+body.farm-world .msec-tt{ color:var(--gold) !important; }
+body.farm-world .ob-ment .ml{ color:var(--gold) !important; }
+
+/* ── 16. 인증 게이트 — 밤의 농장 ────────────────────────────── */
+body.farm-world #authGate{
+  background:
+    radial-gradient(110% 70% at 18% 0%, rgba(92,112,70,.55), transparent 58%),
+    radial-gradient(120% 80% at 88% 100%, rgba(201,168,106,.30), transparent 58%),
+    linear-gradient(168deg,#1b2735,#141d2b 45%,#0f1620) !important;
+  animation:none !important;
+}
+body.farm-world .auth-box{
+  background:var(--paper-grad) !important;
+  color:var(--paper-ink) !important;
+  border:7px solid #2b3a4e !important;
+  border-radius:20px !important;
+  box-shadow:
+    0 0 0 1px rgba(201,168,106,.75),
+    inset 0 0 0 1px rgba(201,168,106,.5),
+    0 40px 80px -30px rgba(0,0,0,.9) !important;
+  backdrop-filter:none !important;
+}
+body.farm-world .auth-box .auth-h{ color:var(--paper-ink) !important; }
+body.farm-world .auth-box .auth-p,
+body.farm-world .auth-box .auth-foot{ color:var(--paper-ink-2) !important; }
+body.farm-world .auth-box .field label{ color:#5c4a2c !important; }
+body.farm-world .auth-box .field input{
+  background:rgba(255,255,255,.6) !important;
+  border:1px solid var(--paper-line) !important;
+  border-bottom:2px solid #a9906a !important;
+  color:var(--paper-ink) !important;
+}
+body.farm-world .auth-box .field input::placeholder{ color:#8a7a5e !important; }
+body.farm-world .auth-box .field input:focus{
+  border-color:var(--gold-2) !important;
+  background:#fffdf6 !important;
+  box-shadow:0 0 0 3px rgba(201,168,106,.3) !important;
+}
+body.farm-world .auth-tabs{ background:rgba(90,72,44,.14) !important; }
+body.farm-world .auth-tabs button{ color:#6a5a44 !important; font-family:'Gowun Batang','Nanum Myeongjo',serif; }
+body.farm-world .auth-tabs button.active{
+  background:linear-gradient(178deg,#6c8552,#4e6339) !important;
+  color:#f6f1e2 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2) !important;
+}
+body.farm-world .auth-foot b{ color:#6a5320 !important; }
+body.farm-world .auth-logo .sub{ color:#e8dfc8 !important; }
+body.farm-world .auth-msg.err{ background:rgba(192,96,63,.16) !important; border:1px solid var(--terra) !important; color:#8f3a1c !important; }
+body.farm-world .auth-msg.ok{ background:rgba(92,112,70,.16) !important; border:1px solid #5c7046 !important; color:#3a4c2a !important; }
+body.farm-world .auth-msg.info{ background:rgba(201,168,106,.18) !important; border:1px solid var(--gold-2) !important; color:#6a5320 !important; }
+body.farm-world .status-screen h2{ color:var(--paper-ink); }
+body.farm-world .status-screen p{ color:var(--paper-ink-2) !important; }
+body.farm-world .status-screen .who{ color:var(--paper-ink) !important; }
+body.farm-world .hero-plate{
+  background:var(--wood-grad) !important;
+  border:1px solid var(--gold-line) !important;
+  box-shadow:var(--shadow) !important;
+}
+body.farm-world .hero-plate::after{ background:linear-gradient(135deg,rgba(201,168,106,.5),transparent 58%) !important; }
+body.farm-world .foot-chip{ background:var(--wood-grad) !important; border:1px solid var(--gold-line) !important; }
+
+/* ── 17. 히어로 / 인사 ──────────────────────────────────────── */
+body.farm-world .hero::before{
+  background:radial-gradient(60% 80% at 50% 0%, rgba(201,168,106,.20), rgba(92,112,70,.12) 55%, transparent 76%) !important;
+}
+body.farm-world .greet b{
+  background:linear-gradient(100deg,#c9a86a,#b6cf8e) !important;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+body.farm-world .hero .stmt em{ color:var(--gold) !important; }
+
+/* ── 18. 특수 패널 (셋업키트/리젝노트/리더힛/필드도구/회원카드) ─ */
+body.farm-world .sk-page,
+body.farm-world .rn-statc,
+body.farm-world .pmsr-col,
+body.farm-world .pj-sheet,
+body.farm-world .pj-stage,
+body.farm-world .mt-card,
+body.farm-world .adm-body,
+body.farm-world .kedit,
+body.farm-world .box:not(.today-item .box){
+  border-color:var(--gold-line) !important;
+}
+body.farm-world .modal .box{ border-color:#2b3a4e !important; }
+body.farm-world .pmsr-help,
+body.farm-world .ft-note,
+body.farm-world .sc-hint,
+body.farm-world .gh-hint,
+body.farm-world .qhint{ color:var(--muted) !important; }
+body.farm-world .ft-num,
+body.farm-world .p-stat .n,
+body.farm-world .kpi .n{ color:var(--gold) !important; }
+body.farm-world .fx-btn{
+  background:linear-gradient(178deg,#2b3a4e,#22303f) !important;
+  border:1px solid var(--gold-line) !important;
+  border-radius:10px;
+}
+body.farm-world .fx-btn:hover,
+body.farm-world .fx-btn.on{ border-color:var(--gold) !important; box-shadow:0 0 0 2px rgba(201,168,106,.2); }
+body.farm-world #fxPanel{
+  background:var(--wood-grad) !important;
+  border:1px solid var(--gold-line) !important;
+  border-radius:16px;
+}
+
+/* 세일즈 카운터 / 수치 강조 */
+body.farm-world .p-stat,
+body.farm-world .qa,
+body.farm-world .qitem,
+body.farm-world .qlink{ border-color:var(--gold-line-s) !important; }
+body.farm-world .qico{ color:var(--gold) !important; }
+
+/* 구분선 일괄 온화하게 */
+body.farm-world hr{ border:none; border-top:1px solid var(--gold-line-s); }
+
+/* ── 19. 반응형 보정 (기존 브레이크포인트 존중) ─────────────── */
+@media(max-width:767px){
+  body.farm-world{ overflow-x:hidden; }
+  body.farm-world .sec-head{ padding-bottom:7px; }
+  body.farm-world .modal .box{ border-width:4px !important; }
+  body.farm-world .auth-box{ border-width:5px !important; }
+  /* 넓은 그림자로 인한 가로 초과 방지 */
+  body.farm-world .gcard,
+  body.farm-world .win,
+  body.farm-world .val,
+  body.farm-world .adm-card,
+  body.farm-world .ft-card{ box-shadow:0 8px 18px -14px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.05); }
+  body.farm-world .btn{ min-height:44px; }
+  body.farm-world .btn.sm{ min-height:36px; }
+}
+@media(max-width:520px){
+  body.farm-world .sec-head::before{ width:12px; height:12px; }
+  body.farm-world .toast{ border-width:2px !important; }
+}
+
+/* ── 20. 모션 감소 ──────────────────────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  body.farm-world *,
+  body.farm-world *::before,
+  body.farm-world *::after{
+    animation:none !important;
+    transition:none !important;
+  }
+  body.farm-world .btn:hover,
+  body.farm-world .btn.ghost:hover,
+  body.farm-world .btn:active,
+  body.farm-world .mpanel.active{ transform:none !important; }
+}
+
+/* ── 21. 인쇄 — 농장 스킨 해제 (흑백 출력 보호) ─────────────── */
+@media print{
+  body.farm-world,
+  body.farm-world *{
+    background:#fff !important;
+    background-image:none !important;
+    color:#000 !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+    filter:none !important;
+    animation:none !important;
+    transition:none !important;
+  }
+  body.farm-world *{ border-color:#999 !important; }
+  body.farm-world .modal .box,
+  body.farm-world .auth-box{ border-width:1px !important; }
+  body.farm-world .sec-head::before,
+  body.farm-world .modal .box h3::before,
+  body.farm-world .adm-card .ah::before,
+  body.farm-world .ft-h::before,
+  body.farm-world .fc-h::before{ display:none !important; }
+  body.farm-world table th{ background:#eee !important; color:#000 !important; }
+}
