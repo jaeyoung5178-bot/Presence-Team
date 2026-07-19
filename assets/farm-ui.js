@@ -178,9 +178,9 @@
     '@media (max-width:767px){.fs-keeper{right:10px;top:10px;padding:8px 11px;border-radius:9px}.fs-keeper .fs-kt{font-size:8.5px;letter-spacing:.2em}.fs-keeper .fs-kn{font-size:10px}}',
 
     /* ---- 수첩 패널 ---- */
-    '.fs-note{position:relative;z-index:9;background:linear-gradient(180deg,#fdf9ef,#f6efdf);border-radius:12px;',
+    '.fs-note{position:relative;z-index:9;background-color:#f9f3e4;border-radius:12px;',
     'box-shadow:0 14px 34px rgba(0,0,0,.34),inset 0 0 0 1px rgba(150,120,80,.28);padding:16px 18px 16px 40px;margin-top:14px;',
-    'background-image:repeating-linear-gradient(180deg,transparent 0 25px,rgba(120,100,70,.09) 25px 26px);opacity:0}',
+    'background-image:linear-gradient(180deg,rgba(255,252,243,.9),rgba(246,239,223,.9)),repeating-linear-gradient(180deg,transparent 0 25px,rgba(120,100,70,.09) 25px 26px);opacity:0}',
     '.fs-wrap.fs-in .fs-note{animation:fsSlideUp .55s cubic-bezier(.22,1,.36,1) .7s both}',
     '@keyframes fsSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}',
     '.fs-rings{position:absolute;left:14px;top:16px;bottom:16px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}',
@@ -198,9 +198,10 @@
     '.fs-chip.wait{background:#fdeccc;color:#8a5a12;box-shadow:inset 0 0 0 1px #e6c98d}',
     '.fs-chip.info{background:#dfe8f6;color:#2b4a7a;box-shadow:inset 0 0 0 1px #a9c1e4}',
     '.fs-quote{margin:12px 0 0;padding-top:10px;border-top:1px dashed rgba(120,100,70,.35);font-style:italic;font-size:11.5px;color:#7a6549;font-family:Georgia,"Nanum Myeongjo",serif}',
-    '@media (min-width:1280px){.fs-note{position:absolute;right:24px;top:50%;transform:translateY(-50%);width:340px;margin-top:0}',
+    '@media (min-width:1280px){.fs-note{position:absolute;right:20px;top:88px;bottom:auto;transform:none;width:332px;margin-top:0;max-height:calc(100% - 150px);overflow:auto}',
+    '.fs-stage{right:372px}',
     '.fs-wrap.fs-in .fs-note{animation:fsSlideIn .55s cubic-bezier(.22,1,.36,1) .7s both}',
-    '@keyframes fsSlideIn{from{opacity:0;transform:translate(24px,-50%)}to{opacity:1;transform:translate(0,-50%)}}}',
+    '@keyframes fsSlideIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}}',
 
     /* ---- 앰비언트 ---- */
     '.fs-amb{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}',
@@ -316,11 +317,11 @@
 
   var SIGNS = [
     { x: 55, y: 11, en: 'Today', act: function () { goHomeSection('todaySec'); } },
-    { x: 17, y: 16, en: 'People', act: function () { goHomeSection('praiseSec'); } },
-    { x: 87, y: 16, en: 'Progress', act: function () { goHomeSection('treeSecHome'); } },
-    { x: 26, y: 45, en: 'Profit', act: function () { try { window.goTab('sale'); } catch (e) { say('이동할 수 없어요'); } } },
+    { x: 24, y: 15.5, en: 'People', act: function () { goHomeSection('praiseSec'); } },
+    { x: 86, y: 19, en: 'Progress', act: function () { goHomeSection('treeSecHome'); } },
+    { x: 29.5, y: 49, en: 'Profit', act: function () { try { window.goTab('sale'); } catch (e) { say('이동할 수 없어요'); } } },
     {
-      x: 75, y: 45, en: 'Farm Office', act: function () {
+      x: 75.5, y: 50, en: 'Farm Office', act: function () {
         var ok = tryv(function () { return typeof tabVisible === 'function' && tabVisible('admin'); }, false);
         if (ok) { try { window.goTab('admin'); } catch (e) { } }
         else say('관리자 전용 공간이에요');
