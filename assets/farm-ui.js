@@ -121,8 +121,7 @@
     /* 2중 배경: 뒤=블러 cover, 앞=선명 contain */
     '.fs-bg-blur{position:absolute;inset:-4%;background-size:cover;background-position:center;filter:blur(26px) saturate(1.05);transform:scale(1.15);opacity:.85;z-index:0}',
     '.fs-stage{position:absolute;inset:0;z-index:1;overflow:hidden}',
-    '.fs-art{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transition:opacity .8s ease}',
-    '.fs-scene.fs-in .fs-art{opacity:1}',
+    '.fs-art{position:absolute;left:0;top:0;width:100%;height:100%;opacity:1;transition:opacity .45s ease}',
     '.fs-art-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}',
     '.fs-scene[data-noart="1"] .fs-art{background:linear-gradient(180deg,#7fb6da 0%,#bfe0ea 45%,#8dbf62 46%,#4f8236 100%);border-radius:12px}',
     '.fs-scene[data-noart="1"] .fs-art-img{display:none}',
@@ -316,12 +315,12 @@
   /* ====================================================================== */
 
   var SIGNS = [
-    { x: 55, y: 11, en: 'Today', act: function () { goHomeSection('todaySec'); } },
-    { x: 24, y: 15.5, en: 'People', act: function () { goHomeSection('praiseSec'); } },
-    { x: 86, y: 19, en: 'Progress', act: function () { goHomeSection('treeSecHome'); } },
-    { x: 29.5, y: 49, en: 'Profit', act: function () { try { window.goTab('sale'); } catch (e) { say('이동할 수 없어요'); } } },
+    { x: 54.6, y: 11, w: 14.5, en: 'Today', act: function () { goHomeSection('todaySec'); } },
+    { x: 20.4, y: 15.5, w: 18, en: 'People', act: function () { goHomeSection('praiseSec'); } },
+    { x: 84.4, y: 15.3, w: 17, en: 'Progress', act: function () { goHomeSection('treeSecHome'); } },
+    { x: 26.3, y: 49, w: 18, en: 'Profit', act: function () { try { window.goTab('sale'); } catch (e) { say('이동할 수 없어요'); } } },
     {
-      x: 75.5, y: 50, en: 'Farm Office', act: function () {
+      x: 75.5, y: 50, w: 18.5, en: 'Farm Office', act: function () {
         var ok = tryv(function () { return typeof tabVisible === 'function' && tabVisible('admin'); }, false);
         if (ok) { try { window.goTab('admin'); } catch (e) { } }
         else say('관리자 전용 공간이에요');
@@ -492,7 +491,7 @@
 
     var signHTML = SIGNS.map(function (s, i) {
       return '<button class="fs-sign" type="button" data-fs-sign="' + i + '" ' +
-        'style="left:' + s.x + '%;top:' + s.y + '%;--d:' + (450 + i * 80) + 'ms" ' +
+        'style="left:' + s.x + '%;top:' + s.y + '%;' + (s.w ? 'width:' + s.w + '%;' : '') + '--d:' + (450 + i * 80) + 'ms" ' +
         'aria-label="' + esc(s.en) + '">' +
         '<span class="fs-nails" aria-hidden="true"><i></i><i></i></span>' +
         '<span class="fs-sl">' + esc(s.en) + '</span></button>';
