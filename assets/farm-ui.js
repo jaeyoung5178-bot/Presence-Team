@@ -452,7 +452,16 @@
     var stage = q('.fs-stage', scene), art = q('.fs-art', scene);
     if (!stage || !art) return;
     var W = stage.clientWidth, H = stage.clientHeight;
-    if (!W || !H) return;
+    if (!W || !H) {
+      /* 패널이 아직 숨겨져 있으면 크기가 0 — 보일 때까지 재시도 */
+      if (!scene.__fsRetry) scene.__fsRetry = 0;
+      if (scene.__fsRetry < 60) {
+        scene.__fsRetry++;
+        setTimeout(function () { layoutArt(scene); }, 350);
+      }
+      return;
+    }
+    scene.__fsRetry = 0;
     var w = W, h = W / ART_R;
     if (h > H) { h = H; w = H * ART_R; }
     art.style.width = w + 'px';
