@@ -1,99 +1,125 @@
 /* ============================================================
-   프레젠스 동물농장 — farm-ui.css
-   "따뜻한 목조 농장 다이어리" 스킨 · body.farm-world 스코프 전용
+   프레젠스 동물농장 — farm-ui.css  (전면 재창조)
+   "노을 지는 과수원 정원 위의 양피지 공방"
+   · 배경   : 항상 노을 과수원 그림 (fixed cover)
+   · 표면   : 밝은 양피지 종이 (미세 가로줄·모서리 핀·이중 갈색 테두리)
+   · 크롬   : 딥네이비 목재 + 금색 라인 세공 + serif 금색 제목
+   · 스코프 : body.farm-world 전용
    ============================================================ */
 
-/* ── 1. 팔레트 재정의 ──────────────────────────────────────── */
+/* ── 1. 팔레트 반전 (변수 자체를 뒤집는다) ────────────────────
+   이 앱은 var() 기반이므로, 여기서 표면·텍스트 변수를 양피지/잉크로
+   바꾸는 것만으로 대부분의 카드·글씨가 즉시 종이 세계로 전환된다. */
 body.farm-world{
-  /* 바탕: 깊은 숲밤 */
-  --ink:#141d2b;
-  --chrome:#1a2534;
+  /* 페이지 배경 = 투명 (과수원 그림이 비쳐 보이도록) */
+  --ink:transparent;
+  --chrome:#182338;
 
-  /* 어두운 목재 계열 (패널·카드·크롬) */
-  --surface:#1e2a3a;
-  --card:#243244;
-  --card-2:#2b3a4e;
-  --line:#3c4d63;
-  --line-soft:#2c3a4c;
+  /* 표면(패널·카드) = 양피지 크림 */
+  --surface:#f3ead6;
+  --card:#f7f0de;
+  --card-2:#efe5cd;
+  --line:rgba(120,95,60,.34);
+  --line-soft:rgba(120,95,60,.18);
 
-  /* 양피지 크림 계열 (종이형 표면 — 아래 개별 컴포넌트에서 사용) */
-  --paper:#f2ece0;
-  --paper-2:#e8dfcd;
-  --paper-line:#cbbb9c;
-  --paper-ink:#2c2418;
-  --paper-ink-2:#6a5a44;
+  /* 텍스트 = 잉크 브라운 (기존엔 밝은 크림이었다 → 전면 반전) */
+  --cream:#33261a;
+  --muted:#7a6549;
+  --faint:#9a8666;
 
-  /* 텍스트 */
-  --cream:#f0e9d6;
-  --muted:#a9b6ad;
-  --faint:#7f8d86;
+  /* 잉크·네이비 보조 텍스트 */
+  --ink-brown:#33261a;
+  --ink-brown-2:#5c4a33;
+  --ink-navy:#1c2a44;
 
   /* 액센트 */
   --forest:#5c7046;
   --forest-2:#41522f;
-  --gold:#c9a86a;
+  --gold:#b98f45;
   --gold-2:#a8873f;
-  --terra:#c0603f;
+  --gold-hi:#d8b878;
+  --terra:#b6532f;
 
-  --green:#8fae63;
-  --green-soft:#b6cf8e;
-  --green-ink:#182208;
+  --green:#5c7046;
+  --green-soft:#7d9861;
+  --green-ink:#26330f;
 
-  --g1:#41522f; --g2:#c9a86a; --g3:#5c7046;
-  --grad:linear-gradient(160deg,#67804e,#4e6339 55%,#3f5230);
-  --grad-soft:linear-gradient(160deg,#7b9660,#5c7046 55%,#4a5e37);
+  --g1:#41522f; --g2:#b98f45; --g3:#5c7046;
+  --grad:linear-gradient(178deg,#6c8552 0%,#59703f 46%,#485c33 100%);
+  --grad-soft:linear-gradient(178deg,#7d9861,#5c7046 55%,#4a5e37);
 
-  --amber:#c9a86a;
-  --coral:#d98a6a;
-  --violet:#a89bc4;
-  --oxfam:#7fb98a;
-  --wepair:#6fb3c9;
-  --danger:#d97a56;
+  --amber:#b98f45;
+  --coral:#c77b57;
+  --violet:#8a7ba8;
+  --oxfam:#5f9a6c;
+  --wepair:#4f93a8;
+  --danger:#b6532f;
 
   --radius:14px;
   --radius-lg:18px;
   --r-sm:10px; --r-md:14px; --r-lg:16px; --r-pill:999px;
 
-  --shadow:0 14px 34px -16px rgba(0,0,0,.72), 0 2px 0 rgba(201,168,106,.10);
-  --e1:0 2px 8px rgba(0,0,0,.30);
-  --e2:0 12px 28px -14px rgba(0,0,0,.6);
+  --shadow:0 16px 34px -20px rgba(40,28,14,.55), 0 2px 0 rgba(120,95,60,.10);
+  --e1:0 3px 10px -6px rgba(40,28,14,.4);
+  --e2:0 16px 30px -18px rgba(40,28,14,.55);
 
   /* 스킨 공용 토큰 */
-  --wood-grad:linear-gradient(168deg,#2a3a4e 0%,#243244 52%,#1f2b3b 100%);
-  --paper-grad:linear-gradient(168deg,#f6f1e6 0%,#f2ece0 46%,#e9e0cd 100%);
-  --gold-line:rgba(201,168,106,.34);
-  --gold-line-s:rgba(201,168,106,.18);
+  --wood-grad:linear-gradient(178deg,#22334f 0%,#1a2740 54%,#152036 100%);
+  --paper-grad:linear-gradient(168deg,#f9f3e5 0%,#f4ecd8 48%,#ece0c7 100%);
+  --paper-grad-2:linear-gradient(168deg,#f6eed9 0%,#efe4cd 52%,#e6d8bb 100%);
+  --paper-line:#c9b591;
+  --paper-ink:#33261a;
+  --paper-ink-2:#6a5539;
+  --gold-line:rgba(184,148,80,.44);
+  --gold-line-s:rgba(184,148,80,.24);
   --farm-t:.18s cubic-bezier(.4,0,.2,1);
+
+  /* 양피지 결: 미세 가로줄 + 모서리 핀 */
+  --paper-lines:repeating-linear-gradient(0deg,transparent 0 25px,rgba(120,95,60,.05) 25px 26px);
+  --paper-fibre:repeating-linear-gradient(90deg,transparent 0 60px,rgba(120,95,60,.018) 60px 61px);
+  --pin:radial-gradient(circle,rgba(120,95,60,.55) 0 2px,rgba(120,95,60,.18) 2px 3px,transparent 3.4px);
 }
 
-/* 잎사귀 마커 / 워터마크 (SVG data-uri, 이모지 미사용) */
+/* 잎사귀 / 리스 문양 (SVG data-uri, 이모지 미사용) */
 body.farm-world{
-  --leaf:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%23c9a86a'/%3E%3C/svg%3E");
-  --leaf-dim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E");
-  --wheat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%23c9a86a' stroke-opacity='.5' stroke-width='1.4' fill='none' stroke-linecap='round'%3E%3Cpath d='M16 29V9'/%3E%3Cpath d='M16 12c-4 0-6-2-6-5 3 0 6 2 6 5zM16 12c4 0 6-2 6-5-3 0-6 2-6 5z'/%3E%3Cpath d='M16 19c-4 0-6-2-6-5 3 0 6 2 6 5zM16 19c4 0 6-2 6-5-3 0-6 2-6 5z'/%3E%3C/g%3E%3C/svg%3E");
+  --leaf:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%235c7046'/%3E%3C/svg%3E");
+  --leaf-gold:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%23b98f45'/%3E%3C/svg%3E");
+  --leaf-dim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 3c-9.4 0-16 5.4-16 13.2 0 1.6.3 3 .8 4.3.2.5.9.6 1.2.1C10 16.4 14 12.7 19 10.2c.4-.2.8.3.5.6-4.3 3.4-7.6 7-9.7 11.4-.2.5.2 1 .7.8C17.8 20.4 21 13 21 3z' fill='%237a6549' fill-opacity='.16'/%3E%3C/svg%3E");
+  --wreath:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 24'%3E%3Cg fill='none' stroke='%23b98f45' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M24 4c-6 2-9 6-9 8s3 6 9 8'/%3E%3Cpath d='M24 4c6 2 9 6 9 8s-3 6-9 8'/%3E%3C/g%3E%3Cg fill='%235c7046'%3E%3Ccircle cx='15' cy='9' r='1.4'/%3E%3Ccircle cx='16' cy='14' r='1.4'/%3E%3Ccircle cx='33' cy='9' r='1.4'/%3E%3Ccircle cx='32' cy='14' r='1.4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ── 2. 바탕 · 전역 ────────────────────────────────────────── */
+/* ── 2. 바탕 — 노을 과수원 그림 (전 탭 공통) ──────────────────
+   CSS 파일 기준 상대경로: assets/farm-ui.css → assets/home/…  ⇒ home/…
+   이미지 로드 실패 시 노을 그라디언트가 그대로 남아 배경을 채운다. */
 body.farm-world{
+  min-height:100vh;
   background:
-    radial-gradient(120% 70% at 50% -10%, rgba(92,112,70,.16), transparent 62%),
-    linear-gradient(180deg,#141d2b 0%,#121a26 46%,#0f1620 100%) fixed;
+    /* 웜 틴트 + 가장자리 비네트 */
+    radial-gradient(125% 95% at 50% 26%, rgba(40,28,14,0) 42%, rgba(28,20,12,.52) 100%) fixed,
+    linear-gradient(180deg, rgba(60,42,22,.10), rgba(30,22,14,.30) 62%, rgba(20,15,10,.48) 100%) fixed,
+    /* 원화 */
+    url("home/presence-home-orchard-dusk.png") center top/cover no-repeat fixed,
+    /* 폴백: 노을 그라디언트 */
+    linear-gradient(180deg,#f0b06a 0%,#e58a58 20%,#c06f52 40%,#7d6350 62%,#3d3630 82%,#241f22 100%) fixed !important;
   color:var(--cream);
 }
+body.farm-world #app,
 body.farm-world #app main,
-body.farm-world .mpanel{ background:transparent; }
+body.farm-world .mpanel,
+body.farm-world .wrap,
+body.farm-world main{ background:transparent !important; }
 
-body.farm-world ::selection{ background:rgba(201,168,106,.32); color:#fff; }
+body.farm-world ::selection{ background:rgba(184,148,80,.32); color:#2c2418; }
 
-/* 스크롤바 — 얇은 골드/목재 */
-body.farm-world *::-webkit-scrollbar{ width:9px; height:9px; }
-body.farm-world *::-webkit-scrollbar-track{ background:rgba(20,29,43,.5); }
+/* 스크롤바 — 갈색 목재 */
+body.farm-world *::-webkit-scrollbar{ width:11px; height:11px; }
+body.farm-world *::-webkit-scrollbar-track{ background:rgba(120,95,60,.14); border-radius:8px; }
 body.farm-world *::-webkit-scrollbar-thumb{
-  background:linear-gradient(180deg,#c9a86a,#8d7343);
+  background:linear-gradient(180deg,#a9855180 0%,#7a5f3a 60%,#5c4527 100%);
   border-radius:8px; border:2px solid transparent; background-clip:padding-box;
 }
-body.farm-world *::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg,#dbbd83,#a08350); background-clip:padding-box; }
-body.farm-world{ scrollbar-color:#a8873f rgba(20,29,43,.5); scrollbar-width:thin; }
+body.farm-world *::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg,#c09a5c,#7a5f3a); background-clip:padding-box; }
+body.farm-world{ scrollbar-color:#8a6c42 rgba(120,95,60,.16); scrollbar-width:thin; }
 
 /* ── 3. 타이포 ─────────────────────────────────────────────── */
 body.farm-world h1,
@@ -121,10 +147,10 @@ body.farm-world table td, body.farm-world table th{
 }
 body.farm-world .eyebrow,
 body.farm-world .sec-sub,
-body.farm-world .sec-head .meta{ color:var(--gold); letter-spacing:.16em; }
-body.farm-world .intro b{ color:var(--gold); }
+body.farm-world .sec-head .meta{ color:var(--gold-2); letter-spacing:.16em; }
+body.farm-world .intro b{ color:var(--gold-2); }
 
-/* ── 4. 섹션 / 카드 — 목재 패널 ─────────────────────────────── */
+/* ── 4. 섹션 / 카드 — 양피지 종이 ───────────────────────────── */
 body.farm-world .sec{ position:relative; }
 body.farm-world .sec-head{
   border-bottom:1px solid var(--gold-line);
@@ -134,12 +160,14 @@ body.farm-world .sec-head{
 body.farm-world .sec-head::before{
   content:""; width:15px; height:15px; flex:0 0 auto;
   background:var(--leaf) center/contain no-repeat;
-  opacity:.9; margin-bottom:2px;
+  opacity:.95; margin-bottom:2px;
 }
-body.farm-world .sec-head h2{ color:var(--cream); }
+body.farm-world .sec-head h2{ color:var(--ink-brown); }
 body.farm-world .sec-head .ko{ color:var(--muted); }
 
-/* 공통 목재 카드 스킨 */
+/* 공통 양피지 카드 스킨 (미세 가로줄 + 4모서리 핀 + 이중 갈색 테두리) */
+body.farm-world .card,
+body.farm-world .mpanel .box,
 body.farm-world .gcard,
 body.farm-world .win,
 body.farm-world .val,
@@ -166,12 +194,27 @@ body.farm-world .notice-compose,
 body.farm-world .sheet-conn,
 body.farm-world .dev-status,
 body.farm-world .mt-invite-box,
+body.farm-world .sk-page,
+body.farm-world .rn-statc,
+body.farm-world .pmsr-col,
+body.farm-world .pj-sheet,
 body.farm-world .welcome-box{
-  background:var(--wood-grad) !important;
-  border:1px solid var(--gold-line) !important;
+  background:
+    var(--pin) 11px 11px/8px 8px no-repeat,
+    var(--pin) calc(100% - 11px) 11px/8px 8px no-repeat,
+    var(--pin) 11px calc(100% - 11px)/8px 8px no-repeat,
+    var(--pin) calc(100% - 11px) calc(100% - 11px)/8px 8px no-repeat,
+    var(--paper-lines),
+    var(--paper-fibre),
+    var(--paper-grad) !important;
+  color:var(--ink-brown) !important;
+  border:1px solid #b39b74 !important;
   border-radius:16px;
-  box-shadow:0 12px 26px -18px rgba(0,0,0,.85),
-             inset 0 1px 0 rgba(255,255,255,.055);
+  box-shadow:
+    inset 0 0 0 3px rgba(249,243,229,.72),
+    inset 0 0 0 4px rgba(150,120,80,.34),
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 16px 32px -20px rgba(35,24,12,.6) !important;
 }
 body.farm-world .val,
 body.farm-world .gcard,
@@ -179,7 +222,7 @@ body.farm-world .win{ border-radius:14px; }
 body.farm-world .tree-wrap,
 body.farm-world .gb{ border-radius:18px; }
 
-/* 카드 상단 목재 결 + 잎사귀 마커 */
+/* 카드 헤더 — 잎사귀 마커 + 갈색 구분선 */
 body.farm-world .adm-card .ah,
 body.farm-world .gauge-top,
 body.farm-world .ft-h,
@@ -193,18 +236,23 @@ body.farm-world .rn-stath{
   border-bottom:1px solid var(--gold-line) !important;
   position:relative;
 }
+body.farm-world .adm-card .ah h3,
+body.farm-world .ft-h b,
+body.farm-world .fc-h b,
+body.farm-world .pj-h b,
+body.farm-world .gauge-top b{ color:var(--ink-brown) !important; }
 body.farm-world .adm-card .ah::before,
 body.farm-world .ft-h::before,
 body.farm-world .fc-h::before{
   content:""; width:13px; height:13px; flex:0 0 auto; display:inline-block;
-  background:var(--leaf) center/contain no-repeat; opacity:.85;
+  background:var(--leaf) center/contain no-repeat; opacity:.9;
 }
 
 /* 등장 애니메이션 — 절제 */
 body.farm-world .mpanel.active{ animation:farmFadeUp .3s ease both; }
 @keyframes farmFadeUp{ from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:none} }
 
-/* ── 5. 버튼 — 목재/식목 명판 ───────────────────────────────── */
+/* ── 5. 버튼 — 가죽/양피지 + 스티치 테두리 ───────────────────── */
 body.farm-world .btn,
 body.farm-world .pmsr-btn,
 body.farm-world .water-btn,
@@ -224,7 +272,7 @@ body.farm-world .mb-mbtn{
   transition:transform var(--farm-t), box-shadow var(--farm-t), background var(--farm-t), border-color var(--farm-t);
 }
 
-/* 기본(주요 액션) = 포레스트 그린 명판 */
+/* 기본(주요 액션) = 포레스트 그린 가죽 명판 + 스티치 */
 body.farm-world .btn,
 body.farm-world .btn.pri,
 body.farm-world .pmsr-btn.grad,
@@ -232,16 +280,16 @@ body.farm-world .pmsr-btn.green,
 body.farm-world .water-btn,
 body.farm-world .today-act button,
 body.farm-world .gb-form .send{
-  background:linear-gradient(178deg,#6c8552 0%,#59703f 46%,#485c33 100%) !important;
-  color:#f6f1e2 !important;
-  border:1px solid rgba(201,168,106,.55) !important;
+  background:linear-gradient(178deg,#6c8552 0%,#59703f 46%,#465a31 100%) !important;
+  color:#f7f1df !important;
+  border:1px solid #3c4d2a !important;
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.09),
-    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 0 0 1.5px rgba(247,241,223,.35),
+    inset 0 1px 0 rgba(255,255,255,.22),
     inset 0 -2px 0 rgba(0,0,0,.22),
-    0 6px 14px -8px rgba(0,0,0,.85) !important;
+    0 6px 14px -8px rgba(35,24,12,.7) !important;
   min-height:44px;
-  text-shadow:0 1px 1px rgba(0,0,0,.35);
+  text-shadow:0 1px 1px rgba(0,0,0,.32);
 }
 body.farm-world .btn:hover,
 body.farm-world .pmsr-btn.grad:hover,
@@ -249,18 +297,18 @@ body.farm-world .pmsr-btn.green:hover,
 body.farm-world .water-btn:hover,
 body.farm-world .today-act button:hover,
 body.farm-world .gb-form .send:hover{
-  background:linear-gradient(178deg,#7d9861,#657d49 48%,#526838) !important;
-  border-color:rgba(201,168,106,.85) !important;
+  background:linear-gradient(178deg,#7d9861,#657d49 48%,#516a38) !important;
+  border-color:#33451f !important;
   transform:translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 0 0 1.5px rgba(247,241,223,.5),
+    inset 0 1px 0 rgba(255,255,255,.28),
     inset 0 -2px 0 rgba(0,0,0,.22),
-    0 10px 20px -10px rgba(0,0,0,.9),
-    0 0 0 3px rgba(201,168,106,.14) !important;
+    0 10px 20px -10px rgba(35,24,12,.75) !important;
   filter:none;
 }
 
-/* 보조(.ghost) = 네이비 목재 명판 + 골드 2중 테두리 */
+/* 보조(.ghost) = 양피지 명판 + 갈색 스티치 테두리 */
 body.farm-world .btn.ghost,
 body.farm-world .pmsr-btn.ghost,
 body.farm-world .pj-btn.ghost,
@@ -269,26 +317,26 @@ body.farm-world .notif-clear,
 body.farm-world .feed-toggle,
 body.farm-world .qask button,
 body.farm-world .gcard .cmtbox button{
-  background:var(--wood-grad) !important;
-  color:var(--cream) !important;
-  border:1px solid var(--gold-line) !important;
+  background:linear-gradient(178deg,#f6efdc,#ece0c6) !important;
+  color:#4a3a24 !important;
+  border:1px solid #b39b74 !important;
   box-shadow:
-    inset 0 0 0 1px rgba(201,168,106,.12),
-    inset 0 1px 0 rgba(255,255,255,.06),
-    0 4px 12px -8px rgba(0,0,0,.8) !important;
+    inset 0 0 0 1.5px rgba(255,252,244,.7),
+    inset 0 0 0 2px rgba(150,120,80,.28),
+    0 4px 10px -7px rgba(35,24,12,.55) !important;
 }
 body.farm-world .btn.ghost:hover,
 body.farm-world .pmsr-btn.ghost:hover,
 body.farm-world .celeb-mng:hover,
 body.farm-world .qask button:hover,
 body.farm-world .gcard .cmtbox button:hover{
-  color:var(--gold) !important;
-  border-color:rgba(201,168,106,.8) !important;
+  color:#33261a !important;
+  border-color:var(--gold-2) !important;
   transform:translateY(-1px);
   box-shadow:
-    inset 0 0 0 1px rgba(201,168,106,.28),
-    0 8px 18px -10px rgba(0,0,0,.85),
-    0 0 0 3px rgba(201,168,106,.12) !important;
+    inset 0 0 0 1.5px rgba(255,252,244,.8),
+    inset 0 0 0 2px rgba(184,148,80,.5),
+    0 8px 16px -9px rgba(35,24,12,.6) !important;
 }
 
 body.farm-world .btn:active,
@@ -299,53 +347,54 @@ body.farm-world .today-act button:active{ transform:scale(.97); }
 
 body.farm-world .btn[disabled],
 body.farm-world .btn[disabled]:hover{
-  opacity:.45; transform:none; filter:grayscale(.5);
+  opacity:.5; transform:none; filter:grayscale(.4);
 }
 body.farm-world .btn.sm,
 body.farm-world .btn.ghost.sm,
 body.farm-world .pmsr-btn.sm{ min-height:34px; border-radius:9px; }
 
-/* 위험/삭제 = 테라코타 */
-body.farm-world .btn.danger,
+/* 위험/삭제 = 테라코타 가죽 */
+body.farm-world .btn.danger{
+  background:linear-gradient(178deg,#c06a44,#a04a2b) !important;
+  color:#fff3ec !important;
+  border:1px solid #7f3a20 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), inset 0 0 0 1.5px rgba(255,240,232,.28), 0 6px 14px -8px rgba(35,24,12,.7) !important;
+}
 body.farm-world .del:hover,
 body.farm-world .gb-del:hover,
 body.farm-world .notif-x:hover,
 body.farm-world .qdel:hover,
 body.farm-world .cmt-del:hover,
 body.farm-world .kr-del:hover{
-  color:#f0b49a !important;
+  color:#a0431f !important;
   border-color:var(--terra) !important;
-  background:rgba(192,96,63,.16) !important;
-}
-body.farm-world .btn.danger{
-  background:linear-gradient(178deg,#c96b45,#a84f30) !important;
-  color:#fff5ef !important;
+  background:rgba(182,83,47,.12) !important;
 }
 
-/* 헤더 원형 버튼 */
+/* 헤더 원형 버튼 (네이비 크롬 위) */
 body.farm-world .bell-btn,
 body.farm-world .hdr-install{
-  background:rgba(36,50,68,.8) !important;
+  background:rgba(26,39,64,.9) !important;
   border:1px solid var(--gold-line) !important;
-  color:var(--cream);
+  color:#f1e6c8 !important;
 }
 body.farm-world .bell-btn:hover,
-body.farm-world .hdr-install:hover{ border-color:var(--gold) !important; color:var(--gold); }
-body.farm-world .bell-badge{ background:var(--terra); }
+body.farm-world .hdr-install:hover{ border-color:var(--gold-hi) !important; color:var(--gold-hi) !important; }
+body.farm-world .bell-badge{ background:var(--terra); color:#fff; }
 
-/* 포커스 링 — 골드 */
+/* 포커스 링 — 금색 */
 body.farm-world button:focus-visible,
 body.farm-world a:focus-visible,
 body.farm-world input:focus-visible,
 body.farm-world select:focus-visible,
 body.farm-world textarea:focus-visible,
 body.farm-world [tabindex]:focus-visible{
-  outline:2px solid var(--gold);
+  outline:2px solid var(--gold-2);
   outline-offset:2px;
   border-radius:8px;
 }
 
-/* ── 6. 입력 — 크림 종이 + 갈색 밑줄 ────────────────────────── */
+/* ── 6. 입력 — 종이 위 잉크 필드 (크림 배경 + 갈색 테두리) ───── */
 body.farm-world .field input,
 body.farm-world .field select,
 body.farm-world .field textarea,
@@ -362,71 +411,79 @@ body.farm-world .ft-in,
 body.farm-world .ft-f,
 body.farm-world .pj-field input,
 body.farm-world .rm-field input,
-body.farm-world .modal input[type=file],
-body.farm-world .modal input[type=text],
-body.farm-world .modal input[type=number],
-body.farm-world .modal input[type=password],
-body.farm-world .modal textarea,
-body.farm-world .modal select{
-  background:var(--paper-grad) !important;
-  color:var(--paper-ink) !important;
-  border:1px solid var(--paper-line) !important;
-  border-bottom:2px solid #a9906a !important;
+body.farm-world input[type=text],
+body.farm-world input[type=number],
+body.farm-world input[type=password],
+body.farm-world input[type=email],
+body.farm-world input[type=search],
+body.farm-world input[type=date],
+body.farm-world input[type=tel],
+body.farm-world select,
+body.farm-world textarea{
+  background:linear-gradient(180deg,#fffdf6,#f5edda) !important;
+  color:#33261a !important;
+  border:1px solid #bda882 !important;
+  border-bottom:2px solid #9e8258 !important;
   border-radius:10px !important;
-  box-shadow:inset 0 1px 2px rgba(90,72,44,.14);
+  box-shadow:inset 0 1px 3px rgba(90,72,44,.16);
   transition:border-color var(--farm-t), box-shadow var(--farm-t);
 }
-body.farm-world .field input::placeholder,
-body.farm-world .field textarea::placeholder,
-body.farm-world .gb-form .msg::placeholder,
-body.farm-world .qask input::placeholder,
-body.farm-world .sk-f::placeholder,
-body.farm-world .rn-f::placeholder,
-body.farm-world .ft-in::placeholder,
-body.farm-world .gcard .cmtbox input::placeholder{ color:#8a7a5e !important; }
+body.farm-world input::placeholder,
+body.farm-world textarea::placeholder,
+body.farm-world select::placeholder{ color:#9a876a !important; }
 
+body.farm-world input:focus,
+body.farm-world select:focus,
+body.farm-world textarea:focus,
 body.farm-world .field input:focus,
 body.farm-world .field select:focus,
-body.farm-world .field textarea:focus,
-body.farm-world .water-row input:focus,
-body.farm-world .gb-form .name:focus,
-body.farm-world .gb-form .msg:focus,
-body.farm-world .qask input:focus,
-body.farm-world .sk-f:focus,
-body.farm-world .rn-f:focus,
-body.farm-world .ft-in:focus,
-body.farm-world .gcard .cmtbox input:focus{
+body.farm-world .field textarea:focus{
   outline:none !important;
   border-color:var(--gold-2) !important;
-  box-shadow:0 0 0 3px rgba(201,168,106,.32), inset 0 1px 2px rgba(90,72,44,.12) !important;
+  background:#fffdf6 !important;
+  box-shadow:0 0 0 3px rgba(184,148,80,.3), inset 0 1px 3px rgba(90,72,44,.12) !important;
 }
 body.farm-world .field label,
 body.farm-world .sk-lab,
 body.farm-world .rm-lab,
-body.farm-world .ev-lab{ color:var(--gold); font-weight:700; letter-spacing:.02em; }
+body.farm-world .ev-lab{ color:var(--gold-2); font-weight:700; letter-spacing:.02em; }
 
-/* 체크박스/라디오 골드 */
+/* 체크박스/라디오/슬라이더 */
 body.farm-world input[type=checkbox],
-body.farm-world input[type=radio]{ accent-color:#7d9861; }
+body.farm-world input[type=radio]{ accent-color:#5c7046; }
 body.farm-world input[type=range]{ accent-color:var(--gold-2); }
 
-/* ── 7. 모달 — 양피지 시트 + 목재 프레임 ────────────────────── */
+/* ── 7. 모달 — 양피지 두루마리 (상하 갈색 봉 + 금 테두리) ────── */
 body.farm-world .modal{
-  background:rgba(14,20,30,.78) !important;
-  backdrop-filter:blur(7px) saturate(.9);
+  background:rgba(24,20,14,.62) !important;
+  backdrop-filter:blur(6px) saturate(.95);
 }
 body.farm-world .modal .box{
-  background:var(--paper-grad) !important;
+  position:relative;
+  background:
+    var(--paper-lines),
+    var(--paper-fibre),
+    var(--paper-grad) !important;
   color:var(--paper-ink) !important;
-  border:6px solid #2b3a4e !important;
-  border-radius:16px !important;
+  border:none !important;
+  border-radius:8px !important;
+  padding-top:22px; padding-bottom:22px;
   box-shadow:
-    0 0 0 1px rgba(201,168,106,.7),
-    inset 0 0 0 1px rgba(201,168,106,.55),
-    inset 0 2px 0 rgba(255,255,255,.7),
-    0 34px 70px -26px rgba(0,0,0,.85) !important;
+    0 0 0 1px rgba(184,148,80,.8),
+    inset 0 0 0 1px rgba(184,148,80,.4),
+    0 34px 70px -26px rgba(20,14,8,.72) !important;
   animation:farmPop .22s ease;
 }
+/* 상·하단 갈색 두루마리 봉 */
+body.farm-world .modal .box::before,
+body.farm-world .modal .box::after{
+  content:""; position:absolute; left:-6px; right:-6px; height:16px;
+  background:linear-gradient(180deg,#5c4426,#3c2c17);
+  border-radius:9px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 3px rgba(0,0,0,.4), 0 4px 10px -4px rgba(0,0,0,.5);
+}
+body.farm-world .modal .box::before{ top:-8px; }
+body.farm-world .modal .box::after{ bottom:-8px; }
 @keyframes farmPop{ from{opacity:0;transform:translateY(10px) scale(.98)} to{opacity:1;transform:none} }
 body.farm-world .modal .box h3,
 body.farm-world .modal .box h2,
@@ -436,7 +493,8 @@ body.farm-world .modal .box label,
 body.farm-world .modal .box .nm,
 body.farm-world .modal .box li,
 body.farm-world .modal .box td,
-body.farm-world .modal .box span{ color:var(--paper-ink); }
+body.farm-world .modal .box span,
+body.farm-world .modal .box div{ color:var(--paper-ink); }
 body.farm-world .modal .box h3{
   border-bottom:1px solid var(--paper-line);
   padding-bottom:8px; margin-bottom:10px;
@@ -450,17 +508,9 @@ body.farm-world .modal .box p,
 body.farm-world .modal .box .meta,
 body.farm-world .modal .box .sub{ color:var(--paper-ink-2) !important; }
 body.farm-world .modal .acts{ border-top:1px solid var(--paper-line); padding-top:12px; }
-/* 종이 위 보조버튼은 잉크 대비 확보 */
-body.farm-world .modal .box .btn.ghost{
-  background:linear-gradient(178deg,#efe6d2,#e2d6bc) !important;
-  color:#3b3021 !important;
-  border:1px solid #b7a175 !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 2px 6px -4px rgba(60,45,20,.6) !important;
-}
-body.farm-world .modal .box .btn.ghost:hover{ color:#2c2418 !important; border-color:#8d7343 !important; }
-body.farm-world .modal .box a{ color:#6a5320; text-decoration:underline; }
+body.farm-world .modal .box a{ color:#7a5320; text-decoration:underline; }
 
-/* ── 8. 테이블 — 장부(ledger) ───────────────────────────────── */
+/* ── 8. 테이블 — 양피지 장부(ledger) ────────────────────────── */
 body.farm-world table.scores,
 body.farm-world .roster,
 body.farm-world .sm-table,
@@ -474,7 +524,7 @@ body.farm-world #m-field table{
   border:1px solid var(--paper-line) !important;
   border-radius:12px;
   overflow:hidden;
-  box-shadow:0 10px 24px -16px rgba(0,0,0,.7);
+  box-shadow:0 12px 26px -18px rgba(35,24,12,.55);
 }
 body.farm-world table.scores th,
 body.farm-world .roster th,
@@ -484,8 +534,8 @@ body.farm-world .tok-table th,
 body.farm-world .rn-tbl th,
 body.farm-world .pj-tbl th,
 body.farm-world #m-field th{
-  background:linear-gradient(180deg,#3a4c33,#2e3d29) !important;
-  color:#efe7d2 !important;
+  background:linear-gradient(180deg,#3a4c33,#2c3b26) !important;
+  color:#f2ead4 !important;
   border-bottom:2px solid var(--gold-2) !important;
   letter-spacing:.08em;
   font-weight:700;
@@ -504,94 +554,125 @@ body.farm-world #m-field td{
 body.farm-world table.scores tbody tr:nth-child(even) td,
 body.farm-world .roster tbody tr:nth-child(even) td,
 body.farm-world .sm-table tbody tr:nth-child(even) td,
-body.farm-world .tok-table tbody tr:nth-child(even) td{ background:rgba(180,158,110,.10); }
+body.farm-world .tok-table tbody tr:nth-child(even) td{ background:rgba(150,120,80,.09); }
 body.farm-world table.scores tbody tr:hover td,
 body.farm-world .roster tbody tr:hover td,
-body.farm-world .sm-table tbody tr:hover td{ background:rgba(201,168,106,.20); }
-body.farm-world table.scores .big{ color:#3c3122 !important; }
+body.farm-world .sm-table tbody tr:hover td{ background:rgba(184,148,80,.16); }
+body.farm-world table.scores .big{ color:#33261a !important; }
 body.farm-world table.scores tr.top1 .big{ color:#4c6a2c !important; }
-body.farm-world table.scores .nm .rk{ color:#8a7a5e !important; }
-body.farm-world table.scores .nm .role{ background:#8a7a5e !important; color:#faf6ec !important; }
+body.farm-world table.scores .nm .rk{ color:#8a7454 !important; }
+body.farm-world table.scores .nm .role{ background:#8a7454 !important; color:#faf6ec !important; }
 body.farm-world table.scores .nm .role.lr{ background:var(--gold-2) !important; }
-body.farm-world table.scores .nm .role.tl{ background:#4d7f92 !important; }
-body.farm-world table.scores .nm .role.aop{ background:#6d5f8c !important; }
-body.farm-world .tok-table tr.tok-sum td{ border-top:2px solid var(--gold-2) !important; background:rgba(201,168,106,.22) !important; }
+body.farm-world table.scores .nm .role.tl{ background:#3f7183 !important; }
+body.farm-world table.scores .nm .role.aop{ background:#6a5f8c !important; }
+body.farm-world .tok-table tr.tok-sum td{ border-top:2px solid var(--gold-2) !important; background:rgba(184,148,80,.18) !important; }
 body.farm-world .tok-scroll .tok-table thead th,
-body.farm-world .rn-tbl th{ background:linear-gradient(180deg,#3a4c33,#2e3d29) !important; }
-body.farm-world #m-field tr.flag td{ background:rgba(192,96,63,.16) !important; }
+body.farm-world .rn-tbl th{ background:linear-gradient(180deg,#3a4c33,#2c3b26) !important; }
+body.farm-world #m-field tr.flag td{ background:rgba(182,83,47,.14) !important; }
 
-/* ── 9. 헤더 / 레일 / 하단 탭바 — 목재 패널 ─────────────────── */
+/* ── 9. 크롬: 헤더 / 레일 / 하단 탭바 — 딥네이비 목재 ────────── */
 body.farm-world header.top{
-  background:linear-gradient(180deg,#22303f,#1a2534) !important;
-  border-bottom:1px solid var(--gold-line) !important;
-  box-shadow:0 2px 0 rgba(201,168,106,.10), 0 8px 22px -14px rgba(0,0,0,.9);
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.022) 0 2px, rgba(0,0,0,.05) 2px 5px),
+    linear-gradient(180deg,#223350 0%,#182338 62%,#131d30 100%) !important;
+  border-bottom:2px solid var(--gold-2) !important;
+  box-shadow:
+    inset 0 -4px 0 rgba(19,29,48,1),
+    0 4px 0 rgba(184,148,80,.28),
+    0 10px 24px -14px rgba(0,0,0,.7) !important;
+  color:#f2ead2 !important;
 }
-body.farm-world .logo .nm b{ color:var(--gold); }
-body.farm-world .logo .tag{ color:var(--muted); }
+body.farm-world header.top *{ color:#eadfc2; }
+body.farm-world .logo .nm,
+body.farm-world .logo .nm b{
+  color:var(--gold-hi) !important;
+  font-family:'Gowun Batang','Nanum Myeongjo',serif !important;
+  letter-spacing:.03em;
+}
+body.farm-world .logo .tag{ color:#b9c1d0 !important; }
 body.farm-world .logo-chip{
-  background:rgba(36,50,68,.9);
+  background:rgba(26,39,64,.92);
   border:1px solid var(--gold-line);
   border-radius:10px;
+  overflow:hidden;
 }
+body.farm-world .logo-chip img{ mix-blend-mode:normal; opacity:1; }
 body.farm-world .me-pill{
-  background:linear-gradient(178deg,#2b3a4e,#22303f) !important;
+  background:linear-gradient(178deg,#26395c,#1c2b47) !important;
   border:1px solid var(--gold-line) !important;
+  color:#eadfc2 !important;
 }
-body.farm-world .me-pill:hover{ border-color:var(--gold) !important; }
+body.farm-world .me-pill:hover{ border-color:var(--gold-hi) !important; }
+body.farm-world .me-pill .mname{ color:#f1e7cf !important; }
 body.farm-world .me-pill .mrole{
   background:linear-gradient(178deg,#6c8552,#4e6339) !important;
   color:#f4efdf !important;
 }
 
+/* 레일 (모바일: 상단 가로 / 데스크톱: 좌측 세로) */
 body.farm-world nav.rail{
-  background:linear-gradient(180deg,#22303f,#1b2735) !important;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, rgba(0,0,0,.05) 2px 5px),
+    linear-gradient(180deg,#223350,#1a2740) !important;
   border-bottom:1px solid var(--gold-line) !important;
 }
 body.farm-world .mtab{
-  color:var(--muted);
+  color:#c9d0de;
   font-family:'Gowun Batang','Nanum Myeongjo',serif;
   transition:color var(--farm-t), background var(--farm-t);
 }
-body.farm-world .mtab:hover{ color:var(--cream); }
-body.farm-world .mtab.active{ color:#fbf4e1; }
+body.farm-world .mtab:hover{ color:#f2ead2; }
+body.farm-world .mtab.active{ color:#33261a; }
 body.farm-world .mtab.active::after{
-  background:linear-gradient(90deg,transparent,var(--gold),transparent) !important;
+  background:linear-gradient(90deg,transparent,var(--gold-hi),transparent) !important;
   height:3px !important;
 }
 body.farm-world .mtab .count{
-  background:rgba(20,29,43,.75);
+  background:rgba(19,29,48,.8);
   border:1px solid var(--gold-line-s);
-  color:var(--gold);
+  color:var(--gold-hi);
 }
-body.farm-world .mtab.lock{ color:var(--gold-2); }
+body.farm-world .mtab.lock{ color:#8f9bb0; }
+body.farm-world .rail .rail-lbl,
+body.farm-world .rail .grp-lbl,
+body.farm-world .subrail .rail-lbl{ color:#9aa6bc !important; letter-spacing:.14em; }
 
 @media(min-width:980px){
   body.farm-world nav.rail{
-    background:linear-gradient(200deg,#253445 0%,#1e2a3a 60%,#1a2534 100%) !important;
-    border-right:1px solid var(--gold-line) !important;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.06) 2px 6px),
+      linear-gradient(200deg,#26395c 0%,#1c2b47 60%,#172238 100%) !important;
+    border-right:2px solid var(--gold-2) !important;
     border-bottom:none !important;
-    box-shadow:inset -1px 0 0 rgba(201,168,106,.14);
+    box-shadow:inset -1px 0 0 rgba(184,148,80,.2), 4px 0 18px -12px rgba(0,0,0,.6);
   }
   body.farm-world nav.rail .row.subrail{ border-top:1px solid var(--gold-line-s) !important; }
   body.farm-world nav.rail .mtab{ border-radius:10px; }
-  body.farm-world nav.rail .mtab:hover{ background:rgba(201,168,106,.09); }
+  body.farm-world nav.rail .mtab:hover{ background:rgba(184,148,80,.12); }
+  /* active = 금 테두리 양피지 칩 */
   body.farm-world nav.rail .mtab.active{
-    background:linear-gradient(90deg,rgba(201,168,106,.22),rgba(201,168,106,.05)) !important;
-    box-shadow:inset 3px 0 0 var(--gold) !important;
+    background:linear-gradient(178deg,#f6efdc,#ece0c6) !important;
+    color:#33261a !important;
+    border:1px solid var(--gold-2) !important;
+    box-shadow:inset 0 0 0 1px rgba(255,252,244,.7), 0 3px 9px -4px rgba(0,0,0,.55) !important;
   }
+  body.farm-world nav.rail .mtab.active .count{ background:rgba(184,148,80,.2); color:#7a5320; border-color:var(--gold-line); }
   body.farm-world nav.rail .mtab.active::after{ display:none; }
 }
 
+/* 모바일 하단 탭바 */
 body.farm-world .botbar{
-  background:linear-gradient(0deg,#1a2534,#22303f) !important;
-  border-top:1px solid var(--gold-line) !important;
-  box-shadow:0 -2px 0 rgba(201,168,106,.10), 0 -10px 24px -16px rgba(0,0,0,.9);
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 2px, rgba(0,0,0,.05) 2px 5px),
+    linear-gradient(0deg,#131d30,#1c2b47) !important;
+  border-top:2px solid var(--gold-2) !important;
+  box-shadow:0 -4px 0 rgba(184,148,80,.2), 0 -10px 24px -16px rgba(0,0,0,.7) !important;
 }
-body.farm-world .botbar button{ color:var(--muted); font-family:'Gowun Batang','Nanum Myeongjo',serif; }
-body.farm-world .botbar button.active{ color:var(--gold); }
+body.farm-world .botbar button{ color:#c9d0de; font-family:'Gowun Batang','Nanum Myeongjo',serif; }
+body.farm-world .botbar button.active{ color:var(--gold-hi); }
 @media(max-width:979px){
   body.farm-world .botbar button.active::before{
-    background:linear-gradient(90deg,transparent,var(--gold),transparent) !important;
+    background:linear-gradient(90deg,transparent,var(--gold-hi),transparent) !important;
   }
 }
 
@@ -611,48 +692,50 @@ body.farm-world .stage-tag,
 body.farm-world .chant,
 body.farm-world #m-field .badge,
 body.farm-world #m-sites .badge2{
-  background:linear-gradient(178deg,rgba(201,168,106,.24),rgba(168,135,63,.14)) !important;
-  border:1px solid var(--gold-line) !important;
-  color:var(--gold) !important;
+  background:linear-gradient(178deg,#f2e6c6,#e2d0a4) !important;
+  border:1px solid var(--gold-2) !important;
+  color:#5c4620 !important;
   border-radius:999px !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 1px 3px -1px rgba(35,24,12,.4);
   font-weight:700;
 }
 body.farm-world .hd-chip b,
 body.farm-world .chip b,
-body.farm-world .badge b{ color:#f2e5c6 !important; }
+body.farm-world .badge b{ color:#3a2b12 !important; }
 body.farm-world .hd-chip:hover,
 body.farm-world .td-chip:hover,
 body.farm-world .mem-chip:hover{
-  border-color:var(--gold) !important;
-  color:#f2e5c6 !important;
-  background:linear-gradient(178deg,rgba(201,168,106,.36),rgba(168,135,63,.2)) !important;
+  border-color:var(--gold-hi) !important;
+  color:#3a2b12 !important;
+  background:linear-gradient(178deg,#f7edd2,#e9d9b0) !important;
 }
 body.farm-world .hd-chip.hot,
-body.farm-world .badge.zero{ border-color:rgba(192,96,63,.55) !important; color:#eaa184 !important; }
-body.farm-world .hd-chip.hot b{ color:#f5c0a8 !important; }
+body.farm-world .badge.zero{ background:linear-gradient(178deg,#f0d3c3,#e0b09a) !important; border-color:var(--terra) !important; color:#8a3418 !important; }
+body.farm-world .hd-chip.hot b{ color:#7a2c12 !important; }
 body.farm-world .hd-chip.ai{
-  background:linear-gradient(178deg,rgba(124,152,96,.34),rgba(78,99,57,.2)) !important;
-  border-color:rgba(143,174,99,.6) !important;
-  color:var(--green-soft) !important;
+  background:linear-gradient(178deg,#d9e4c6,#bcd09e) !important;
+  border-color:#5c7046 !important;
+  color:#33471c !important;
 }
 body.farm-world .adm-card .ah .badge{ background:linear-gradient(178deg,#c9a86a,#a8873f) !important; color:#221b0c !important; }
-body.farm-world .adm-card .ah .badge.zero{ background:rgba(20,29,43,.7) !important; color:var(--faint) !important; }
+body.farm-world .adm-card .ah .badge.zero{ background:linear-gradient(178deg,#e6dcc4,#d6c8a4) !important; color:#8a7454 !important; }
 body.farm-world .chant{ padding:8px 16px; }
-body.farm-world .chant .lab{ color:var(--gold) !important; }
-body.farm-world .chant .spark{ background:var(--gold) !important; }
-body.farm-world .mention{ color:var(--gold) !important; background:rgba(201,168,106,.16) !important; }
+body.farm-world .chant .lab{ color:#5c4620 !important; }
+body.farm-world .chant .spark{ background:var(--gold-2) !important; }
+body.farm-world .mention{ color:#7a5320 !important; background:rgba(184,148,80,.16) !important; }
 
 body.farm-world .toast{
-  background:linear-gradient(178deg,#f4eee1,#e6dcc6) !important;
-  color:#2c2418 !important;
-  border:2px solid #2b3a4e !important;
-  border-radius:999px !important;
+  background:
+    var(--paper-lines),
+    linear-gradient(178deg,#f7f0df,#ece0c4) !important;
+  color:#33261a !important;
+  border:none !important;
+  border-radius:12px !important;
   font-family:'Gowun Batang','Nanum Myeongjo',serif;
-  box-shadow:0 0 0 1px rgba(201,168,106,.75), 0 18px 34px -18px rgba(0,0,0,.85) !important;
+  box-shadow:0 0 0 1px rgba(184,148,80,.75), inset 0 0 0 1px rgba(184,148,80,.35), 0 18px 34px -18px rgba(20,14,8,.7) !important;
 }
 
-/* ── 11. 알림 · 피드 · 목록 ─────────────────────────────────── */
+/* ── 11. 알림 · 피드 · 목록 — 종이 쪽지 ─────────────────────── */
 body.farm-world .notif-item,
 body.farm-world .wf-item,
 body.farm-world .qitem,
@@ -663,61 +746,73 @@ body.farm-world .sf-row,
 body.farm-world .rw-row,
 body.farm-world .kedit-row,
 body.farm-world .ft-row{
-  background:linear-gradient(178deg,#28374a,#22303f) !important;
+  background:linear-gradient(178deg,#f7f0de,#efe4cc) !important;
   border:1px solid var(--gold-line-s) !important;
   border-radius:11px;
+  color:var(--ink-brown) !important;
 }
 body.farm-world .notif-item.unread{
-  border-color:var(--gold) !important;
-  background:linear-gradient(178deg,rgba(201,168,106,.16),#22303f) !important;
+  border-color:var(--gold-2) !important;
+  background:linear-gradient(178deg,#f7edd0,#efe4cc) !important;
 }
 body.farm-world .notif-top b,
 body.farm-world .wf-item .tx b,
-body.farm-world .mlist li b{ color:var(--gold) !important; }
-body.farm-world .today-item:hover{ background:linear-gradient(178deg,#31425a,#28374a) !important; }
-body.farm-world .today-item.on .box{ background:#6c8552 !important; border-color:#6c8552 !important; color:#f4efdf !important; }
-body.farm-world .today-item .box{ border-color:var(--gold-line) !important; }
-body.farm-world .mlist li::before{ background:var(--gold) !important; }
-body.farm-world .qitem .qm{ color:var(--gold) !important; }
+body.farm-world .mlist li b{ color:#7a5320 !important; }
+body.farm-world .notif-item .meta,
+body.farm-world .wf-item .meta,
+body.farm-world .qitem .meta{ color:var(--muted) !important; }
+body.farm-world .today-item:hover{ background:linear-gradient(178deg,#fbf4e4,#f3e8d1) !important; }
+body.farm-world .today-item.on .box{ background:#5c7046 !important; border-color:#5c7046 !important; color:#f4efdf !important; }
+body.farm-world .today-item .box{ border-color:var(--gold-2) !important; background:#fffdf6 !important; }
+body.farm-world .mlist li::before{ background:var(--gold-2) !important; }
+body.farm-world .qitem .qm{ color:#7a5320 !important; }
 body.farm-world .gb-item{ border-bottom:1px solid var(--gold-line-s) !important; border-right:1px solid var(--gold-line-s) !important; }
 body.farm-world .gb-nm,
-body.farm-world .gb-msg{ color:var(--cream); }
+body.farm-world .gb-msg{ color:var(--ink-brown); }
 body.farm-world .gb-form{ border-bottom:1px solid var(--gold-line) !important; }
 body.farm-world .gcard .cmts,
 body.farm-world .gcard .cmtbox{ border-top:1px solid var(--gold-line-s) !important; }
 body.farm-world .gcard .cmt-tx b,
-body.farm-world .gcard .cmt b{ color:var(--gold) !important; }
-body.farm-world .gcard .ph{ background:#1b2735 !important; }
-body.farm-world .val .ko{ color:var(--gold) !important; }
-body.farm-world .win{ background:linear-gradient(165deg,rgba(201,168,106,.13),#243244 48%) !important; }
-body.farm-world .celeb-card{ background:linear-gradient(100deg,rgba(201,168,106,.18),rgba(92,112,70,.14)) !important; }
-body.farm-world .celeb-card.bday{ background:linear-gradient(100deg,rgba(201,168,106,.28),rgba(192,96,63,.14)) !important; border-color:rgba(201,168,106,.55) !important; }
-body.farm-world .celeb-tx b{ color:var(--cream); }
+body.farm-world .gcard .cmt b{ color:#7a5320 !important; }
+body.farm-world .gcard .ph{ background:#e4d7ba !important; }
+body.farm-world .val .ko{ color:#7a5320 !important; }
+body.farm-world .win{
+  background:
+    var(--pin) 11px 11px/8px 8px no-repeat,
+    var(--pin) calc(100% - 11px) 11px/8px 8px no-repeat,
+    var(--pin) 11px calc(100% - 11px)/8px 8px no-repeat,
+    var(--pin) calc(100% - 11px) calc(100% - 11px)/8px 8px no-repeat,
+    var(--paper-lines),
+    linear-gradient(165deg,#f7edd2,#f2ecd6 48%) !important;
+}
+body.farm-world .celeb-card{ background:linear-gradient(100deg,#f7eccf,#eef0d6) !important; color:var(--ink-brown) !important; }
+body.farm-world .celeb-card.bday{ background:linear-gradient(100deg,#f8e6cd,#f2d9c4) !important; border-color:var(--gold-2) !important; }
+body.farm-world .celeb-tx b{ color:#7a5320; }
 body.farm-world .today-alert{
-  background:linear-gradient(135deg,rgba(192,96,63,.24),rgba(201,168,106,.12)) !important;
+  background:linear-gradient(135deg,#f2d8c8,#f0e4cc) !important;
   border:1px solid var(--terra) !important;
-  color:#f6d9cb !important;
+  color:#8a3418 !important;
 }
 
-/* ── 12. 나무 / 닭장 무대 ───────────────────────────────────── */
+/* ── 12. 나무 / 닭장 무대 — 목재 무대 (의도적 어두운 목재) ───── */
 body.farm-world .tree-stage{
   background:
-    radial-gradient(130% 100% at 50% 112%, rgba(92,112,70,.30), transparent 64%),
-    linear-gradient(180deg,#1d2836,#233245) !important;
-  border-right-color:var(--gold-line) !important;
+    radial-gradient(130% 100% at 50% 112%, rgba(92,112,70,.36), transparent 62%),
+    linear-gradient(180deg,#2a3a24,#3a2c1a) !important;
+  border-right-color:var(--gold-2) !important;
 }
-@media(max-width:760px){ body.farm-world .tree-stage{ border-bottom-color:var(--gold-line) !important; } }
-body.farm-world .tree-stage .ground{ border-top:1px dashed rgba(201,168,106,.35) !important; }
-body.farm-world .tree-counter .n{ color:var(--gold) !important; }
+@media(max-width:760px){ body.farm-world .tree-stage{ border-bottom-color:var(--gold-2) !important; } }
+body.farm-world .tree-stage .ground{ border-top:1px dashed rgba(201,168,106,.4) !important; }
+body.farm-world .tree-counter .n{ color:var(--gold-hi) !important; }
 body.farm-world .tree-counter .l,
-body.farm-world .tree-side .label{ color:var(--muted) !important; letter-spacing:.14em; }
-body.farm-world .stage-tag{ background:rgba(20,29,43,.72) !important; }
+body.farm-world .tree-side .label{ color:#d8c7a6 !important; letter-spacing:.14em; }
+body.farm-world .stage-tag{ background:linear-gradient(178deg,#f2e6c6,#e2d0a4) !important; }
 body.farm-world .gift .glab{
-  background:rgba(20,29,43,.85) !important;
+  background:rgba(28,22,14,.86) !important;
   border-color:var(--gold-line) !important;
-  color:var(--gold) !important;
+  color:var(--gold-hi) !important;
 }
-body.farm-world .tree-side{ background:linear-gradient(178deg,#243244,#1e2a3a); }
+body.farm-world .tree-side{ background:linear-gradient(178deg,#3a2c1a,#2a2013); }
 
 /* ── 13. 빈 상태 — 잎사귀 워터마크 ──────────────────────────── */
 body.farm-world .empty-row,
@@ -731,33 +826,33 @@ body.farm-world .si-empty,
 body.farm-world .celeb-empty,
 body.farm-world .rw-none{
   position:relative;
-  color:var(--faint) !important;
-  border:1px dashed var(--gold-line-s) !important;
+  color:var(--muted) !important;
+  border:1px dashed var(--gold-line) !important;
   border-radius:14px;
   background:
     var(--leaf-dim) center 40% / 54px 54px no-repeat,
-    linear-gradient(178deg,rgba(36,50,68,.55),rgba(30,42,58,.35)) !important;
+    linear-gradient(178deg,rgba(245,237,218,.7),rgba(238,228,205,.5)) !important;
   font-family:'Gowun Batang','Nanum Myeongjo',serif;
   letter-spacing:.01em;
 }
 body.farm-world .wins-empty b,
-body.farm-world .ms-empty b{ color:var(--muted) !important; }
+body.farm-world .ms-empty b{ color:var(--ink-brown-2) !important; }
 
 /* ── 14. 게이지 · 진행바 ────────────────────────────────────── */
 body.farm-world .bar,
 body.farm-world .slider,
 body.farm-world .perfseg,
 body.farm-world .pj-gauge{
-  background:rgba(20,29,43,.7) !important;
+  background:rgba(120,95,60,.18) !important;
   border:1px solid var(--gold-line-s) !important;
   border-radius:999px;
   overflow:hidden;
 }
 body.farm-world .bar > *,
 body.farm-world .pj-gauge > *{
-  background:linear-gradient(90deg,#5c7046,#8fae63 60%,#c9a86a) !important;
+  background:linear-gradient(90deg,#5c7046,#8fae63 55%,#c9a86a) !important;
 }
-body.farm-world .today-prog{ color:var(--gold) !important; }
+body.farm-world .today-prog{ color:#7a5320 !important; }
 
 /* ── 15. 아코디언 · 접이식 ──────────────────────────────────── */
 body.farm-world .ob-q,
@@ -770,58 +865,70 @@ body.farm-world .ah{
   transition:background var(--farm-t);
 }
 body.farm-world .ob-q:hover,
-body.farm-world .msec-head:hover{ background:rgba(201,168,106,.07); }
+body.farm-world .msec-head:hover{ background:rgba(184,148,80,.08); }
 body.farm-world .ob-q .qn,
-body.farm-world .msec-tt{ color:var(--gold) !important; }
-body.farm-world .ob-ment .ml{ color:var(--gold) !important; }
+body.farm-world .msec-tt{ color:#7a5320 !important; }
+body.farm-world .ob-a,
+body.farm-world .msec-body{ color:var(--ink-brown); }
+body.farm-world .ob-ment .ml{ color:#7a5320 !important; }
 
-/* ── 16. 인증 게이트 — 밤의 농장 ────────────────────────────── */
+/* ── 16. 인증 게이트 — 밤 마을 + 양피지 로그인 시트 ─────────── */
 body.farm-world #authGate{
   background:
-    radial-gradient(110% 70% at 18% 0%, rgba(92,112,70,.55), transparent 58%),
-    radial-gradient(120% 80% at 88% 100%, rgba(201,168,106,.30), transparent 58%),
-    linear-gradient(168deg,#1b2735,#141d2b 45%,#0f1620) !important;
+    radial-gradient(120% 80% at 50% 40%, rgba(255,206,126,.14), transparent 55%),
+    linear-gradient(168deg,#111a2c,#0c1320 45%,#080d18) !important;
   animation:none !important;
 }
 body.farm-world .auth-box{
-  background:var(--paper-grad) !important;
+  position:relative;
+  background:
+    var(--paper-lines),
+    var(--paper-grad) !important;
   color:var(--paper-ink) !important;
-  border:7px solid #2b3a4e !important;
-  border-radius:20px !important;
+  border:none !important;
+  border-radius:12px !important;
   box-shadow:
-    0 0 0 1px rgba(201,168,106,.75),
-    inset 0 0 0 1px rgba(201,168,106,.5),
-    0 40px 80px -30px rgba(0,0,0,.9) !important;
+    0 0 0 1px rgba(184,148,80,.8),
+    inset 0 0 0 1px rgba(184,148,80,.4),
+    0 40px 80px -30px rgba(0,0,0,.85) !important;
   backdrop-filter:none !important;
 }
+body.farm-world .auth-box::before,
+body.farm-world .auth-box::after{
+  content:""; position:absolute; left:-6px; right:-6px; height:16px;
+  background:linear-gradient(180deg,#5c4426,#3c2c17); border-radius:9px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 3px rgba(0,0,0,.4), 0 4px 10px -4px rgba(0,0,0,.5);
+}
+body.farm-world .auth-box::before{ top:-8px; }
+body.farm-world .auth-box::after{ bottom:-8px; }
 body.farm-world .auth-box .auth-h{ color:var(--paper-ink) !important; }
 body.farm-world .auth-box .auth-p,
 body.farm-world .auth-box .auth-foot{ color:var(--paper-ink-2) !important; }
 body.farm-world .auth-box .field label{ color:#5c4a2c !important; }
 body.farm-world .auth-box .field input{
-  background:rgba(255,255,255,.6) !important;
-  border:1px solid var(--paper-line) !important;
-  border-bottom:2px solid #a9906a !important;
+  background:#fffdf6 !important;
+  border:1px solid #bda882 !important;
+  border-bottom:2px solid #9e8258 !important;
   color:var(--paper-ink) !important;
 }
-body.farm-world .auth-box .field input::placeholder{ color:#8a7a5e !important; }
+body.farm-world .auth-box .field input::placeholder{ color:#9a876a !important; }
 body.farm-world .auth-box .field input:focus{
   border-color:var(--gold-2) !important;
   background:#fffdf6 !important;
-  box-shadow:0 0 0 3px rgba(201,168,106,.3) !important;
+  box-shadow:0 0 0 3px rgba(184,148,80,.3) !important;
 }
-body.farm-world .auth-tabs{ background:rgba(90,72,44,.14) !important; }
+body.farm-world .auth-tabs{ background:rgba(90,72,44,.12) !important; }
 body.farm-world .auth-tabs button{ color:#6a5a44 !important; font-family:'Gowun Batang','Nanum Myeongjo',serif; }
 body.farm-world .auth-tabs button.active{
   background:linear-gradient(178deg,#6c8552,#4e6339) !important;
   color:#f6f1e2 !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.2) !important;
 }
-body.farm-world .auth-foot b{ color:#6a5320 !important; }
+body.farm-world .auth-foot b{ color:#7a5320 !important; }
 body.farm-world .auth-logo .sub{ color:#e8dfc8 !important; }
-body.farm-world .auth-msg.err{ background:rgba(192,96,63,.16) !important; border:1px solid var(--terra) !important; color:#8f3a1c !important; }
-body.farm-world .auth-msg.ok{ background:rgba(92,112,70,.16) !important; border:1px solid #5c7046 !important; color:#3a4c2a !important; }
-body.farm-world .auth-msg.info{ background:rgba(201,168,106,.18) !important; border:1px solid var(--gold-2) !important; color:#6a5320 !important; }
+body.farm-world .auth-msg.err{ background:rgba(182,83,47,.14) !important; border:1px solid var(--terra) !important; color:#8a3418 !important; }
+body.farm-world .auth-msg.ok{ background:rgba(92,112,70,.14) !important; border:1px solid #5c7046 !important; color:#33471c !important; }
+body.farm-world .auth-msg.info{ background:rgba(184,148,80,.16) !important; border:1px solid var(--gold-2) !important; color:#7a5320 !important; }
 body.farm-world .status-screen h2{ color:var(--paper-ink); }
 body.farm-world .status-screen p{ color:var(--paper-ink-2) !important; }
 body.farm-world .status-screen .who{ color:var(--paper-ink) !important; }
@@ -829,86 +936,131 @@ body.farm-world .hero-plate{
   background:var(--wood-grad) !important;
   border:1px solid var(--gold-line) !important;
   box-shadow:var(--shadow) !important;
+  color:#eadfc2 !important;
 }
 body.farm-world .hero-plate::after{ background:linear-gradient(135deg,rgba(201,168,106,.5),transparent 58%) !important; }
-body.farm-world .foot-chip{ background:var(--wood-grad) !important; border:1px solid var(--gold-line) !important; }
+body.farm-world .foot-chip{ background:var(--wood-grad) !important; border:1px solid var(--gold-line) !important; color:#eadfc2 !important; }
 
 /* ── 17. 히어로 / 인사 ──────────────────────────────────────── */
 body.farm-world .hero::before{
-  background:radial-gradient(60% 80% at 50% 0%, rgba(201,168,106,.20), rgba(92,112,70,.12) 55%, transparent 76%) !important;
+  background:radial-gradient(60% 80% at 50% 0%, rgba(201,168,106,.22), rgba(92,112,70,.12) 55%, transparent 76%) !important;
 }
+body.farm-world .greet{ color:var(--ink-brown); }
 body.farm-world .greet b{
-  background:linear-gradient(100deg,#c9a86a,#b6cf8e) !important;
+  background:linear-gradient(100deg,#8a6a2a,#5c7046) !important;
   -webkit-background-clip:text; background-clip:text;
   -webkit-text-fill-color:transparent;
 }
-body.farm-world .hero .stmt em{ color:var(--gold) !important; }
+body.farm-world .hero .stmt{ color:var(--ink-brown-2); }
+body.farm-world .hero .stmt em{ color:#7a5320 !important; font-style:normal; }
 
-/* ── 18. 특수 패널 (셋업키트/리젝노트/리더힛/필드도구/회원카드) ─ */
-body.farm-world .sk-page,
-body.farm-world .rn-statc,
-body.farm-world .pmsr-col,
-body.farm-world .pj-sheet,
+/* ── 18. 특수 패널 · 잡다한 텍스트 대비 보정 ────────────────── */
 body.farm-world .pj-stage,
 body.farm-world .mt-card,
 body.farm-world .adm-body,
-body.farm-world .kedit,
-body.farm-world .box:not(.today-item .box){
+body.farm-world .kedit{
   border-color:var(--gold-line) !important;
 }
-body.farm-world .modal .box{ border-color:#2b3a4e !important; }
 body.farm-world .pmsr-help,
 body.farm-world .ft-note,
 body.farm-world .sc-hint,
 body.farm-world .gh-hint,
-body.farm-world .qhint{ color:var(--muted) !important; }
+body.farm-world .qhint,
+body.farm-world .hint,
+body.farm-world .muted,
+body.farm-world .sub,
+body.farm-world .meta,
+body.farm-world .note{ color:var(--muted) !important; }
 body.farm-world .ft-num,
 body.farm-world .p-stat .n,
-body.farm-world .kpi .n{ color:var(--gold) !important; }
+body.farm-world .kpi .n{ color:#7a5320 !important; }
 body.farm-world .fx-btn{
-  background:linear-gradient(178deg,#2b3a4e,#22303f) !important;
+  background:linear-gradient(178deg,#26395c,#1c2b47) !important;
   border:1px solid var(--gold-line) !important;
   border-radius:10px;
+  color:#eadfc2 !important;
 }
 body.farm-world .fx-btn:hover,
-body.farm-world .fx-btn.on{ border-color:var(--gold) !important; box-shadow:0 0 0 2px rgba(201,168,106,.2); }
+body.farm-world .fx-btn.on{ border-color:var(--gold-hi) !important; box-shadow:0 0 0 2px rgba(184,148,80,.22); }
 body.farm-world #fxPanel{
   background:var(--wood-grad) !important;
   border:1px solid var(--gold-line) !important;
   border-radius:16px;
+  color:#eadfc2 !important;
 }
+body.farm-world #fxPanel *{ color:#eadfc2; }
+body.farm-world #fxDock{ color:#eadfc2; }
 
 /* 세일즈 카운터 / 수치 강조 */
 body.farm-world .p-stat,
 body.farm-world .qa,
 body.farm-world .qitem,
 body.farm-world .qlink{ border-color:var(--gold-line-s) !important; }
-body.farm-world .qico{ color:var(--gold) !important; }
+body.farm-world .qico{ color:#7a5320 !important; }
+body.farm-world .qlink{ color:var(--ink-brown) !important; }
 
-/* 구분선 일괄 온화하게 */
+/* 구분선 일괄 */
 body.farm-world hr{ border:none; border-top:1px solid var(--gold-line-s); }
 
-/* ── 19. 반응형 보정 (기존 브레이크포인트 존중) ─────────────── */
+/* ── 19. 광범위 다크 인라인 배경 방어막 (변수 미사용 요소) ────
+   대부분의 하드코딩 다크(#13151b/#0e1013/#232730/#1b1e25)는 크롬(.top/.rail/.botbar)
+   이라 위에서 이미 네이비로 지정됨. 혹시 남은 반투명 흰 필름류가 카드 위에서
+   너무 짙어지지 않도록, 카드 내부 흰 오버레이는 종이톤으로 순화. */
+body.farm-world .card .card,
+body.farm-world .gcard .gsub,
+body.farm-world .adm-card .arow,
+body.farm-world .inner-card,
+body.farm-world .subcard,
+body.farm-world .pane,
+body.farm-world .tile{
+  background:linear-gradient(178deg,#f6eed9,#eee2c9) !important;
+  border-color:var(--gold-line-s) !important;
+  color:var(--ink-brown) !important;
+}
+/* 남은 흰-필름 위 텍스트가 흰색으로 굳지 않도록: 밝은 텍스트류를 잉크로 순화
+   (무차별 * 금지 — 표면 텍스트 클래스에 한정) */
+body.farm-world .mpanel p,
+body.farm-world .mpanel li,
+body.farm-world .mpanel dd,
+body.farm-world .mpanel .tx,
+body.farm-world .mpanel .desc,
+body.farm-world .mpanel .body-tx{ color:var(--ink-brown); }
+body.farm-world .mpanel a{ color:#7a5320; }
+/* 단, 크롬·무대·특수 어두운 영역은 예외로 밝은 텍스트 유지 */
+body.farm-world header.top p,
+body.farm-world header.top a,
+body.farm-world nav.rail a,
+body.farm-world .tree-stage p,
+body.farm-world .tree-stage span,
+body.farm-world #fxPanel p{ color:inherit; }
+
+/* ── 20. 반응형 보정 (기존 브레이크포인트 존중) ─────────────── */
 @media(max-width:767px){
   body.farm-world{ overflow-x:hidden; }
   body.farm-world .sec-head{ padding-bottom:7px; }
-  body.farm-world .modal .box{ border-width:4px !important; }
-  body.farm-world .auth-box{ border-width:5px !important; }
-  /* 넓은 그림자로 인한 가로 초과 방지 */
+  body.farm-world .modal .box{ padding-top:20px; padding-bottom:20px; }
+  body.farm-world .card,
   body.farm-world .gcard,
   body.farm-world .win,
   body.farm-world .val,
   body.farm-world .adm-card,
-  body.farm-world .ft-card{ box-shadow:0 8px 18px -14px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.05); }
+  body.farm-world .ft-card{
+    box-shadow:
+      inset 0 0 0 3px rgba(249,243,229,.7),
+      inset 0 0 0 4px rgba(150,120,80,.3),
+      0 10px 20px -14px rgba(35,24,12,.55) !important;
+  }
   body.farm-world .btn{ min-height:44px; }
   body.farm-world .btn.sm{ min-height:36px; }
 }
+@media(min-width:768px) and (max-width:1279px){
+  body.farm-world .card{ border-radius:15px; }
+}
 @media(max-width:520px){
   body.farm-world .sec-head::before{ width:12px; height:12px; }
-  body.farm-world .toast{ border-width:2px !important; }
 }
 
-/* ── 20. 모션 감소 ──────────────────────────────────────────── */
+/* ── 21. 모션 감소 ──────────────────────────────────────────── */
 @media (prefers-reduced-motion:reduce){
   body.farm-world *,
   body.farm-world *::before,
@@ -922,8 +1074,12 @@ body.farm-world hr{ border:none; border-top:1px solid var(--gold-line-s); }
   body.farm-world .mpanel.active{ transform:none !important; }
 }
 
-/* ── 21. 인쇄 — 농장 스킨 해제 (흑백 출력 보호) ─────────────── */
+/* ── 22. 인쇄 — 농장 스킨 전면 해제 (프린트 기능 보호) ───────── */
 @media print{
+  body.farm-world{
+    background:#fff !important;
+    background-image:none !important;
+  }
   body.farm-world,
   body.farm-world *{
     background:#fff !important;
@@ -936,8 +1092,10 @@ body.farm-world hr{ border:none; border-top:1px solid var(--gold-line-s); }
     transition:none !important;
   }
   body.farm-world *{ border-color:#999 !important; }
-  body.farm-world .modal .box,
-  body.farm-world .auth-box{ border-width:1px !important; }
+  body.farm-world .modal .box::before,
+  body.farm-world .modal .box::after,
+  body.farm-world .auth-box::before,
+  body.farm-world .auth-box::after{ display:none !important; }
   body.farm-world .sec-head::before,
   body.farm-world .modal .box h3::before,
   body.farm-world .adm-card .ah::before,
