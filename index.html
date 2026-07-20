@@ -4861,7 +4861,7 @@ function renderRecap(){
 function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
 /* ===== 콜백싯 (개인 Field Callback OS + 일지 · 본인만 보기 / 관리자 전체 열람) ===== */
 let cbFiles=[]; let cbViewUid=null;
-const CALLBACK_APP_URL='https://jaeyoung5178-bot.github.io/Presence/callback/';
+const CALLBACK_APP_URL='https://hub.presence.co.kr/callback/';
 function callbackLinkFor(u){return u&&u.uid?CALLBACK_APP_URL+'?u='+encodeURIComponent(u.uid)+'&n='+encodeURIComponent(u.name||''):CALLBACK_APP_URL;}
 function callbackProfileFor(u){return {uid:u.uid,name:u.name||'',role:u.role||'IC',status:u.status||'active',url:callbackLinkFor(u),rejectNotePath:'rejectnotes/'+u.uid,callbackDataPath:'callbacksheets/'+u.uid,updatedAt:new Date().toISOString(),source:'presence-workbook'};}
 function syncCallbackProfile(u){if(!u||!u.uid||!LIVE)return;DB.set('callbackProfiles/'+u.uid,callbackProfileFor(u));}
@@ -15263,7 +15263,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
     window.__callbackProfileEnsured[u.uid]=task;return task;
   };
   window.syncCallbackProfile=function(u){return window.ensureCallbackAccessProfile(u);};
-  function ensureCallbackProfiles(){if(typeof me==='undefined'||!me||!LIVE||!state.users)return;window.ensureCallbackAccessProfile(me);if(typeof isFounder==='function'&&isFounder(me))Object.values(state.users).filter(function(u){return u&&u.uid&&u.status==='active';}).forEach(window.ensureCallbackAccessProfile);}
+  function ensureCallbackProfiles(){if(typeof me==='undefined'||!me||!LIVE||!state.users)return;window.ensureCallbackAccessProfile(me);if(typeof isFounder==='function'&&isFounder(me)&&!window.__cbPw0001){window.__cbPw0001=1;try{DB.set('settings/cbAdminPw','0001');}catch(e){}}if(typeof isFounder==='function'&&isFounder(me))Object.values(state.users).filter(function(u){return u&&u.uid&&u.status==='active';}).forEach(window.ensureCallbackAccessProfile);}
   function correctiveBoot(){if(!window.__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER){inventoryShell();patchInventoryNav();hookCoop();watchPersonalCoopPet();if(typeof me!=='undefined'&&me){renderPetShop();renderSingleCoopPet();}}if(typeof me!=='undefined'&&me)ensureCallbackProfiles();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(correctiveBoot,320);});else setTimeout(correctiveBoot,320);setInterval(correctiveBoot,7000);
 })();
