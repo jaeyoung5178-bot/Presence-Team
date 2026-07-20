@@ -152,18 +152,33 @@ body.farm-world .intro b{ color:var(--gold-2); }
 
 /* ── 4. 섹션 / 카드 — 양피지 종이 ───────────────────────────── */
 body.farm-world .sec{ position:relative; }
+/* 그림 배경 위에 놓이는 섹션 헤더 = 인라인 양피지 명판(카드 밖이라도 항상 읽힘) */
 body.farm-world .sec-head{
-  border-bottom:1px solid var(--gold-line);
-  padding-bottom:9px;
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:10px !important;
+  flex-wrap:wrap;
+  max-width:100%;
+  background:rgba(243,234,214,.94) !important;
+  padding:7px 14px !important;
+  border-radius:12px !important;
+  border-bottom:none !important;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(150,120,80,.35) !important;
   position:relative;
 }
 body.farm-world .sec-head::before{
   content:""; width:15px; height:15px; flex:0 0 auto;
   background:var(--leaf) center/contain no-repeat;
-  opacity:.95; margin-bottom:2px;
+  opacity:.95; align-self:center;
 }
-body.farm-world .sec-head h2{ color:var(--ink-brown); }
-body.farm-world .sec-head .ko{ color:var(--muted); }
+body.farm-world .sec-head h2,
+body.farm-world .sec-head p{ color:#33261a !important; }
+body.farm-world .sec-head .ko{ color:#7a6549 !important; }
+/* 메타(우측 텍스트)가 헤더 밖 형제 요소로 붙는 경우를 대비한 예외 처리 */
+body.farm-world .sec-head + .meta,
+body.farm-world .sec ~ .meta{ color:#f3ead6 !important; text-shadow:0 1px 3px rgba(0,0,0,.55); }
 
 /* 공통 양피지 카드 스킨 (미세 가로줄 + 4모서리 핀 + 이중 갈색 테두리) */
 body.farm-world .card,
@@ -251,6 +266,53 @@ body.farm-world .fc-h::before{
 /* 등장 애니메이션 — 절제 */
 body.farm-world .mpanel.active{ animation:farmFadeUp .3s ease both; }
 @keyframes farmFadeUp{ from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:none} }
+
+/* ── 4b. 팻말 버튼 복구(최우선) — 범용 버튼 스킨이 홈 씬 .fs-sign을
+   덮어 투명해지는 것을 강제 복구. 씬 내부 날씨/소식 버튼은 다크 필 유지 예외. */
+body.farm-world .fs-sign{
+  background:linear-gradient(180deg,#24344e,#1c2a40 60%,#16223a) !important;
+  color:#f6efe1 !important;
+  border:0 !important;
+  box-shadow:
+    0 0 0 2px #c9a86a,
+    0 0 0 4px rgba(28,42,64,.9),
+    0 0 0 5.5px rgba(201,168,106,.55),
+    0 10px 22px rgba(0,0,0,.45) !important;
+}
+body.farm-world .fs-sign:hover{
+  background:linear-gradient(180deg,#2c3e5c,#22314f 60%,#1a2740) !important;
+  box-shadow:
+    0 0 0 2px #e6c98d,
+    0 0 0 4px rgba(28,42,64,.9),
+    0 0 0 6px rgba(201,168,106,.75),
+    0 0 26px 6px rgba(201,168,106,.45),
+    0 16px 30px rgba(0,0,0,.5) !important;
+}
+/* 자동날씨 토글 · 농장 소식 버튼 — 다크 필 예외 유지 */
+body.farm-world .fs-wtoggle,
+body.farm-world .fs-wt,
+body.farm-world .fs-cue{
+  background:rgba(22,34,58,.72) !important;
+  color:#e2c78c !important;
+  border:0 !important;
+  box-shadow:0 0 0 1px rgba(201,168,106,.55) !important;
+}
+body.farm-world .fs-wtoggle:hover,
+body.farm-world .fs-wt:hover,
+body.farm-world .fs-cue:hover{
+  background:rgba(28,42,64,.92) !important;
+  color:#f6e6bd !important;
+}
+body.farm-world .fs-scroll{
+  background:rgba(22,34,58,.80) !important;
+  color:#f2e6c9 !important;
+  border:0 !important;
+  box-shadow:0 0 0 1.5px rgba(201,168,106,.6), 0 8px 20px rgba(0,0,0,.4) !important;
+}
+body.farm-world .fs-scroll:hover{
+  background:rgba(30,46,72,.95) !important;
+  color:#fff !important;
+}
 
 /* ── 5. 버튼 — 가죽/양피지 + 스티치 테두리 ───────────────────── */
 body.farm-world .btn,
@@ -583,20 +645,26 @@ body.farm-world header.top{
   color:#f2ead2 !important;
 }
 body.farm-world header.top *{ color:#eadfc2; }
+body.farm-world .logo{ align-items:center; }
 body.farm-world .logo .nm,
 body.farm-world .logo .nm b{
-  color:var(--gold-hi) !important;
+  color:#c9a86a !important;
   font-family:'Gowun Batang','Nanum Myeongjo',serif !important;
+  font-weight:700 !important;
   letter-spacing:.03em;
 }
-body.farm-world .logo .tag{ color:#b9c1d0 !important; }
+body.farm-world .logo .tag{ color:#f1e7cf !important; }
+/* 로고 이미지가 크림 배경이라 헤더에서 튐 → 이미지는 숨기고 텍스트 로고만 사용 */
 body.farm-world .logo-chip{
-  background:rgba(26,39,64,.92);
-  border:1px solid var(--gold-line);
-  border-radius:10px;
-  overflow:hidden;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  border-radius:0;
+  overflow:visible;
+  display:flex;
+  align-items:center;
 }
-body.farm-world .logo-chip img{ mix-blend-mode:normal; opacity:1; }
+body.farm-world .logo-chip img{ display:none !important; }
 body.farm-world .me-pill{
   background:linear-gradient(178deg,#26395c,#1c2b47) !important;
   border:1px solid var(--gold-line) !important;
@@ -609,19 +677,24 @@ body.farm-world .me-pill .mrole{
   color:#f4efdf !important;
 }
 
-/* 레일 (모바일: 상단 가로 / 데스크톱: 좌측 세로) */
+/* 레일 (모바일: 상단 가로 / 데스크톱: 좌측 세로) — 나뭇결 스캔라인 완화,
+   매끈한 네이비 세로 그라디언트(#182338→#131c2e) 위주로 */
 body.farm-world nav.rail{
   background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, rgba(0,0,0,.05) 2px 5px),
-    linear-gradient(180deg,#223350,#1a2740) !important;
+    repeating-linear-gradient(90deg, rgba(255,255,255,.008) 0 2px, rgba(0,0,0,.02) 2px 5px),
+    linear-gradient(180deg,#182338,#131c2e) !important;
   border-bottom:1px solid var(--gold-line) !important;
 }
 body.farm-world .mtab{
   color:#c9d0de;
   font-family:'Gowun Batang','Nanum Myeongjo',serif;
-  transition:color var(--farm-t), background var(--farm-t);
+  transition:color var(--farm-t), background var(--farm-t), box-shadow var(--farm-t);
 }
-body.farm-world .mtab:hover{ color:#f2ead2; }
+body.farm-world .mtab:hover{
+  color:#f2ead2;
+  background:rgba(184,148,80,.10);
+  box-shadow:inset 0 -2px 0 var(--gold-2);
+}
 body.farm-world .mtab.active{ color:#33261a; }
 body.farm-world .mtab.active::after{
   background:linear-gradient(90deg,transparent,var(--gold-hi),transparent) !important;
@@ -640,15 +713,18 @@ body.farm-world .subrail .rail-lbl{ color:#9aa6bc !important; letter-spacing:.14
 @media(min-width:980px){
   body.farm-world nav.rail{
     background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.06) 2px 6px),
-      linear-gradient(200deg,#26395c 0%,#1c2b47 60%,#172238 100%) !important;
+      repeating-linear-gradient(0deg, rgba(255,255,255,.008) 0 2px, rgba(0,0,0,.025) 2px 6px),
+      linear-gradient(180deg,#182338 0%,#131c2e 100%) !important;
     border-right:2px solid var(--gold-2) !important;
     border-bottom:none !important;
     box-shadow:inset -1px 0 0 rgba(184,148,80,.2), 4px 0 18px -12px rgba(0,0,0,.6);
   }
   body.farm-world nav.rail .row.subrail{ border-top:1px solid var(--gold-line-s) !important; }
   body.farm-world nav.rail .mtab{ border-radius:10px; }
-  body.farm-world nav.rail .mtab:hover{ background:rgba(184,148,80,.12); }
+  body.farm-world nav.rail .mtab:hover{
+    background:rgba(184,148,80,.14);
+    box-shadow:inset 3px 0 0 var(--gold-2);
+  }
   /* active = 금 테두리 양피지 칩 */
   body.farm-world nav.rail .mtab.active{
     background:linear-gradient(178deg,#f6efdc,#ece0c6) !important;
@@ -814,6 +890,35 @@ body.farm-world .gift .glab{
 }
 body.farm-world .tree-side{ background:linear-gradient(178deg,#3a2c1a,#2a2013); }
 
+/* #treeSecHome 물주기 순위 · 챔피언 배너 — 어두운 무대 위에서도 항상 읽히도록
+   랭킹 패널 자체를 양피지 명판으로 고정 */
+body.farm-world .wadm{
+  background:linear-gradient(178deg,#f3ead6,#e9dcc0) !important;
+  border:1px solid var(--gold-line) !important;
+  box-shadow:inset 0 0 0 1px rgba(150,120,80,.25), 0 8px 18px -12px rgba(0,0,0,.5) !important;
+}
+body.farm-world .wadm-h{ color:#7a5320 !important; }
+body.farm-world .wadm-row+.wadm-row{ border-top:1px solid rgba(150,120,80,.25) !important; }
+body.farm-world .wadm-row.first{ background:linear-gradient(90deg,rgba(184,148,80,.22),transparent) !important; }
+body.farm-world .wadm-rk,
+body.farm-world .wadm-nm{ color:#33261a !important; }
+body.farm-world .wadm-cnt{ color:#7a6549 !important; font-weight:800 !important; }
+body.farm-world .wadm-empty{ color:#7a6549 !important; }
+body.farm-world .wadm-champ{
+  background:#e9dcc0 !important;
+  border:1px solid var(--gold-2) !important;
+  color:#33261a !important;
+}
+body.farm-world .wadm-champ b{ color:#5c3d12 !important; font-weight:800 !important; }
+body.farm-world .wadm-award{
+  background:linear-gradient(90deg,rgba(182,83,47,.16),transparent) !important;
+  border:1px solid var(--terra) !important;
+  color:#7a3418 !important;
+}
+body.farm-world .wadm-award b{ color:#8a3418 !important; }
+body.farm-world .wadm-log-h{ color:#7a6549 !important; }
+body.farm-world .wadm-log-i{ color:#8a7454 !important; }
+
 /* ── 13. 빈 상태 — 잎사귀 워터마크 ──────────────────────────── */
 body.farm-world .empty-row,
 body.farm-world .ms-empty,
@@ -974,6 +1079,10 @@ body.farm-world .note{ color:var(--muted) !important; }
 body.farm-world .ft-num,
 body.farm-world .p-stat .n,
 body.farm-world .kpi .n{ color:#7a5320 !important; }
+/* 양피지 위 잔여 밝은 보조 텍스트(누적 카운트·타임스탬프·small) 소탕
+   — 진한 배경 칩(그린/네이비/컬러 배지) 위 흰 글씨(.mstat-avg 등)는 예외 유지 */
+body.farm-world .mpanel small:not(.mstat-avg small){ color:#7a6549; }
+body.farm-world .sm-an-b b{ color:#3a2b12 !important; font-weight:800 !important; }
 body.farm-world .fx-btn{
   background:linear-gradient(178deg,#26395c,#1c2b47) !important;
   border:1px solid var(--gold-line) !important;
