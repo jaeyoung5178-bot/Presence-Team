@@ -6,10 +6,10 @@
   'use strict';
 
   var ART = 'game-ui/';
-  var IMG_MAP = ART + 'farmart-scene-home.webp';
+  var IMG_MAP = ART + 'farmart-village-clean.webp';
   var IMG_CHICK_A = ART + 'farmart-chick-idle.webp';
   var IMG_CHICK_B = ART + 'farmart-chick-walk.webp';
-  var MAP_RATIO = 1672 / 941;
+  var MAP_RATIO = 1022 / 791;
 
   /* ---- 안전 유틸 ---- */
   function ce(t, c) { var e = document.createElement(t); if (c) e.className = c; return e; }
@@ -88,11 +88,11 @@
      마을 월드맵 홈
      ============================================================ */
   var BUILDINGS = [
-    { x: 54.6, y: 11, ko: '오늘 광장', act: function () { openLegacy(canTab('daily') ? 'daily' : 'home', '오늘 광장'); if (!canTab('daily')) { closeLegacy(); scrollLegacy('todaySec', '오늘 광장'); } } },
-    { x: 20.4, y: 15.5, ko: '사람 사랑방', act: function () { openLegacy(canTab('teamtree') ? 'teamtree' : 'home', '사람 사랑방'); if (!canTab('teamtree')) { closeLegacy(); scrollLegacy('praiseSec', '사람 사랑방'); } } },
-    { x: 84.4, y: 15.3, ko: '성장 온실', act: function () { scrollLegacy('treeSecHome', '성장 온실'); } },
-    { x: 26.3, y: 49, ko: '수익 장터', act: function () { openLegacy('sale', '수익 장터'); } },
-    { x: 75.5, y: 50, ko: '관리자 집무실', act: function () { if (canTab('admin')) openLegacy('admin', '관리자 집무실'); else say('관리자 전용 공간이에요'); } }
+    { x: 53.5, y: 10, ko: '오늘 광장', act: function () { scrollLegacy('todaySec', '오늘 광장'); } },
+    { x: 26.9, y: 20.4, ko: '사람 사랑방', act: function () { if (canTab('teamtree')) openLegacy('teamtree', '사람 사랑방'); else scrollLegacy('praiseSec', '사람 사랑방'); } },
+    { x: 77.5, y: 18.9, ko: '성장 온실', act: function () { scrollLegacy('treeSecHome', '성장 온실'); } },
+    { x: 25.6, y: 50.5, ko: '수익 장터', act: function () { openLegacy('sale', '수익 장터'); } },
+    { x: 71.5, y: 50.2, ko: '관리자 집무실', act: function () { if (canTab('admin')) openLegacy('admin', '관리자 집무실'); else say('관리자 전용 공간이에요'); } }
   ];
 
   /* 홈 내부 섹션으로 이식(성장 온실=나무 카드 등) */
@@ -125,15 +125,16 @@
     var phase = skyPhase();
     root.setAttribute('data-tod', phase);
 
-    /* 건물 간판 */
+    /* 건물 클릭존 (그림의 간판 위에 투명하게 — 그림 그대로 유지) */
     BUILDINGS.forEach(function (b, i) {
-      var s = ce('button', 'pg-sign pg-building');
-      s.type = 'button';
-      s.style.left = b.x + '%'; s.style.top = b.y + '%';
-      s.style.animationDelay = (0.5 + i * 0.08) + 's';
-      s.textContent = b.ko;
-      s.addEventListener('click', function () { b.act(); });
-      artbox.appendChild(s);
+      var z = ce('button', 'pg-zone');
+      z.type = 'button';
+      z.style.left = b.x + '%'; z.style.top = b.y + '%';
+      z.style.animationDelay = (0.6 + i * 0.12) + 's';
+      z.setAttribute('aria-label', b.ko);
+      z.innerHTML = '<span class="pg-zone-ring"></span><span class="pg-zone-tip">' + esc(b.ko) + '</span>';
+      z.addEventListener('click', function () { b.act(); });
+      artbox.appendChild(z);
     });
 
     /* 병아리 NPC 3마리 */
@@ -307,20 +308,24 @@
       ".pg-world{position:absolute;inset:0;overflow:hidden}",
       ".pg-map-blur{position:absolute;inset:-6%;background-size:cover;background-position:center;filter:blur(30px) brightness(.7) saturate(1.05);transform:scale(1.15)}",
       "#pgRoot[data-tod=night] .pg-map-blur{filter:blur(30px) brightness(.4)}",
-      ".pg-mapwrap{position:absolute;left:220px;right:0;top:0;bottom:0}",
-      "@media(max-width:1279px){.pg-mapwrap{left:70px}}",
-      "@media(max-width:767px){.pg-mapwrap{left:0;bottom:auto;height:64vh}}",
+      ".pg-mapwrap{position:absolute;left:220px;right:362px;top:0;bottom:0}",
+      "@media(max-width:1279px){.pg-mapwrap{left:70px;right:0}}",
+      "@media(max-width:767px){.pg-mapwrap{left:0;right:0;bottom:auto;height:60vh}}",
       ".pg-artbox{position:absolute;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)}",
       ".pg-map{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;opacity:0;transition:opacity .8s ease}",
       "#pgRoot.pg-in .pg-map{opacity:1}",
       "#pgRoot[data-tod=night] .pg-map{filter:brightness(.55) saturate(.9)}",
       "#pgRoot[data-tod=dusk] .pg-map{filter:brightness(.9) saturate(1.1) sepia(.08)}",
       "#pgRoot[data-tod=dawn] .pg-map{filter:brightness(1.02) sepia(.06)}",
-      /* 건물 간판 */
-      ".pg-building{position:absolute;z-index:7;transform:translate(-50%,-50%) scale(.7);opacity:0}",
-      "#pgRoot.pg-in .pg-building{opacity:1;transform:translate(-50%,-50%) scale(1);animation:pgPop .5s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--d,0ms)}",
-      "@keyframes pgPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}60%{opacity:1;transform:translate(-50%,-56%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}",
-      ".pg-building:hover{transform:translate(-50%,-56%) scale(1.07)}",
+      /* 건물 클릭존 (그림 위 투명) */
+      ".pg-zone{position:absolute;z-index:7;width:15%;height:12%;min-width:64px;min-height:52px;transform:translate(-50%,-50%);border:0;background:transparent;cursor:pointer;padding:0}",
+      ".pg-zone-ring{position:absolute;inset:0;border-radius:14px;box-shadow:0 0 0 0 rgba(216,184,119,0);transition:box-shadow .3s,background .3s;animation:pgBeacon 2.6s ease-in-out infinite;animation-delay:var(--d,0ms)}",
+      "@keyframes pgBeacon{0%,100%{box-shadow:0 0 0 2px rgba(216,184,119,.28),0 0 14px 2px rgba(216,184,119,.14)}50%{box-shadow:0 0 0 2px rgba(216,184,119,.6),0 0 22px 6px rgba(216,184,119,.32)}}",
+      ".pg-zone:hover .pg-zone-ring,.pg-zone:focus-visible .pg-zone-ring{box-shadow:0 0 0 2px #f0d79a,0 0 26px 8px rgba(216,184,119,.5);background:rgba(216,184,119,.12);animation:none}",
+      ".pg-zone-tip{position:absolute;left:50%;top:-30px;transform:translateX(-50%) scale(.8);opacity:0;white-space:nowrap;padding:5px 12px;border-radius:999px;font-family:var(--pg-disp,serif);font-weight:700;font-size:12px;color:#f6efdb;background:linear-gradient(180deg,#26385a,#16233c);box-shadow:0 0 0 2px #c9a86a,0 6px 14px rgba(0,0,0,.4);transition:opacity .2s,transform .2s;pointer-events:none}",
+      ".pg-zone:hover .pg-zone-tip,.pg-zone:focus-visible .pg-zone-tip{opacity:1;transform:translateX(-50%) scale(1)}",
+      ".pg-zone:active{transform:translate(-50%,-50%) scale(.96)}",
+      "@media(max-width:767px){.pg-zone-tip{opacity:1;transform:translateX(-50%) scale(.9);top:-26px;font-size:11px}}",
       /* NPC */
       ".pg-npc{position:absolute;z-index:5;pointer-events:none;contain:layout style;animation:pgWalk var(--dur,30s) linear infinite}",
       ".pg-flip{display:block;animation:pgFlip var(--dur,30s) step-end infinite}",
