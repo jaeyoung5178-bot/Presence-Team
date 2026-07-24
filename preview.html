@@ -5268,7 +5268,7 @@ function goTab(name){
   document.querySelectorAll('#subRail .stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
-  var _hsb=document.getElementById('homeSearchBtn');if(_hsb)_hsb.style.display='flex';
+  /* 레거시 검색 버튼은 새 QUICK ACCESS 검색바로 대체됨 — 재노출하지 않음 */
   if(name==='sale'||name==='comp'||name==='perf'){try{renderPerfSeg(name);}catch(e){}}
   if(name==='hall'){try{renderHall();}catch(e){}}
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
@@ -13111,12 +13111,11 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
   font-family:inherit;font-size:14.5px;text-align:left;padding:12px 12px;border-radius:9px;cursor:pointer}
 #moreMenu button:hover{background:rgba(255,255,255,.08)}
 #moreMenu .mm-cap{font-size:10.5px;color:#8C96A5;padding:6px 12px 2px;letter-spacing:.06em}
-/* ── 검색: 전역 노출 + 모바일 가독성 (16px 입력=iOS 확대 방지 · 큰 터치영역) ── */
-#homeSearchBtn{display:flex!important}
+/* ── 검색: 레거시 플로팅 버튼 비활성 (새 QUICK ACCESS 검색바로 일원화) · 모바일 가독성 유지 ── */
+#homeSearchBtn{display:none!important}
 #hsInput{font-size:16px!important;padding:14px 16px!important}
 .hs-item{padding:13px 14px!important;font-size:15px!important;min-height:44px}
 @media(max-width:820px){
-  #homeSearchBtn{right:14px!important;bottom:calc(86px + env(safe-area-inset-bottom))!important;width:52px;height:52px;font-size:21px}
   .hs-box{width:92vw!important;max-width:none!important;margin:12vh auto 0!important}
 }
 button,input,textarea,select{font-family:inherit}
