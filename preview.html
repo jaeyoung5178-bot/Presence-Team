@@ -15006,7 +15006,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   function petProfile(){return (typeof me!=='undefined'&&me&&state.petProfiles&&state.petProfiles[me.uid])||{nickname:(typeof me!=='undefined'&&me?me.name:'나')+'의 삐약이',variant:'sun'};}
   window.renderPresencePersonalPet=function(){
     if(typeof me==='undefined'||!me)return;var p=petProfile(),v=PETS[p.variant]||PETS.sun,scene=document.querySelector('.coop-scene');
-    if(scene){var el=document.getElementById('myCoopPet');if(!el){el=document.createElement('div');el.id='myCoopPet';el.className='my-coop-pet';scene.appendChild(el);}el.dataset.variant=p.variant||'sun';el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-chick">'+v.emo+'<span class="mcp-badge">'+v.badge+'</span></div>';}
+    if(scene){var el=document.getElementById('myCoopPet');if(!el){el=document.createElement('div');el.id='myCoopPet';el.className='my-coop-pet';scene.appendChild(el);}el.dataset.variant=p.variant||'sun';if(window.presencePetArt){el.dataset.quality='studio';el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-sprite">'+window.presencePetArt(null,null,'coop')+'</div>';}else{el.innerHTML='<div class="mcp-name">'+esc(p.nickname||'나의 삐약이')+'</div><div class="mcp-chick">'+v.emo+'<span class="mcp-badge">'+v.badge+'</span></div>';}}
     var nm=document.getElementById('animalPetName'),svg=document.getElementById('animalSvg');if(nm)nm.textContent='🐥 '+(p.nickname||'나의 삐약이');if(svg)svg.dataset.variant=p.variant||'sun';
   };
   function ensurePanel(){
