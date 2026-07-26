@@ -202,6 +202,13 @@ main{padding-bottom:40px}
 @media(max-width:760px){.tree-stage{border-right:none;border-bottom:1px solid var(--line);min-height:300px}}
 .tree-stage .ground{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px dashed rgba(92,188,46,.22)}
 #treeSvg image{transform-box:fill-box;transform-origin:50% 100%}#treeSvg .tf-in{animation:treeStageIn .7s cubic-bezier(.2,.85,.25,1) both}#treeSvg .tf-out{animation:treeStageOut .5s ease both}@keyframes treeStageIn{from{opacity:0;transform:translateY(6px) scale(.82)}to{opacity:1;transform:none}}@keyframes treeStageOut{from{opacity:1}to{opacity:0}}
+/* 🌇 나무 화면 — 아늑한 과수원 저녁 장면 (배경 사진 + 나무 정중앙 + 물주는 병아리) */
+#treeSecHome .tree-stage{background:#1b1e26 url('assets/pets/home-orchard-dusk.jpg') 50% 60%/cover!important;min-height:400px;overflow:hidden}
+#treeSecHome .tree-bg,#treeSecHome .ground{display:none!important}
+#treeSecHome #treeSvg{width:min(268px,60%);margin-bottom:-6px;filter:drop-shadow(0 14px 16px rgba(0,0,0,.32))}
+#treeSecHome .tree-chick{position:absolute;left:5%;bottom:7%;width:23%;max-width:138px;z-index:3;pointer-events:none;filter:drop-shadow(0 10px 12px rgba(0,0,0,.42));animation:treeChickBob 3.2s ease-in-out infinite}
+@keyframes treeChickBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media(max-width:760px){#treeSecHome .tree-stage{min-height:330px}#treeSecHome .tree-chick{width:28%;bottom:6%}}
 #treeSvg{position:relative;z-index:2;width:min(320px,88%);height:auto}
 .tree-counter{position:absolute;top:20px;left:22px;z-index:3}
 .tree-counter .n{font-family:var(--disp);font-weight:700;font-size:40px;line-height:1;color:var(--green)}
@@ -5526,6 +5533,7 @@ function renderTree(weekOverride){
     else { _out+=_img(_p,''); }
     window._lastTree=_p;
     document.getElementById('treeSvg').innerHTML=_out;
+    try{var _ts=document.getElementById('treeSvg');_ts=_ts&&_ts.closest('.tree-stage');if(_ts){var _ck=_ts.querySelector('.tree-chick');if(!_ck){_ck=document.createElement('img');_ck.className='tree-chick';_ck.alt='';_ck.src='assets/pets/home-tree-chick.png';_ts.appendChild(_ck);}}}catch(e){}
     if(!preview){ try{ensureBirdTimer();}catch(e){} if(frac>=0.28 && !window._birdGreeted){window._birdGreeted=true;setTimeout(function(){try{treeBirdFly(frac>=0.62);}catch(e){}},1400);} }
     return;
   }
