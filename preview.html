@@ -202,13 +202,21 @@ main{padding-bottom:40px}
 @media(max-width:760px){.tree-stage{border-right:none;border-bottom:1px solid var(--line);min-height:300px}}
 .tree-stage .ground{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px dashed rgba(92,188,46,.22)}
 #treeSvg image{transform-box:fill-box;transform-origin:50% 100%}#treeSvg .tf-in{animation:treeStageIn .7s cubic-bezier(.2,.85,.25,1) both}#treeSvg .tf-out{animation:treeStageOut .5s ease both}@keyframes treeStageIn{from{opacity:0;transform:translateY(6px) scale(.82)}to{opacity:1;transform:none}}@keyframes treeStageOut{from{opacity:1}to{opacity:0}}
-/* 🌇 나무 화면 — 아늑한 과수원 저녁 장면 (배경 사진 + 나무 정중앙 + 물주는 병아리) */
-#treeSecHome .tree-stage{background:#1b1e26 url('assets/pets/home-orchard-dusk.jpg') 50% 60%/cover!important;min-height:400px;overflow:hidden}
-#treeSecHome .tree-bg,#treeSecHome .ground{display:none!important}
-#treeSecHome #treeSvg{width:min(268px,60%);margin-bottom:-6px;filter:drop-shadow(0 14px 16px rgba(0,0,0,.32))}
-#treeSecHome .tree-chick{position:absolute;left:5%;bottom:7%;width:23%;max-width:138px;z-index:3;pointer-events:none;filter:drop-shadow(0 10px 12px rgba(0,0,0,.42));animation:treeChickBob 3.2s ease-in-out infinite}
-@keyframes treeChickBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@media(max-width:760px){#treeSecHome .tree-stage{min-height:330px}#treeSecHome .tree-chick{width:28%;bottom:6%}}
+/* 🌇 나무 화면 — 과수원 저녁 장면 (배경 고정비율 + 나무 러그 정중앙 성장 + 병아리 물주기) */
+#treeSecHome .tree-wrap{grid-template-columns:1fr!important}
+#treeSecHome .tree-stage{position:relative!important;width:100%;aspect-ratio:1672/941;min-height:0!important;padding:0!important;border:0!important;display:block!important;background:#1b1e26 url('assets/pets/home-orchard-dusk.jpg?v=4') center/cover!important;overflow:hidden}
+#treeSecHome .tree-bg,#treeSecHome .ground,#treeSecHome .tree-weather{display:none!important}
+#treeSecHome #treeSvg{display:none!important}
+#treeSecHome #treeMain{position:absolute;left:42%;bottom:8%;transform:translateX(-50%);transform-origin:50% 100%;height:34%;width:auto;z-index:2;pointer-events:none;filter:drop-shadow(0 12px 14px rgba(0,0,0,.42));transition:height .62s cubic-bezier(.2,.85,.25,1)}
+#treeSecHome .tree-chick{position:absolute;left:19%;bottom:11%;transform:translateX(-50%);transform-origin:50% 100%;height:22%;width:auto;max-width:none;z-index:3;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.45));animation:treeChickBob 3.4s ease-in-out infinite}
+@keyframes treeChickBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+@keyframes treeStagePop2{0%{transform:translateX(-50%) scale(.9);opacity:.45}100%{transform:translateX(-50%) scale(1);opacity:1}}
+@keyframes treeDrink{0%,100%{transform:translateX(-50%) scaleY(1)}28%{transform:translateX(-50%) scaleY(.965) translateY(2px)}62%{transform:translateX(-50%) scaleY(1.025)}}
+.wdrop{position:absolute;width:8px;height:11px;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;background:radial-gradient(circle at 40% 28%,#f2fbff,#83c6ee);z-index:4;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18));animation:waterArc .95s ease-in forwards}
+@keyframes waterArc{0%{left:25.5%;top:74%;opacity:0}12%{opacity:1}55%{top:80%}100%{left:38.5%;top:88%;opacity:.12}}
+.wsplash{position:absolute;left:39%;top:87%;width:8px;height:8px;border-radius:50%;border:2px solid rgba(150,212,255,.85);transform:translate(-50%,-50%);z-index:4;pointer-events:none;animation:wsplash .6s ease-out forwards}
+@keyframes wsplash{0%{width:6px;height:4px;opacity:.9}100%{width:52px;height:22px;opacity:0}}
+@media(max-width:760px){#treeSecHome .tree-chick{height:24%}}
 #treeSvg{position:relative;z-index:2;width:min(320px,88%);height:auto}
 .tree-counter{position:absolute;top:20px;left:22px;z-index:3}
 .tree-counter .n{font-family:var(--disp);font-weight:700;font-size:40px;line-height:1;color:var(--green)}
@@ -5520,20 +5528,21 @@ function renderTree(weekOverride){
   }
   const baseY=236,cx=100;
   paintGifts(ended || frac>=0.6);
-  { /* 🌳 성장단계 원화 이미지 렌더러 + 단계 전환 크로스페이드 (기존 절차적 SVG 대체) */
-    var _base='assets/pets/tree-';
-    var _ST=[{k:'stage1-seed',lt:0.02,h:64,ar:1.647},{k:'stage2-sprout',lt:0.09,h:112,ar:1.228},{k:'stage3-sapling',lt:0.20,h:158,ar:0.781},{k:'stage4-young',lt:0.42,h:190,ar:0.781},{k:'stage5-fruit',lt:2,h:206,ar:0.905}];
-    var _p=ended?{k:'stage6-winter',h:210,ar:0.907}:(_ST.filter(function(s){return frac<s.lt;})[0]||_ST[_ST.length-1]);
-    var _geo=function(pp){var H=pp.h,W=H*pp.ar;return {H:H,W:W,x:100-W/2,y:252-H};};
-    var _img=function(pp,cls){var gg=_geo(pp);return '<image class="'+cls+'" href="'+_base+pp.k+'.png" xlink:href="'+_base+pp.k+'.png" x="'+gg.x.toFixed(1)+'" y="'+gg.y.toFixed(1)+'" width="'+gg.W.toFixed(1)+'" height="'+gg.H+'" preserveAspectRatio="xMidYMax meet"/>';};
-    var _g=_geo(_p);
-    var _out='<ellipse cx="100" cy="249" rx="'+(_g.W*0.4).toFixed(1)+'" ry="'+Math.max(6,_g.W*0.085).toFixed(1)+'" fill="#1b140d" opacity=".25"/>';
-    var _last=window._lastTree;
-    if(_last&&_last.k!==_p.k){ _out+=_img(_last,'tf-out')+_img(_p,'tf-in'); }
-    else { _out+=_img(_p,''); }
-    window._lastTree=_p;
-    document.getElementById('treeSvg').innerHTML=_out;
-    try{var _ts=document.getElementById('treeSvg');_ts=_ts&&_ts.closest('.tree-stage');if(_ts){var _ck=_ts.querySelector('.tree-chick');if(!_ck){_ck=document.createElement('img');_ck.className='tree-chick';_ck.alt='';_ck.src='assets/pets/home-tree-chick.png';_ts.appendChild(_ck);}}}catch(e){}
+  { /* 🌳 성장단계 이미지 렌더러 — 러그 정중앙 절대배치 + 성장 크기 + 물주는 병아리 */
+    var _base='assets/pets/tree-',_v='?v=4';
+    var _ST=[{k:'stage1-seed',lt:0.02,h:15},{k:'stage2-sprout',lt:0.09,h:23},{k:'stage3-sapling',lt:0.20,h:33},{k:'stage4-young',lt:0.42,h:45},{k:'stage5-fruit',lt:2,h:57}];
+    var _p=ended?{k:'stage6-winter',h:62}:(_ST.filter(function(s){return frac<s.lt;})[0]||_ST[_ST.length-1]);
+    var _stg=document.querySelector('#treeSecHome .tree-stage')||document.querySelector('.tree-stage');
+    if(_stg){
+      var _img=document.getElementById('treeMain');
+      if(!_img){_img=document.createElement('img');_img.id='treeMain';_img.alt='';_stg.appendChild(_img);}
+      var _changed=_img.getAttribute('data-k')!==_p.k;
+      if(_changed){_img.src=_base+_p.k+'.png'+_v;_img.setAttribute('data-k',_p.k);}
+      _img.style.height=_p.h+'%';
+      if(_changed){_img.style.animation='none';void _img.offsetWidth;_img.style.animation='treeStagePop2 .7s cubic-bezier(.2,.85,.25,1)';}
+      var _ck=_stg.querySelector('.tree-chick');
+      if(!_ck){_ck=document.createElement('img');_ck.className='tree-chick';_ck.alt='';_ck.src='assets/pets/home-tree-chick.png'+_v;_stg.appendChild(_ck);}
+    }
     if(!preview){ try{ensureBirdTimer();}catch(e){} if(frac>=0.28 && !window._birdGreeted){window._birdGreeted=true;setTimeout(function(){try{treeBirdFly(frac>=0.62);}catch(e){}},1400);} }
     return;
   }
@@ -5692,6 +5701,16 @@ function sendWaterGift(){
   renderWaterAdmin();renderBell();
   toast('🎁 '+champ.name+'님께 선물을 지급했어요! 본인 로그인 시 공지가 떠요');
 }
+function waterToTree(pour){
+  var stg=document.querySelector('#treeSecHome .tree-stage')||document.querySelector('.tree-stage');if(!stg)return;
+  var n=pour===false?7:15;
+  for(var i=0;i<n;i++){(function(k){setTimeout(function(){
+    if(!stg.isConnected)return;
+    var d=document.createElement('div');d.className='wdrop';d.style.left=(25+Math.random()*2)+'%';stg.appendChild(d);setTimeout(function(){d.remove();},980);
+    setTimeout(function(){var sp=document.createElement('div');sp.className='wsplash';sp.style.left=(38+Math.random()*2)+'%';stg.appendChild(sp);setTimeout(function(){sp.remove();},640);},560);
+  },120*k);})(i);}
+  if(pour!==false){var tm=document.getElementById('treeMain');if(tm){tm.style.animation='none';void tm.offsetWidth;tm.style.animation='treeDrink 1.4s ease-in-out';setTimeout(function(){if(tm&&tm.style.animation.indexOf('treeDrink')>=0)tm.style.animation='';},1460);}}
+}
 function waterTree(){
   if(!me){toast('로그인이 필요해요');return}
   if(Date.now()>=GIFT_HUNT_START){toast('🎄 물주기는 12월 24일에 마감됐어요 · 이제 홈에서 선물 열기를 즐겨주세요!');return}
@@ -5700,12 +5719,12 @@ function waterTree(){
   const w=state.waters[me.uid], watered=w&&w.last===TODAY;
   // 이미 오늘 준 경우: 물뿌리개 모션은 나오되 물은 안 나옴 + 멘트
   if(watered && !isTreeGrowthDay() && !treeEnded()){
-    wateringCanAnim(false);
+    waterToTree(false);
     toast('오늘은 이미 물을 줬어요 🌱 (내일 또 와요!)');
     return;
   }
   const record=()=>{if(isTestBot(me))return;const nw={name:me.name,role:me.role,count:(w?.count||0)+1,last:TODAY,t:Date.now(),firstT:(w&&w.firstT)||Date.now()};state.waters[me.uid]=nw;state.pr++;if(LIVE){DB.set('waters/'+me.uid,nw);DB.set('pr',state.pr)}renderWaterFeed()};
-  wateringCanAnim(true);  // 물뿌리개로 천천히 물 주기 (첫 물주기엔 물이 나옴)
+  waterToTree(true);  // 병아리 물뿌리개 → 나무로 물 주기
   if(treeEnded()){
     if(!watered){record();toast('🎄 완성된 트리에 물을 줬어요!')}else toast('✨ 트리가 반짝여요!');
     setTimeout(()=>{renderTree();treeEndingAnim()},1050);return;
