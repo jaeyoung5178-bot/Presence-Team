@@ -27,6 +27,18 @@
   function currentUser(){if(window.me)return window.me;try{return typeof me!=='undefined'?me:null;}catch(e){return null;}}
   function currentState(){if(window.state)return window.state;try{return typeof state!=='undefined'?state:null;}catch(e){return null;}}
   function readLocalProfile(u){if(!u)return null;try{return JSON.parse(localStorage.getItem('presence_pet_'+u.uid)||'null');}catch(e){return null;}}
+  function readRememberedProfile(){
+    var best=null,bestTime=-1;
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i);if(!key||key.indexOf('presence_pet_')!==0)continue;
+        var value=JSON.parse(localStorage.getItem(key)||'null');if(!value)continue;
+        var time=Number(value.updatedAt||value.adoptedAt||0);
+        if(time>=bestTime){best=value;bestTime=time;}
+      }
+    }catch(e){}
+    return best;
+  }
   /* 예전 프로필(color/feather/equipped)에서 코디 하나로 마이그레이션 */
   function migrateOutfit(raw){
     if(!raw)return DEFAULT_OUTFIT;
@@ -42,11 +54,15 @@
   function profile(){
     var u=currentUser(),st=currentState();
     var remote=u&&st&&st.petProfiles&&st.petProfiles[u.uid]||{},local=readLocalProfile(u)||{};
-    var raw=(Number(local.updatedAt||0)>Number(remote.updatedAt||0)?local:remote),p=Object.assign({},raw);
+    var raw=u?(Number(local.updatedAt||0)>Number(remote.updatedAt||0)?local:remote):(readRememberedProfile()||{});
+    var p=Object.assign({},raw);
     p.uid=u&&u.uid||p.uid;p.name=u&&u.name||p.name||'';
     p.nickname=p.nickname||((p.name||'나')+'의 삐약이');
     p.outfit=validOutfit(p.outfit||migrateOutfit(raw));
     p.schemaVersion=4;
+    if(u||raw.outfit||raw.equipped||raw.look){
+      try{localStorage.setItem('presence_last_avatar_src',ROOT+'avatar-'+p.outfit+'.png');}catch(e){}
+    }
     return p;
   }
   /* 아바타 렌더 — 선택된 코디 원화 이미지 한 장 */
@@ -65,7 +81,10 @@
     var u=currentUser(),st=currentState();if(!u||!st)return;
     p.updatedAt=Date.now();p.adoptedAt=p.adoptedAt||Date.now();
     st.petProfiles=st.petProfiles||{};st.petProfiles[u.uid]=p;
-    try{localStorage.setItem('presence_pet_'+u.uid,JSON.stringify(p));}catch(e){}
+    try{
+      localStorage.setItem('presence_pet_'+u.uid,JSON.stringify(p));
+      localStorage.setItem('presence_last_avatar_src',ROOT+'avatar-'+validOutfit(p.outfit)+'.png');
+    }catch(e){}
     try{var live=typeof LIVE!=='undefined'?LIVE:window.LIVE,db=typeof DB!=='undefined'?DB:window.DB,test=typeof isTestBot==='function'&&isTestBot(u);
       if(live&&db&&db.set&&!test)db.set('petProfiles/'+u.uid,p);}catch(e){}
     render();

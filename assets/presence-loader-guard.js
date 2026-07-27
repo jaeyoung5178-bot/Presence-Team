@@ -44,7 +44,37 @@
     }
   }
 
+  function rememberedProfile() {
+    var best = null;
+    var bestTime = -1;
+    try {
+      for (var index = 0; index < localStorage.length; index += 1) {
+        var key = localStorage.key(index);
+        if (!key || key.indexOf('presence_pet_') !== 0) continue;
+        var value = JSON.parse(localStorage.getItem(key) || 'null');
+        if (!value) continue;
+        var time = Number(value.updatedAt || value.adoptedAt || 0);
+        if (time >= bestTime) {
+          best = value;
+          bestTime = time;
+        }
+      }
+    } catch (error) {}
+    return best;
+  }
+
+  function rememberedSource() {
+    try {
+      var src = localStorage.getItem('presence_last_avatar_src') || '';
+      if (/^assets\/pets\/avatar-(scholar|cape|courier|raincoat|floral|sailor|strawhat|backpack|scarf)\.png$/.test(src)) {
+        return src;
+      }
+    } catch (error) {}
+    return '';
+  }
+
   function loaderProfile(user) {
+    if (!user) return rememberedProfile();
     try {
       if (typeof window.presenceAvatarProfile === 'function') {
         return window.presenceAvatarProfile();
@@ -74,11 +104,12 @@
   function syncLoaderAvatar() {
     var hero = document.getElementById('pglHeroPet');
     var user = currentUser();
-    if (!hero || !user) return false;
+    if (!hero) return false;
     var profile = loaderProfile(user);
-    var src = avatarSource(profile);
+    var src = avatarSource(profile) || rememberedSource();
     if (!src) return false;
-    var signature = [user.uid, profile && profile.outfit || '', profile && profile.updatedAt || 0, src].join('|');
+    var owner = user && user.uid || 'remembered';
+    var signature = [owner, profile && profile.outfit || '', profile && profile.updatedAt || 0, src].join('|');
     if (hero.dataset.avatarSignature === signature && hero.getAttribute('src') === src) return true;
     var image = new Image();
     image.decoding = 'async';
@@ -86,8 +117,9 @@
       if (!hero.isConnected) return;
       hero.src = src;
       hero.dataset.avatarSignature = signature;
-      hero.dataset.avatarOwner = user.uid;
+      hero.dataset.avatarOwner = owner;
       hero.alt = '';
+      try{localStorage.setItem('presence_last_avatar_src',src);}catch(error){}
     };
     image.src = src;
     return true;

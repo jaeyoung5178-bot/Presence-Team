@@ -2109,7 +2109,26 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 <script id="presence-cinematic-loader-compose">
 (function(){
   var el=document.getElementById('presenceGameLoader');if(!el)return;el.classList.add('cinematic');
-  el.innerHTML='<div class="pgl-cinema"><section class="pgl-console"><div class="pgl-brandline"><div class="pgl-logo"><i>P</i><span>PRESENCE WORKBOOK</span></div><div class="pgl-secure">SECURE LIVE</div></div><div class="pgl-kicker">DAILY MISSION · TEAM OPERATING SYSTEM</div><div class="pgl-cinema-title">오늘의 작전을<br><em>불러오는 중</em></div><p class="pgl-cinema-sub">사람, 성장, 현장과 수익의 기록을 하나의 플레이 공간으로 연결하고 있어요.</p><div class="pgl-missions" id="pglMissions"><div class="pgl-mission on"><b>01 · IDENTITY</b><span>나의 공간 확인</span></div><div class="pgl-mission"><b>02 · TEAM DATA</b><span>팀 기록 동기화</span></div><div class="pgl-mission"><b>03 · MISSION</b><span>오늘 화면 준비</span></div></div><div class="pgl-loadbox"><div class="pgl-loadmeta"><span class="pgl-dynamic-msg" id="presenceGameLoaderMsg">Presence 서버에 안전하게 연결하는 중…</span><strong class="pgl-percent" id="pglPercent">08%</strong></div><div class="pgl-track"><i id="pglFill"></i></div></div></section><section class="pgl-world" aria-hidden="true"><div class="pgl-world-head"><span>MY PRESENCE COMPANION</span><b class="pgl-livechip">● ONLINE</b></div><div class="pgl-stage"><div class="pgl-scanbeam"></div><div class="pgl-platform"></div><img class="pgl-hero" id="pglHeroPet" src="assets/pets/presence-fitted-raincoat-shades.webp" alt=""><div class="pgl-data a"><b>PROFILE</b><span>개인 성장 기록 연결</span></div><div class="pgl-data b"><b>WORKSPACE</b><span>Today · People · Progress · Profit</span></div><div class="pgl-pet-ready"><i></i><span>나의 Presence 공간 생성 중</span></div></div></section></div>';
+  function rememberedAvatar(){
+    var allowed={scholar:1,cape:1,courier:1,raincoat:1,floral:1,sailor:1,strawhat:1,backpack:1,scarf:1};
+    try{
+      var best=null,bestTime=-1;
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i);if(!key||key.indexOf('presence_pet_')!==0)continue;
+        var value=JSON.parse(localStorage.getItem(key)||'null');if(!value)continue;
+        var time=Number(value.updatedAt||value.adoptedAt||0);
+        if(time>=bestTime){best=value;bestTime=time;}
+      }
+      var legacy={body_raincoat_0:'raincoat',body_floral_0:'floral',body_swimsuit_0:'sailor',body_leader_0:'scholar',raincoat:'raincoat',floral:'floral',swimsuit:'sailor',leader:'scholar'};
+      var outfit=best&&(best.outfit||legacy[(best.equipped&&best.equipped.body)||best.look]);
+      if(outfit&&allowed[outfit])return 'assets/pets/avatar-'+outfit+'.png';
+      var direct=localStorage.getItem('presence_last_avatar_src')||'';
+      var match=direct.match(/^assets\/pets\/avatar-([a-z0-9-]+)\.png$/);
+      if(match&&allowed[match[1]])return direct;
+    }catch(e){}
+    return 'assets/pets/avatar-scholar.png';
+  }
+  el.innerHTML='<div class="pgl-cinema"><section class="pgl-console"><div class="pgl-brandline"><div class="pgl-logo"><i>P</i><span>PRESENCE WORKBOOK</span></div><div class="pgl-secure">SECURE LIVE</div></div><div class="pgl-kicker">DAILY MISSION · TEAM OPERATING SYSTEM</div><div class="pgl-cinema-title">오늘의 작전을<br><em>불러오는 중</em></div><p class="pgl-cinema-sub">사람, 성장, 현장과 수익의 기록을 하나의 플레이 공간으로 연결하고 있어요.</p><div class="pgl-missions" id="pglMissions"><div class="pgl-mission on"><b>01 · IDENTITY</b><span>나의 공간 확인</span></div><div class="pgl-mission"><b>02 · TEAM DATA</b><span>팀 기록 동기화</span></div><div class="pgl-mission"><b>03 · MISSION</b><span>오늘 화면 준비</span></div></div><div class="pgl-loadbox"><div class="pgl-loadmeta"><span class="pgl-dynamic-msg" id="presenceGameLoaderMsg">Presence 서버에 안전하게 연결하는 중…</span><strong class="pgl-percent" id="pglPercent">08%</strong></div><div class="pgl-track"><i id="pglFill"></i></div></div></section><section class="pgl-world" aria-hidden="true"><div class="pgl-world-head"><span>MY PRESENCE COMPANION</span><b class="pgl-livechip">● ONLINE</b></div><div class="pgl-stage"><div class="pgl-scanbeam"></div><div class="pgl-platform"></div><img class="pgl-hero" id="pglHeroPet" src="'+rememberedAvatar()+'" alt=""><div class="pgl-data a"><b>PROFILE</b><span>개인 성장 기록 연결</span></div><div class="pgl-data b"><b>WORKSPACE</b><span>Today · People · Progress · Profit</span></div><div class="pgl-pet-ready"><i></i><span>나의 Presence 공간 생성 중</span></div></div></section></div>';
 })();
 </script>
 <div id="presenceEntryLobby" aria-hidden="true">
@@ -2124,7 +2143,7 @@ window.showPresenceLoader=function(msg){
   var step=0,fill=document.getElementById('pglFill'),pct=document.getElementById('pglPercent'),m=document.getElementById('presenceGameLoaderMsg'),cards=[].slice.call(document.querySelectorAll('#pglMissions .pgl-mission'));
   function draw(){if(fill)fill.style.width=window.__pglValue+'%';if(pct)pct.textContent=String(Math.round(window.__pglValue)).padStart(2,'0')+'%';if(m)m.textContent=messages[Math.min(step,messages.length-1)];cards.forEach(function(c,i){c.classList.toggle('on',i<=Math.min(step,2));});}
   draw();
-  try{var hero=document.getElementById('pglHeroPet'),p=typeof me!=='undefined'&&me&&state.petProfiles&&state.petProfiles[me.uid];if(hero&&p&&typeof fittedAsset==='function'){var looks=typeof equippedLooks==='function'?equippedLooks(p):p.equipped||{},src=fittedAsset(looks.body,looks.head);if(src)hero.src=src;}}catch(e){}
+  try{if(typeof window.syncPresenceLoaderAvatar==='function')window.syncPresenceLoaderAvatar();}catch(e){}
   window.__pglTimer=setInterval(function(){if(!el.classList.contains('show')){clearInterval(window.__pglTimer);return;}window.__pglValue=Math.min(92,window.__pglValue+6+Math.random()*7);step=window.__pglValue>72?3:(window.__pglValue>43?2:(window.__pglValue>22?1:0));draw();},420);
 };
 window.hidePresenceLoader=function(){var el=document.getElementById('presenceGameLoader');if(!el)return;clearInterval(window.__pglTimer);window.__pglValue=100;var fill=document.getElementById('pglFill'),pct=document.getElementById('pglPercent'),m=document.getElementById('presenceGameLoaderMsg');if(fill)fill.style.width='100%';if(pct)pct.textContent='100%';if(m)m.textContent='Presence 준비 완료 · 입장합니다';document.querySelectorAll('#pglMissions .pgl-mission').forEach(function(c){c.classList.add('on');});el.classList.add('complete');setTimeout(function(){el.classList.remove('show','complete');},260);};
@@ -10692,7 +10711,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-07-27.presence-domain-release-5';
+const APP_VERSION='2026-07-27.presence-domain-release-6';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -15339,11 +15358,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260727-5">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20260727-2">
-<script src="assets/presence-avatar-studio.js?v=20260718-9"></script>
+<script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20260727-5"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
-<script src="assets/presence-loader-guard.js?v=20260727-4"></script>
+<script src="assets/presence-loader-guard.js?v=20260727-6"></script>
 </body>
 </html>
