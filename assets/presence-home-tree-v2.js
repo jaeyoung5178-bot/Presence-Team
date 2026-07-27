@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260727-4';
+  var VERSION = '20260727-5';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -263,16 +263,29 @@
   }
 
   function waterFxMarkup() {
-    var path = 'M 650 770 C 713 768 777 790 836 806';
+    var dropSpecs = [
+      [790, 465, 1.45, 335], [822, 438, 1.55, 360], [850, 470, 1.62, 330],
+      [770, 510, 1.72, 290], [836, 500, 1.78, 300], [870, 520, 1.84, 280],
+      [805, 545, 1.92, 255], [850, 560, 2.03, 240], [785, 575, 2.12, 225],
+      [835, 590, 2.22, 210], [868, 610, 2.33, 190], [810, 625, 2.44, 175]
+    ];
+    var fallingDrops = dropSpecs.map(function (spec) {
+      var x = spec[0];
+      var y = spec[1];
+      return '<path class="tree-v4-fall-drop" d="M ' + x + ' ' + y +
+        ' C ' + (x - 8) + ' ' + (y + 12) + ' ' + (x - 7) + ' ' + (y + 22) +
+        ' ' + x + ' ' + (y + 22) + ' C ' + (x + 7) + ' ' + (y + 22) + ' ' +
+        (x + 8) + ' ' + (y + 12) + ' ' + x + ' ' + y +
+        ' Z" style="--drop-delay:' + spec[2] + 's;--drop-fall:' + spec[3] + 'px"/>';
+    }).join('');
     return '<svg class="tree-v2-water-fx" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
       '<defs>' +
-      '<linearGradient id="treeV3WaterGlass" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#dffaff"/><stop offset=".44" stop-color="#85d9ef"/>' +
-      '<stop offset="1" stop-color="#4aaacb"/></linearGradient>' +
+      '<linearGradient id="treeV4DropGlass" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#f4fdff"/><stop offset=".46" stop-color="#92e1f3"/>' +
+      '<stop offset="1" stop-color="#3fa6cd"/></linearGradient>' +
       '</defs>' +
       '<ellipse class="tree-v2-wet-soil" cx="836" cy="812" rx="59" ry="12"/>' +
-      '<path class="tree-v2-water-stream" d="' + path + '" pathLength="1"/>' +
-      '<path class="tree-v2-water-beads" d="' + path + '" pathLength="1"/>' +
+      '<g class="tree-v4-water-shower">' + fallingDrops + '</g>' +
       '<g class="tree-v2-water-ripples">' +
       '<ellipse cx="836" cy="809" rx="18" ry="5"/><ellipse cx="836" cy="810" rx="30" ry="8"/>' +
       '</g>' +
