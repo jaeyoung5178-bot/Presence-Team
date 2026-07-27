@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260727-3';
+  var VERSION = '20260727-4';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -142,6 +142,7 @@
 
   function treeKeyFor(context, season) {
     if (context.ended) return 'winter';
+    if (!context.preview) return season;
     if (context.frac >= 0.72) return season;
     if (context.frac < 0.02) return 'stage1';
     if (context.frac < 0.09) return 'stage2';
@@ -262,36 +263,36 @@
   }
 
   function waterFxMarkup() {
-    var path = 'M 370 769 C 468 759 612 811 790 818';
+    var path = 'M 650 770 C 713 768 777 790 836 806';
     return '<svg class="tree-v2-water-fx" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
       '<defs>' +
       '<linearGradient id="treeV3WaterGlass" x1="0" y1="0" x2="1" y2="0">' +
       '<stop offset="0" stop-color="#dffaff"/><stop offset=".44" stop-color="#85d9ef"/>' +
       '<stop offset="1" stop-color="#4aaacb"/></linearGradient>' +
       '</defs>' +
-      '<ellipse class="tree-v2-wet-soil" cx="790" cy="824" rx="59" ry="12"/>' +
+      '<ellipse class="tree-v2-wet-soil" cx="836" cy="812" rx="59" ry="12"/>' +
       '<path class="tree-v2-water-stream" d="' + path + '" pathLength="1"/>' +
       '<path class="tree-v2-water-beads" d="' + path + '" pathLength="1"/>' +
       '<g class="tree-v2-water-ripples">' +
-      '<ellipse cx="790" cy="822" rx="18" ry="5"/><ellipse cx="790" cy="823" rx="30" ry="8"/>' +
+      '<ellipse cx="836" cy="809" rx="18" ry="5"/><ellipse cx="836" cy="810" rx="30" ry="8"/>' +
       '</g>' +
       '<g class="tree-v2-water-splashes">' +
-      '<circle class="tree-v2-splash-a" cx="784" cy="814" r="6"/>' +
-      '<circle class="tree-v2-splash-b" cx="795" cy="816" r="5"/>' +
-      '<circle class="tree-v2-splash-c" cx="804" cy="818" r="4"/>' +
-      '<circle class="tree-v2-splash-d" cx="776" cy="819" r="3.5"/>' +
+      '<circle class="tree-v2-splash-a" cx="830" cy="799" r="6"/>' +
+      '<circle class="tree-v2-splash-b" cx="841" cy="801" r="5"/>' +
+      '<circle class="tree-v2-splash-c" cx="850" cy="803" r="4"/>' +
+      '<circle class="tree-v2-splash-d" cx="822" cy="804" r="3.5"/>' +
       '</g>' +
       '<g class="tree-v2-water-complete">' +
-      '<ellipse class="tree-v2-complete-shine" cx="790" cy="824" rx="45" ry="10"/>' +
-      '<circle class="tree-v2-complete-glow" cx="790" cy="820" r="15"/>' +
-      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-a" cx="790" cy="823" rx="18" ry="5"/>' +
-      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-b" cx="790" cy="823" rx="27" ry="7"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="5.5" style="--water-dx:-35px;--water-dy:-31px;--water-delay:2.69s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="4.5" style="--water-dx:-15px;--water-dy:-42px;--water-delay:2.73s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="5" style="--water-dx:10px;--water-dy:-45px;--water-delay:2.7s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="4.5" style="--water-dx:31px;--water-dy:-32px;--water-delay:2.76s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="3.5" style="--water-dx:42px;--water-dy:-16px;--water-delay:2.81s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="3.5" style="--water-dx:-43px;--water-dy:-14px;--water-delay:2.79s"/>' +
+      '<ellipse class="tree-v2-complete-shine" cx="836" cy="811" rx="45" ry="10"/>' +
+      '<circle class="tree-v2-complete-glow" cx="836" cy="807" r="15"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-a" cx="836" cy="810" rx="18" ry="5"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-b" cx="836" cy="810" rx="27" ry="7"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="5.5" style="--water-dx:-35px;--water-dy:-31px;--water-delay:3.09s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="4.5" style="--water-dx:-15px;--water-dy:-42px;--water-delay:3.13s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="5" style="--water-dx:10px;--water-dy:-45px;--water-delay:3.1s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="4.5" style="--water-dx:31px;--water-dy:-32px;--water-delay:3.16s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="3.5" style="--water-dx:42px;--water-dy:-16px;--water-delay:3.21s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="3.5" style="--water-dx:-43px;--water-dy:-14px;--water-delay:3.19s"/>' +
       '</g>' +
       '</svg>';
   }
@@ -347,7 +348,7 @@
       host.classList.remove('is-watering');
       stage.classList.remove('tree-v2-is-watering');
       document.body.classList.remove('tree-v2-watering-mode');
-    }, 3700);
+    }, 4400);
   }
 
   function ensureTree(stage) {

@@ -235,10 +235,32 @@
   will-change: transform;
 }
 
+#treeSecHome .tree-v2-waterer::before,
+#treeSecHome .tree-v2-waterer::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 13%;
+  bottom: 3%;
+  width: 31%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(235, 211, 164, .66), rgba(206, 176, 126, .22) 52%, transparent 74%);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+#treeSecHome .tree-v2-waterer::after {
+  left: 31%;
+  width: 22%;
+}
+
 #treeSecHome .tree-v2-waterer-pet {
   position: absolute;
   inset: 0;
   transform-origin: 58% 78%;
+  transform: scaleX(-1);
   will-change: transform;
 }
 
@@ -276,19 +298,27 @@
 }
 
 #treeSecHome .tree-v2-waterer.is-watering {
-  animation: tree-v3-waterer-action 3.7s cubic-bezier(.22, .75, .24, 1) both;
+  animation: tree-v3-waterer-action 4.4s cubic-bezier(.22, .75, .24, 1) both;
+}
+
+#treeSecHome .tree-v2-waterer.is-watering::before {
+  animation: tree-v3-step-dust-a 4.4s ease-out both;
+}
+
+#treeSecHome .tree-v2-waterer.is-watering::after {
+  animation: tree-v3-step-dust-b 4.4s ease-out both;
 }
 
 #treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-can {
-  animation: tree-v3-can-pour 3.7s cubic-bezier(.24, .78, .22, 1) both;
+  animation: tree-v3-can-pour 4.4s cubic-bezier(.24, .78, .22, 1) both;
 }
 
 #treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-pet {
-  animation: tree-v3-pet-pour 3.7s cubic-bezier(.22, .75, .24, 1) both;
+  animation: tree-v3-pet-pour 4.4s cubic-bezier(.22, .75, .24, 1) both;
 }
 
 #treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-grip {
-  animation: tree-v3-grip-pour 3.7s cubic-bezier(.22, .75, .24, 1) both;
+  animation: tree-v3-grip-pour 4.4s cubic-bezier(.22, .75, .24, 1) both;
 }
 
 #treeSecHome .tree-v2-water-fx {
@@ -306,7 +336,7 @@
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-water-fx {
-  animation: tree-v3-water-fx-window 3.7s linear both;
+  animation: tree-v3-water-fx-window 4.4s linear both;
 }
 
 #treeSecHome .tree-v2-water-stream,
@@ -341,13 +371,13 @@ body.tree-v2-watering-mode #toast {
 #treeSecHome .tree-v2-is-watering .tree-v2-water-stream {
   animation:
     tree-v3-water-flow .48s linear .66s infinite,
-    tree-v3-water-stream-window 3.7s linear both;
+    tree-v3-water-stream-window 4.4s linear both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-water-beads {
   animation:
     tree-v3-water-beads .62s linear .7s infinite,
-    tree-v3-water-stream-window 3.7s linear both;
+    tree-v3-water-stream-window 4.4s linear both;
 }
 
 #treeSecHome .tree-v2-wet-soil {
@@ -358,7 +388,7 @@ body.tree-v2-watering-mode #toast {
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-wet-soil {
-  animation: tree-v3-wet-soil 3.7s ease-out both;
+  animation: tree-v3-wet-soil 4.4s ease-out both;
 }
 
 #treeSecHome .tree-v2-water-ripples ellipse {
@@ -433,19 +463,19 @@ body.tree-v2-watering-mode #toast {
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-complete-shine {
-  animation: tree-v3-complete-shine .9s ease-out 2.68s both;
+  animation: tree-v3-complete-shine .9s ease-out 3.08s both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-complete-glow {
-  animation: tree-v3-complete-glow .76s ease-out 2.66s both;
+  animation: tree-v3-complete-glow .76s ease-out 3.06s both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-complete-ring-a {
-  animation: tree-v3-complete-ring .78s cubic-bezier(.16, .76, .28, 1) 2.67s both;
+  animation: tree-v3-complete-ring .78s cubic-bezier(.16, .76, .28, 1) 3.07s both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-complete-ring-b {
-  animation: tree-v3-complete-ring .92s cubic-bezier(.16, .76, .28, 1) 2.76s both;
+  animation: tree-v3-complete-ring .92s cubic-bezier(.16, .76, .28, 1) 3.16s both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-complete-drop {
@@ -459,55 +489,81 @@ body.tree-v2-watering-mode #toast {
 
 @keyframes tree-v3-waterer-action {
   0% { transform: translate(0, 0) rotate(0) scale(1); }
-  8% { transform: translate(0, 2.8%) rotate(1.5deg) scale(1.018, .982); }
-  17% { transform: translate(1%, -3.6%) rotate(-2.6deg) scale(.99, 1.02); }
-  27% { transform: translate(3.2%, -.7%) rotate(2.6deg) scale(1); }
-  39% { transform: translate(3.5%, .2%) rotate(2.1deg) scale(1.006, .994); }
-  51% { transform: translate(3.1%, -.7%) rotate(2.8deg) scale(.997, 1.003); }
-  63% { transform: translate(3.6%, .1%) rotate(2.2deg) scale(1.005, .995); }
-  73% { transform: translate(3.2%, -.4%) rotate(2.6deg) scale(1); }
-  83% { transform: translate(-.7%, -2.4%) rotate(-2deg) scale(.994, 1.01); }
-  91% { transform: translate(0, 1.5%) rotate(.8deg) scale(1.01, .99); }
+  7% { transform: translate(0, 3%) rotate(1.5deg) scale(1.02, .98); }
+  12% { transform: translate(31%, -6%) rotate(-3deg) scale(.99, 1.02); }
+  17% { transform: translate(63%, 1%) rotate(2.5deg) scale(1.015, .985); }
+  22% { transform: translate(91%, -5%) rotate(-2deg) scale(.995, 1.015); }
+  27% { transform: translate(108%, 0) rotate(1.5deg) scale(1); }
+  38% { transform: translate(109%, .6%) rotate(1.2deg) scale(1.008, .992); }
+  51% { transform: translate(107%, -.8%) rotate(1.8deg) scale(.996, 1.004); }
+  64% { transform: translate(109%, .4%) rotate(1.1deg) scale(1.006, .994); }
+  73% { transform: translate(108%, 0) rotate(1.5deg) scale(1); }
+  80% { transform: translate(78%, -7%) rotate(-2.8deg) scale(.99, 1.02); }
+  86% { transform: translate(46%, 1%) rotate(2.3deg) scale(1.014, .986); }
+  92% { transform: translate(17%, -4%) rotate(-1.8deg) scale(.995, 1.012); }
+  96% { transform: translate(-3%, 2%) rotate(.8deg) scale(1.012, .988); }
   100% { transform: translate(0, 0) rotate(0) scale(1); }
 }
 
 @keyframes tree-v3-pet-pour {
-  0%, 10%, 100% { transform: rotate(0); }
-  18% { transform: rotate(-1.8deg); }
-  28%, 73% { transform: rotate(2.4deg); }
-  84% { transform: rotate(-1.2deg); }
+  0%, 7%, 100% { transform: scaleX(-1) rotate(0); }
+  12% { transform: scaleX(-1) rotate(-3deg); }
+  17% { transform: scaleX(-1) rotate(2.5deg); }
+  22% { transform: scaleX(-1) rotate(-2deg); }
+  27%, 73% { transform: scaleX(-1) rotate(3deg); }
+  80% { transform: scaleX(-1) rotate(-3deg); }
+  86% { transform: scaleX(-1) rotate(2.5deg); }
+  92% { transform: scaleX(-1) rotate(-1.8deg); }
 }
 
 @keyframes tree-v3-can-pour {
-  0%, 8% { transform: rotate(-13deg) translate(0, 0); }
-  17% { transform: rotate(-21deg) translate(-3%, -1%); }
-  27% { transform: rotate(27deg) translate(5%, 4%); }
-  39% { transform: rotate(31deg) translate(5%, 4%); }
-  51% { transform: rotate(27deg) translate(5%, 3%); }
-  63% { transform: rotate(31deg) translate(5%, 4%); }
-  73% { transform: rotate(28deg) translate(5%, 4%); }
-  84% { transform: rotate(-19deg) translate(-2%, -1%); }
-  92% { transform: rotate(-9deg) translate(0, 0); }
+  0%, 20% { transform: rotate(-13deg) translate(0, 0); }
+  25% { transform: rotate(-22deg) translate(-3%, -1%); }
+  31% { transform: rotate(29deg) translate(5%, 4%); }
+  43% { transform: rotate(34deg) translate(5%, 4%); }
+  55% { transform: rotate(29deg) translate(5%, 3%); }
+  67% { transform: rotate(34deg) translate(5%, 4%); }
+  73% { transform: rotate(29deg) translate(5%, 4%); }
+  78% { transform: rotate(-19deg) translate(-2%, -1%); }
+  86% { transform: rotate(-9deg) translate(0, 0); }
   100% { transform: rotate(-13deg) translate(0, 0); }
 }
 
 @keyframes tree-v3-grip-pour {
-  0%, 10%, 100% { transform: rotate(-18deg) translate(0, 0); }
-  18% { transform: rotate(-28deg) translate(-8%, -5%); }
-  28%, 73% { transform: rotate(16deg) translate(24%, 12%); }
-  84% { transform: rotate(-25deg) translate(-6%, -4%); }
+  0%, 20%, 100% { transform: rotate(-18deg) translate(0, 0); }
+  25% { transform: rotate(-28deg) translate(-8%, -5%); }
+  31%, 73% { transform: rotate(16deg) translate(24%, 12%); }
+  78% { transform: rotate(-25deg) translate(-6%, -4%); }
 }
 
 @keyframes tree-v3-water-fx-window {
-  0%, 17% { opacity: 0; }
-  23%, 92% { opacity: 1; }
+  0%, 22% { opacity: 0; }
+  27%, 92% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes tree-v3-water-stream-window {
-  0%, 17% { opacity: 0; }
-  23%, 72% { opacity: 1; }
-  80%, 100% { opacity: 0; }
+  0%, 22% { opacity: 0; }
+  27%, 68% { opacity: 1; }
+  74%, 100% { opacity: 0; }
+}
+
+@keyframes tree-v3-step-dust-a {
+  0%, 7%, 100% { opacity: 0; transform: translate(0, 0) scale(.35); }
+  10% { opacity: .72; transform: translate(-8%, -6%) scale(.9); }
+  15% { opacity: 0; transform: translate(-32%, -24%) scale(1.6); }
+  18% { opacity: .58; transform: translate(-4%, 0) scale(.7); }
+  23%, 77% { opacity: 0; transform: translate(-28%, -22%) scale(1.5); }
+  82% { opacity: .68; transform: translate(6%, -3%) scale(.8); }
+  88% { opacity: 0; transform: translate(36%, -22%) scale(1.55); }
+}
+
+@keyframes tree-v3-step-dust-b {
+  0%, 13%, 100% { opacity: 0; transform: translate(0, 0) scale(.3); }
+  17% { opacity: .64; transform: translate(5%, -4%) scale(.8); }
+  23%, 83% { opacity: 0; transform: translate(-24%, -25%) scale(1.45); }
+  88% { opacity: .58; transform: translate(0, 0) scale(.75); }
+  95% { opacity: 0; transform: translate(32%, -24%) scale(1.5); }
 }
 
 @keyframes tree-v3-water-flow {
