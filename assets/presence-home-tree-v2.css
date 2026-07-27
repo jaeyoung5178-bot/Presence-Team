@@ -309,19 +309,11 @@
   animation: tree-v3-water-fx-window 3.7s linear both;
 }
 
-#treeSecHome .tree-v2-water-stream-glow,
 #treeSecHome .tree-v2-water-stream,
 #treeSecHome .tree-v2-water-beads {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-#treeSecHome .tree-v2-water-stream-glow {
-  stroke: rgba(111, 211, 239, .62);
-  stroke-width: 16;
-  filter: url(#treeV3WaterGlow);
-  opacity: .24;
 }
 
 #treeSecHome .tree-v2-water-stream {
@@ -347,11 +339,15 @@ body.tree-v2-watering-mode #toast {
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-water-stream {
-  animation: tree-v3-water-flow .48s linear .66s infinite;
+  animation:
+    tree-v3-water-flow .48s linear .66s infinite,
+    tree-v3-water-stream-window 3.7s linear both;
 }
 
 #treeSecHome .tree-v2-is-watering .tree-v2-water-beads {
-  animation: tree-v3-water-beads .62s linear .7s infinite;
+  animation:
+    tree-v3-water-beads .62s linear .7s infinite,
+    tree-v3-water-stream-window 3.7s linear both;
 }
 
 #treeSecHome .tree-v2-wet-soil {
@@ -406,10 +402,54 @@ body.tree-v2-watering-mode #toast {
   animation: tree-v3-splash-d .5s ease-out 1.2s 3;
 }
 
-#treeSecHome .tree-v2-water-highlights circle {
-  fill: #f4fdff;
-  opacity: .94;
-  filter: drop-shadow(0 0 7px rgba(134, 226, 249, .92));
+#treeSecHome .tree-v2-complete-shine,
+#treeSecHome .tree-v2-complete-glow,
+#treeSecHome .tree-v2-complete-ring,
+#treeSecHome .tree-v2-complete-drop {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#treeSecHome .tree-v2-complete-shine {
+  fill: rgba(144, 224, 233, .5);
+  filter: drop-shadow(0 0 10px rgba(114, 219, 233, .75));
+}
+
+#treeSecHome .tree-v2-complete-glow {
+  fill: rgba(206, 250, 255, .72);
+  filter: drop-shadow(0 0 14px rgba(120, 223, 242, .9));
+}
+
+#treeSecHome .tree-v2-complete-ring {
+  fill: none;
+  stroke: rgba(211, 250, 255, .94);
+  stroke-width: 4;
+}
+
+#treeSecHome .tree-v2-complete-drop {
+  fill: #e7fbff;
+  filter: drop-shadow(0 0 5px rgba(91, 200, 226, .92));
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-complete-shine {
+  animation: tree-v3-complete-shine .9s ease-out 2.68s both;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-complete-glow {
+  animation: tree-v3-complete-glow .76s ease-out 2.66s both;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-complete-ring-a {
+  animation: tree-v3-complete-ring .78s cubic-bezier(.16, .76, .28, 1) 2.67s both;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-complete-ring-b {
+  animation: tree-v3-complete-ring .92s cubic-bezier(.16, .76, .28, 1) 2.76s both;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-complete-drop {
+  animation: tree-v3-complete-drop .76s cubic-bezier(.18, .78, .28, 1) var(--water-delay) both;
 }
 
 @keyframes tree-v2-chick-idle {
@@ -460,8 +500,14 @@ body.tree-v2-watering-mode #toast {
 
 @keyframes tree-v3-water-fx-window {
   0%, 17% { opacity: 0; }
-  23%, 73% { opacity: 1; }
-  84%, 100% { opacity: 0; }
+  23%, 92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes tree-v3-water-stream-window {
+  0%, 17% { opacity: 0; }
+  23%, 72% { opacity: 1; }
+  80%, 100% { opacity: 0; }
 }
 
 @keyframes tree-v3-water-flow {
@@ -472,6 +518,34 @@ body.tree-v2-watering-mode #toast {
 @keyframes tree-v3-water-beads {
   from { stroke-dashoffset: .55; }
   to { stroke-dashoffset: -.45; }
+}
+
+@keyframes tree-v3-complete-shine {
+  0% { opacity: 0; transform: scale(.35); }
+  22% { opacity: .92; transform: scale(.78); }
+  60% { opacity: .58; transform: scale(1.18); }
+  100% { opacity: 0; transform: scale(1.62); }
+}
+
+@keyframes tree-v3-complete-glow {
+  0% { opacity: 0; transform: scale(.2); }
+  30% { opacity: .9; transform: scale(.95); }
+  100% { opacity: 0; transform: scale(2.35); }
+}
+
+@keyframes tree-v3-complete-ring {
+  0% { opacity: 0; transform: scale(.28); stroke-width: 5; }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: scale(2.15); stroke-width: 1.5; }
+}
+
+@keyframes tree-v3-complete-drop {
+  0% { opacity: 0; transform: translate(0, 0) scale(.36); }
+  18% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--water-dx), var(--water-dy)) scale(.14);
+  }
 }
 
 @keyframes tree-v3-wet-soil {
@@ -839,8 +913,7 @@ body.tree-v2-watering-mode #toast {
     opacity: .72;
   }
 
-  #treeSecHome .tree-v2-is-watering .tree-v2-water-stream,
-  #treeSecHome .tree-v2-is-watering .tree-v2-water-stream-glow {
+  #treeSecHome .tree-v2-is-watering .tree-v2-water-stream {
     stroke-dasharray: none;
   }
 

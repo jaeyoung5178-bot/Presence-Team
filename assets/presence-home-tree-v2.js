@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260727-1';
+  var VERSION = '20260727-3';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -53,7 +53,6 @@
   var original = {};
   var giftVisible = false;
   var waterTimer = 0;
-  var waterMotionTimers = [];
   var booted = false;
 
   function versioned(url) {
@@ -269,13 +268,8 @@
       '<linearGradient id="treeV3WaterGlass" x1="0" y1="0" x2="1" y2="0">' +
       '<stop offset="0" stop-color="#dffaff"/><stop offset=".44" stop-color="#85d9ef"/>' +
       '<stop offset="1" stop-color="#4aaacb"/></linearGradient>' +
-      '<filter id="treeV3WaterGlow" x="-30%" y="-50%" width="160%" height="200%">' +
-      '<feGaussianBlur stdDeviation="3" result="blur"/>' +
-      '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
-      '</filter>' +
       '</defs>' +
       '<ellipse class="tree-v2-wet-soil" cx="790" cy="824" rx="59" ry="12"/>' +
-      '<path class="tree-v2-water-stream-glow" d="' + path + '" pathLength="1"/>' +
       '<path class="tree-v2-water-stream" d="' + path + '" pathLength="1"/>' +
       '<path class="tree-v2-water-beads" d="' + path + '" pathLength="1"/>' +
       '<g class="tree-v2-water-ripples">' +
@@ -287,10 +281,17 @@
       '<circle class="tree-v2-splash-c" cx="804" cy="818" r="4"/>' +
       '<circle class="tree-v2-splash-d" cx="776" cy="819" r="3.5"/>' +
       '</g>' +
-      '<g class="tree-v2-water-highlights">' +
-      '<circle r="5.5"><animateMotion class="tree-v2-water-motion" begin="indefinite" dur=".66s" repeatCount="4" path="' + path + '"/></circle>' +
-      '<circle r="4"><animateMotion class="tree-v2-water-motion" begin="indefinite" dur=".58s" repeatCount="4" path="M 368 772 C 476 768 618 816 798 821"/></circle>' +
-      '<circle r="3"><animateMotion class="tree-v2-water-motion" begin="indefinite" dur=".72s" repeatCount="3" path="M 372 766 C 464 753 603 805 782 814"/></circle>' +
+      '<g class="tree-v2-water-complete">' +
+      '<ellipse class="tree-v2-complete-shine" cx="790" cy="824" rx="45" ry="10"/>' +
+      '<circle class="tree-v2-complete-glow" cx="790" cy="820" r="15"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-a" cx="790" cy="823" rx="18" ry="5"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-b" cx="790" cy="823" rx="27" ry="7"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="5.5" style="--water-dx:-35px;--water-dy:-31px;--water-delay:2.69s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="4.5" style="--water-dx:-15px;--water-dy:-42px;--water-delay:2.73s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="5" style="--water-dx:10px;--water-dy:-45px;--water-delay:2.7s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="4.5" style="--water-dx:31px;--water-dy:-32px;--water-delay:2.76s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="3.5" style="--water-dx:42px;--water-dy:-16px;--water-delay:2.81s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="790" cy="817" r="3.5" style="--water-dx:-43px;--water-dy:-14px;--water-delay:2.79s"/>' +
       '</g>' +
       '</svg>';
   }
@@ -302,28 +303,6 @@
       effect = stage.querySelector('.tree-v2-water-fx');
     }
     return effect;
-  }
-
-  function stopWaterMotions() {
-    waterMotionTimers.forEach(window.clearTimeout);
-    waterMotionTimers = [];
-    document.querySelectorAll('#treeSecHome .tree-v2-water-motion').forEach(function (motion) {
-      try {
-        if (typeof motion.endElement === 'function') motion.endElement();
-      } catch (error) {}
-    });
-  }
-
-  function startWaterMotions(effect) {
-    if (!effect || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var motions = effect.querySelectorAll('.tree-v2-water-motion');
-    motions.forEach(function (motion, index) {
-      waterMotionTimers.push(window.setTimeout(function () {
-        try {
-          if (typeof motion.beginElement === 'function') motion.beginElement();
-        } catch (error) {}
-      }, 700 + index * 145));
-    });
   }
 
   function ensureWaterer(stage) {
@@ -356,7 +335,6 @@
     if (!stage || !currentUser()) return;
     var host = ensureWaterer(stage);
     window.clearTimeout(waterTimer);
-    stopWaterMotions();
     host.classList.remove('is-watering');
     stage.classList.remove('tree-v2-is-watering');
     document.body.classList.remove('tree-v2-watering-mode');
@@ -364,12 +342,11 @@
     host.classList.add('is-watering');
     stage.classList.add('tree-v2-is-watering');
     document.body.classList.add('tree-v2-watering-mode');
-    startWaterMotions(ensureWaterFx(stage));
+    ensureWaterFx(stage);
     waterTimer = window.setTimeout(function () {
       host.classList.remove('is-watering');
       stage.classList.remove('tree-v2-is-watering');
       document.body.classList.remove('tree-v2-watering-mode');
-      stopWaterMotions();
     }, 3700);
   }
 
@@ -660,6 +637,27 @@
       };
       window.renderGiftHunt.__presenceTreeV2 = true;
       window.renderGiftHunt.__presenceOriginal = original.renderGiftHunt;
+    }
+
+    if (typeof window.waterToTree === 'function' && !window.waterToTree.__presenceTreeV2) {
+      original.waterToTree = window.waterToTree;
+      window.waterToTree = function (pour) {
+        var stage = document.querySelector('#treeSecHome .tree-stage');
+        if (!stage || !stage.classList.contains('tree-v2-stage')) {
+          return original.waterToTree.apply(this, arguments);
+        }
+        if (pour === false) return;
+        var tree = document.getElementById('treeMain');
+        if (!tree) return;
+        tree.style.animation = 'none';
+        void tree.offsetWidth;
+        tree.style.animation = 'treeDrink 1.4s ease-in-out';
+        window.setTimeout(function () {
+          if (tree && tree.style.animation.indexOf('treeDrink') >= 0) tree.style.animation = '';
+        }, 1460);
+      };
+      window.waterToTree.__presenceTreeV2 = true;
+      window.waterToTree.__presenceOriginal = original.waterToTree;
     }
 
     if (typeof window.waterTree === 'function' && !window.waterTree.__presenceTreeV2) {
