@@ -1,0 +1,90 @@
+{
+  "assetVersion": "20260726-2",
+  "canvas": {
+    "width": 1672,
+    "height": 941,
+    "aspectRatio": 1.7768331562
+  },
+  "treeRootAnchor": {
+    "xPx": 836,
+    "yPx": 806,
+    "xPercent": 50,
+    "yPercent": 85.653560043,
+    "tolerancePx": 2,
+    "meaning": "Every growth-stage tree's root-contact point must land here."
+  },
+  "treeSpriteContract": {
+    "canvasWidth": 1024,
+    "canvasHeight": 1536,
+    "localRootAnchorX": 512,
+    "localRootAnchorY": 1535,
+    "renderedCanvasWidthPercent": 33.5,
+    "sameRenderedSizeForEveryStage": true,
+    "style": "premium cozy-game stylized realism",
+    "sourceDirectoryForbidden": "sources/*-bluekey.png",
+    "productionDirectory": "trees",
+    "growthSubjectBoxes": {
+      "growth.1": [129, 330],
+      "growth.2": [404, 440],
+      "growth.3": [344, 660],
+      "growth.4": [497, 930],
+      "growth.5": [820, 1169],
+      "mature.spring": [950, 1400],
+      "mature.summer": [950, 1395],
+      "mature.autumn": [950, 1402],
+      "mature.winter": [922, 1410]
+    },
+    "qualityChecks": {
+      "alphaChannel": true,
+      "transparentCorners": true,
+      "magentaResiduePixels": 0,
+      "cyanResiduePixels": 0,
+      "blueKeyResiduePixels": 0,
+      "edgeContractPx": 1
+    }
+  },
+  "treeSprites": {
+    "growth.1": "trees/stage-01-sprout.png",
+    "growth.2": "trees/stage-02-cotyledon.png",
+    "growth.3": "trees/stage-03-seedling.png",
+    "growth.4": "trees/stage-04-sapling.png",
+    "growth.5": "trees/stage-05-young-tree.png",
+    "mature.spring": "trees/mature-spring-cherry.png",
+    "mature.summer": "trees/mature-summer-green.png",
+    "mature.autumn": "trees/mature-autumn-maple.png",
+    "mature.winter": "trees/mature-winter-christmas.png"
+  },
+  "backgrounds": {
+    "spring.day": "backgrounds/spring-day.png",
+    "spring.night": "backgrounds/spring-night.png",
+    "summer.rain.day": "backgrounds/summer-rain-day.png",
+    "summer.rain.night": "backgrounds/summer-rain-night.png",
+    "autumn.day": "backgrounds/autumn-day.png",
+    "autumn.night": "backgrounds/autumn-night.png",
+    "winter.snow.day": "backgrounds/winter-snow-day.png",
+    "winter.snow.night": "backgrounds/winter-snow-night.png"
+  },
+  "giftSpriteContract": {
+    "heroCanvasWidth": 1024,
+    "heroCanvasHeight": 1024,
+    "heroLocalBottomAnchorX": 512,
+    "heroLocalBottomAnchorY": 1023,
+    "pileCanvasWidth": 1536,
+    "pileCanvasHeight": 1024,
+    "pileLocalBottomAnchorX": 768,
+    "pileLocalBottomAnchorY": 1023,
+    "productionDirectory": "gifts",
+    "qualityChecks": {
+      "alphaChannel": true,
+      "transparentCorners": true,
+      "magentaResiduePixels": 0,
+      "cyanResiduePixels": 0
+    }
+  },
+  "giftSprites": {
+    "pile.back": "gifts/gift-pile-back.png",
+    "hero.closed": "gifts/gift-hero-closed.png",
+    "hero.ribbonLoose": "gifts/gift-hero-ribbon-loose.png",
+    "hero.open": "gifts/gift-hero-open.png"
+  }
+}

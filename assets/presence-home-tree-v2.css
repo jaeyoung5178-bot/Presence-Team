@@ -1,0 +1,855 @@
+/*
+ * Presence Home Tree Scene v2
+ * One fixed 1672×941 scene, one immutable tree-root anchor, one gift anchor.
+ * The shared-canvas sprite contract prevents growth stages from drifting.
+ */
+#treeSecHome .tree-stage.tree-v2-stage {
+  --tree-root-x: 50%;
+  --tree-root-y: 85.653560043%;
+  --tree-canvas-width: 33.5%;
+  --gift-root-y: 90.2%;
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  aspect-ratio: 1672 / 941 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: #171612 !important;
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+#treeSecHome .tree-v2-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity .45s ease;
+}
+
+#treeSecHome .tree-bg,
+#treeSecHome .ground {
+  display: none !important;
+}
+
+#treeSecHome .tree-weather {
+  display: block !important;
+  z-index: 2 !important;
+}
+
+#treeSecHome .tree-v2-anchor {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: var(--tree-root-y);
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+#treeSecHome .tree-v2-anchor #treeMain {
+  position: absolute !important;
+  left: var(--tree-root-x) !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 0 !important;
+  width: var(--tree-canvas-width) !important;
+  max-width: none !important;
+  height: auto !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100% !important;
+  object-fit: contain !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 1.1cqw 1.05cqw rgba(18, 10, 4, .34)) !important;
+  transition: opacity .24s ease !important;
+  will-change: opacity, transform;
+}
+
+#treeSecHome .tree-v2-anchor #treeMain.tree-v2-changing {
+  animation: tree-v2-stage-in .7s cubic-bezier(.2, .85, .25, 1) both !important;
+}
+
+@keyframes tree-v2-stage-in {
+  0% { opacity: .15; transform: translateX(-50%) translateY(1.2%) scale(.94); }
+  70% { opacity: 1; transform: translateX(-50%) translateY(-.35%) scale(1.018); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+#treeSecHome .tree-chick {
+  display: none !important;
+}
+
+#treeSecHome .tree-counter,
+#treeSecHome .stage-tag {
+  z-index: 12 !important;
+  border: 1px solid rgba(255, 238, 202, .24) !important;
+  background: rgba(22, 16, 11, .7) !important;
+  box-shadow: 0 8px 22px rgba(11, 7, 3, .18);
+  backdrop-filter: blur(8px);
+}
+
+#treeSecHome .tree-counter {
+  top: clamp(8px, 1.4cqw, 20px) !important;
+  left: clamp(8px, 1.5cqw, 22px) !important;
+  padding: clamp(6px, .8cqw, 11px) clamp(8px, 1.05cqw, 15px);
+  border-radius: clamp(10px, 1.1cqw, 16px);
+}
+
+#treeSecHome .tree-counter .n {
+  color: #ffe3a2;
+  font-size: clamp(19px, 2.4cqw, 40px);
+}
+
+#treeSecHome .tree-counter .l {
+  color: rgba(255, 245, 221, .78);
+  font-size: clamp(7px, .65cqw, 10.5px);
+}
+
+#treeSecHome .stage-tag {
+  top: clamp(8px, 1.45cqw, 22px) !important;
+  right: clamp(8px, 1.5cqw, 22px) !important;
+  color: #fff0c4 !important;
+  padding: clamp(5px, .55cqw, 8px) clamp(8px, .85cqw, 13px) !important;
+  font-size: clamp(8px, .72cqw, 11px) !important;
+}
+
+#treeSecHome #treeGifts.tree-v2-gifts {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 7 !important;
+  display: block !important;
+  pointer-events: none !important;
+}
+
+#treeSecHome .tree-v2-gift-anchor {
+  position: absolute;
+  left: 0;
+  top: var(--gift-root-y);
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+#treeSecHome .tree-v2-gift-pile {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 43%;
+  height: auto;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 .75cqw .7cqw rgba(35, 17, 4, .36));
+  pointer-events: none;
+}
+
+#treeSecHome .tree-v2-gift-hero {
+  position: absolute;
+  left: 50%;
+  bottom: -.35cqw;
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 14%, 132px);
+  aspect-ratio: 1;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  border: 0;
+  border-radius: 26%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  filter: drop-shadow(0 .58cqw .55cqw rgba(34, 15, 2, .38));
+  animation: tree-v2-gift-idle 2.35s ease-in-out infinite;
+}
+
+#treeSecHome .tree-v2-gift-hero::before {
+  content: "";
+  position: absolute;
+  inset: 19%;
+  border-radius: 50%;
+  background: rgba(255, 216, 91, .34);
+  box-shadow: 0 0 1.7cqw .8cqw rgba(255, 208, 73, .24);
+  opacity: 0;
+  animation: tree-v2-gift-glow 2.35s ease-in-out infinite;
+}
+
+#treeSecHome .tree-v2-gift-hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+#treeSecHome .tree-v2-gift-hero:disabled {
+  cursor: default;
+  filter: saturate(.72) drop-shadow(0 .45cqw .45cqw rgba(34, 15, 2, .28));
+  animation: none;
+}
+
+#treeSecHome .tree-v2-gift-hero:not(:disabled):hover {
+  animation-play-state: paused;
+  transform: translateX(-50%) translateY(-4%) scale(1.06);
+}
+
+#treeSecHome .tree-v2-gift-hero:focus-visible {
+  outline: 3px solid #fff4b2;
+  outline-offset: 3px;
+}
+
+@keyframes tree-v2-gift-idle {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-1deg); }
+  48% { transform: translateX(-50%) translateY(-6%) rotate(1.5deg); }
+}
+
+@keyframes tree-v2-gift-glow {
+  0%, 100% { opacity: .1; transform: scale(.8); }
+  48% { opacity: 1; transform: scale(1.16); }
+}
+
+#treeSecHome #treeFloat {
+  display: none !important;
+}
+
+#treeSecHome .tree-v2-waterer {
+  position: absolute;
+  z-index: 8;
+  left: 6.8%;
+  bottom: 8.5%;
+  width: clamp(52px, 15%, 205px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 .75cqw .7cqw rgba(20, 12, 4, .35));
+  animation: tree-v2-chick-idle 3.1s ease-in-out infinite;
+  will-change: transform;
+}
+
+#treeSecHome .tree-v2-waterer-pet {
+  position: absolute;
+  inset: 0;
+  transform-origin: 58% 78%;
+  will-change: transform;
+}
+
+#treeSecHome .tree-v2-waterer .presence-game-pet,
+#treeSecHome .tree-v2-waterer .presence-game-pet > img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#treeSecHome .tree-v2-waterer-can {
+  position: absolute;
+  z-index: 4;
+  right: -6%;
+  bottom: 7%;
+  width: 45%;
+  overflow: visible;
+  transform: rotate(-13deg);
+  transform-origin: 17% 57%;
+  filter: drop-shadow(0 5px 5px rgba(22, 15, 7, .28));
+  will-change: transform;
+}
+
+#treeSecHome .tree-v2-waterer-grip {
+  position: absolute;
+  z-index: 5;
+  right: 24%;
+  bottom: 29%;
+  width: 10%;
+  aspect-ratio: 1.35;
+  border: 2px solid rgba(53, 69, 47, .92);
+  border-radius: 60% 45% 58% 42%;
+  background: linear-gradient(145deg, #ffe9ad, #c79c55);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .6), 0 2px 3px rgba(25, 15, 6, .28);
+  transform: rotate(-18deg);
+}
+
+#treeSecHome .tree-v2-waterer.is-watering {
+  animation: tree-v3-waterer-action 3.7s cubic-bezier(.22, .75, .24, 1) both;
+}
+
+#treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-can {
+  animation: tree-v3-can-pour 3.7s cubic-bezier(.24, .78, .22, 1) both;
+}
+
+#treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-pet {
+  animation: tree-v3-pet-pour 3.7s cubic-bezier(.22, .75, .24, 1) both;
+}
+
+#treeSecHome .tree-v2-waterer.is-watering .tree-v2-waterer-grip {
+  animation: tree-v3-grip-pour 3.7s cubic-bezier(.22, .75, .24, 1) both;
+}
+
+#treeSecHome .tree-v2-water-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  shape-rendering: geometricPrecision;
+  will-change: opacity;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-water-fx {
+  animation: tree-v3-water-fx-window 3.7s linear both;
+}
+
+#treeSecHome .tree-v2-water-stream-glow,
+#treeSecHome .tree-v2-water-stream,
+#treeSecHome .tree-v2-water-beads {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#treeSecHome .tree-v2-water-stream-glow {
+  stroke: rgba(111, 211, 239, .62);
+  stroke-width: 16;
+  filter: url(#treeV3WaterGlow);
+  opacity: .24;
+}
+
+#treeSecHome .tree-v2-water-stream {
+  stroke: url(#treeV3WaterGlass);
+  stroke-width: 8;
+  stroke-dasharray: .066 .026;
+  stroke-dashoffset: .9;
+  filter: drop-shadow(0 5px 3px rgba(21, 91, 117, .28));
+}
+
+#treeSecHome .tree-v2-water-beads {
+  stroke: #effcff;
+  stroke-width: 9;
+  stroke-dasharray: .006 .07;
+  stroke-dashoffset: .5;
+  opacity: .82;
+  filter: drop-shadow(0 0 7px rgba(133, 223, 247, .78));
+}
+
+body.tree-v2-watering-mode #toast {
+  top: max(16px, env(safe-area-inset-top));
+  bottom: auto;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-water-stream {
+  animation: tree-v3-water-flow .48s linear .66s infinite;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-water-beads {
+  animation: tree-v3-water-beads .62s linear .7s infinite;
+}
+
+#treeSecHome .tree-v2-wet-soil {
+  fill: rgba(49, 31, 18, .7);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-wet-soil {
+  animation: tree-v3-wet-soil 3.7s ease-out both;
+}
+
+#treeSecHome .tree-v2-water-ripples ellipse {
+  fill: none;
+  stroke: rgba(191, 235, 238, .86);
+  stroke-width: 4;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-water-ripples ellipse:first-child {
+  animation: tree-v3-ripple .64s ease-out .98s 4;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-water-ripples ellipse:last-child {
+  animation: tree-v3-ripple .76s ease-out 1.15s 3;
+}
+
+#treeSecHome .tree-v2-water-splashes circle {
+  fill: #c9f4ff;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(78, 184, 216, .7));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-splash-a {
+  animation: tree-v3-splash-a .58s ease-out .96s 4;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-splash-b {
+  animation: tree-v3-splash-b .54s ease-out 1.07s 4;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-splash-c {
+  animation: tree-v3-splash-c .62s ease-out 1.14s 3;
+}
+
+#treeSecHome .tree-v2-is-watering .tree-v2-splash-d {
+  animation: tree-v3-splash-d .5s ease-out 1.2s 3;
+}
+
+#treeSecHome .tree-v2-water-highlights circle {
+  fill: #f4fdff;
+  opacity: .94;
+  filter: drop-shadow(0 0 7px rgba(134, 226, 249, .92));
+}
+
+@keyframes tree-v2-chick-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.2%); }
+}
+
+@keyframes tree-v3-waterer-action {
+  0% { transform: translate(0, 0) rotate(0) scale(1); }
+  8% { transform: translate(0, 2.8%) rotate(1.5deg) scale(1.018, .982); }
+  17% { transform: translate(1%, -3.6%) rotate(-2.6deg) scale(.99, 1.02); }
+  27% { transform: translate(3.2%, -.7%) rotate(2.6deg) scale(1); }
+  39% { transform: translate(3.5%, .2%) rotate(2.1deg) scale(1.006, .994); }
+  51% { transform: translate(3.1%, -.7%) rotate(2.8deg) scale(.997, 1.003); }
+  63% { transform: translate(3.6%, .1%) rotate(2.2deg) scale(1.005, .995); }
+  73% { transform: translate(3.2%, -.4%) rotate(2.6deg) scale(1); }
+  83% { transform: translate(-.7%, -2.4%) rotate(-2deg) scale(.994, 1.01); }
+  91% { transform: translate(0, 1.5%) rotate(.8deg) scale(1.01, .99); }
+  100% { transform: translate(0, 0) rotate(0) scale(1); }
+}
+
+@keyframes tree-v3-pet-pour {
+  0%, 10%, 100% { transform: rotate(0); }
+  18% { transform: rotate(-1.8deg); }
+  28%, 73% { transform: rotate(2.4deg); }
+  84% { transform: rotate(-1.2deg); }
+}
+
+@keyframes tree-v3-can-pour {
+  0%, 8% { transform: rotate(-13deg) translate(0, 0); }
+  17% { transform: rotate(-21deg) translate(-3%, -1%); }
+  27% { transform: rotate(27deg) translate(5%, 4%); }
+  39% { transform: rotate(31deg) translate(5%, 4%); }
+  51% { transform: rotate(27deg) translate(5%, 3%); }
+  63% { transform: rotate(31deg) translate(5%, 4%); }
+  73% { transform: rotate(28deg) translate(5%, 4%); }
+  84% { transform: rotate(-19deg) translate(-2%, -1%); }
+  92% { transform: rotate(-9deg) translate(0, 0); }
+  100% { transform: rotate(-13deg) translate(0, 0); }
+}
+
+@keyframes tree-v3-grip-pour {
+  0%, 10%, 100% { transform: rotate(-18deg) translate(0, 0); }
+  18% { transform: rotate(-28deg) translate(-8%, -5%); }
+  28%, 73% { transform: rotate(16deg) translate(24%, 12%); }
+  84% { transform: rotate(-25deg) translate(-6%, -4%); }
+}
+
+@keyframes tree-v3-water-fx-window {
+  0%, 17% { opacity: 0; }
+  23%, 73% { opacity: 1; }
+  84%, 100% { opacity: 0; }
+}
+
+@keyframes tree-v3-water-flow {
+  from { stroke-dashoffset: .9; }
+  to { stroke-dashoffset: -.1; }
+}
+
+@keyframes tree-v3-water-beads {
+  from { stroke-dashoffset: .55; }
+  to { stroke-dashoffset: -.45; }
+}
+
+@keyframes tree-v3-wet-soil {
+  0%, 22% { opacity: 0; transform: scale(.35); }
+  38% { opacity: .78; transform: scale(.78); }
+  72% { opacity: .88; transform: scale(1); }
+  100% { opacity: .28; transform: scale(1.08); }
+}
+
+@keyframes tree-v3-ripple {
+  0% { opacity: 0; transform: scale(.28); }
+  22% { opacity: .9; }
+  100% { opacity: 0; transform: scale(1.65); }
+}
+
+@keyframes tree-v3-splash-a {
+  0% { opacity: 0; transform: translate(0, 0) scale(.45); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-18px, -29px) scale(.18); }
+}
+
+@keyframes tree-v3-splash-b {
+  0% { opacity: 0; transform: translate(0, 0) scale(.45); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(9px, -35px) scale(.18); }
+}
+
+@keyframes tree-v3-splash-c {
+  0% { opacity: 0; transform: translate(0, 0) scale(.45); }
+  20% { opacity: .95; }
+  100% { opacity: 0; transform: translate(24px, -21px) scale(.18); }
+}
+
+@keyframes tree-v3-splash-d {
+  0% { opacity: 0; transform: translate(0, 0) scale(.4); }
+  20% { opacity: .9; }
+  100% { opacity: 0; transform: translate(-27px, -15px) scale(.15); }
+}
+
+.tree-v2-debug #treeSecHome .tree-v2-anchor::before,
+.tree-v2-debug #treeSecHome .tree-v2-gift-anchor::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #00f5ff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #102, 0 0 12px #00f5ff;
+}
+
+.tree-v2-debug #treeSecHome .tree-v2-anchor::after,
+.tree-v2-debug #treeSecHome .tree-v2-gift-anchor::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 18px);
+  top: -1px;
+  width: 36px;
+  height: 2px;
+  background: #00f5ff;
+}
+
+/* Full-screen team gift-opening game scene. */
+#giftOpenScene.tree-v2-open-scene {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-gift, 9999);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(255, 216, 104, .24), transparent 32%),
+    linear-gradient(180deg, rgba(21, 51, 63, .98), rgba(12, 25, 31, .99));
+  transition: opacity .28s ease;
+}
+
+#giftOpenScene.tree-v2-open-scene.on {
+  opacity: 1;
+}
+
+.tree-v2-open-panel {
+  position: relative;
+  width: min(920px, 100%);
+  min-height: min(650px, calc(100dvh - 32px));
+  overflow: hidden;
+  border: 1px solid rgba(255, 246, 214, .18);
+  border-radius: clamp(22px, 4vw, 42px);
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 246, 196, .14), transparent 36%),
+    linear-gradient(180deg, rgba(45, 84, 82, .94), rgba(22, 43, 40, .98));
+  box-shadow: 0 35px 100px rgba(0, 0, 0, .48);
+  isolation: isolate;
+}
+
+.tree-v2-open-panel::before {
+  content: "";
+  position: absolute;
+  inset: auto 5% 4% 5%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(105, 178, 103, .5), rgba(36, 72, 52, 0) 68%);
+  transform: perspective(400px) rotateX(65deg);
+}
+
+.tree-v2-open-close {
+  position: absolute;
+  z-index: 20;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 50%;
+  background: rgba(7, 17, 20, .58);
+  color: #fff8dd;
+  font: 900 18px/1 inherit;
+  cursor: pointer;
+}
+
+.tree-v2-open-kicker,
+.tree-v2-open-label {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  width: min(90%, 680px);
+  margin: 0;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.tree-v2-open-kicker {
+  top: clamp(30px, 6%, 58px);
+  color: #aef0ba;
+  font: 950 clamp(11px, 1.5vw, 14px)/1.2 var(--sans, inherit);
+  letter-spacing: .17em;
+}
+
+.tree-v2-open-label {
+  top: clamp(64px, 13%, 104px);
+  color: #fff6dc;
+  font: 950 clamp(20px, 4vw, 36px)/1.25 var(--disp, inherit);
+  text-shadow: 0 4px 14px rgba(0, 0, 0, .26);
+}
+
+.tree-v2-open-label .win {
+  color: #ffe37e;
+}
+
+.tree-v2-open-label .miss {
+  color: #d9efe4;
+}
+
+.tree-v2-open-party {
+  position: absolute;
+  z-index: 6;
+  left: 4%;
+  bottom: 8%;
+  width: 42%;
+  height: 54%;
+  transform: translateX(-125%);
+  transition: transform .82s cubic-bezier(.18, .86, .3, 1);
+}
+
+.tree-v2-open-scene.phase-arrive .tree-v2-open-party {
+  transform: translateX(0);
+}
+
+.tree-v2-open-chick {
+  position: absolute;
+  bottom: 0;
+  width: 62%;
+  aspect-ratio: 1;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 16px 14px rgba(0, 0, 0, .34));
+}
+
+.tree-v2-open-chick:nth-child(1) {
+  z-index: 3;
+  left: 19%;
+}
+
+.tree-v2-open-chick:nth-child(2) {
+  z-index: 2;
+  left: -5%;
+  bottom: 22%;
+  width: 45%;
+}
+
+.tree-v2-open-chick:nth-child(3) {
+  z-index: 1;
+  left: 58%;
+  bottom: 18%;
+  width: 43%;
+}
+
+.tree-v2-open-chick .presence-game-pet,
+.tree-v2-open-chick .presence-game-pet > img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.tree-v2-open-scene.phase-tug .tree-v2-open-chick {
+  animation: tree-v2-team-tug .55s ease-in-out 2;
+}
+
+.tree-v2-open-scene.phase-open .tree-v2-open-chick {
+  animation: tree-v2-team-cheer .7s cubic-bezier(.2, .9, .28, 1.28) both;
+}
+
+@keyframes tree-v2-team-tug {
+  0%, 100% { transform: rotate(0) translateX(0); }
+  48% { transform: rotate(3deg) translateX(5%); }
+}
+
+@keyframes tree-v2-team-cheer {
+  0% { transform: translateY(0) scale(1); }
+  52% { transform: translateY(-12%) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.tree-v2-open-gift {
+  position: absolute;
+  z-index: 7;
+  right: 7%;
+  bottom: 5%;
+  width: 48%;
+  aspect-ratio: 1;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 24px 22px rgba(0, 0, 0, .34));
+}
+
+.tree-v2-open-gift img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tree-v2-open-scene.phase-arrive .tree-v2-open-gift {
+  animation: tree-v2-hero-beat .72s ease-in-out infinite;
+}
+
+.tree-v2-open-scene.phase-tug .tree-v2-open-gift {
+  animation: tree-v2-hero-shake .44s ease-in-out infinite;
+}
+
+.tree-v2-open-scene.phase-open .tree-v2-open-gift {
+  animation: tree-v2-hero-pop .72s cubic-bezier(.2, 1.35, .38, 1) both;
+}
+
+@keyframes tree-v2-hero-beat {
+  0%, 100% { transform: scale(1); }
+  36% { transform: scale(1.035); }
+  52% { transform: scale(1); }
+  70% { transform: scale(1.025); }
+}
+
+@keyframes tree-v2-hero-shake {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-2.6deg); }
+  70% { transform: rotate(2.6deg); }
+}
+
+@keyframes tree-v2-hero-pop {
+  0% { transform: scale(.88); opacity: .55; }
+  65% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.tree-v2-open-sparks {
+  position: absolute;
+  z-index: 10;
+  right: 10%;
+  bottom: 12%;
+  width: 42%;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.tree-v2-open-sparks i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--spark, #ffe16d);
+  box-shadow: 0 0 14px var(--spark, #ffe16d);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.tree-v2-open-scene.phase-open .tree-v2-open-sparks i {
+  animation: tree-v2-spark-pop .95s cubic-bezier(.15, .72, .25, 1) var(--delay, 0s) both;
+}
+
+@keyframes tree-v2-spark-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) rotate(150deg) scale(.6); }
+}
+
+@media (max-width: 760px) {
+  #treeSecHome .tree-v2-waterer {
+    left: 4.5%;
+    bottom: 7%;
+    width: max(52px, 17%);
+  }
+
+  #treeSecHome .tree-v2-gift-pile {
+    width: 46%;
+  }
+
+  #treeSecHome .tree-v2-gift-hero {
+    width: max(48px, 15%);
+  }
+
+  .tree-v2-open-panel {
+    min-height: min(640px, calc(100dvh - 24px));
+  }
+
+  .tree-v2-open-party {
+    left: 0;
+    bottom: 10%;
+    width: 56%;
+    height: 43%;
+  }
+
+  .tree-v2-open-gift {
+    right: 1%;
+    bottom: 8%;
+    width: 57%;
+  }
+
+  .tree-v2-open-sparks {
+    right: 3%;
+    bottom: 13%;
+    width: 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #treeSecHome .tree-v2-gift-hero,
+  #treeSecHome .tree-v2-waterer,
+  #treeSecHome .tree-v2-waterer-pet,
+  #treeSecHome .tree-v2-waterer-can,
+  #treeSecHome .tree-v2-waterer-grip,
+  #treeSecHome .tree-v2-water-fx,
+  #treeSecHome .tree-v2-water-fx *,
+  #treeSecHome .tree-v2-anchor #treeMain,
+  .tree-v2-open-party,
+  .tree-v2-open-gift,
+  .tree-v2-open-chick,
+  .tree-v2-open-sparks i {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+
+  #treeSecHome .tree-v2-is-watering .tree-v2-water-fx {
+    opacity: .72;
+  }
+
+  #treeSecHome .tree-v2-is-watering .tree-v2-water-stream,
+  #treeSecHome .tree-v2-is-watering .tree-v2-water-stream-glow {
+    stroke-dasharray: none;
+  }
+
+  #treeSecHome .tree-v2-is-watering .tree-v2-waterer-can {
+    transform: rotate(25deg) translate(5%, 4%);
+  }
+
+  #treeSecHome .tree-v2-is-watering .tree-v2-wet-soil {
+    opacity: .72;
+    transform: scale(1);
+  }
+}
