@@ -1064,6 +1064,14 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .train-del{background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;flex:0 0 auto}
 .train-del:hover{color:#E74C3C}
 .train-body{font-size:13px;color:var(--muted);line-height:1.6;word-break:break-word}
+.edu-feature{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(92,188,46,.18),var(--card) 58%);border:1px solid rgba(92,188,46,.48);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 18px 45px rgba(0,0,0,.18)}
+.edu-feature:after{content:"";position:absolute;right:-38px;top:-58px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(200,255,54,.24),transparent 68%);pointer-events:none}
+.edu-breadcrumb{font-family:var(--mono);font-size:9px;letter-spacing:.11em;color:var(--green-soft);margin-bottom:10px}
+.edu-feature h3{font-family:var(--disp);font-size:20px;color:var(--cream);margin:0 0 6px}.edu-feature p{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0}
+.edu-feature-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.edu-feature-meta span{font-family:var(--mono);font-size:9px;color:var(--cream);border:1px solid var(--line);border-radius:999px;padding:4px 8px}
+.edu-feature-actions{display:flex;gap:8px;margin-top:15px}.edu-feature-actions a{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 15px;border-radius:10px;text-decoration:none;font-size:12.5px;font-weight:800}
+.edu-open{background:var(--grad);color:#fff}.edu-save{border:1px solid var(--line);color:var(--cream);background:rgba(0,0,0,.16)}
+@media(max-width:520px){.edu-feature-actions{flex-direction:column}.edu-feature-actions a{width:100%}}
 .calling-bar{margin-bottom:10px}
 .sheet-sync{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-bottom:12px}
 .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--faint);flex:0 0 auto}
@@ -5132,6 +5140,7 @@ function renderTraining(){
   const box=document.getElementById('trainingBody');if(!box||!me)return;
   let html='';
   if(isFounder(me))html+=`<details class="kedit"><summary>➕ 트레이닝 자료 추가 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>제목</span><input id="tr-tit" placeholder="예: B2B 세일즈 가이드" /></label><label class="kedit-row col"><span>내용 (텍스트·링크 붙여넣기)</span><textarea id="tr-body" rows="4" placeholder="자료 내용이나 링크를 붙여넣으세요"></textarea></label><button class="btn block" onclick="addTraining()">추가</button></div></details>`;
+  html+=`<div class="edu-feature"><div class="edu-breadcrumb">EDUCATION / SECTOR LEADER / FIELD TRAINING</div><h3>신입과 필드 뛰는 법</h3><p>신입의 자립을 만드는 15장면 필드 리더십 프레젠테이션 · 임재영 AOP</p><div class="edu-feature-meta"><span>독립 실행 HTML</span><span>OFFLINE READY</span><span>15 SCENES</span></div><div class="edu-feature-actions"><a class="edu-open" href="education/sector-leader/field-rookie/index.html" target="_blank" rel="noopener">▶ 발표 열기</a><a class="edu-save" href="education/sector-leader/field-rookie/index.html" download="신입과-필드-뛰는-법_임재영-AOP.html">↓ HTML 저장</a></div></div>`;
   html+='<div class="kgroup-tit">신입 IC 트레이닝 가이드 · '+esc(FOUNDER.name||'Presence')+' AOP</div>';
   html+=TRAINING_SEED.map(t=>`<div class="train-card"><div class="train-h"><b>${esc(t.title)}</b><span class="train-tag">${esc(t.tag||'')}</span></div><div class="train-body">${fmtLinks(t.body)}</div></div>`).join('');
   const items=(state.training||[]).sort((a,b)=>(b.t||0)-(a.t||0));
