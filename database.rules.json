@@ -2,6 +2,20 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "summerStrategy": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "sites": {
+        "$siteId": {
+          ".validate": "!newData.exists() || (newData.child('key').isString() && newData.child('name').isString() && newData.child('address').isString() && newData.child('createdAt').isString())"
+        }
+      },
+      "reviews": {
+        "$siteId": {
+          ".validate": "!newData.exists() || (newData.child('status').isString() && newData.child('updatedAt').isString())"
+        }
+      }
+    },
     "act": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
