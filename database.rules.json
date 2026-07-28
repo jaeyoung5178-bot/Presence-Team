@@ -84,8 +84,14 @@
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
     },
     "edu_lib": {
-      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
-      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
+      ".read": true,
+      ".write": "auth != null && root.child('eduAdminProofs').child(auth.uid).val() == '03bb60b16f62d35bc12be70d475c58de28e39127831e9e1d7028308e21af5366'"
+    },
+    "eduAdminProofs": {
+      "$uid": {
+        ".read": false,
+        ".write": "auth != null && auth.uid == $uid && newData.val() == '03bb60b16f62d35bc12be70d475c58de28e39127831e9e1d7028308e21af5366'"
+      }
     },
     "eventResponses": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
