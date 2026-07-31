@@ -1,46 +1,46 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260727-5';
+  var VERSION = '20260731-1';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
-    treeRoot: Object.freeze({x: 836, y: 806, xPercent: 50, yPercent: 85.653560043, tolerancePx: 2}),
-    treeSprite: Object.freeze({width: 1024, height: 1536, localRootX: 512, localRootY: 1535, renderedWidthPercent: 33.5}),
-    giftRoot: Object.freeze({xPercent: 50, yPercent: 90.2}),
+    treeRoot: Object.freeze({x: 836, y: 678, xPercent: 50, yPercent: 72.051009564, tolerancePx: 2}),
+    treeSprite: Object.freeze({width: 1024, height: 1536, localRootX: 512, localRootY: 1535, renderedWidthPercent: 27}),
+    giftRoot: Object.freeze({xPercent: 50, yPercent: 84.4}),
     giftHeroSprite: Object.freeze({width: 1024, height: 1024, localBottomX: 512, localBottomY: 1023}),
     giftPileSprite: Object.freeze({width: 1536, height: 1024, localBottomX: 768, localBottomY: 1023})
   });
 
   var BACKGROUNDS = {
     spring: {
-      day: ROOT + 'backgrounds/spring-day.png',
-      night: ROOT + 'backgrounds/spring-night.png'
+      day: ROOT + 'backgrounds/spring-day-rpg-v2.png',
+      night: ROOT + 'backgrounds/spring-night-rpg-v2.png'
     },
     summer: {
-      day: ROOT + 'backgrounds/summer-rain-day.png',
-      night: ROOT + 'backgrounds/summer-rain-night.png'
+      day: ROOT + 'backgrounds/summer-rain-day-rpg-v2.png',
+      night: ROOT + 'backgrounds/summer-rain-night-rpg-v2.png'
     },
     autumn: {
-      day: ROOT + 'backgrounds/autumn-day.png',
-      night: ROOT + 'backgrounds/autumn-night.png'
+      day: ROOT + 'backgrounds/autumn-day-rpg-v2.png',
+      night: ROOT + 'backgrounds/autumn-night-rpg-v2.png'
     },
     winter: {
-      day: ROOT + 'backgrounds/winter-snow-day.png',
-      night: ROOT + 'backgrounds/winter-snow-night.png'
+      day: ROOT + 'backgrounds/winter-snow-day-rpg-v2.png',
+      night: ROOT + 'backgrounds/winter-snow-night-rpg-v2.png'
     }
   };
 
   var TREES = {
-    stage1: ROOT + 'trees/stage-01-sprout.png',
-    stage2: ROOT + 'trees/stage-02-cotyledon.png',
-    stage3: ROOT + 'trees/stage-03-seedling.png',
-    stage4: ROOT + 'trees/stage-04-sapling.png',
-    stage5: ROOT + 'trees/stage-05-young-tree.png',
-    spring: ROOT + 'trees/mature-spring-cherry.png',
-    summer: ROOT + 'trees/mature-summer-green.png',
-    autumn: ROOT + 'trees/mature-autumn-maple.png',
-    winter: ROOT + 'trees/mature-winter-christmas.png'
+    stage1: ROOT + 'trees/stage-01-sprout-rpg-v2.png',
+    stage2: ROOT + 'trees/stage-02-cotyledon-rpg-v2.png',
+    stage3: ROOT + 'trees/stage-03-seedling-rpg-v2.png',
+    stage4: ROOT + 'trees/stage-04-sapling-rpg-v2.png',
+    stage5: ROOT + 'trees/stage-05-young-tree-rpg-v2.png',
+    spring: ROOT + 'trees/mature-spring-cherry-rpg-v2.png',
+    summer: ROOT + 'trees/mature-summer-green-rpg-v2.png',
+    autumn: ROOT + 'trees/mature-autumn-maple-rpg-v2.png',
+    winter: ROOT + 'trees/mature-winter-christmas-rpg-v2.png'
   };
 
   var GIFTS = {
@@ -264,10 +264,10 @@
 
   function waterFxMarkup() {
     var dropSpecs = [
-      [790, 465, 1.45, 335], [822, 438, 1.55, 360], [850, 470, 1.62, 330],
-      [770, 510, 1.72, 290], [836, 500, 1.78, 300], [870, 520, 1.84, 280],
-      [805, 545, 1.92, 255], [850, 560, 2.03, 240], [785, 575, 2.12, 225],
-      [835, 590, 2.22, 210], [868, 610, 2.33, 190], [810, 625, 2.44, 175]
+      [790, 335, 1.45, 335], [822, 308, 1.55, 360], [850, 340, 1.62, 330],
+      [770, 380, 1.72, 290], [836, 370, 1.78, 300], [870, 390, 1.84, 280],
+      [805, 415, 1.92, 255], [850, 430, 2.03, 240], [785, 445, 2.12, 225],
+      [835, 460, 2.22, 210], [868, 480, 2.33, 190], [810, 495, 2.44, 175]
     ];
     var fallingDrops = dropSpecs.map(function (spec) {
       var x = spec[0];
@@ -284,28 +284,28 @@
       '<stop offset="0" stop-color="#f4fdff"/><stop offset=".46" stop-color="#92e1f3"/>' +
       '<stop offset="1" stop-color="#3fa6cd"/></linearGradient>' +
       '</defs>' +
-      '<ellipse class="tree-v2-wet-soil" cx="836" cy="812" rx="59" ry="12"/>' +
+      '<ellipse class="tree-v2-wet-soil" cx="836" cy="682" rx="59" ry="12"/>' +
       '<g class="tree-v4-water-shower">' + fallingDrops + '</g>' +
       '<g class="tree-v2-water-ripples">' +
-      '<ellipse cx="836" cy="809" rx="18" ry="5"/><ellipse cx="836" cy="810" rx="30" ry="8"/>' +
+      '<ellipse cx="836" cy="679" rx="18" ry="5"/><ellipse cx="836" cy="680" rx="30" ry="8"/>' +
       '</g>' +
       '<g class="tree-v2-water-splashes">' +
-      '<circle class="tree-v2-splash-a" cx="830" cy="799" r="6"/>' +
-      '<circle class="tree-v2-splash-b" cx="841" cy="801" r="5"/>' +
-      '<circle class="tree-v2-splash-c" cx="850" cy="803" r="4"/>' +
-      '<circle class="tree-v2-splash-d" cx="822" cy="804" r="3.5"/>' +
+      '<circle class="tree-v2-splash-a" cx="830" cy="669" r="6"/>' +
+      '<circle class="tree-v2-splash-b" cx="841" cy="671" r="5"/>' +
+      '<circle class="tree-v2-splash-c" cx="850" cy="673" r="4"/>' +
+      '<circle class="tree-v2-splash-d" cx="822" cy="674" r="3.5"/>' +
       '</g>' +
       '<g class="tree-v2-water-complete">' +
-      '<ellipse class="tree-v2-complete-shine" cx="836" cy="811" rx="45" ry="10"/>' +
-      '<circle class="tree-v2-complete-glow" cx="836" cy="807" r="15"/>' +
-      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-a" cx="836" cy="810" rx="18" ry="5"/>' +
-      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-b" cx="836" cy="810" rx="27" ry="7"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="5.5" style="--water-dx:-35px;--water-dy:-31px;--water-delay:3.09s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="4.5" style="--water-dx:-15px;--water-dy:-42px;--water-delay:3.13s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="5" style="--water-dx:10px;--water-dy:-45px;--water-delay:3.1s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="4.5" style="--water-dx:31px;--water-dy:-32px;--water-delay:3.16s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="3.5" style="--water-dx:42px;--water-dy:-16px;--water-delay:3.21s"/>' +
-      '<circle class="tree-v2-complete-drop" cx="836" cy="804" r="3.5" style="--water-dx:-43px;--water-dy:-14px;--water-delay:3.19s"/>' +
+      '<ellipse class="tree-v2-complete-shine" cx="836" cy="681" rx="45" ry="10"/>' +
+      '<circle class="tree-v2-complete-glow" cx="836" cy="677" r="15"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-a" cx="836" cy="680" rx="18" ry="5"/>' +
+      '<ellipse class="tree-v2-complete-ring tree-v2-complete-ring-b" cx="836" cy="680" rx="27" ry="7"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="5.5" style="--water-dx:-35px;--water-dy:-31px;--water-delay:3.09s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="4.5" style="--water-dx:-15px;--water-dy:-42px;--water-delay:3.13s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="5" style="--water-dx:10px;--water-dy:-45px;--water-delay:3.1s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="4.5" style="--water-dx:31px;--water-dy:-32px;--water-delay:3.16s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="3.5" style="--water-dx:42px;--water-dy:-16px;--water-delay:3.21s"/>' +
+      '<circle class="tree-v2-complete-drop" cx="836" cy="674" r="3.5" style="--water-dx:-43px;--water-dy:-14px;--water-delay:3.19s"/>' +
       '</g>' +
       '</svg>';
   }
@@ -372,6 +372,8 @@
       tree.alt = '';
       tree.decoding = 'async';
     }
+    ['width', 'height', 'left', 'right', 'top', 'bottom', 'transform', 'max-width']
+      .forEach(function (property) { tree.style.removeProperty(property); });
     var anchor = stage.querySelector('.tree-v2-anchor');
     if (!anchor) {
       anchor = document.createElement('div');
@@ -687,12 +689,15 @@
   }
 
   function preloadCritical() {
-    var urls = [];
-    Object.keys(BACKGROUNDS).forEach(function (season) {
-      urls.push(BACKGROUNDS[season].day, BACKGROUNDS[season].night);
-    });
-    Object.keys(TREES).forEach(function (key) { urls.push(TREES[key]); });
-    Object.keys(GIFTS).forEach(function (key) { urls.push(GIFTS[key]); });
+    var season = seasonNow();
+    var mode = lightMode();
+    var context = treeContext();
+    /* The complete seasonal set is intentionally lazy-loaded. Loading every
+       high-resolution scene at boot stalls mobile entry on slower networks. */
+    var urls = [BACKGROUNDS[season][mode], TREES[treeKeyFor(context, season)]];
+    if (giftVisible) {
+      urls.push(GIFTS.pile, GIFTS.closed);
+    }
     urls.forEach(function (url) {
       var image = new Image();
       image.decoding = 'async';

@@ -1,13 +1,13 @@
 /*
  * Presence Home Tree Scene v2
- * One fixed 1672×941 scene, one immutable tree-root anchor, one gift anchor.
+ * One fixed 1672×941 outdoor garden scene, one immutable tree-root anchor, one gift anchor.
  * The shared-canvas sprite contract prevents growth stages from drifting.
  */
 #treeSecHome .tree-stage.tree-v2-stage {
   --tree-root-x: 50%;
-  --tree-root-y: 85.653560043%;
-  --tree-canvas-width: 33.5%;
-  --gift-root-y: 90.2%;
+  --tree-root-y: 72.051009564%;
+  --tree-canvas-width: 27%;
+  --gift-root-y: 84.4%;
   position: relative !important;
   display: block !important;
   width: 100% !important;
@@ -16,7 +16,7 @@
   padding: 0 !important;
   overflow: hidden !important;
   border: 0 !important;
-  background: #171612 !important;
+  background: #d9edc8 !important;
   container-type: inline-size;
   isolation: isolate;
 }
