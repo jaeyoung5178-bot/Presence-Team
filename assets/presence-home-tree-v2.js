@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260809-5';
+  var VERSION = '20260809-6';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -29,6 +29,15 @@
       day: ROOT + 'backgrounds/winter-snow-day-cel-v3.png',
       night: ROOT + 'backgrounds/winter-snow-night-cel-v3.png'
     }
+  };
+
+  var ATMOSPHERES = {
+    dawn: ROOT + 'atmosphere/dawn-v1.svg',
+    morning: ROOT + 'atmosphere/morning-v1.svg',
+    noon: ROOT + 'atmosphere/noon-v1.svg',
+    afternoon: ROOT + 'atmosphere/afternoon-v1.svg',
+    sunset: ROOT + 'atmosphere/sunset-v1.svg',
+    night: ROOT + 'atmosphere/night-v1.svg'
   };
 
   var TREES = {
@@ -99,6 +108,36 @@
     return hour >= 6 && hour < 19 ? 'day' : 'night';
   }
 
+  function timePeriod() {
+    var now = Date.now();
+    var weather = window.PresenceTreeWeather || {};
+    var sunrise = Number(weather.sr) || 0;
+    var sunset = Number(weather.ss) || 0;
+    if (!sunrise || !sunset || sunset <= sunrise) {
+      var day = new Date();
+      day.setHours(6, 30, 0, 0);
+      sunrise = day.getTime();
+      day = new Date();
+      day.setHours(19, 0, 0, 0);
+      sunset = day.getTime();
+    }
+    var minute = 60000;
+    var solarNoon = (sunrise + sunset) / 2;
+    var dawnStart = sunrise - 75 * minute;
+    var morningStart = sunrise + 40 * minute;
+    var noonStart = solarNoon - 75 * minute;
+    var afternoonStart = solarNoon + 75 * minute;
+    var sunsetStart = sunset - 75 * minute;
+    var nightStart = sunset + 45 * minute;
+    var key = 'night';
+    if (now >= dawnStart && now < morningStart) key = 'dawn';
+    else if (now >= morningStart && now < noonStart) key = 'morning';
+    else if (now >= noonStart && now < afternoonStart) key = 'noon';
+    else if (now >= afternoonStart && now < sunsetStart) key = 'afternoon';
+    else if (now >= sunsetStart && now < nightStart) key = 'sunset';
+    return {key: key, sunrise: sunrise, solarNoon: solarNoon, sunset: sunset};
+  }
+
   function treeContext(weekOverride) {
     var context = {frac: 0, ended: false, preview: false};
     try {
@@ -154,13 +193,14 @@
   function loadInto(image, url, fallback) {
     if (!image || image.dataset.requested === url) return;
     image.dataset.requested = url;
+    if (image.classList.contains('tree-v2-atmosphere')) image.style.opacity = '0';
     var loader = new Image();
     loader.decoding = 'async';
     loader.onload = function () {
       if (image.dataset.requested !== url) return;
       image.src = versioned(url);
       image.dataset.loaded = url;
-      image.style.opacity = '1';
+      requestAnimationFrame(function () { image.style.opacity = '1'; });
     };
     loader.onerror = function () {
       if (!fallback || image.dataset.requested !== url) return;
@@ -185,19 +225,39 @@
     return image;
   }
 
+  function ensureAtmosphere(stage, background) {
+    var image = stage.querySelector('.tree-v2-atmosphere');
+    if (!image) {
+      image = document.createElement('img');
+      image.className = 'tree-v2-atmosphere';
+      image.alt = '';
+      image.setAttribute('aria-hidden', 'true');
+      image.decoding = 'async';
+      stage.insertBefore(image, background.nextSibling);
+    }
+    return image;
+  }
+
   function renderBackground(stage) {
     if (!stage) return;
     var season = seasonNow();
-    var mode = lightMode();
+    var period = timePeriod();
+    var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
     var url = BACKGROUNDS[season][mode];
     var image = ensureBackground(stage);
     loadInto(image, url, BACKGROUNDS.spring.day);
+    var atmosphere = ensureAtmosphere(stage, image);
+    loadInto(atmosphere, ATMOSPHERES[period.key], ATMOSPHERES.noon);
     stage.dataset.treeSeason = season;
     stage.dataset.treeTime = mode;
+    stage.dataset.treePeriod = period.key;
+    ['dawn','morning','noon','afternoon','sunset','night'].forEach(function (key) {
+      stage.classList.toggle('period-' + key, key === period.key);
+    });
     stage.setAttribute(
       'aria-label',
       ({spring: '봄 벚꽃', summer: '맑은 여름', autumn: '가을 단풍', winter: '겨울 정원'}[season]) +
-      ' · ' + (mode === 'night' ? '밤' : '낮') +
+      ' · ' + ({dawn:'새벽',morning:'아침',noon:'정오',afternoon:'오후',sunset:'해질녘',night:'밤'}[period.key]) +
       ((window.PresenceTreeWeather&&window.PresenceTreeWeather.kind==='rain')?' · 현재 비':((window.PresenceTreeWeather&&window.PresenceTreeWeather.kind==='snow')?' · 현재 눈':'')) +
       ' Presence 나무 정원'
     );
@@ -692,11 +752,12 @@
 
   function preloadCritical() {
     var season = seasonNow();
-    var mode = lightMode();
+    var period = timePeriod();
+    var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
     var context = treeContext();
     /* The complete seasonal set is intentionally lazy-loaded. Loading every
        high-resolution scene at boot stalls mobile entry on slower networks. */
-    var urls = [BACKGROUNDS[season][mode], TREES[treeKeyFor(context, season)]];
+    var urls = [BACKGROUNDS[season][mode], ATMOSPHERES[period.key], TREES[treeKeyFor(context, season)]];
     if (giftVisible) {
       urls.push(GIFTS.pile, GIFTS.closed);
     }

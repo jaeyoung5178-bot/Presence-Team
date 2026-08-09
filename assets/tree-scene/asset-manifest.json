@@ -1,5 +1,5 @@
 {
-  "assetVersion": "20260809-5",
+  "assetVersion": "20260809-6",
   "canvas": {
     "width": 1672,
     "height": 941,
@@ -63,6 +63,14 @@
     "autumn.night": "backgrounds/autumn-night-cel-v3.png",
     "winter.snow.day": "backgrounds/winter-snow-day-cel-v3.png",
     "winter.snow.night": "backgrounds/winter-snow-night-cel-v3.png"
+  },
+  "timeAtmospheres": {
+    "dawn": "atmosphere/dawn-v1.svg",
+    "morning": "atmosphere/morning-v1.svg",
+    "noon": "atmosphere/noon-v1.svg",
+    "afternoon": "atmosphere/afternoon-v1.svg",
+    "sunset": "atmosphere/sunset-v1.svg",
+    "night": "atmosphere/night-v1.svg"
   },
   "giftSpriteContract": {
     "heroCanvasWidth": 1024,
