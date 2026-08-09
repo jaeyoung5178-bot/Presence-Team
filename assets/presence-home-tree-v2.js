@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260809-2';
+  var VERSION = '20260809-4';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -15,19 +15,19 @@
   var BACKGROUNDS = {
     spring: {
       day: ROOT + 'backgrounds/spring-day-cel-v3.png',
-      night: ROOT + 'backgrounds/spring-night-rpg-v2.png'
+      night: ROOT + 'backgrounds/spring-night-cel-v3.png'
     },
     summer: {
       day: ROOT + 'backgrounds/summer-rain-day-cel-v3.png',
       night: ROOT + 'backgrounds/summer-rain-night-cel-v3.png'
     },
     autumn: {
-      day: ROOT + 'backgrounds/autumn-day-rpg-v2.png',
-      night: ROOT + 'backgrounds/autumn-night-rpg-v2.png'
+      day: ROOT + 'backgrounds/autumn-day-cel-v3.png',
+      night: ROOT + 'backgrounds/autumn-night-cel-v3.png'
     },
     winter: {
-      day: ROOT + 'backgrounds/winter-snow-day-rpg-v2.png',
-      night: ROOT + 'backgrounds/winter-snow-night-rpg-v2.png'
+      day: ROOT + 'backgrounds/winter-snow-day-cel-v3.png',
+      night: ROOT + 'backgrounds/winter-snow-night-cel-v3.png'
     }
   };
 

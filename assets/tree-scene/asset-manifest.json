@@ -1,5 +1,5 @@
 {
-  "assetVersion": "20260809-2",
+  "assetVersion": "20260809-4",
   "canvas": {
     "width": 1672,
     "height": 941,
@@ -56,13 +56,13 @@
   },
   "backgrounds": {
     "spring.day": "backgrounds/spring-day-cel-v3.png",
-    "spring.night": "backgrounds/spring-night.png",
+    "spring.night": "backgrounds/spring-night-cel-v3.png",
     "summer.rain.day": "backgrounds/summer-rain-day-cel-v3.png",
     "summer.rain.night": "backgrounds/summer-rain-night-cel-v3.png",
-    "autumn.day": "backgrounds/autumn-day.png",
-    "autumn.night": "backgrounds/autumn-night.png",
-    "winter.snow.day": "backgrounds/winter-snow-day.png",
-    "winter.snow.night": "backgrounds/winter-snow-night.png"
+    "autumn.day": "backgrounds/autumn-day-cel-v3.png",
+    "autumn.night": "backgrounds/autumn-night-cel-v3.png",
+    "winter.snow.day": "backgrounds/winter-snow-day-cel-v3.png",
+    "winter.snow.night": "backgrounds/winter-snow-night-cel-v3.png"
   },
   "giftSpriteContract": {
     "heroCanvasWidth": 1024,
