@@ -504,11 +504,11 @@ body.can-mod .gcard .del{display:flex}
 @keyframes tb-sun{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.07);opacity:1}}
 /* 🌧️/❄️ 날씨 입자 */
 .tree-weather{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
-.tw-rain{position:absolute;top:-14%;width:2px;height:13px;border-radius:2px;
-  background:linear-gradient(180deg,rgba(175,208,236,0),rgba(120,165,205,.92));animation:tw-rain linear infinite}
-@keyframes tw-rain{0%{transform:translateY(-22px);opacity:0}12%{opacity:1}100%{transform:translateY(330px);opacity:.45}}
-.tw-snow{position:absolute;top:-8%;color:#fff;line-height:1;text-shadow:0 0 3px rgba(180,210,235,.75);animation:tw-snow linear infinite}
-@keyframes tw-snow{0%{transform:translateY(-18px) translateX(0);opacity:0}14%{opacity:1}100%{transform:translateY(330px) translateX(var(--sx,0));opacity:.7}}
+.tw-rain{position:absolute;top:-16%;width:clamp(1px,.14cqw,2.4px);height:clamp(12px,1.5cqw,24px);border-radius:2px;
+  background:linear-gradient(180deg,rgba(210,232,249,0),rgba(145,190,226,.94));animation:tw-rain linear infinite}
+@keyframes tw-rain{0%{top:-16%;transform:translateX(0) skewX(-10deg);opacity:0}12%{opacity:.92}100%{top:112%;transform:translateX(-2.2cqw) skewX(-10deg);opacity:.5}}
+.tw-snow{position:absolute;top:-10%;color:#fff;line-height:1;text-shadow:0 0 4px rgba(180,210,235,.8);animation:tw-snow linear infinite}
+@keyframes tw-snow{0%{top:-10%;transform:translateX(0) rotate(0);opacity:0}14%{opacity:.94}100%{top:110%;transform:translateX(var(--sx,0)) rotate(260deg);opacity:.72}}
 /* 🌙 시간대 — 낮/노을/밤 */
 .tb-night{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#0a1230 0%,#14203f 55%,#1b2a48 100%);opacity:var(--nightveil,0);transition:opacity 1.4s ease}
 .tb-twi{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(255,170,90,0) 26%,rgba(255,140,75,.42) 74%,rgba(255,110,120,.34) 100%);opacity:var(--twiglow,0);transition:opacity 1.4s ease}
@@ -5468,17 +5468,22 @@ function ensureBirdTimer(){
 function wateringCanAnim(pour){const stg=document.querySelector('.tree-stage');if(!stg)return;const can=document.createElement('div');can.className='water-can';can.innerHTML=`<svg viewBox="0 0 72 54"><path d="M22 24 L52 24 L49 48 Q48 51 45 51 L29 51 Q26 51 25 48 Z" fill="#5CBC2E"/><rect x="20" y="19" width="34" height="6" rx="3" fill="#4aa325"/><path d="M28 19 Q37 5 48 17" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M50 25 q10 3 7 18" fill="none" stroke="#4aa325" stroke-width="4" stroke-linecap="round"/><path d="M22 29 L7 17" stroke="#5CBC2E" stroke-width="6" stroke-linecap="round"/><ellipse cx="6" cy="16" rx="5" ry="3" fill="#4aa325" transform="rotate(-42 6 16)"/></svg>`;stg.appendChild(can);if(pour){for(let i=0;i<11;i++){setTimeout(()=>{if(!can.parentNode)return;const d=document.createElement('div');d.className='can-drop';d.textContent='💧';d.style.left=(39+Math.random()*10)+'%';stg.appendChild(d);setTimeout(()=>d.remove(),950)},650+i*72)}}setTimeout(()=>can.remove(),2050)}
 /* 🌤️ 계절 + 실시간 날씨로 나무 배경 바꾸기 */
 function treeSeason(){var m=new Date().getMonth()+1;return (m>=3&&m<=5)?'spring':(m>=6&&m<=8)?'summer':(m>=9&&m<=11)?'autumn':'winter';}
-var _twx={rain:false,snow:false,t:0,done:false};
+var _twx={rain:false,snow:false,kind:'none',intensity:0,amount:0,code:0,t:0,done:false};
+window.PresenceTreeWeather=_twx;
 function fetchTreeWeather(cb){
-  if(_twx.done && (Date.now()-_twx.t)<20*60000){cb&&cb();return;}
+  if(_twx.done && (Date.now()-_twx.t)<10*60000){cb&&cb();return;}
   try{
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4563&longitude=126.7052&current=precipitation,weather_code&daily=sunrise,sunset&timezone=auto')
-      .then(function(r){return r.json();})
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4563&longitude=126.7052&current=precipitation,rain,showers,snowfall,weather_code,is_day&daily=sunrise,sunset&timezone=auto')
+      .then(function(r){if(!r.ok)throw new Error('weather '+r.status);return r.json();})
       .then(function(d){
-        var c=(d&&d.current)||{}, code=+c.weather_code, p=+c.precipitation||0;
-        var snow=(code>=71&&code<=77)||(code>=85&&code<=86);
-        var rain=!snow && ((code>=51&&code<=67)||(code>=80&&code<=82)||(code>=95&&code<=99)||p>0.05);
-        _twx.rain=!!rain; _twx.snow=!!snow;
+        var c=(d&&d.current)||{}, code=+c.weather_code||0, p=+c.precipitation||0;
+        var rainMm=(+c.rain||0)+(+c.showers||0), snowCm=+c.snowfall||0;
+        var snow=snowCm>0.01||(code>=71&&code<=77)||(code>=85&&code<=86);
+        var rain=!snow && (rainMm>0.01||p>0.01||(code>=51&&code<=67)||(code>=80&&code<=82)||(code>=95&&code<=99));
+        var amount=snow?snowCm:(rain?Math.max(rainMm,p):0);
+        var intensity=!amount?0:(amount>=2?3:(amount>=0.5?2:1));
+        _twx.rain=!!rain; _twx.snow=!!snow; _twx.kind=snow?'snow':(rain?'rain':'none');
+        _twx.amount=amount; _twx.intensity=intensity; _twx.code=code;
         try{ var dy=d&&d.daily; if(dy&&dy.sunrise&&dy.sunset){ _twx.sr=new Date(dy.sunrise[0]).getTime(); _twx.ss=new Date(dy.sunset[0]).getTime(); } }catch(e){}
         _twx.t=Date.now(); _twx.done=true; cb&&cb();
       })
@@ -5510,7 +5515,7 @@ function ensureTreeLayers(bg){
 function renderTreeBg(){
   var stg=document.querySelector('#m-home .tree-stage'); if(!stg) return;
   var season=treeSeason();
-  var raining=_twx.rain, snowing=(_twx.snow||season==='winter')&&!raining;
+  var raining=_twx.rain, snowing=_twx.snow&&!raining;
   ['spring','summer','autumn','winter'].forEach(function(s){stg.classList.toggle('season-'+s,s===season);});
   stg.classList.toggle('wx-rain',!!raining);
   stg.classList.toggle('wx-snow',!!snowing);
@@ -5526,14 +5531,16 @@ function renderTreeBg(){
     if(wantSun&&!sun){var s=document.createElement('div');s.className='tb-sun';bg.appendChild(s);}
     else if(!wantSun&&sun){sun.remove();}
   }
-  if(!window._treeBgTimer){ window._treeBgTimer=setInterval(function(){ if(document.querySelector('#m-home.active')){ try{renderTreeBg();}catch(e){} } },60000); }
+  if(!window._treeBgTimer){ window._treeBgTimer=setInterval(function(){ if(document.querySelector('#m-home.active')){ try{ if(!_twx.t||Date.now()-_twx.t>=10*60000)fetchTreeWeather(renderTreeBg); else renderTreeBg(); }catch(e){} } },60000); }
   var wl=document.getElementById('treeWeather'); if(!wl) return;
-  var key=raining?'rain':snowing?'snow':'none';
+  var level=Math.max(1,_twx.intensity||1);
+  var key=(raining?'rain':snowing?'snow':'none')+':'+(raining||snowing?level:0);
   if(wl.dataset.key===key) return;   // 같은 상태면 입자 유지(깜빡임 방지)
   wl.dataset.key=key;
   var h='';
-  if(raining){ for(var i=0;i<18;i++){ h+='<i class="tw-rain" style="left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(0.5+Math.random()*0.35).toFixed(2)+'s;animation-delay:'+(-Math.random()).toFixed(2)+'s"></i>'; } }
-  else if(snowing){ for(var j=0;j<16;j++){ h+='<i class="tw-snow" style="left:'+(Math.random()*100).toFixed(1)+'%;--sx:'+(Math.random()*18-9).toFixed(0)+'px;font-size:'+(7+Math.random()*7).toFixed(0)+'px;animation-duration:'+(4+Math.random()*3).toFixed(1)+'s;animation-delay:'+(-Math.random()*5).toFixed(1)+'s">❄</i>'; } }
+  var width=stg.clientWidth||390;
+  if(raining){ var rc=Math.min(62,Math.max(24,Math.round(width/25))+(level-1)*8); for(var i=0;i<rc;i++){ h+='<i class="tw-rain" style="left:'+(Math.random()*104-2).toFixed(1)+'%;animation-duration:'+(0.52+Math.random()*0.34-level*.035).toFixed(2)+'s;animation-delay:'+(-Math.random()).toFixed(2)+'s"></i>'; } }
+  else if(snowing){ var sc=Math.min(46,Math.max(18,Math.round(width/36))+(level-1)*6); for(var j=0;j<sc;j++){ h+='<i class="tw-snow" style="left:'+(Math.random()*100).toFixed(1)+'%;--sx:'+(Math.random()*34-17).toFixed(0)+'px;font-size:'+(8+Math.random()*8).toFixed(0)+'px;animation-duration:'+(4.2+Math.random()*3.2-level*.25).toFixed(1)+'s;animation-delay:'+(-Math.random()*6).toFixed(1)+'s">❄</i>'; } }
   wl.innerHTML=h;
 }
 function renderTree(weekOverride){
@@ -15391,13 +15398,13 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-8">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-3">
+<link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-5">
 <link rel="stylesheet" href="assets/presence-farm-office-shell.css?v=20260809-3">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20260727-2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20260809-4"></script>
+<script src="assets/presence-home-tree-v2.js?v=20260809-5"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260727-6"></script>
 </body>

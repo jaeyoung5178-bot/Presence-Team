@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260809-4';
+  var VERSION = '20260809-5';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -18,8 +18,8 @@
       night: ROOT + 'backgrounds/spring-night-cel-v3.png'
     },
     summer: {
-      day: ROOT + 'backgrounds/summer-rain-day-cel-v3.png',
-      night: ROOT + 'backgrounds/summer-rain-night-cel-v3.png'
+      day: ROOT + 'backgrounds/summer-clear-day-cel-v4.png',
+      night: ROOT + 'backgrounds/summer-clear-night-cel-v4.png'
     },
     autumn: {
       day: ROOT + 'backgrounds/autumn-day-cel-v3.png',
@@ -196,8 +196,10 @@
     stage.dataset.treeTime = mode;
     stage.setAttribute(
       'aria-label',
-      ({spring: '봄 벚꽃', summer: '여름 빗속', autumn: '가을 단풍', winter: '겨울 눈'}[season]) +
-      ' · ' + (mode === 'night' ? '밤' : '낮') + ' Presence 나무 정원'
+      ({spring: '봄 벚꽃', summer: '맑은 여름', autumn: '가을 단풍', winter: '겨울 정원'}[season]) +
+      ' · ' + (mode === 'night' ? '밤' : '낮') +
+      ((window.PresenceTreeWeather&&window.PresenceTreeWeather.kind==='rain')?' · 현재 비':((window.PresenceTreeWeather&&window.PresenceTreeWeather.kind==='snow')?' · 현재 눈':'')) +
+      ' Presence 나무 정원'
     );
   }
 

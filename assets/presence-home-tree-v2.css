@@ -51,6 +51,26 @@
   z-index: 2 !important;
 }
 
+#treeSecHome .tree-stage.tree-v2-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s ease, background .45s ease;
+}
+
+#treeSecHome .tree-stage.tree-v2-stage.wx-rain::after {
+  opacity: 1;
+  background: linear-gradient(180deg, rgba(34, 57, 78, .26), rgba(55, 76, 91, .08) 68%, transparent);
+}
+
+#treeSecHome .tree-stage.tree-v2-stage.wx-snow::after {
+  opacity: 1;
+  background: linear-gradient(180deg, rgba(214, 233, 249, .16), rgba(232, 243, 251, .06) 72%, transparent);
+}
+
 #treeSecHome .tree-v2-anchor {
   position: absolute;
   z-index: 3;
@@ -927,6 +947,11 @@ body.tree-v2-watering-mode #toast {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #treeSecHome .tw-rain,
+  #treeSecHome .tw-snow {
+    display: none !important;
+  }
+
   #treeSecHome .tree-v2-gift-hero,
   #treeSecHome .tree-v2-waterer,
   #treeSecHome .tree-v2-waterer-pet,

@@ -1,5 +1,5 @@
 {
-  "assetVersion": "20260809-4",
+  "assetVersion": "20260809-5",
   "canvas": {
     "width": 1672,
     "height": 941,
@@ -57,8 +57,8 @@
   "backgrounds": {
     "spring.day": "backgrounds/spring-day-cel-v3.png",
     "spring.night": "backgrounds/spring-night-cel-v3.png",
-    "summer.rain.day": "backgrounds/summer-rain-day-cel-v3.png",
-    "summer.rain.night": "backgrounds/summer-rain-night-cel-v3.png",
+    "summer.clear.day": "backgrounds/summer-clear-day-cel-v4.png",
+    "summer.clear.night": "backgrounds/summer-clear-night-cel-v4.png",
     "autumn.day": "backgrounds/autumn-day-cel-v3.png",
     "autumn.night": "backgrounds/autumn-night-cel-v3.png",
     "winter.snow.day": "backgrounds/winter-snow-day-cel-v3.png",
