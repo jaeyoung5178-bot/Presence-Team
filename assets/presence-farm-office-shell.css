@@ -599,7 +599,11 @@ body.app-on #app footer .punch b{color:#c6cf98!important}
 @media (min-width:1200px){
   body.app-on #app > nav.rail{width:220px!important;scrollbar-gutter:stable}
   body.app-on #app main{margin-left:220px!important;min-width:0}
-  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{max-width:1380px}
+  body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{
+    width:calc(100% - 32px);
+    max-width:1600px;
+    margin-inline:auto;
+  }
   body.app-on #m-admin .adm-grid{grid-template-columns:minmax(0,1fr)!important}
 }
 

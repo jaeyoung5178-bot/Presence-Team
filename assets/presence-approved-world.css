@@ -334,7 +334,7 @@ body:has(.approved-world-shell){
 }
 
 #authGate .auth-tabs{gap:6px!important;margin:0 0 14px!important;padding:4px!important;border:1px solid rgba(46,56,54,.14)!important;border-radius:7px!important;background:rgba(30,44,54,.07)!important}
-#authGate .auth-tabs button{min-height:42px!important;padding:8px 10px!important;border-radius:5px!important;color:#6f6b61!important}
+#authGate .auth-tabs button{min-height:44px!important;padding:8px 10px!important;border-radius:5px!important;color:#6f6b61!important}
 #authGate .auth-tabs button.active{color:#fff6df!important;background:#102b45!important;box-shadow:0 6px 16px rgba(10,30,48,.2)!important}
 #authGate .auth-h,#authGate .status-screen h2{color:#13273b!important}
 #authGate .auth-p,#authGate .status-screen p{color:#615f57!important}
