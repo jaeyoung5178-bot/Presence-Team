@@ -42,6 +42,17 @@ body.app-on #app .botbar button{
   }
 }
 
+@media (max-width:1199px){
+  body.app-on #app #subRail .stab{
+    min-height:44px;
+  }
+
+  body.app-on #app #subRail .subrail-compact,
+  body.app-on #app #subRail .subrail-section > div{
+    gap:8px;
+  }
+}
+
 @media (prefers-reduced-motion:reduce){
   body.app-on #app #rail .gtab,
   body.app-on #app #subRail .stab{
