@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260731-1';
+  var VERSION = '20260809-2';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -14,12 +14,12 @@
 
   var BACKGROUNDS = {
     spring: {
-      day: ROOT + 'backgrounds/spring-day-rpg-v2.png',
+      day: ROOT + 'backgrounds/spring-day-cel-v3.png',
       night: ROOT + 'backgrounds/spring-night-rpg-v2.png'
     },
     summer: {
-      day: ROOT + 'backgrounds/summer-rain-day-rpg-v2.png',
-      night: ROOT + 'backgrounds/summer-rain-night-rpg-v2.png'
+      day: ROOT + 'backgrounds/summer-rain-day-cel-v3.png',
+      night: ROOT + 'backgrounds/summer-rain-night-cel-v3.png'
     },
     autumn: {
       day: ROOT + 'backgrounds/autumn-day-rpg-v2.png',
@@ -37,8 +37,8 @@
     stage3: ROOT + 'trees/stage-03-seedling-rpg-v2.png',
     stage4: ROOT + 'trees/stage-04-sapling-rpg-v2.png',
     stage5: ROOT + 'trees/stage-05-young-tree-rpg-v2.png',
-    spring: ROOT + 'trees/mature-spring-cherry-rpg-v2.png',
-    summer: ROOT + 'trees/mature-summer-green-rpg-v2.png',
+    spring: ROOT + 'trees/mature-green-cute-v3.png',
+    summer: ROOT + 'trees/mature-green-cute-v3.png',
     autumn: ROOT + 'trees/mature-autumn-maple-rpg-v2.png',
     winter: ROOT + 'trees/mature-winter-christmas-rpg-v2.png'
   };

@@ -1,5 +1,5 @@
 {
-  "assetVersion": "20260726-2",
+  "assetVersion": "20260809-2",
   "canvas": {
     "width": 1672,
     "height": 941,
@@ -7,9 +7,9 @@
   },
   "treeRootAnchor": {
     "xPx": 836,
-    "yPx": 806,
+    "yPx": 678,
     "xPercent": 50,
-    "yPercent": 85.653560043,
+    "yPercent": 72.051009564,
     "tolerancePx": 2,
     "meaning": "Every growth-stage tree's root-contact point must land here."
   },
@@ -18,9 +18,9 @@
     "canvasHeight": 1536,
     "localRootAnchorX": 512,
     "localRootAnchorY": 1535,
-    "renderedCanvasWidthPercent": 33.5,
+    "renderedCanvasWidthPercent": 23.5,
     "sameRenderedSizeForEveryStage": true,
-    "style": "premium cozy-game stylized realism",
+    "style": "crisp cute 2D casual RPG cel shading",
     "sourceDirectoryForbidden": "sources/*-bluekey.png",
     "productionDirectory": "trees",
     "growthSubjectBoxes": {
@@ -49,16 +49,16 @@
     "growth.3": "trees/stage-03-seedling.png",
     "growth.4": "trees/stage-04-sapling.png",
     "growth.5": "trees/stage-05-young-tree.png",
-    "mature.spring": "trees/mature-spring-cherry.png",
-    "mature.summer": "trees/mature-summer-green.png",
+    "mature.spring": "trees/mature-green-cute-v3.png",
+    "mature.summer": "trees/mature-green-cute-v3.png",
     "mature.autumn": "trees/mature-autumn-maple.png",
     "mature.winter": "trees/mature-winter-christmas.png"
   },
   "backgrounds": {
-    "spring.day": "backgrounds/spring-day.png",
+    "spring.day": "backgrounds/spring-day-cel-v3.png",
     "spring.night": "backgrounds/spring-night.png",
-    "summer.rain.day": "backgrounds/summer-rain-day.png",
-    "summer.rain.night": "backgrounds/summer-rain-night.png",
+    "summer.rain.day": "backgrounds/summer-rain-day-cel-v3.png",
+    "summer.rain.night": "backgrounds/summer-rain-night-cel-v3.png",
     "autumn.day": "backgrounds/autumn-day.png",
     "autumn.night": "backgrounds/autumn-night.png",
     "winter.snow.day": "backgrounds/winter-snow-day.png",

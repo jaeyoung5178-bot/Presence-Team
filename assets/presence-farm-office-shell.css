@@ -597,16 +597,16 @@ body.app-on #app footer .punch b{color:#c6cf98!important}
 
 /* ─── Responsive gates ────────────────────────────────────────────────── */
 @media (min-width:1200px){
-  body.app-on #app > nav.rail{width:232px!important}
-  body.app-on #app main{margin-left:232px!important}
+  body.app-on #app > nav.rail{width:220px!important;scrollbar-gutter:stable}
+  body.app-on #app main{margin-left:220px!important;min-width:0}
   body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{max-width:1380px}
   body.app-on #m-admin .adm-grid{grid-template-columns:minmax(0,1fr)!important}
 }
 
 /* Tablet landscape / small desktop: keep the proven side rail, but preserve a useful canvas. */
 @media (min-width:980px) and (max-width:1199px){
-  body.app-on #app > nav.rail{width:232px!important}
-  body.app-on #app main{margin-left:232px!important}
+  body.app-on #app > nav.rail{width:204px!important;scrollbar-gutter:stable}
+  body.app-on #app main{margin-left:204px!important;min-width:0}
   body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{padding-inline:22px!important}
   body.app-on #app #rail .gtab{min-height:46px!important;margin-inline:7px!important}
   body.app-on #m-admin .adm-body{padding-inline:14px!important}
@@ -634,6 +634,18 @@ body.app-on #app footer .punch b{color:#c6cf98!important}
   body > .modal > .box,
   body > .modal > .box.sv-modal{width:min(92vw,720px)!important;max-height:86dvh!important}
 }
+
+/* Navigation interaction stability: keep hit targets fixed while async data refreshes. */
+body.app-on #app #rail .gtab,
+body.app-on #app .subrail-compact .stab,
+body.app-on #app .subrail-panel .stab{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  contain:layout paint;
+}
+body.app-on #app > nav.rail{overscroll-behavior:contain}
+body.app-on #app .subrail-panel{transform-origin:top center}
+@media (hover:none){body.app-on #app #rail .gtab:hover,body.app-on #app .subrail-compact .stab:hover{background:transparent!important}}
 
 @media (max-width:767px){
   body.app-on #app{overflow-x:clip}
@@ -664,6 +676,8 @@ body.app-on #app footer .punch b{color:#c6cf98!important}
   body.app-on #app .me-pill :is(.mnm,.mrole){display:none!important}
   body.app-on #app .me-pill .mav{width:34px!important;height:34px!important}
   body.app-on #app main{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  body.app-on #app :is(.hqd-edit,.coop-toggle,.hd-brief-x,.fc-act,.hd-chip,.sec-caret){min-height:44px!important}
+  body.app-on #app :is(.coop-toggle,.hd-brief-x){min-width:44px!important;display:inline-grid!important;place-items:center!important}
   body.app-on #app main > .mpanel:not(#m-home):not(#m-petshop):not(#m-avatar) > .wrap{
     width:100%;
     padding:12px 10px 28px!important;

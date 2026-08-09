@@ -6,7 +6,7 @@
 #treeSecHome .tree-stage.tree-v2-stage {
   --tree-root-x: 50%;
   --tree-root-y: 72.051009564%;
-  --tree-canvas-width: 27%;
+  --tree-canvas-width: 23.5%;
   --gift-root-y: 84.4%;
   position: relative !important;
   display: block !important;
@@ -31,6 +31,14 @@
   pointer-events: none;
   user-select: none;
   transition: opacity .45s ease;
+}
+
+@media (min-width:768px) and (max-width:979px) {
+  #treeSecHome .tree-stage.tree-v2-stage { --tree-canvas-width: 26%; }
+}
+
+@media (max-width:767px) {
+  #treeSecHome .tree-stage.tree-v2-stage { --tree-canvas-width: 30%; }
 }
 
 #treeSecHome .tree-bg,
