@@ -1,0 +1,50 @@
+/* Presence navigation stability only — no colors, backgrounds, or content styling. */
+body.app-on #app > nav.rail{
+  box-sizing:border-box;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+
+body.app-on #app #rail,
+body.app-on #app #subRail{
+  min-width:0;
+}
+
+body.app-on #app #rail .gtab,
+body.app-on #app #subRail .stab,
+body.app-on #app .botbar button{
+  box-sizing:border-box;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  contain:layout paint;
+}
+
+@media (min-width:980px){
+  body.app-on #app > nav.rail{
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  body.app-on #app #rail .gtab,
+  body.app-on #app #subRail .stab{
+    transform:translateZ(0);
+  }
+}
+
+@media (max-width:979px){
+  body.app-on #app > nav.rail{
+    scrollbar-gutter:auto;
+  }
+
+  body.app-on #app #rail,
+  body.app-on #app #subRail .subrail-compact{
+    overscroll-behavior-x:contain;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  body.app-on #app #rail .gtab,
+  body.app-on #app #subRail .stab{
+    transition-duration:.01ms!important;
+  }
+}

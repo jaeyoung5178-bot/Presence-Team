@@ -5249,7 +5249,9 @@ function syncTopOffset(){
 function buildBotbar(){
   var bb=document.getElementById('botbar'); if(!bb)return;
   var groups=NAV.filter(function(g){return g.k!=='my'&&g.tabs.some(tabVisible);});
-  bb.innerHTML=groups.map(function(g){return '<button class="'+(g.k===curGroup?'active':'')+'" data-group="'+g.k+'" onclick="selectGroup(\''+g.k+'\')"><span class="em">'+g.e+'</span>'+groupTitle(g,true)+'</button>';}).join('');
+  var signature=groups.map(function(g){return g.k+':'+g.e+':'+groupTitle(g,true);}).join('|');
+  if(bb.dataset.signature!==signature){bb.innerHTML=groups.map(function(g){return '<button data-group="'+g.k+'" onclick="selectGroup(\''+g.k+'\')"><span class="em">'+g.e+'</span>'+groupTitle(g,true)+'</button>';}).join('');bb.dataset.signature=signature;}
+  bb.querySelectorAll('button[data-group]').forEach(function(b){b.classList.toggle('active',b.dataset.group===curGroup);});
 }
 function buildRail(){
   const groups=NAV.filter(g=>g.k!=='my'&&g.tabs.some(tabVisible));
@@ -5280,11 +5282,11 @@ var SUBRAIL_SECTIONS={
 function subTabBtn(k){const t=TABMETA[k];return `<button class="mtab stab${k===curTab?' active':''}" data-tab="${k}" onclick="goTab('${k}')"><span class="em">${t.e}</span>${t.l}${t.c?` <span class="count" id="c-${t.c}">0</span>`:''}</button>`;}
 function buildSubRail(){
   const sr=document.getElementById('subRail');if(!sr)return;
-  if(curGroup==='home'||curTab==='petshop'){sr.style.display='none';sr.innerHTML='';syncTopOffset();return;}
+  if(curGroup==='home'||curTab==='petshop'){sr.style.display='none';if(sr.dataset.signature!=='hidden'){sr.innerHTML='';sr.dataset.signature='hidden';}syncTopOffset();return;}
   const g=NAV.find(x=>x.k===curGroup)||NAV[0];
   var RAIL_HIDE={comp:1,perf:1};
   const tabs=g.tabs.filter(function(k){return tabVisible(k)&&!RAIL_HIDE[k];});
-  if(tabs.length<=1){sr.style.display='none';sr.innerHTML='';syncTopOffset();return;}
+  if(tabs.length<=1){sr.style.display='none';var hiddenSignature='hidden:'+curGroup+':'+tabs.join(',');if(sr.dataset.signature!==hiddenSignature){sr.innerHTML='';sr.dataset.signature=hiddenSignature;}syncTopOffset();return;}
   sr.style.display='';
   var primary=(SUBRAIL_PRIMARY[curGroup]||tabs).filter(function(k){return tabs.indexOf(k)>=0;}).slice(0,SUBRAIL_MAX);
   if(curTab&&tabs.indexOf(curTab)>=0&&primary.indexOf(curTab)<0)primary=primary.slice(0,SUBRAIL_MAX-1).concat(curTab);
@@ -5295,7 +5297,12 @@ function buildSubRail(){
     var sections=SUBRAIL_SECTIONS[curGroup]||[['전체',tabs]];
     panel='<div class="subrail-panel" role="dialog" aria-label="'+groupTitle(g,false)+' 전체 메뉴">'+sections.map(function(section){var ks=section[1].filter(function(k){return tabs.indexOf(k)>=0;});if(!ks.length)return '';return '<section class="subrail-section"><h4>'+section[0]+'</h4><div>'+ks.map(subTabBtn).join('')+'</div></section>';}).join('')+'</div>';
   }
-  sr.classList.add('subrail-organized');sr.innerHTML='<div class="subrail-compact">'+compact+'</div>'+panel;
+  var labels=tabs.map(function(k){var t=TABMETA[k];return k+':'+(t&&t.e||'')+':'+(t&&t.l||'');}).join('|');
+  var signature=[curGroup,labels,primary.join(','),canCollapse?'more':'all',subRailExpanded?'open':'closed',groupTitle(g,false)].join('::');
+  sr.classList.add('subrail-organized');
+  if(sr.dataset.signature!==signature){sr.innerHTML='<div class="subrail-compact">'+compact+'</div>'+panel;sr.dataset.signature=signature;}
+  sr.querySelectorAll('.stab[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===curTab);});
+  sr.querySelectorAll('.subrail-more').forEach(function(b){b.classList.toggle('active',subRailExpanded);b.setAttribute('aria-expanded',subRailExpanded?'true':'false');});
   syncTopOffset();
 }
 function selectGroup(gk){
@@ -15399,6 +15406,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-8">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20260809-login-2">
+<link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-1">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20260727-2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
