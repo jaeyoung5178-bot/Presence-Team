@@ -144,6 +144,11 @@ header.top{position:fixed;top:0;left:0;right:0;z-index:var(--z-header);backgroun
 .notif-clear{width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
 .notif-clear:hover{border-color:var(--danger);color:var(--danger)}
 .notif-item.unread{border-color:var(--green);background:rgba(92,188,46,.06)}
+.notif-pending{border:1px solid rgba(255,190,64,.5);border-radius:11px;padding:12px 13px;margin-bottom:8px;background:linear-gradient(135deg,rgba(255,190,64,.13),rgba(92,188,46,.07))}
+.notif-pending-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;line-height:1.4;color:var(--cream)}
+.notif-pending-top b{color:#ffd778}.notif-pending-names{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.notif-pending-go{flex:0 0 auto;border:0;border-radius:8px;padding:7px 10px;background:#f0b43c;color:#17130a;font:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.notif-pending-go:hover{filter:brightness(1.08)}
 .notif-top{font-size:13px;color:var(--cream);line-height:1.4}
 .notif-top b{color:var(--green-soft)}
 .notif-ctx{color:var(--wepair)}
@@ -4364,7 +4369,7 @@ async function submitSurvey(){
   const rec={answers:ans,t:Date.now()};
   /* 첫필드(IC) 답 → 첫필드 날짜 자동 기록 */
   const _su=(authState.surveyCtx==='signup')?authState.draft:me;
-  if(ans.firstField&&_su&&_su.name&&!isTestBot(_su)){const _mi=miGet(_su.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)DB.set('memberInfo/'+nk(_su.name),_mi);}
+  if(authState.surveyCtx!=='signup'&&ans.firstField&&_su&&_su.name&&!isTestBot(_su)){const _mi=miGet(_su.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)DB.set('memberInfo/'+nk(_su.name),_mi);}
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys=u.surveys||{};u.surveys[key]=rec;
     const submitBtn=document.getElementById('surveySubmitBtn');
@@ -4372,9 +4377,9 @@ async function submitSurvey(){
     try{u.uid=await DB.signup(u,hash(authState.draftPw));}
     catch(e){
       console.error('[signup]',e);
-      authState.view='signup';renderAuth();
       const code=(e&&e.code)||'';
-      authMsg(code==='signup/duplicate'?'이미 사용 중인 아이디예요. 다른 아이디를 입력해 주세요':code==='auth/operation-not-allowed'?'가입 인증이 잠시 중단됐어요. 관리자에게 알려 주세요':'가입 신청을 저장하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해 주세요','err');
+      if(code==='signup/duplicate'){authState.view='signup';renderAuth();authMsg('이미 사용 중인 아이디예요. 다른 아이디를 입력해 주세요','err');}
+      else{if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='다시 가입 신청하기';}authMsg(code==='auth/operation-not-allowed'?'가입 인증이 잠시 중단됐어요. 관리자에게 알려 주세요':'가입 신청 저장이 잠시 실패했어요. 작성 내용은 그대로예요. 버튼을 다시 눌러 주세요.','err');}
       return;
     }
     state.users[u.uid]=u;
@@ -7723,7 +7728,10 @@ function fmtMentions(text){let safe=esc(text);const names=Object.values(state.us
 function addNotif(uid,n){if(!state.notifs[uid])state.notifs[uid]=[];state.notifs[uid].push(n);if(LIVE)DB.set('notifs/'+uid,state.notifs[uid])}
 function notifyMentions(text,ctx,by,target){const ms=parseMentions(text);ms.forEach(u=>{if(me&&u.uid===me.uid)return;addNotif(u.uid,{by:by||(me?me.name:'누군가'),ctx,text:(text||'').slice(0,90),t:Date.now(),read:false,target:target||null})});if(ms.length){renderBell();toast('🔔 '+ms.map(u=>u.name).join(', ')+'님에게 알림을 보냈어요')}}
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
-function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=myNotifs().filter(n=>!n.read).length;b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0)}
+function pendingApprovalUsers(){return (me&&isFounder(me))?Object.values(state.users||{}).filter(u=>u&&u.status==='pending'):[]}
+function bellBaseCount(){return myNotifs().filter(n=>!n.read).length+pendingApprovalUsers().length}
+function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=bellBaseCount();b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0);const btn=document.getElementById('bellBtn');if(btn){const p=pendingApprovalUsers().length;btn.setAttribute('aria-label',p?`알림 · 가입 승인 대기 ${p}명`:'알림');btn.title=p?`가입 승인 대기 ${p}명`:''}}
+function openPendingApprovals(){closeModal('notifModal');goTab('admin');setTimeout(function(){const el=document.getElementById('pendList');if(el){try{el.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){el.scrollIntoView()}}},120)}
 /* 알림 클릭 → 태그된 위치로 이동 (댓글이면 그 카드로 스크롤·하이라이트) */
 function notifOpen(t){
   if(!me)return;
@@ -7754,9 +7762,10 @@ function notifIsReward(n){return n&&(n.type==='gift'||n.type==='giftwin');}
 function renderNotifList(){
   const box=document.getElementById('notifList');if(!box)return;
   const list=myNotifs().slice().sort((a,b)=>b.t-a.t);
-  var h='';
-  if(!list.length){ h+='<div class="rank-empty">받은 알림이 없어요</div>'; }
-  else{
+  const pend=pendingApprovalUsers();
+  var h=pend.length?'<div class="notif-pending" id="pendingApprovalCard"><div class="notif-pending-top"><span>🔔 <b>가입 승인 대기 '+pend.length+'명</b></span><button class="notif-pending-go" onclick="openPendingApprovals()">바로 승인</button></div><div class="notif-pending-names">'+pend.map(function(u){return esc(u.name)+' · @'+esc(u.id);}).join('<br>')+'</div></div>':'';
+  if(!list.length&&!pend.length){ h+='<div class="rank-empty">받은 알림이 없어요</div>'; }
+  if(list.length){
     h+=list.map(function(n){
       var cls='notif-item'+(notifIsReward(n)?' gift':'')+(n.read?'':' unread');
       return '<div class="'+cls+'"'+(n.target?' style="cursor:pointer" onclick="notifOpen('+n.t+')"':'')+'>'+notifInner(n)+'<button class="notif-x" title="휴지통으로" onclick="event.stopPropagation();delNotif('+n.t+','+(notifIsReward(n)?'true':'false')+')">✕</button></div>';
@@ -8376,7 +8385,7 @@ async function initFirebase(){
   DB.on('users',v=>{
     state.users=v?{...v}:{};
     if(me)me=state.users[me.uid]||me;
-    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderRecruitDaily();renderDaisoCompetition();}
+    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderBell();renderRecruitDaily();renderDaisoCompetition();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
   });
   }catch(e){console.warn('Firebase 연결 실패 — 로컬 모드로 동작합니다',e);}
@@ -10883,7 +10892,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-16.daiso-recruit-daily-3';
+const APP_VERSION='2026-08-16.signup-pending-bell-2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13193,7 +13202,7 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
     var b=document.getElementById('bellBadge'); if(!b||!me)return;
     var extra=(rf(me)&&feedMissedDays().length)?1:0;
     if(!extra)return;
-    var un=myNotifs().filter(function(n){return !n.read;}).length + extra;
+    var un=bellBaseCount() + extra;
     b.textContent=un>9?'9+':un; b.classList.add('show');
   };
 
