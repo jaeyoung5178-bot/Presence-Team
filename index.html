@@ -4177,7 +4177,7 @@ function renderAuth(){
       ${(authState.surveyCtx==='gate'&&me&&!isTestBot(me))?`<div style="margin:10px 0;padding:12px 14px;background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.38);border-radius:11px;font-size:13px;color:var(--green-soft);line-height:1.65">📝 <b>${esc(me.name)}</b>님, ${ROLE_LABEL[me.role]||me.role} 승급을 축하해요!<br>이 설문을 <b style="color:var(--cream)">완료하면 바로 로그인</b>돼요 — 마지막 한 단계만 남았어요. 모든 항목을 채운 뒤 아래 <b>제출하고 로그인</b>을 눌러주세요.</div>`:''}
       <div class="auth-msg" id="authMsg"></div>
       <div id="svForm">${surveyFormHTML(authState.surveyKey)}</div>
-      <button class="btn block" style="margin-top:8px" onclick="submitSurvey()">${authState.surveyCtx==='gate'?'제출하고 로그인':'제출하기'}</button>
+      <button class="btn block" id="surveySubmitBtn" style="margin-top:8px" onclick="submitSurvey()">${authState.surveyCtx==='gate'?'제출하고 로그인':'가입 신청하기'}</button>
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&!me.obs)?'<button class="btn ghost block" style="margin-top:8px" onclick="skipSurveyTest()">⏭ 설문 생략하고 입장 (테스트봇)</button>':''}
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&me.obs)?'<div class="auth-p" style="margin-top:8px;font-size:12px">관찰 모드 — 생략 없이 전 과정을 체험합니다.</div>':''}
       ${authState.surveyCtx==='gate'?'<div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>':''}`;
@@ -4309,7 +4309,16 @@ async function submitSurvey(){
   if(ans.firstField&&_su&&_su.name&&!isTestBot(_su)){const _mi=miGet(_su.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)DB.set('memberInfo/'+nk(_su.name),_mi);}
   if(authState.surveyCtx==='signup'){
     const u=authState.draft;u.surveys=u.surveys||{};u.surveys[key]=rec;
-    try{u.uid=await DB.signup(u,hash(authState.draftPw));}catch(e){authState.view='signup';renderAuth();authMsg('가입할 수 없어요. 이름·아이디를 확인하거나 관리자에게 문의해 주세요','err');return;}
+    const submitBtn=document.getElementById('surveySubmitBtn');
+    if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='가입 신청을 저장하는 중…';}
+    try{u.uid=await DB.signup(u,hash(authState.draftPw));}
+    catch(e){
+      console.error('[signup]',e);
+      authState.view='signup';renderAuth();
+      const code=(e&&e.code)||'';
+      authMsg(code==='signup/duplicate'?'이미 사용 중인 아이디예요. 다른 아이디를 입력해 주세요':code==='auth/operation-not-allowed'?'가입 인증이 잠시 중단됐어요. 관리자에게 알려 주세요':'가입 신청을 저장하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해 주세요','err');
+      return;
+    }
     state.users[u.uid]=u;
     if(!isTestBot(u)){
       const gotTok=(TODAY>=SIGNUP_TOKEN_FROM);
@@ -8165,7 +8174,20 @@ async function initFirebase(){
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
   DB.login=async(id,proof)=>{const au=await ensureAnon(),key=authKey(id),uid=await rawGet('loginIndex/'+key);if(!uid)return null;await rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()});return unlock(uid);};
   DB.restoreSession=async uid=>{const au=await ensureAnon(),s=await rawGet('authSessions/'+au.uid);if(!s||s.userUid!==uid)return null;return unlock(uid);};
-  DB.signup=async(u,proof)=>{const au=await ensureAnon(),key=authKey(u.id),uid=au.uid;if(await rawGet('loginIndex/'+key))throw new Error('duplicate');const a={uid:uid,id:u.id,name:u.name,role:'IC',status:'pending',pwHash:proof};await rawSet('privateAuth/byId/'+key,a);await rawSet('loginIndex/'+key,uid);const clean={...u,uid:uid,loginKey:key};delete clean.pwHash;await rawSet('users/'+uid,clean);return uid;};
+  DB.signup=async(u,proof)=>{
+    const au=await ensureAnon(),key=authKey(u.id),uid=au.uid;
+    if(await rawGet('loginIndex/'+key)){const e=new Error('duplicate');e.code='signup/duplicate';throw e;}
+    const a={uid:uid,id:u.id,name:u.name,role:'IC',status:'pending',pwHash:proof};
+    const clean={...u,uid:uid,loginKey:key};delete clean.pwHash;
+    /* 가입의 세 레코드를 한 번에 저장한다. 하나라도 거절되면 전부 롤백되어
+       재시도 시 '아이디만 선점된' 반쪽 계정이 남지 않는다. */
+    await fb.update(fb.ref(db),{
+      ['privateAuth/byId/'+key]:a,
+      ['loginIndex/'+key]:uid,
+      ['users/'+uid]:clean
+    });
+    return uid;
+  };
   DB.changePassword=async(u,proof)=>rawSet('privateAuth/byId/'+authKey(u.id)+'/pwHash',proof);
   DB.logout=async()=>{try{if(auth.currentUser)await rawSet('authSessions/'+auth.currentUser.uid,null);}catch(e){}return authMod.signOut(auth).catch(()=>{});};
   window.__PRESENCE_SECURE_DB={on:(p,cb)=>DB.on(p,cb),set:(p,v)=>DB.set(p,v),update:(p,v)=>DB.update(p,v),remove:p=>DB.remove(p),tx:(p,fn)=>DB.tx(p,fn)};
