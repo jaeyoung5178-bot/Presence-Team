@@ -945,6 +945,19 @@ table.scores tr.top1 .big{color:var(--green)}
 .surv-meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
 .surv-go{font-size:11.5px;color:var(--wepair);font-family:var(--mono);flex:0 0 auto}
 
+/* 다이소 컴페티션 */
+.dc-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:7px;margin-bottom:16px}
+.dc-switch button{min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:800 13.5px var(--font);cursor:pointer}
+.dc-switch button.on{background:linear-gradient(135deg,#0754aa,#177ee5);color:#fff;box-shadow:0 5px 16px rgba(0,91,190,.28)}
+.dc-switch small{font-size:9px;opacity:.72;margin-left:3px}.dc-panel[hidden]{display:none!important}
+.dc-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;background:linear-gradient(135deg,#063783,#0878d8 62%,#37b9ed);color:#fff;border:1px solid rgba(255,215,96,.6);box-shadow:0 12px 28px rgba(0,73,155,.25)}
+.dc-kicker{font:800 9px var(--mono);letter-spacing:.12em;color:#bfe6ff}.dc-hero h3{font:900 25px var(--disp);margin:4px 0}.dc-hero p{font-size:12px;color:#e3f4ff;margin:0}.dc-prize{flex:none;background:#fff;color:#074a98;border:2px solid #ffd35c;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:900;text-align:center}
+.dc-rules{display:grid;grid-template-columns:auto repeat(3,1fr);gap:8px;align-items:center;margin:12px 0;padding:13px 15px;background:var(--card);border:1px solid var(--line);border-radius:14px}.dc-rules>b{font-size:13px}.dc-rules>span{font-size:12px;color:var(--muted);text-align:center}.dc-rules em{font-style:normal;color:#ffd35c;font-weight:900;margin-left:4px}.dc-rules small{grid-column:1/-1;color:var(--faint);font-size:10.5px}
+.dc-leaders{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.dc-lead{display:grid;grid-template-columns:1fr auto;gap:3px 10px;background:linear-gradient(135deg,rgba(8,100,203,.2),var(--card));border:1px solid rgba(57,151,255,.35);border-radius:13px;padding:12px 14px}.dc-lead span{grid-column:1/-1;color:#7fc4ff;font-size:10.5px;font-weight:800}.dc-lead b{font-size:15px}.dc-lead strong{color:#ffd35c;font:900 17px var(--disp)}
+.dc-subhead{display:flex;justify-content:space-between;gap:10px;align-items:end;margin:4px 2px 9px}.dc-subhead b{font-size:14px}.dc-subhead span{font-size:10.5px;color:var(--faint)}.dc-list{display:flex;flex-direction:column;gap:8px}.dc-person{display:grid;grid-template-columns:minmax(110px,1fr) minmax(360px,2.2fr) 60px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px}.dc-who{display:flex;flex-direction:column;gap:2px}.dc-who b{font-size:13.5px}.dc-who small{font-size:10px;color:var(--faint)}.dc-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--card-2);color:#7fc4ff;font:800 10px var(--mono);margin-right:7px}.dc-checks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dc-toggle{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;border:1px solid var(--line);border-radius:9px;background:var(--card-2);color:var(--muted);font:700 11.5px var(--font);cursor:pointer}.dc-toggle i{width:16px;height:16px;border:2px solid var(--line);border-radius:5px}.dc-toggle.on{background:rgba(52,180,91,.15);border-color:#53c978;color:#baf4c9}.dc-toggle.on i{background:#53c978;border-color:#53c978;box-shadow:inset 0 0 0 3px var(--card)}.dc-toggle:disabled{cursor:not-allowed;opacity:.58}.dc-score{text-align:right;color:#ffd35c;font:900 25px var(--disp)}.dc-score small{font:700 10px var(--font);color:var(--muted);margin-left:2px}
+@media(max-width:760px){.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-rules>span:nth-of-type(3){grid-column:1/-1}.dc-person{grid-template-columns:1fr auto;gap:9px}.dc-checks{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-toggle{min-height:46px}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}}
+@media(max-width:420px){.dc-switch button{font-size:12px}.dc-switch small{display:block;margin-top:2px}.dc-leaders{grid-template-columns:1fr}.dc-checks{grid-template-columns:1fr}.dc-person{padding:12px}.dc-toggle{justify-content:flex-start;padding:0 13px}}
+
 /* survey */
 .survey-wrap{max-width:560px;margin:0 auto}
 .svq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:17px 18px;margin-bottom:13px}
@@ -2507,6 +2520,12 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
     <div class="mpanel" id="m-rejectnote"></div>
     <div class="mpanel" id="m-comp"><div class="wrap"><div class="perfseg"></div><section class="sec">
       <div class="sec-head"><h2>🏆 컴페티션</h2><span class="ko">세일즈로 키우는 우리 동물</span></div>
+      <div class="dc-switch" role="tablist" aria-label="컴페티션 선택">
+        <button id="dcTabDaiso" class="on" role="tab" aria-selected="true" onclick="setCompetitionView('daiso')">🏆 다이소 컴페티션</button>
+        <button id="dcTabChicken" role="tab" aria-selected="false" onclick="setCompetitionView('chicken')">🐔 닭 키우기 <small>잠시 보류</small></button>
+      </div>
+      <div id="daisoCompPanel" class="dc-panel"></div>
+      <div id="chickenCompPanel" class="dc-panel" hidden>
       <div class="comp-banner">
         <div class="comp-title" id="compTitle">세일즈 챌린지</div>
         <div class="comp-period" id="compPeriod">—</div>
@@ -2590,6 +2609,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
           </div>
         </div>
         </div>
+      </div>
       </div>
     </section></div></div>
 
@@ -4170,6 +4190,7 @@ state.sales={};   // 실데이터만 — 데모 세일즈 없음
    AUTH
    ============================================================ */
 let authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};
+let competitionView='daiso';
 
 function renderAuth(){
   try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
@@ -6157,6 +6178,7 @@ function refreshCompLive(){
 }
 function renderComp(){
   if(!document.getElementById('compTitle'))return;
+  renderDaisoCompetition();setCompetitionView(competitionView,true);
   document.getElementById('compTitle').textContent=state.comp.label;
   document.getElementById('compPeriod').textContent=`${fmtD(state.comp.start)} ~ ${fmtD(compEnd())} · ${state.comp.weeks}주`;
   const ended=compEnded(),db=document.getElementById('compDaysBig');
@@ -6168,6 +6190,43 @@ function renderComp(){
   const {rank}=periodFeeds();
   document.getElementById('saleRank').innerHTML=rank.length?rank.map((w,i)=>rankRow(i,w.name,w.days,ended)).join(''):'<div class="rank-empty">아직 먹이 기록이 없어요</div>';
   renderFeedLog();renderRewardLead();renderFeedAttend();
+}
+const DAISO_FROM='2026-08-17',DAISO_UNTIL='2026-08-30';
+function setCompetitionView(mode,silent){
+  competitionView=mode==='chicken'?'chicken':'daiso';
+  const d=document.getElementById('daisoCompPanel'),c=document.getElementById('chickenCompPanel');
+  if(d)d.hidden=competitionView!=='daiso';if(c)c.hidden=competitionView!=='chicken';
+  const db=document.getElementById('dcTabDaiso'),cb=document.getElementById('dcTabChicken');
+  if(db){db.classList.toggle('on',competitionView==='daiso');db.setAttribute('aria-selected',competitionView==='daiso');}
+  if(cb){cb.classList.toggle('on',competitionView==='chicken');cb.setAttribute('aria-selected',competitionView==='chicken');}
+  if(!silent&&competitionView==='chicken')toast('🐔 닭 키우기는 기록을 유지한 채 잠시 보류 중이에요');
+}
+function daisoChecks(){state.daisoCompetition=state.daisoCompetition||{};state.daisoCompetition.checks=state.daisoCompetition.checks||{};return state.daisoCompetition.checks;}
+function daisoSupportPoints(name){
+  let p=0;Object.values(state.sales||{}).forEach(function(e){if(!e||e.name!==name||e.date<DAISO_FROM||e.date>DAISO_UNTIL)return;const n=+e.count||0;p+=n>=3?2:(n>=1?1:0);});return p;
+}
+function daisoScore(u){const r=daisoChecks()[u.uid]||{};return daisoSupportPoints(u.name)+(r.starter?3:0);}
+function daisoToggle(uid,field){
+  const u=state.users&&state.users[uid];if(!u||!me)return;
+  if(uid!==me.uid&&!isFounder(me)){toast('내 기록만 체크할 수 있어요');return;}
+  const r=daisoChecks()[uid]||{};r[field]=!r[field];r.updatedAt=Date.now();r.updatedBy=me.name;daisoChecks()[uid]=r;
+  if(LIVE)DB.set('daisoCompetition/checks/'+uid,r);
+  renderDaisoCompetition();
+  toast(field==='starter'&&r[field]?'🌱 스타터 +3점이 반영됐어요':'컴페티션 기록을 반영했어요');
+}
+function renderDaisoCompetition(){
+  const box=document.getElementById('daisoCompPanel');if(!box||!me)return;
+  const roster=rosterMembers().map(function(r){return Object.values(state.users||{}).find(function(u){return u&&u.name===r.name&&u.status==='active';});}).filter(Boolean);
+  const ranked=roster.map(function(u){return {u:u,score:daisoScore(u),support:daisoSupportPoints(u.name),r:daisoChecks()[u.uid]||{}};}).sort(function(a,b){return b.score-a.score||a.u.name.localeCompare(b.u.name,'ko');});
+  function winner(role){const a=ranked.filter(function(x){return x.u.role===role;});return a.length&&a[0].score>0?a[0]:null;}
+  const wi=winner('IC'),wl=winner('LR');
+  const rows=ranked.map(function(x,i){const can=x.u.uid===me.uid||isFounder(me);function tog(k,l){return '<button class="dc-toggle'+(x.r[k]?' on':'')+'" '+(can?'onclick="daisoToggle(\''+x.u.uid+'\',\''+k+'\')"':'disabled')+' aria-pressed="'+!!x.r[k]+'"><i></i>'+l+'</button>';}
+    return '<div class="dc-person"><div class="dc-who"><b><span class="dc-rank">'+(i+1)+'</span>'+esc(x.u.name)+'</b><small>'+esc(x.u.role)+' · 후원 '+x.support+'점</small></div><div class="dc-checks">'+tog('recruit','👤 리쿠르팅')+tog('showup','🙋 쇼업')+tog('starter','🌱 스타터 +3')+'</div><strong class="dc-score">'+x.score+'<small>점</small></strong></div>';}).join('');
+  function lead(label,w){return '<div class="dc-lead"><span>'+label+'</span><b>'+(w?esc(w.u.name):'아직 없음')+'</b><strong>'+(w?w.score:0)+'점</strong></div>';}
+  box.innerHTML='<div class="dc-hero"><div><span class="dc-kicker">PRESENCE NEW COMPETITION</span><h3>다이소 컴페티션</h3><p>8월 17일 - 8월 30일 · IC / LR 최다 득점자 각 1명</p></div><span class="dc-prize">🎁 다이소 2만원 상품권</span></div>'+
+    '<div class="dc-rules"><b>🎯 득점 기준</b><span>후원 1명 이상 <em>1점</em></span><span>후원 3명 이상 <em>2점</em></span><span>PR 스타터 발생 <em>3점</em></span><small>후원 점수는 기간 내 세일즈 기록에서 자동 집계 · 스타터 체크 즉시 +3점</small></div>'+
+    '<div class="dc-leaders">'+lead('⭐ IC 현재 1위',wi)+lead('⭐ LR 현재 1위',wl)+'</div>'+
+    '<div class="dc-subhead"><b>👤 리쿠르팅 개인 체크</b><span>본인 기록 · 관리자는 전체 수정 가능</span></div><div class="dc-list">'+(rows||'<div class="rank-empty">참여할 팀원이 없어요</div>')+'</div>';
 }
 const WDAY=['일','월','화','수','목','금','토'];
 function fmtMDW(dateStr,ts){let d=dateStr?new Date(dateStr+'T12:00:00'):new Date(ts);if(isNaN(d.getTime()))d=new Date(ts);return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDAY[d.getDay()]})`;}
@@ -8227,6 +8286,7 @@ async function initFirebase(){
   DB.on('waterGiftLog',v=>{state.waterGiftLog=v?(Array.isArray(v)?v:Object.values(v)):[];if(me&&isFounder(me))renderWaterAdmin();});
   DB.on('giftHunt',v=>{if(v)state.giftHunt={...(state.giftHunt||{}),...v};if(me){renderGiftHunt();maybeGiftStartPopup();}});
   DB.on('comp',v=>{if(v)state.comp=v;renderComp();if(typeof renderCoopRank==='function'){try{renderCoopRank();}catch(e){}}});
+  DB.on('daisoCompetition',v=>{state.daisoCompetition=v||{};renderDaisoCompetition();});
   DB.on('notices',v=>{state.notices=v?Object.values(v):[];renderNotices()});
   DB.on('gb',v=>{state.gb=v?Object.values(v):[];renderGb()});
   DB.on('net',v=>{state.net=v?Object.values(v):[];renderGallery('net')});
