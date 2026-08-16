@@ -952,10 +952,10 @@ table.scores tr.top1 .big{color:var(--green)}
 .dc-switch small{font-size:9px;opacity:.72;margin-left:3px}.dc-panel[hidden]{display:none!important}
 .dc-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;background:linear-gradient(135deg,#063783,#0878d8 62%,#37b9ed);color:#fff;border:1px solid rgba(255,215,96,.6);box-shadow:0 12px 28px rgba(0,73,155,.25)}
 .dc-kicker{font:800 9px var(--mono);letter-spacing:.12em;color:#bfe6ff}.dc-hero h3{font:900 25px var(--disp);margin:4px 0}.dc-hero p{font-size:12px;color:#e3f4ff;margin:0}.dc-prize{flex:none;background:#fff;color:#074a98;border:2px solid #ffd35c;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:900;text-align:center}
-.dc-rules{display:grid;grid-template-columns:auto repeat(3,1fr);gap:8px;align-items:center;margin:12px 0;padding:13px 15px;background:var(--card);border:1px solid var(--line);border-radius:14px}.dc-rules>b{font-size:13px}.dc-rules>span{font-size:12px;color:var(--muted);text-align:center}.dc-rules em{font-style:normal;color:#ffd35c;font-weight:900;margin-left:4px}.dc-rules small{grid-column:1/-1;color:var(--faint);font-size:10.5px}
+.dc-rules{display:grid;grid-template-columns:auto repeat(4,1fr);gap:8px;align-items:center;margin:12px 0;padding:13px 15px;background:var(--card);border:1px solid var(--line);border-radius:14px}.dc-rules>b{font-size:13px}.dc-rules>span{font-size:12px;color:var(--muted);text-align:center}.dc-rules em{font-style:normal;color:#ffd35c;font-weight:900;margin-left:4px}.dc-rules small{grid-column:1/-1;color:var(--faint);font-size:10.5px}
 .dc-leaders{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.dc-lead{display:grid;grid-template-columns:1fr auto;gap:3px 10px;background:linear-gradient(135deg,rgba(8,100,203,.2),var(--card));border:1px solid rgba(57,151,255,.35);border-radius:13px;padding:12px 14px}.dc-lead span{grid-column:1/-1;color:#7fc4ff;font-size:10.5px;font-weight:800}.dc-lead b{font-size:15px}.dc-lead strong{color:#ffd35c;font:900 17px var(--disp)}
 .dc-subhead{display:flex;justify-content:space-between;gap:10px;align-items:end;margin:4px 2px 9px}.dc-subhead b{font-size:14px}.dc-subhead span{font-size:10.5px;color:var(--faint)}.dc-list{display:flex;flex-direction:column;gap:8px}.dc-person{display:grid;grid-template-columns:minmax(110px,1fr) minmax(360px,2.2fr) 60px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px}.dc-who{display:flex;flex-direction:column;gap:2px}.dc-who b{font-size:13.5px}.dc-who small{font-size:10px;color:var(--faint)}.dc-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--card-2);color:#7fc4ff;font:800 10px var(--mono);margin-right:7px}.dc-checks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dc-toggle{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;border:1px solid var(--line);border-radius:9px;background:var(--card-2);color:var(--muted);font:700 11.5px var(--font);cursor:pointer}.dc-toggle i{width:16px;height:16px;border:2px solid var(--line);border-radius:5px}.dc-toggle.on{background:rgba(52,180,91,.15);border-color:#53c978;color:#baf4c9}.dc-toggle.on i{background:#53c978;border-color:#53c978;box-shadow:inset 0 0 0 3px var(--card)}.dc-toggle:disabled{cursor:not-allowed;opacity:.58}.dc-score{text-align:right;color:#ffd35c;font:900 25px var(--disp)}.dc-score small{font:700 10px var(--font);color:var(--muted);margin-left:2px}
-@media(max-width:760px){.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-rules>span:nth-of-type(3){grid-column:1/-1}.dc-person{grid-template-columns:1fr auto;gap:9px}.dc-checks{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-toggle{min-height:46px}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}}
+@media(max-width:760px){.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-person{grid-template-columns:1fr auto;gap:9px}.dc-checks{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-toggle{min-height:46px}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}}
 @media(max-width:420px){.dc-switch button{font-size:12px}.dc-switch small{display:block;margin-top:2px}.dc-leaders{grid-template-columns:1fr}.dc-checks{grid-template-columns:1fr}.dc-person{padding:12px}.dc-toggle{justify-content:flex-start;padding:0 13px}}
 
 /* survey */
@@ -6203,7 +6203,14 @@ function setCompetitionView(mode,silent){
 }
 function daisoChecks(){state.daisoCompetition=state.daisoCompetition||{};state.daisoCompetition.checks=state.daisoCompetition.checks||{};return state.daisoCompetition.checks;}
 function daisoSupportPoints(name){
-  let p=0;Object.values(state.sales||{}).forEach(function(e){if(!e||e.name!==name||e.date<DAISO_FROM||e.date>DAISO_UNTIL)return;const n=+e.count||0;p+=n>=3?2:(n>=1?1:0);});return p;
+  /* 하루의 최종 결과 한 단계만 점수화: 노제로 1 / 벨 2 / 공 이상 3.
+     같은 날짜에 중복 레코드가 있어도 가장 높은 최종 결과를 한 번만 센다. */
+  const byDay={};
+  Object.values(state.sales||{}).forEach(function(e){
+    if(!e||e.name!==name||e.date<DAISO_FROM||e.date>DAISO_UNTIL)return;
+    byDay[e.date]=Math.max(+byDay[e.date]||0,+e.count||0);
+  });
+  return Object.values(byDay).reduce(function(p,n){return p+(n>=3?3:(n>=2?2:(n>=1?1:0)));},0);
 }
 function daisoScore(u){const r=daisoChecks()[u.uid]||{};return daisoSupportPoints(u.name)+(r.starter?3:0);}
 function daisoToggle(uid,field){
@@ -6224,7 +6231,7 @@ function renderDaisoCompetition(){
     return '<div class="dc-person"><div class="dc-who"><b><span class="dc-rank">'+(i+1)+'</span>'+esc(x.u.name)+'</b><small>'+esc(x.u.role)+' · 후원 '+x.support+'점</small></div><div class="dc-checks">'+tog('recruit','👤 리쿠르팅')+tog('showup','🙋 쇼업')+tog('starter','🌱 스타터 +3')+'</div><strong class="dc-score">'+x.score+'<small>점</small></strong></div>';}).join('');
   function lead(label,w){return '<div class="dc-lead"><span>'+label+'</span><b>'+(w?esc(w.u.name):'아직 없음')+'</b><strong>'+(w?w.score:0)+'점</strong></div>';}
   box.innerHTML='<div class="dc-hero"><div><span class="dc-kicker">PRESENCE NEW COMPETITION</span><h3>다이소 컴페티션</h3><p>8월 17일 - 8월 30일 · IC / LR 최다 득점자 각 1명</p></div><span class="dc-prize">🎁 다이소 2만원 상품권</span></div>'+
-    '<div class="dc-rules"><b>🎯 득점 기준</b><span>후원 1명 이상 <em>1점</em></span><span>후원 3명 이상 <em>2점</em></span><span>PR 스타터 발생 <em>3점</em></span><small>후원 점수는 기간 내 세일즈 기록에서 자동 집계 · 스타터 체크 즉시 +3점</small></div>'+
+    '<div class="dc-rules"><b>🎯 하루 최종 득점</b><span>노제로 <em>1점</em></span><span>벨(2) <em>2점</em></span><span>공(3+) <em>3점</em></span><span>PR 스타터 <em>+3점</em></span><small>하루 최고 단계 하나만 적용: 공은 1+2+3이 아니라 3점, 벨은 1+2가 아니라 2점 · 중복 합산 없음</small></div>'+
     '<div class="dc-leaders">'+lead('⭐ IC 현재 1위',wi)+lead('⭐ LR 현재 1위',wl)+'</div>'+
     '<div class="dc-subhead"><b>👤 리쿠르팅 개인 체크</b><span>본인 기록 · 관리자는 전체 수정 가능</span></div><div class="dc-list">'+(rows||'<div class="rank-empty">참여할 팀원이 없어요</div>')+'</div>';
 }
