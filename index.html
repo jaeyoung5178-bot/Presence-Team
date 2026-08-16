@@ -3362,21 +3362,46 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
   #m-leaderhit .lhc-lbl.do{background:rgba(92,188,46,.15);color:var(--green-soft);border:1px solid rgba(92,188,46,.3)}
   body.pdf-open{overflow:hidden}
   #pdfOverlay{position:fixed;inset:0;z-index:var(--z-pdf);background:#eef0f4;display:flex;flex-direction:column}
-  #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px}
+  #pdfOverlay .pdf-topbar{flex:none;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #dadce0;padding:11px 13px;padding-top:max(11px,env(safe-area-inset-top))}
   #pdfOverlay .pdf-ttl{flex:1;min-width:0;text-align:center;font-size:14px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #pdfOverlay .pdf-x{flex:none;background:#f1f3f4;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#202124;cursor:pointer;font-family:inherit}
-  #pdfOverlay .pdf-print{flex:none;background:#5CBC2E;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
+  #pdfOverlay .pdf-x{flex:none;min-height:44px;background:#f1f3f4;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#202124;cursor:pointer;font-family:inherit}
+  #pdfOverlay .pdf-print{flex:none;min-height:44px;background:#5CBC2E;border:0;border-radius:9px;padding:10px 15px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
   #pdfOverlay .pdf-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
-  #pdfOverlay .pdf-wrap{max-width:720px;margin:0 auto;padding:24px 18px;color:#202124}
-  #pdfOverlay .pdf-hd{text-align:center;font-size:11px;color:#80868b;font-weight:700;letter-spacing:.04em;margin-bottom:16px}
+  #pdfOverlay .pdf-wrap{width:min(100%,794px);min-height:1123px;margin:24px auto;padding:44px 48px;background:#fff;color:#202124;box-shadow:0 8px 30px rgba(32,33,36,.13)}
+  #pdfOverlay .pdf-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid #202124;padding-bottom:12px;margin-bottom:18px}
+  #pdfOverlay .pdf-brand{font-size:11px;color:#2b7a0b;font-weight:900;letter-spacing:.09em}
+  #pdfOverlay .pdf-doc-title{font-size:18px;line-height:1.35;color:#202124;font-weight:800;text-align:right;word-break:keep-all}
+  #pdfOverlay .pdf-foot{margin-top:18px;padding-top:9px;border-top:1px solid #dadce0;text-align:center;font-size:9.5px;color:#9aa0a6;letter-spacing:.03em}
+  @media(max-width:620px){
+    #pdfOverlay .pdf-topbar{gap:7px;padding-left:8px;padding-right:8px}
+    #pdfOverlay .pdf-x,#pdfOverlay .pdf-print{padding:9px 11px;font-size:12.5px}
+    #pdfOverlay .pdf-wrap{width:100%;min-height:0;margin:0;padding:24px 16px;box-shadow:none}
+    #pdfOverlay .pdf-hd{align-items:flex-start;flex-direction:column;gap:5px}
+    #pdfOverlay .pdf-doc-title{text-align:left;font-size:16px}
+  }
   @media print{
+    html,body{background:#fff!important}
+    body.pdf-printing{margin:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body.pdf-printing>*:not(#pdfOverlay){display:none!important}
-    body.pdf-printing #pdfOverlay{position:static;background:#fff;height:auto}
+    body.pdf-printing #pdfOverlay{display:block!important;position:static;background:#fff;height:auto}
     body.pdf-printing #pdfOverlay .pdf-topbar{display:none!important}
     body.pdf-printing #pdfOverlay .pdf-scroll{overflow:visible;height:auto}
-    body.pdf-printing #pdfOverlay .pdf-wrap{padding:0;max-width:none}
-    @page{margin:13mm}
-    .gf-card{break-inside:avoid;box-shadow:none}
+    body.pdf-printing #pdfOverlay .pdf-wrap{width:auto;min-height:0;margin:0;padding:0;max-width:none;box-shadow:none}
+    body.pdf-printing #pdfOverlay .pdf-hd{margin-bottom:5mm;padding-bottom:3mm}
+    body.pdf-printing #pdfOverlay .pdf-brand{font-size:8.5pt}
+    body.pdf-printing #pdfOverlay .pdf-doc-title{font-size:14pt}
+    body.pdf-printing #pdfOverlay .gfr{gap:2.5mm}
+    body.pdf-printing #pdfOverlay .gf-card{break-inside:avoid-page;box-shadow:none;border-radius:2.5mm;padding:4mm 4.5mm}
+    body.pdf-printing #pdfOverlay .gf-head{border-top-width:1.5mm;padding-top:4.5mm}
+    body.pdf-printing #pdfOverlay .gf-title{font-size:15pt}
+    body.pdf-printing #pdfOverlay .gf-desc{font-size:9pt;margin-top:2mm}
+    body.pdf-printing #pdfOverlay .gf-resp{margin-top:3mm;padding-top:3mm}
+    body.pdf-printing #pdfOverlay .gf-resp .meta{font-size:7.5pt}
+    body.pdf-printing #pdfOverlay .gf-q{font-size:10pt;margin-bottom:2.5mm}
+    body.pdf-printing #pdfOverlay .gf-a{font-size:9.5pt;line-height:1.55;padding-bottom:2mm}
+    body.pdf-printing #pdfOverlay .gf-chip{font-size:8.5pt;padding:1.6mm 3mm}
+    body.pdf-printing #pdfOverlay .pdf-foot{font-size:7pt;margin-top:4mm;padding-top:2.5mm}
+    @page{size:A4 portrait;margin:12mm 13mm 14mm}
   }
   @keyframes connpulse{0%{box-shadow:0 0 0 0 rgba(92,188,46,.55)}70%{box-shadow:0 0 0 7px rgba(92,188,46,0)}100%{box-shadow:0 0 0 0 rgba(92,188,46,0)}}
   .inst-modal{position:fixed;inset:0;z-index:var(--z-overlay-3);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:18px}
@@ -7574,7 +7599,8 @@ function previewSurvey(key){
 }
 function exportSurveyPdf(){
   const body=document.getElementById('svViewBody');if(!body){toast('내보낼 설문이 없어요');return;}
-  const html=body.innerHTML;const title=window._svPdfTitle||'설문 응답';
+  const content=body.querySelector('.gfr');
+  const html=content?content.innerHTML:body.innerHTML;const title=window._svPdfTitle||'설문 응답';
   const E=(typeof esc==='function')?esc:function(x){return x;};
   closePdfOverlay();
   var ov=document.createElement('div'); ov.id='pdfOverlay';
@@ -7583,12 +7609,16 @@ function exportSurveyPdf(){
     '<span class="pdf-ttl">'+E(title)+'</span>'+
     '<button class="pdf-print" onclick="printPdfOverlay()">🖨️ PDF 저장</button>'+
     '</div>'+
-    '<div class="pdf-scroll"><div class="pdf-wrap"><div class="pdf-hd">PRESENCE · 설문 응답</div><div class="gfr">'+html+'</div></div></div>';
+    '<div class="pdf-scroll"><main class="pdf-wrap"><header class="pdf-hd"><span class="pdf-brand">PRESENCE · SURVEY</span><strong class="pdf-doc-title">'+E(title)+'</strong></header><div class="gfr">'+html+'</div><footer class="pdf-foot">Presence Team · 관리자용 설문 기록 · '+new Date().toLocaleDateString('ko-KR')+'</footer></main></div>';
   document.body.appendChild(ov);
   document.body.classList.add('pdf-open');
 }
 function closePdfOverlay(){ var o=document.getElementById('pdfOverlay'); if(o)o.remove(); document.body.classList.remove('pdf-open'); }
-function printPdfOverlay(){ document.body.classList.add('pdf-printing'); setTimeout(function(){ try{window.print();}catch(e){} setTimeout(function(){ document.body.classList.remove('pdf-printing'); },400); },120); }
+function printPdfOverlay(){
+  const oldTitle=document.title;document.title=(window._svPdfTitle||'Presence 설문 응답').replace(/[\\/:*?"<>|]/g,'_');
+  document.body.classList.add('pdf-printing');
+  setTimeout(function(){try{window.print();}catch(e){}setTimeout(function(){document.body.classList.remove('pdf-printing');document.title=oldTitle;},700);},180);
+}
 
 /* ME modal */
 function paintMePill(){const av=document.getElementById('mePillAv');if(!av)return;if(me&&me.photo){av.innerHTML=`<img src="${me.photo}" alt="">`;av.style.background='transparent'}else{av.innerHTML=esc((me&&me.name&&me.name[0])||'?');av.style.background=avColor(me?me.name:'?')}}
