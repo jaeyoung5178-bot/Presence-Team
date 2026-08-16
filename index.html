@@ -283,6 +283,7 @@ main{padding-bottom:40px}
 .water-row select{flex:0 0 82px}.water-row input{flex:1;min-width:0}
 .water-btn{margin-top:9px;background:var(--green);color:var(--green-ink);font-weight:700;border:none;border-radius:12px;padding:13px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .water-btn:hover{background:var(--green-soft)}
+.home-daiso-trophy{display:flex;align-items:center;justify-content:center;width:48px;height:48px;margin:9px auto 0;border:1px solid rgba(255,211,92,.62);border-radius:50%;background:linear-gradient(145deg,#0754aa,#177ee5);color:#fff;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 6px 17px rgba(0,80,170,.27);transition:transform .14s ease,filter .14s ease}.home-daiso-trophy:hover{filter:brightness(1.1);transform:translateY(-1px)}.home-daiso-trophy:active{transform:scale(.96)}.home-daiso-trophy:focus-visible{outline:3px solid rgba(255,211,92,.55);outline-offset:3px}
 .water-feed{margin-top:14px;flex:1;display:flex;flex-direction:column;gap:8px}
 .wf-item{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;padding:10px 11px;background:var(--card);border:1px solid var(--line);border-radius:11px;animation:slidein .4s ease}
 @keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -2246,6 +2247,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
             <span class="label" id="compLabelHome">🌳 우리 나무 · 12월 트리</span>
             <p class="tree-desc" id="compDescHome">매주 조금씩 자라 <b>12월 31일</b>에 완성돼요 🎄</p>
             <button class="water-btn" id="waterBtn" onclick="waterTree()">💧 오늘 물 주기</button>
+            <button class="home-daiso-trophy" id="homeDaisoTrophy" onclick="openDaisoCompetition()" aria-label="다이소 컴페티션 바로가기" title="다이소 컴페티션">🏆</button>
             <button class="water-btn" id="previewBtn" onclick="previewTree()" style="display:none;background:var(--card);border:1px solid var(--line);color:var(--muted)">🔍 다음 단계 성장 미리보기</button>
             <button class="reset-btn" id="treeResetBtn" onclick="resetTree()" style="display:none">🔄 나무 초기화 · 새 주기 시작</button>
             <div class="water-feed" id="waterFeed"></div>
@@ -10881,7 +10883,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-16.daiso-recruit-daily-2';
+const APP_VERSION='2026-08-16.daiso-recruit-daily-3';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
