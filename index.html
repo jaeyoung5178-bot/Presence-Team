@@ -8664,7 +8664,7 @@ function openOxGuide(){closeModal('oxfamModal');openModal('oxGuideModal');}
    ============================================================ */
 const DB={
   push(){},set(){return Promise.resolve();},on(){},get(){return Promise.resolve(null);},update(){return Promise.resolve();},remove(){return Promise.resolve();},tx(){return Promise.resolve({committed:false,snapshot:null});},
-  login(){return Promise.resolve(null);},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},logout(){}
+  login(){return Promise.resolve(null);},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},clearProfitRecapSession(){},logout(){}
 };
 function authKey(id){return String(id||'').trim().toLowerCase().replace(/[.#$\/\[\]]/g,'_');}
 async function initFirebase(){
@@ -8678,19 +8678,22 @@ async function initFirebase(){
   const rawGet=p=>fb.get(fb.ref(db,p)).then(s=>s.val());
   const rawSet=(p,v)=>fb.set(fb.ref(db,p),v);
   const rawOn=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
+  const profitRecapOff=[];
+  const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};};
   const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await auth.authStateReady();if(auth.currentUser)return auth.currentUser;return (await authMod.signInAnonymously(auth)).user;};
   const unlock=async uid=>{const cfg=await rawGet('privateConfig');applyPrivateConfig(cfg||{});unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
+    clearProfitRecapSession();
     const owner=uid===FOUNDER.uid;
     if(owner){
-      rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
-      rawOn('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};const mirror={};Object.keys(v||{}).forEach(month=>Object.keys(v[month]||{}).forEach(id=>{mirror['profitMonthlyBepPrivate/'+id+'/'+month]=v[month][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit BEP mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
+      profitRecapOff.push(rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
+      profitRecapOff.push(rawOn('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};const mirror={};Object.keys(v||{}).forEach(month=>Object.keys(v[month]||{}).forEach(id=>{mirror['profitMonthlyBepPrivate/'+id+'/'+month]=v[month][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit BEP mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
     }else{
-      rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
-      rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
+      profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
+      profitRecapOff.push(rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
     }
     return rawGet('users/'+uid);};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(fb.ref(db,p),v);DB.remove=p=>fb.remove(fb.ref(db,p));
-  DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));
+  DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));DB.clearProfitRecapSession=clearProfitRecapSession;
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
   DB.login=async(id,proof)=>{const au=await ensureAnon(),key=authKey(id),uid=await rawGet('loginIndex/'+key);if(!uid)return null;try{await rawSet('authSessions/'+au.uid,null);}catch(e){}await rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()});return unlock(uid);};
   DB.restoreSession=async uid=>{const au=await ensureAnon(),s=await rawGet('authSessions/'+au.uid);if(!s||s.userUid!==uid)return null;return unlock(uid);};
@@ -8709,7 +8712,7 @@ async function initFirebase(){
     return uid;
   };
   DB.changePassword=async(u,proof)=>rawSet('privateAuth/byId/'+authKey(u.id)+'/pwHash',proof);
-  DB.logout=async()=>{try{if(auth.currentUser)await rawSet('authSessions/'+auth.currentUser.uid,null);}catch(e){}try{await authMod.signOut(auth);}catch(e){}};
+  DB.logout=async()=>{clearProfitRecapSession();try{if(auth.currentUser)await rawSet('authSessions/'+auth.currentUser.uid,null);}catch(e){}try{await authMod.signOut(auth);}catch(e){}};
   window.__PRESENCE_SECURE_DB={on:(p,cb)=>DB.on(p,cb),set:(p,v)=>DB.set(p,v),update:(p,v)=>DB.update(p,v),remove:p=>DB.remove(p),tx:(p,fn)=>DB.tx(p,fn)};
   DB.on('.info/connected',v=>{setConn(!!v);});
   DB.on('pr',v=>{state.pr=(typeof v==='number')?v:0;renderTree()});
@@ -11281,7 +11284,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.profit-recap-private-11';
+const APP_VERSION='2026-08-23.profit-recap-private-12';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
