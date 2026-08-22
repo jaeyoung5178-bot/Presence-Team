@@ -1673,6 +1673,80 @@ body.can-mod #fxPanel #fxBar{display:grid}
 .mt-invite-box .acts .btn{flex:1}
 .mt-present{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .mt-present span{font-size:11px;background:rgba(92,188,46,.14);color:var(--green-soft,#8AE05C);border-radius:20px;padding:3px 10px;font-weight:700}
+/* ===== Profit · 금요일 주간 리캡 (LR+) ===== */
+#m-profitrecap .prc-shell{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);gap:16px;align-items:start}
+#m-profitrecap .prc-card{background:linear-gradient(155deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 16px 38px rgba(0,0,0,.12)}
+#m-profitrecap .prc-weekbar{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:10px;align-items:center;margin-bottom:10px}
+#m-profitrecap .prc-weekbar button{width:48px;height:48px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--cream);font-size:24px;cursor:pointer}
+#m-profitrecap .prc-weekpick{min-width:0;text-align:center}
+#m-profitrecap .prc-weekpick input{width:100%;min-height:48px;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:13px;color:var(--cream);color-scheme:dark;font:800 16px var(--mono);padding:0 12px;text-align:center}
+#m-profitrecap .prc-period{text-align:center;color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:16px}
+#m-profitrecap .prc-period b{color:var(--amber);font-weight:800}
+#m-profitrecap .prc-dates{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 14px}
+#m-profitrecap .prc-datebox{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:11px 12px;min-width:0}
+#m-profitrecap .prc-datebox span{display:block;color:var(--faint);font-size:10.5px;margin-bottom:4px}
+#m-profitrecap .prc-datebox b{display:block;color:var(--cream);font:800 12px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#m-profitrecap .prc-status{display:flex;align-items:center;gap:9px;background:rgba(230,176,82,.11);border:1px solid rgba(230,176,82,.28);border-radius:12px;padding:11px 13px;margin-bottom:15px;font-size:12.5px;color:var(--muted);line-height:1.5}
+#m-profitrecap .prc-status.saved{background:rgba(92,188,46,.1);border-color:rgba(92,188,46,.3)}
+#m-profitrecap .prc-status strong{color:var(--cream)}
+#m-profitrecap .prc-money{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+#m-profitrecap .prc-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+#m-profitrecap .prc-field.full{grid-column:1/-1}
+#m-profitrecap .prc-field label{font-size:12px;color:var(--muted);font-weight:750}
+#m-profitrecap .prc-field label small{font-size:10px;color:var(--faint);font-weight:600}
+#m-profitrecap .prc-input-wrap{position:relative;min-width:0}
+#m-profitrecap .prc-input-wrap .won{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--amber);font-weight:850;pointer-events:none}
+#m-profitrecap input.prc-in,#m-profitrecap textarea.prc-in{width:100%;min-width:0;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--cream);font-size:16px;padding:12px 13px;min-height:48px;font-family:inherit;outline:none}
+#m-profitrecap .prc-input-wrap input.prc-in{padding-left:34px;font:800 18px var(--mono);text-align:right}
+#m-profitrecap textarea.prc-in{min-height:86px;resize:vertical;line-height:1.55}
+#m-profitrecap input.prc-in:focus,#m-profitrecap textarea.prc-in:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.12)}
+#m-profitrecap .prc-metric{border:1px solid var(--line);border-radius:15px;padding:14px;margin-top:10px;background:rgba(0,0,0,.08)}
+#m-profitrecap .prc-metric-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
+#m-profitrecap .prc-metric-head b{font-size:14px;color:var(--cream)}
+#m-profitrecap .prc-metric-head span{font-size:10.5px;color:var(--faint);text-align:right;line-height:1.4}
+#m-profitrecap .prc-counts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#m-profitrecap .prc-count{display:grid;grid-template-columns:auto minmax(56px,1fr);align-items:center;gap:8px;background:var(--surface);border-radius:11px;padding:8px 10px}
+#m-profitrecap .prc-count label{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap}
+#m-profitrecap .prc-count input{width:100%;min-height:44px;box-sizing:border-box;background:var(--ink);border:1px solid var(--line);border-radius:9px;color:var(--cream);font:800 17px var(--mono);text-align:center;padding:7px}
+#m-profitrecap details.prc-detail{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.08);overflow:hidden}
+#m-profitrecap details.prc-detail summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;min-height:48px;padding:0 14px;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:800}
+#m-profitrecap details.prc-detail summary::-webkit-details-marker{display:none}
+#m-profitrecap .prc-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:14px;border-top:1px solid var(--line)}
+#m-profitrecap .prc-save{width:100%;min-height:50px;margin-top:14px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--green),#89dc53);color:var(--green-ink);font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 10px 25px rgba(92,188,46,.18)}
+#m-profitrecap .prc-save:disabled{opacity:.55;cursor:wait}
+#m-profitrecap .prc-auto{font-size:11px;color:var(--green-soft);line-height:1.55;margin-top:6px}
+#m-profitrecap .prc-export{margin-top:16px;border-top:1px solid var(--line);padding-top:15px}
+#m-profitrecap .prc-export-grid{display:grid;grid-template-columns:1fr;gap:9px}
+#m-profitrecap .prc-export select,#m-profitrecap .prc-export input{width:100%;box-sizing:border-box;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--cream);color-scheme:dark;padding:0 12px;font-size:16px}
+#m-profitrecap .prc-export-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#m-profitrecap .prc-export button{min-height:46px;border-radius:11px;border:1px solid rgba(37,93,235,.45);background:rgba(37,93,235,.14);color:#9fc0ff;font-weight:850;cursor:pointer;padding:8px 10px}
+#m-profitrecap .prc-side-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+#m-profitrecap .prc-side-title b{font-size:15px}.prc-side-title span{font-size:10.5px;color:var(--faint)}
+#m-profitrecap .prc-history{display:flex;flex-direction:column;gap:9px}
+#m-profitrecap .prc-hrow{width:100%;text-align:left;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--cream);padding:12px;cursor:pointer;min-height:64px}
+#m-profitrecap .prc-hrow-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;font-size:12px;color:var(--muted)}
+#m-profitrecap .prc-hrow-top strong{color:var(--amber);font:800 12px var(--mono)}
+#m-profitrecap .prc-hrow-val{display:flex;justify-content:space-between;gap:8px;align-items:end;font-size:11px;color:var(--faint)}
+#m-profitrecap .prc-hrow-val b{font:850 17px var(--mono);color:var(--cream)}
+#m-profitrecap .prc-empty{border:1px dashed var(--line);border-radius:13px;padding:24px 12px;text-align:center;color:var(--faint);font-size:12px;line-height:1.6}
+#m-profitrecap .prc-team{margin-top:16px}
+#m-profitrecap .prc-team-row{display:grid;grid-template-columns:minmax(86px,1fr) auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+#m-profitrecap .prc-team-row:last-child{border-bottom:0}
+#m-profitrecap .prc-team-row b{color:var(--cream)}#m-profitrecap .prc-team-row span{color:var(--muted)}#m-profitrecap .prc-team-row em{font-style:normal;color:var(--amber);font-family:var(--mono);white-space:nowrap}
+@media(max-width:900px){#m-profitrecap .prc-shell{grid-template-columns:1fr}}
+@media(max-width:520px){
+  #m-profitrecap .wrap{padding-left:12px;padding-right:12px}
+  #m-profitrecap .sec-head{align-items:flex-start}
+  #m-profitrecap .prc-card{padding:14px;border-radius:16px}
+  #m-profitrecap .prc-dates{grid-template-columns:1fr}
+  #m-profitrecap .prc-money,#m-profitrecap .prc-detail-grid{grid-template-columns:1fr}
+  #m-profitrecap .prc-field.full{grid-column:auto}
+  #m-profitrecap .prc-counts{grid-template-columns:1fr 1fr}
+  #m-profitrecap .prc-count{grid-template-columns:1fr;padding:9px;text-align:center}
+  #m-profitrecap .prc-count input{font-size:18px}
+  #m-profitrecap .prc-weekbar{grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}
+  #m-profitrecap .prc-weekbar button{width:44px;height:48px}
+}
 </style>
 <style id="enh-css">
 /* ===== 데스크탑: 좌측 사이드바 + 넓은 캔버스 ===== */
@@ -2549,6 +2623,12 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         <div class="sf-h">오늘의 팀 세일즈</div>
         <div id="saleFeed"></div>
       </div>
+    </section></div></div>
+
+    <!-- PROFIT WEEKLY RECAP (LR+) -->
+    <div class="mpanel" id="m-profitrecap"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>📒 주간 리캡</h2><span class="ko">금요일 급여 · 실입금 · 리젝 정리</span><span class="meta">LR 이상</span></div>
+      <div id="profitRecapBody"></div>
     </section></div></div>
 
     <!-- DAILY RECRUITING (everyone) -->
@@ -4120,7 +4200,7 @@ function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 const now=Date.now();
 let state={
   pr:0,
-  links:{},devLinks:{},recaps:{},training:[],recruit:{},daisoRecruitDaily:{},
+  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},training:[],recruit:{},daisoRecruitDaily:{},
   waters:{},
   comp:{label:'노제로 챌린지',start:now,weeks:2},
   feeds:[],
@@ -5016,6 +5096,91 @@ function renderRecap(){
   if(ed)ed.innerHTML=isFounder(me)?`<details class="kedit"><summary>➕ 월 리캡 추가/수정 (관리자)</summary><div class="kedit-body"><label class="kedit-row"><span>월 (YYYY-MM)</span><input id="rc-mk" placeholder="2026-06" /></label><label class="kedit-row"><span>팀 세일즈</span><input id="rc-done" inputmode="numeric" placeholder="215" /></label><label class="kedit-row"><span>AVG</span><input id="rc-avg" placeholder="1.80" /></label><label class="kedit-row"><span>실인컴</span><input id="rc-income" placeholder="1,600만" /></label><label class="kedit-row"><span>메모</span><input id="rc-note" placeholder="한줄 코멘트" /></label><button class="btn block" onclick="saveRecap()">저장</button></div></details>`:'';
 }
 function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
+/* ===== Profit · 금요일 주간 리캡 (리더 본인 작성 / 관리자 현황) ===== */
+let profitRecapPayDate='';
+function prcAddDays(ds,n){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return ymd(d);}
+function prcFriday(ds){const d=new Date((ds||TODAY)+'T12:00:00');if(isNaN(d))return TODAY;const diff=(d.getDay()-5+7)%7;d.setDate(d.getDate()-diff);return ymd(d);}
+function prcWeekInfo(pay){pay=prcFriday(pay);const we=prcAddDays(pay,-5);return {pay:pay,we:we,sd:prcAddDays(we,-6),ed:we};}
+function prcWon(v){return Math.max(0,parseInt(String(v==null?'0':v).replace(/[^0-9]/g,''),10)||0);}
+function prcNum(v){return Math.max(0,parseInt(v,10)||0);}
+function prcFmt(v){return Number(v||0).toLocaleString('ko-KR');}
+function prcMoneyInput(el){const pos=prcWon(el.value);el.value=pos?prcFmt(pos):'';}
+function prcMyRecord(pay,uid){return (((state.weeklyProfitRecaps||{})[pay]||{})[uid||((me||{}).uid)]||null);}
+function prcRecordsFor(uid){const out=[];Object.keys(state.weeklyProfitRecaps||{}).forEach(function(pay){const r=prcMyRecord(pay,uid);if(r)out.push(r);});return out.sort(function(a,b){return String(b.payDate||'').localeCompare(String(a.payDate||''));});}
+function prcFieldMoney(id,label,value,help,full){return '<div class="prc-field'+(full?' full':'')+'"><label for="'+id+'">'+label+(help?' <small>· '+help+'</small>':'')+'</label><div class="prc-input-wrap"><span class="won">₩</span><input class="prc-in" id="'+id+'" inputmode="numeric" autocomplete="off" value="'+(value?prcFmt(value):'')+'" oninput="prcMoneyInput(this)" aria-label="'+label+'"></div></div>';}
+function prcCount(id,label,value){return '<div class="prc-count"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="number" inputmode="numeric" min="0" step="1" value="'+prcNum(value)+'" aria-label="'+label+' 건수"></div>';}
+function prcStatusHTML(rec,info){
+  const isFriday=new Date(TODAY+'T12:00:00').getDay()===5,isPast=info.pay<TODAY;
+  if(rec)return '<div class="prc-status saved"><span>✅</span><div><strong>작성 완료</strong><br>저장된 리캡을 다시 열어 수정할 수 있어요.</div></div>';
+  if(info.pay>TODAY)return '<div class="prc-status"><span>🔒</span><div><strong>아직 급여일 전이에요.</strong><br>해당 금요일부터 작성할 수 있어요.</div></div>';
+  return '<div class="prc-status"><span>🧾</span><div><strong>'+(isFriday&&!isPast?'오늘 작성하는 리캡이에요.':'놓친 주간도 보완 작성할 수 있어요.')+'</strong><br>급여명세서의 실입금과 리젝 건수를 확인해 주세요.</div></div>';
+}
+function prcTeamHTML(pay){
+  if(!isFounder(me))return '';
+  const leaders=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&ri(u.role)>=1&&!isTestBot(u);}).sort(function(a,b){return ri(b.role)-ri(a.role)||String(a.name).localeCompare(String(b.name),'ko');});
+  const rows=leaders.map(function(u){const r=prcMyRecord(pay,u.uid);return '<div class="prc-team-row"><b>'+esc(u.name)+' <small>'+esc(u.role)+'</small></b><span>'+(r?'작성 완료':'미작성')+'</span><em>'+(r?'₩ '+prcFmt(r.netPayment):'—')+'</em></div>';}).join('');
+  return '<details class="prc-detail prc-team"><summary><span>👥 선택 주간 리더 작성 현황</span><span>'+leaders.filter(function(u){return !!prcMyRecord(pay,u.uid);}).length+' / '+leaders.length+'</span></summary><div class="prc-detail-grid" style="display:block">'+(rows||'<div class="prc-empty">활성 리더가 없어요.</div>')+'</div></details>';
+}
+function prcBep(month,uid){return Number((((state.profitMonthlyBep||{})[month]||{})[uid||((me||{}).uid)]||0))||0;}
+function prcExportHTML(month){
+  if(!isFounder(me))return '';
+  const leaders=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&ri(u.role)>=1&&!isTestBot(u);}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
+  return '<div class="prc-export"><div class="prc-side-title"><b>📊 관리자 PPT 다운로드</b><span>팀 전체 · 개인별</span></div><div class="prc-export-grid"><input id="prcExportMonth" type="month" value="'+month+'" aria-label="PPT 리캡 월"><select id="prcExportUid" aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'">'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><div class="prc-export-actions"><button onclick="exportProfitRecapPpt(\'team\')">팀 전체 PPT</button><button onclick="exportProfitRecapPpt(\'person\')">개인 PPT</button></div></div></div>';
+}
+function renderProfitRecap(){
+  const box=document.getElementById('profitRecapBody');if(!box)return;
+  if(!me||!isLeader(me.role)){box.innerHTML='';return;}
+  if(!profitRecapPayDate)profitRecapPayDate=prcFriday(TODAY);
+  const info=prcWeekInfo(profitRecapPayDate);profitRecapPayDate=info.pay;
+  const r=prcMyRecord(info.pay,me.uid)||{},month=info.pay.slice(0,7),bep=prcBep(month,me.uid)||prcWon(r.bep);
+  const history=prcRecordsFor(me.uid).slice(0,10).map(function(x){return '<button class="prc-hrow" onclick="prcSetPayDate(\''+esc(x.payDate)+'\')"><div class="prc-hrow-top"><span>'+esc(x.activityFrom||'')+' ~ '+esc(x.weekEnding||'')+'</span><strong>인컴 '+esc((x.incomeDate||x.payDate||'').slice(5).replace('-','.'))+'</strong></div><div class="prc-hrow-val"><b>₩ '+prcFmt(x.netPayment)+'</b><span>리젝 '+(prcNum(x.rejectCLCount)+prcNum(x.rejectSWCount))+' · 본드 ₩'+prcFmt(x.bondBalance)+'</span></div></button>';}).join('');
+  box.innerHTML='<div class="prc-shell"><div class="prc-card">'+
+    '<div class="prc-weekbar"><button onclick="prcMove(-7)" aria-label="이전 인컴 주간">‹</button><div class="prc-weekpick"><input id="prcPayDate" type="date" value="'+info.pay+'" max="'+TODAY+'" onchange="prcSetPayDate(this.value)" aria-label="인컴일 선택"></div><button onclick="prcMove(7)" aria-label="다음 인컴 주간"'+(prcAddDays(info.pay,7)>TODAY?' disabled':'')+'>›</button></div>'+
+    '<div class="prc-period"><b>'+month.replace('-','년 ')+'월 주간 인컴 리캡</b></div><div class="prc-dates"><div class="prc-datebox"><span>필드 활동일</span><b>'+info.sd+' ~ '+info.ed+'</b></div><div class="prc-datebox"><span>인컴일</span><b>'+info.pay+' (금)</b></div></div>'+prcStatusHTML(r,info)+
+    '<div class="prc-money">'+prcFieldMoney('prcNet','이번 주 인컴',r.netPayment,'통장에 실제 들어온 금액',true)+'</div>'+
+    '<div class="prc-metric"><div class="prc-metric-head"><b>리젝</b><span>종류별 건수 · 합계는 자동 계산</span></div><div class="prc-counts">'+prcCount('prcRcl','CL',r.rejectCLCount)+prcCount('prcRsw','SW',r.rejectSWCount)+'</div></div>'+
+    '<div class="prc-money" style="margin-top:12px">'+prcFieldMoney('prcBond','잔여 본드',r.bondBalance,'이번 주 기준 잔액',true)+prcFieldMoney('prcBep','월 BEP',bep,'이달 한 번 저장하면 자동 적용',true)+'</div><div class="prc-auto">✓ BEP는 월간 값이에요. 같은 달에는 이전 저장값이 자동으로 채워지며, 변경할 때만 수정하면 됩니다.</div>'+
+    '<button class="prc-save" id="prcSaveBtn" onclick="saveProfitRecap()"'+(info.pay>TODAY?' disabled':'')+'>'+(r.updatedAt?'수정 내용 저장':'이번 주 리캡 저장')+'</button>'+prcTeamHTML(info.pay)+'</div>'+
+    '<aside class="prc-card"><div class="prc-side-title"><b>최근 주간 리캡</b><span>탭하면 바로 수정</span></div><div class="prc-history">'+(history||'<div class="prc-empty">아직 작성한 리캡이 없어요.<br>금요일 인컴을 확인한 뒤 첫 기록을 남겨보세요.</div>')+'</div>'+prcExportHTML(month)+'</aside></div>';
+}
+function prcSetPayDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;const f=prcFriday(ds);if(f>TODAY){toast('아직 오지 않은 급여일은 작성할 수 없어요');return;}if(f!==ds)toast('급여일인 금요일로 맞췄어요');profitRecapPayDate=f;renderProfitRecap();}
+function prcMove(n){const next=prcAddDays(profitRecapPayDate||prcFriday(TODAY),n);if(next>TODAY){toast('다음 급여일 이후에는 이동할 수 없어요');return;}profitRecapPayDate=next;renderProfitRecap();}
+async function saveProfitRecap(){
+  if(!me||!isLeader(me.role)){toast('리더 이상만 작성할 수 있어요');return;}
+  const info=prcWeekInfo(profitRecapPayDate||TODAY);if(info.pay>TODAY){toast('급여일 이후에 작성해 주세요');return;}
+  const val=id=>((document.getElementById(id)||{}).value||'');
+  const month=info.pay.slice(0,7),bep=prcWon(val('prcBep'));
+  const rec={uid:me.uid,name:me.name||'',role:me.role||'LR',payDate:info.pay,incomeDate:info.pay,weekEnding:info.we,activityFrom:info.sd,activityTo:info.ed,netPayment:prcWon(val('prcNet')),rejectCLCount:prcNum(val('prcRcl')),rejectSWCount:prcNum(val('prcRsw')),bondBalance:prcWon(val('prcBond')),bep:bep,updatedAt:Date.now(),updatedBy:me.uid};
+  state.profitMonthlyBep=state.profitMonthlyBep||{};state.profitMonthlyBep[month]=state.profitMonthlyBep[month]||{};const oldBep=state.profitMonthlyBep[month][me.uid];state.profitMonthlyBep[month][me.uid]=bep;
+  const old=prcMyRecord(info.pay,me.uid);state.weeklyProfitRecaps=state.weeklyProfitRecaps||{};state.weeklyProfitRecaps[info.pay]=state.weeklyProfitRecaps[info.pay]||{};state.weeklyProfitRecaps[info.pay][me.uid]=rec;renderProfitRecap();
+  const btn=document.getElementById('prcSaveBtn');if(btn){btn.disabled=true;btn.textContent='저장 중…';}
+  try{if(LIVE){const incomeKey=(typeof nk==='function'?nk(me.name):(me.name||me.uid).replace(/\s/g,''));await Promise.all([DB.set('weeklyProfitRecaps/'+info.pay+'/'+me.uid,rec),DB.set('profitMonthlyBep/'+month+'/'+me.uid,bep),DB.set('incomeWk/'+info.we+'/'+incomeKey,rec.netPayment)]);}toast('✅ 주간 리캡을 저장했어요');}
+  catch(e){if(old)state.weeklyProfitRecaps[info.pay][me.uid]=old;else delete state.weeklyProfitRecaps[info.pay][me.uid];if(oldBep==null)delete state.profitMonthlyBep[month][me.uid];else state.profitMonthlyBep[month][me.uid]=oldBep;renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
+}
+function prcPptLoad(){return new Promise(function(resolve,reject){if(window.PptxGenJS){resolve(window.PptxGenJS);return;}const old=document.getElementById('pptxgen-lib');if(old){old.addEventListener('load',function(){resolve(window.PptxGenJS);},{once:true});old.addEventListener('error',reject,{once:true});return;}const s=document.createElement('script');s.id='pptxgen-lib';s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=function(){resolve(window.PptxGenJS)};s.onerror=function(){reject(new Error('PPT library load failed'))};document.head.appendChild(s);});}
+function prcMonthRecords(month,uid){const rows=[];Object.keys(state.weeklyProfitRecaps||{}).sort().forEach(function(pay){if(pay.slice(0,7)!==month)return;Object.values((state.weeklyProfitRecaps||{})[pay]||{}).forEach(function(r){if(r&&(!uid||r.uid===uid))rows.push(r);});});return rows;}
+function prcSalesFor(name,month){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){if(s&&s.name===name&&String(s.date||'').slice(0,7)===month&&!s.na&&!s.rally){sales+=Number(s.count)||0;if((Number(s.count)||0)>0)days.add(s.date);}});return {sales:sales,days:days.size};}
+function prcPptText(slide,pptx,text,x,y,w,h,size,color,bold,align){slide.addText(String(text==null?'':text),{x:x,y:y,w:w,h:h,fontFace:'Aptos',fontSize:size,color:color||'1E293B',bold:!!bold,margin:0,breakLine:false,fit:'shrink',valign:'mid',align:align||'left'});}
+function prcPptHeader(slide,pptx,kicker,title,subtitle,page){prcPptText(slide,pptx,kicker,.5,.28,4.5,.25,13,'64748B',false);prcPptText(slide,pptx,title,.5,.92,11.5,.55,31,'1E293B',true);prcPptText(slide,pptx,subtitle,.5,1.48,11.6,.3,14,'64748B',false);prcPptText(slide,pptx,'Presence',11.78,.25,1.05,.26,13,'111827',true,'right');prcPptText(slide,pptx,'머물고 싶은 팀',11.56,.52,1.27,.18,8,'64748B',false,'right');if(page)prcPptText(slide,pptx,String(page),.5,7.2,.3,.18,8,'64748B',false);}
+function prcPptMetric(slide,pptx,x,label,value,unit){slide.addShape(pptx.ShapeType.roundRect,{x:x,y:1.95,w:2.78,h:1.08,rectRadius:.08,fill:{color:'FFFFFF'},line:{color:'E5E7EB',transparency:25},shadow:{type:'outer',color:'94A3B8',opacity:.14,blur:1,angle:45,distance:1}});prcPptText(slide,pptx,value,x+.18,2.15,1.95,.38,24,'255DEB',true);prcPptText(slide,pptx,unit||'',x+2.05,2.22,.5,.22,11,'475569',true,'right');prcPptText(slide,pptx,label,x+.18,2.66,2.25,.22,11,'64748B',false);}
+async function exportProfitRecapPpt(scope){
+  if(!isFounder(me)){toast('관리자만 다운로드할 수 있어요');return;}
+  const month=((document.getElementById('prcExportMonth')||{}).value||profitRecapPayDate.slice(0,7)),uid=scope==='person'?((document.getElementById('prcExportUid')||{}).value||''):'';
+  const records=prcMonthRecords(month,uid);if(!records.length){toast('선택한 범위에 저장된 리캡이 없어요');return;}
+  toast('PPT를 만드는 중이에요…');
+  try{
+    const PptxGenJS=await prcPptLoad(),pptx=new PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Presence';pptx.subject='주간 인컴 리캡';pptx.title='Presence '+month+' 인컴 리캡';pptx.company='Presence';pptx.lang='ko-KR';pptx.theme={headFontFace:'Aptos',bodyFontFace:'Aptos',lang:'ko-KR'};
+    const users=Object.fromEntries(Object.values(state.users||{}).map(function(u){return [u.uid,u];})),person=uid?users[uid]:null,scopeName=person?person.name:'팀 전체';
+    const pays=[...new Set(records.map(function(r){return r.payDate;}))].sort(),weekly=pays.map(function(p){return records.filter(function(r){return r.payDate===p;}).reduce(function(s,r){return s+Number(r.netPayment||0);},0);});let run=0;const cumulative=weekly.map(function(v){run+=v;return run;});
+    const income=records.reduce(function(s,r){return s+Number(r.netPayment||0);},0),rejects=records.reduce(function(s,r){return s+prcNum(r.rejectCLCount)+prcNum(r.rejectSWCount);},0),leaders=[...new Set(records.map(function(r){return r.uid;}))],latestBond=leaders.reduce(function(sum,id){const last=records.filter(function(r){return r.uid===id;}).sort(function(a,b){return String(b.payDate).localeCompare(String(a.payDate));})[0];return sum+Number((last||{}).bondBalance||0);},0);
+    let slide=pptx.addSlide();slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'주간 인컴 리캡',month.replace('-','년 ')+'월 '+scopeName+' 인컴 현황','필드 활동일과 금요일 인컴일 기준 · 리젝·본드·BEP 반영',1);prcPptMetric(slide,pptx,.5,'누적 실인컴','₩'+prcFmt(income),'');prcPptMetric(slide,pptx,3.45,'작성 인원',leaders.length,'명');prcPptMetric(slide,pptx,6.4,'리젝 합계',rejects,'건');prcPptMetric(slide,pptx,9.35,'최근 잔여 본드','₩'+prcFmt(latestBond),'');
+    slide.addChart(pptx.ChartType.bar,[{name:'주간 인컴',labels:pays.map(function(p){return 'IN '+p.slice(5).replace('-','/');}),values:weekly}],{x:.5,y:3.36,w:5.95,h:3.48,catAxisLabelFontSize:10,valAxisLabelFontSize:10,valAxisMinVal:0,showLegend:false,showTitle:true,title:'주차별 인컴 추이',showValue:true,dataLabelPosition:'outEnd',chartColors:['255DEB'],showCatName:false,showValAxisTitle:false,showCatAxisTitle:false,showValue:true,showBorder:false,showGridLines:true,gridLine:{color:'E2E8F0'},showTitle:true,titleFontSize:16});
+    slide.addChart(pptx.ChartType.line,[{name:'누적 인컴',labels:pays.map(function(p){return 'IN '+p.slice(5).replace('-','/');}),values:cumulative}],{x:6.75,y:3.36,w:6.05,h:3.48,catAxisLabelFontSize:10,valAxisLabelFontSize:10,valAxisMinVal:0,showLegend:false,showTitle:true,title:'누적 인컴 추이',showValue:true,dataLabelPosition:'b',chartColors:['255DEB'],lineSize:3,showMarker:true,markerSize:7,showBorder:false,showGridLines:true,gridLine:{color:'E2E8F0'},titleFontSize:16});
+    const perUser=leaders.map(function(id){const ur=records.filter(function(r){return r.uid===id;}).sort(function(a,b){return String(a.payDate).localeCompare(String(b.payDate));}),u=users[id]||ur[0]||{},inc=ur.reduce(function(s,r){return s+Number(r.netPayment||0);},0),cl=ur.reduce(function(s,r){return s+prcNum(r.rejectCLCount);},0),sw=ur.reduce(function(s,r){return s+prcNum(r.rejectSWCount);},0),last=ur[ur.length-1]||{},sm=prcSalesFor(u.name,month);return {uid:id,name:u.name||last.name||'—',role:u.role||last.role||'',fieldDays:sm.days,sales:sm.sales,income:inc,cl:cl,sw:sw,bond:Number(last.bondBalance||0),bep:prcBep(month,id)||Number(last.bep||0),weeks:ur.length};}).sort(function(a,b){return b.income-a.income;});
+    for(let start=0;start<perUser.length;start+=6){const chunk=perUser.slice(start,start+6);slide=pptx.addSlide();slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'인컴 디테일','팀원별 주간 인컴 성과 상세 · '+(Math.floor(start/6)+1)+' / '+Math.ceil(perUser.length/6),'저장된 주간 리캡 기준 · '+month.replace('-','년 ')+'월',Math.floor(start/6)+2);const rows=[['팀원','필드일','세일즈','인컴','CL','SW','잔여 본드','월 BEP','주차']].concat(chunk.map(function(x){return [x.name+' '+x.role,x.fieldDays+'일',x.sales,'₩'+prcFmt(x.income),x.cl,x.sw,'₩'+prcFmt(x.bond),'₩'+prcFmt(x.bep),x.weeks];}));slide.addTable(rows,{x:.5,y:2.08,w:12.3,h:Math.min(4.65,.55+chunk.length*.65),border:{type:'solid',color:'E5E7EB',pt:.6},fill:'FFFFFF',color:'1E293B',fontFace:'Aptos',fontSize:12,margin:.1,rowH:.54,autoFit:false,colW:[1.55,.8,.8,1.55,.55,.55,1.55,1.55,.7],bold:false,breakLine:false,fillHeader:'F1F5F9',boldHeader:true,align:'center',valign:'mid',alternateRowFill:'FAFAFA'});}
+    const file='Presence_'+month+'_'+scopeName.replace(/\s/g,'_')+'_주간인컴리캡.pptx';await pptx.writeFile({fileName:file});toast('✅ PPT 다운로드를 시작했어요');
+  }catch(e){console.error(e);toast('PPT를 만들지 못했어요. 인터넷 연결 후 다시 시도해 주세요.');}
+}
 /* ===== 콜백싯 (개인 Field Callback OS + 일지 · 본인만 보기 / 관리자 전체 열람) ===== */
 let cbFiles=[]; let cbViewUid=null;
 const CALLBACK_APP_URL='https://hub.presence.co.kr/callback/';
@@ -5317,14 +5482,14 @@ const NAV=[
   {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao']},
   {k:'people',e:'◎',l:'People',tabs:['teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
   {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod']},
-  {k:'profit',e:'◆',l:'Profit',tabs:['sale','recruitdaily','comp','perf','cbjournal','rejectnote','daily']},
+  {k:'profit',e:'◆',l:'Profit',tabs:['sale','profitrecap','recruitdaily','comp','perf','cbjournal','rejectnote','daily']},
   {k:'my',e:'✦',l:'My',tabs:['petshop']},
   {k:'admin',e:'▣',l:'Admin',tabs:['admin','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
   today:{e:'✓',l:'오늘 실행'},
-  sale:{e:'🔔',l:'세일즈'},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
+  sale:{e:'🔔',l:'세일즈'},profitrecap:{e:'📒',l:'주간 리캡',g:()=>!!me&&isLeader(me.role)},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},hall:{e:'🏅',l:'명예의 전당'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성법'},topics:{e:'🗂️',l:'토픽자료'},petshop:{e:'✦',l:'Avatar'},
@@ -5381,7 +5546,7 @@ var SUBRAIL_PRIMARY={
   today:['today','notice','kakao','events'],
   people:['teamtree','oneonone','calling','leaderwish'],
   progress:['journey','leaderhit','training','petshop'],
-  profit:['sale','cbjournal','daily','recap'],
+  profit:['sale','profitrecap','cbjournal','daily'],
   my:['petshop'],
   admin:['admin','events','salesmgr','gsheet']
 };
@@ -5389,7 +5554,7 @@ var SUBRAIL_SECTIONS={
   today:[['오늘',['today','notice','kakao']],['일정·참여',['events','eventsurvey','survey']],['운영',['gsheet','admin']]],
   people:[['팀',['teamtree','sites','setupkit']],['대화',['oneonone','calling','meeting']],['문화',['net','act','wins','hall','leaderwish']]],
   progress:[['성장',['journey','leaderhit','manual','obj']],['현장 학습',['callback','topics','training','cod']],['나의 공간',['petshop']]],
-  profit:[['세일즈',['sale','perf','daily']],['후속 관리',['cbjournal','rejectnote']]],
+  profit:[['세일즈',['sale','profitrecap','perf','daily']],['후속 관리',['cbjournal','rejectnote']]],
   my:[['MY PRESENCE',['petshop']]],
   admin:[['구성원·권한',['admin','survey']],['운영·승인',['events','eventsurvey','salesmgr']],['시스템',['gsheet','field','recap']]]
 };
@@ -5463,6 +5628,7 @@ function goTab(name){
   if(name==='manual')renderManual();
   if(name==='obj')renderObj();
   if(name==='recap')renderRecap();
+  if(name==='profitrecap')renderProfitRecap();
   if(name==='calling')renderCalling();
   if(name==='field')renderField();
   if(name==='leaderhit')renderLeaderHit();
@@ -8096,7 +8262,7 @@ function openMe(){if(!me)return;document.getElementById('meName').textContent=me
 function openModal(id){const el=document.getElementById(id);if(el)el.classList.add('on')}
 function closeModal(id){const el=document.getElementById(id);if(el)el.classList.remove('on')}
 
-function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderRecruitDaily();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(me&&isFounder(me))renderAdmin();renderCelebrations();updateCounts()}
+function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderRecruitDaily();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(me&&isLeader(me.role))renderProfitRecap();if(me&&isFounder(me))renderAdmin();renderCelebrations();updateCounts()}
 
 /* ============================================================
    HOME MOOD FX — 관리자 토글 · 전팀 실시간 동기화
@@ -8464,6 +8630,8 @@ async function initFirebase(){
   DB.on('devLinks',v=>{state.devLinks=v||{};if(me&&isFounder(me))renderDevLinks();});
   DB.on('salesMeta',v=>{state.salesMeta=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('incomeWk',v=>{state.incomeWk=v||{};try{var pane=document.getElementById('ft-rc');if(pane&&pane.classList.contains('active')&&ftCurWE&&typeof ftWkLoad==='function')ftWkLoad();}catch(e){}});
+  DB.on('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};if(me&&isLeader(me.role)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
+  DB.on('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};if(me&&isLeader(me.role)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
   DB.on('bep',v=>{state.bep=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('feedLog',v=>{state.feedLog=Array.isArray(v)?v:(v?Object.values(v):[]);if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
@@ -10994,7 +11162,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.asset-login-dated-na-1';
+const APP_VERSION='2026-08-22.leader-profit-recap-ppt-2';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
