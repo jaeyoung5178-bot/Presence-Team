@@ -2682,7 +2682,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
     </section></div></div>
 
     <!-- PROFIT WEEKLY RECAP (LR+) -->
-    <div class="mpanel" id="m-profitrecap"><div class="wrap"><section class="sec">
+    <div class="mpanel" id="m-profitrecap"><div class="wrap"><div class="perfseg"></div><section class="sec">
       <div class="sec-head"><h2>📒 주간 리캡</h2><span class="ko">금요일 급여 · 실입금 · 리젝 정리</span><span class="meta">LR 이상</span></div>
       <div id="profitRecapBody"></div>
     </section></div></div>
@@ -4179,10 +4179,9 @@ const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===
 const isOwnerAccount=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);
 function canProfitRecap(u){
   if(!u)return false;
-  const previewSelf=!!(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name));
-  const raw=String(previewSelf?window.__previewRole:(u.role||'')).trim().toUpperCase();
+  const raw=String(u.role||'').trim().toUpperCase();
   const code=['LR','TL','AOP','OP','O'].find(function(r){return raw===r||raw.indexOf('('+r+')')>=0;})||raw;
-  return ['LR','TL','AOP','OP','O'].indexOf(code)>=0||(!previewSelf&&isOwnerAccount(u));
+  return ['LR','TL','AOP','OP','O'].indexOf(code)>=0||isOwnerAccount(u);
 }
 function isManager(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name))return window.__previewRole==='MANAGER';if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
 function isSectorLeader(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name))return window.__previewRole==='SECTOR';if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
@@ -5715,7 +5714,7 @@ function goTab(name){
   document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('m-'+name);if(el)el.classList.add('active');
   /* 레거시 검색 버튼은 새 QUICK ACCESS 검색바로 대체됨 — 재노출하지 않음 */
-  if(name==='sale'||name==='recruitdaily'||name==='comp'||name==='perf'){try{renderPerfSeg(name);}catch(e){}}
+  if(name==='sale'||name==='profitrecap'||name==='recruitdaily'||name==='comp'||name==='perf'){try{renderPerfSeg(name);}catch(e){}}
   if(name==='hall'){try{renderHall();}catch(e){}}
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
   if(name==='recruitdaily')renderRecruitDaily();
@@ -6853,7 +6852,7 @@ function renderSales(){
 function activeTeamDays(){const m=curMonthKey(),days=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&e.count>0)days.add(e.date)}return days.size||1}
 /* ══ 성과 세그먼트 (세일즈·컴페티션·목표 통합 전환) ══ */
 function renderPerfSeg(active){
-  var items=[{k:'sale',e:'🔔',l:'세일즈'},{k:'recruitdaily',e:'👤',l:'리쿠르팅'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'perf',e:'📊',l:'목표'}].filter(function(x){return typeof tabVisible!=='function'||tabVisible(x.k);});
+  var items=[{k:'sale',e:'🔔',l:'세일즈'},{k:'profitrecap',e:'📒',l:'주간 리캡'},{k:'recruitdaily',e:'👤',l:'리쿠르팅'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'perf',e:'📊',l:'목표'}].filter(function(x){return typeof tabVisible!=='function'||tabVisible(x.k);});
   if(items.length<2){document.querySelectorAll('.perfseg').forEach(function(el){el.innerHTML='';});return;}
   var html=items.map(function(x){return '<button class="pseg-b'+(x.k===active?' on':'')+'" onclick="goTab(\''+x.k+'\')">'+x.e+' '+x.l+'</button>';}).join('');
   document.querySelectorAll('.perfseg').forEach(function(el){el.innerHTML=html;});
@@ -11275,7 +11274,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.profit-recap-nav-8';
+const APP_VERSION='2026-08-22.profit-recap-nav-9';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
