@@ -726,6 +726,26 @@ table.scores tr.top1 .big{color:var(--green)}
 .sale-btn .ic{font-size:22px}
 .sh-month{display:flex;justify-content:space-between;gap:12px;margin-top:18px;font-size:12px;color:var(--muted)}
 .sh-month b{color:var(--cream);font-family:var(--disp);font-size:15px}
+.sale-calendar{max-width:620px;margin:0 auto 20px;padding:14px;background:rgba(10,15,28,.48);border:1px solid var(--line);border-radius:17px;text-align:left}
+.sale-cal-head{display:grid;grid-template-columns:44px 1fr 44px auto;align-items:center;gap:7px;margin-bottom:10px}
+.sale-cal-head button{min-width:44px;height:44px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--cream);font-size:21px;cursor:pointer}
+.sale-cal-head button.sale-cal-today{width:auto;padding:0 13px;font-size:12px;font-weight:800;color:var(--green-soft)}
+.sale-cal-head b{text-align:center;font-family:var(--disp);font-size:15px}
+.sale-cal-week,.sale-cal-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.sale-cal-week{margin-bottom:5px}.sale-cal-week span{text-align:center;color:var(--faint);font-family:var(--mono);font-size:9.5px}
+.sale-cal-days button{position:relative;min-width:0;min-height:48px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;line-height:1.05}
+.sale-cal-days button.blank{pointer-events:none}.sale-cal-days button:not(.blank):hover{background:var(--card);color:var(--cream)}
+.sale-cal-days button.today{border-color:rgba(92,188,46,.48)}.sale-cal-days button.sel{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 7px 18px -10px rgba(99,102,241,.95)}
+.sale-cal-days button.has{color:var(--cream)}.sale-cal-days button.na{color:var(--amber)}
+.sale-cal-days button em{display:block;max-width:100%;font-style:normal;font-family:var(--mono);font-size:8px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--green-soft)}
+.sale-cal-days button.na em{color:var(--amber)}.sale-cal-days button.sel em{color:#fff}
+.sale-cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;color:var(--faint);font-size:10px}.sale-cal-legend b{color:var(--green-soft)}.sale-cal-legend .na{color:var(--amber)}
+.sale-stepper .step-btn{width:62px;height:62px}
+.sale-na-btn{min-width:62px;height:62px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--muted);font-size:14px;font-weight:900;cursor:pointer}
+.sale-na-btn.on{background:linear-gradient(135deg,#e4ab44,#f3d17a);border-color:transparent;color:#3b2a08;box-shadow:0 9px 24px -12px rgba(230,176,82,.95)}
+.sale-status{min-height:22px;margin:-9px 0 12px;color:var(--faint);font-size:11px}.sale-status.na{color:var(--amber);font-weight:800}
+.sale-done[disabled]{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){.sales-hero{padding:14px 10px 18px}.sale-calendar{padding:10px;margin-bottom:16px}.sale-cal-head{grid-template-columns:42px 1fr 42px auto;gap:4px}.sale-cal-head button{min-width:42px;height:42px}.sale-cal-head button.sale-cal-today{padding:0 9px}.sale-cal-days{gap:3px}.sale-cal-days button{min-height:45px;border-radius:8px}.sale-stepper{gap:12px}.sale-stepper .step-btn,.sale-na-btn{width:58px;min-width:58px;height:58px}.sh-count{font-size:64px}}
 
 /* gauge */
 .gauge-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:16px}
@@ -962,12 +982,13 @@ table.scores tr.top1 .big{color:var(--green)}
 .dc-leaders{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.dc-lead{display:grid;grid-template-columns:1fr auto;gap:3px 10px;background:linear-gradient(135deg,rgba(8,100,203,.2),var(--card));border:1px solid rgba(57,151,255,.35);border-radius:13px;padding:12px 14px}.dc-lead span{grid-column:1/-1;color:#7fc4ff;font-size:10.5px;font-weight:800}.dc-lead b{font-size:15px}.dc-lead strong{color:#ffd35c;font:900 17px var(--disp)}
 .dc-podiums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.dc-podium{min-width:0;background:linear-gradient(145deg,rgba(8,100,203,.18),var(--card));border:1px solid rgba(57,151,255,.32);border-radius:15px;padding:13px}.dc-podium h4{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;color:#8ccaff;font-size:12px}.dc-podium h4 small{color:var(--faint);font-size:9px}.dc-top3{display:flex;flex-direction:column;gap:7px}.dc-place{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0;padding:9px 10px;border:1px solid var(--line-soft);border-radius:11px;background:rgba(10,15,24,.34)}.dc-place:first-child{border-color:rgba(255,211,92,.45);background:rgba(255,211,92,.06)}.dc-medal{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--card-2);font-size:16px}.dc-place-main{min-width:0}.dc-place-name{display:flex;align-items:center;gap:6px;min-width:0}.dc-place-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.dc-place-name span{flex:none;color:var(--faint);font:700 9px var(--mono)}.dc-breakdown{display:flex;flex-wrap:wrap;gap:4px 9px;margin-top:4px;color:var(--muted);font-size:9.5px;line-height:1.4}.dc-breakdown span{white-space:nowrap}.dc-total{color:#ffd35c;font:900 20px var(--disp);white-space:nowrap}.dc-total small{margin-left:2px;color:var(--muted);font:700 9px var(--font)}.dc-place-empty{padding:13px 8px;color:var(--faint);font-size:11px;text-align:center}
 .dc-subhead{display:flex;justify-content:space-between;gap:10px;align-items:end;margin:4px 2px 9px}.dc-subhead b{font-size:14px}.dc-subhead span{font-size:10.5px;color:var(--faint)}.dc-list{display:flex;flex-direction:column;gap:8px}.dc-person{display:grid;grid-template-columns:minmax(150px,1fr) minmax(280px,2.2fr) 70px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px}.dc-who{display:flex;flex-direction:column;gap:2px;min-width:0}.dc-who b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dc-who small{font-size:10px;color:var(--faint);white-space:nowrap}.dc-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--card-2);color:#7fc4ff;font:800 10px var(--mono);margin-right:7px}.dc-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0}.dc-metric{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--muted);font-size:11.5px;line-height:1.25;white-space:nowrap}.dc-metric b{color:var(--cream);font-size:13px}.dc-metric.hit{border-color:rgba(255,211,92,.5);background:rgba(255,211,92,.08)}.dc-metric.hit b{color:#ffd35c}.dc-score{text-align:right;color:#ffd35c;font:900 25px var(--disp);white-space:nowrap}.dc-score small{font:700 10px var(--font);color:var(--muted);margin-left:2px}.dc-datebar{margin:12px 0;display:flex;align-items:center;gap:8px}.dc-datebar .pdr-date{flex:1}
-.dc-self{margin:12px 0 16px;padding:15px;border:1px solid rgba(57,151,255,.32);border-radius:16px;background:linear-gradient(145deg,rgba(8,100,203,.12),var(--card))}.dc-self-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.dc-self-head b{display:block;font-size:14px;color:var(--cream)}.dc-self-head span{display:block;margin-top:3px;color:var(--muted);font-size:10.5px;line-height:1.45}.dc-self-live{flex:none;padding:5px 9px;border-radius:999px;background:rgba(92,188,46,.13);color:var(--green-soft);font:800 9.5px var(--mono)}.dc-self-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:12px}.dc-self-editor,.dc-self-cal{min-width:0;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(10,15,24,.32)}.dc-self-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}.dc-self-who span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cream);font-size:12px;font-weight:800}.dc-self-who small{flex:none;color:var(--faint);font-size:9.5px}.dc-sale-step{display:grid;grid-template-columns:52px minmax(68px,1fr) 52px auto;gap:8px;align-items:stretch}.dc-sale-step button{min-width:44px;min-height:48px;border:1px solid var(--line);border-radius:11px;background:var(--card-2);color:var(--cream);font:900 20px var(--font);cursor:pointer}.dc-sale-step button.plus{border-color:rgba(92,188,46,.55);background:rgba(92,188,46,.14);color:var(--green-soft)}.dc-sale-count{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;background:var(--card-2);color:var(--cream);font:900 27px var(--disp)}.dc-sale-save{padding:0 17px!important;border:0!important;background:linear-gradient(135deg,#0754aa,#177ee5)!important;color:#fff!important;font-size:13px!important;white-space:nowrap}.dc-sale-save[disabled]{cursor:wait;opacity:.65}.dc-sale-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:10.5px;line-height:1.5}.dc-sale-preview b{color:#ffd35c;font-size:12px}.dc-self-cal .pdr-month-head{margin-bottom:6px}.dc-self-cal .pdr-days button.has::after{background:#37b9ed}.dc-self-note{margin-top:10px;color:var(--faint);font-size:10px;line-height:1.5}
+.dc-self{margin:12px 0 16px;padding:15px;border:1px solid rgba(57,151,255,.32);border-radius:16px;background:linear-gradient(145deg,rgba(8,100,203,.12),var(--card))}.dc-self-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.dc-self-head b{display:block;font-size:14px;color:var(--cream)}.dc-self-head span{display:block;margin-top:3px;color:var(--muted);font-size:10.5px;line-height:1.45}.dc-self-live{flex:none;padding:5px 9px;border-radius:999px;background:rgba(92,188,46,.13);color:var(--green-soft);font:800 9.5px var(--mono)}.dc-self-layout{display:grid;grid-template-columns:1fr;gap:12px}.dc-self-editor,.dc-self-cal{min-width:0;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(10,15,24,.32)}.dc-self-who{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}.dc-self-who span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cream);font-size:12px;font-weight:800}.dc-self-who small{flex:none;color:var(--faint);font-size:9.5px}.dc-sale-step{display:grid;grid-template-columns:52px minmax(68px,1fr) 52px 58px auto;gap:8px;align-items:stretch}.dc-sale-step button{min-width:44px;min-height:48px;border:1px solid var(--line);border-radius:11px;background:var(--card-2);color:var(--cream);font:900 20px var(--font);cursor:pointer}.dc-sale-step button.plus{border-color:rgba(92,188,46,.55);background:rgba(92,188,46,.14);color:var(--green-soft)}.dc-sale-step button.dc-sale-na{font-size:13px;color:var(--amber)}.dc-sale-step button.dc-sale-na.on{border-color:var(--amber);background:rgba(230,176,82,.18);color:#ffd98a}.dc-sale-count{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;background:var(--card-2);color:var(--cream);font:900 27px var(--disp)}.dc-sale-save{padding:0 17px!important;border:0!important;background:linear-gradient(135deg,#0754aa,#177ee5)!important;color:#fff!important;font-size:13px!important;white-space:nowrap}.dc-sale-save[disabled]{cursor:wait;opacity:.65}.dc-sale-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:10.5px;line-height:1.5}.dc-sale-preview b{color:#ffd35c;font-size:12px}.dc-self-cal .pdr-month-head{margin-bottom:6px}.dc-self-cal .pdr-days button.has::after{background:#37b9ed}.dc-self-cal .pdr-days button.na{color:var(--amber);font-weight:900}.dc-self-cal .pdr-days button.na::after{background:var(--amber)}.dc-self-note{margin-top:10px;color:var(--faint);font-size:10px;line-height:1.5}
 
+.dc-self-cal .pdr-days button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.dc-self-cal .pdr-days button small{font:800 7px var(--mono);color:#37b9ed}.dc-self-cal .pdr-days button.na small{color:var(--amber)}
 /* 날짜별 리쿠르팅 입력 */
 .pdr-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.7fr);gap:14px}.pdr-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px}.pdr-date{display:grid;grid-template-columns:44px minmax(150px,1fr) 44px auto;gap:7px;align-items:center}.pdr-date button,.pdr-step button,.pdr-today{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);font:800 15px var(--font);cursor:pointer}.pdr-date input,.pdr-user{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 11px;font:700 13px var(--font);color-scheme:dark}.pdr-today{padding:0 13px;font-size:12px;white-space:nowrap}.pdr-user{margin-top:10px}.pdr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.pdr-stat{min-width:0;background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:13px}.pdr-stat>span{display:block;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}.pdr-stat>small{display:block;color:var(--faint);font-size:9.5px;margin-top:2px}.pdr-step{display:grid;grid-template-columns:44px minmax(38px,1fr) 44px;gap:6px;align-items:center;margin-top:11px}.pdr-step strong{text-align:center;color:var(--cream);font:900 25px var(--disp)}.pdr-step button.plus{border-color:rgba(92,188,46,.55);background:rgba(92,188,46,.14);color:var(--green-soft)}.pdr-month-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.pdr-month-head b{font-size:14px}.pdr-month-head button{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);cursor:pointer}.pdr-week,.pdr-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.pdr-week span{text-align:center;color:var(--faint);font-size:10px;padding:4px 0}.pdr-days button{position:relative;aspect-ratio:1;min-width:0;min-height:38px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font:700 11px var(--font);cursor:pointer}.pdr-days button:hover{background:var(--card-2)}.pdr-days button.sel{background:var(--green);color:var(--green-ink);font-weight:900}.pdr-days button.today{border-color:var(--green)}.pdr-days button.has::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;border-radius:50%;background:#ffd35c;transform:translateX(-50%)}.pdr-days button.blank{visibility:hidden}.pdr-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.pdr-history h4{margin:0 0 7px;font-size:12px}.pdr-history button{width:100%;min-height:44px;display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;align-items:center;border:0;border-bottom:1px solid var(--line-soft);background:transparent;color:var(--muted);font:700 11px var(--font);text-align:left;cursor:pointer}.pdr-history b{color:var(--cream)}
 @media(max-width:760px){.perfseg{overflow-x:auto;scrollbar-width:none}.pseg-b{flex:0 0 calc(50% - 3px);white-space:nowrap}.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-podiums{grid-template-columns:1fr}.dc-person{grid-template-columns:minmax(0,1fr) auto;gap:9px;padding:12px}.dc-metrics{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}.dc-self-layout{grid-template-columns:1fr}.pdr-layout{grid-template-columns:1fr}.pdr-grid{grid-template-columns:1fr}.pdr-stat{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,1fr);align-items:center}.pdr-stat>small{grid-column:1}.pdr-step{grid-column:2;grid-row:1/3;margin:0}.pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.pdr-today{grid-column:1/-1}.dc-datebar .pdr-today{grid-column:auto}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px auto}}
-@media(max-width:420px){.dc-switch button{font-size:12px}.dc-switch small{display:block;margin-top:2px}.dc-leaders{grid-template-columns:1fr}.dc-metrics{grid-template-columns:1fr}.dc-score{font-size:22px}.dc-self{padding:12px}.dc-self-head{flex-direction:column}.dc-sale-step{grid-template-columns:48px minmax(56px,1fr) 48px}.dc-sale-save{grid-column:1/-1;min-height:48px}.dc-sale-preview{align-items:flex-start;flex-direction:column;gap:2px}.pdr-stat{grid-template-columns:1fr minmax(158px,1fr);padding:11px}.pdr-card{padding:12px}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.dc-datebar .pdr-today{grid-column:1/-1}.pdr-days button{min-height:40px}}
+@media(max-width:420px){.dc-switch button{font-size:12px}.dc-switch small{display:block;margin-top:2px}.dc-leaders{grid-template-columns:1fr}.dc-metrics{grid-template-columns:1fr}.dc-score{font-size:22px}.dc-self{padding:12px}.dc-self-head{flex-direction:column}.dc-sale-step{grid-template-columns:48px minmax(56px,1fr) 48px 52px}.dc-sale-save{grid-column:1/-1;min-height:48px}.dc-sale-preview{align-items:flex-start;flex-direction:column;gap:2px}.pdr-stat{grid-template-columns:1fr minmax(158px,1fr);padding:11px}.pdr-card{padding:12px}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.dc-datebar .pdr-today{grid-column:1/-1}.pdr-days button{min-height:40px}}
 
 /* survey */
 .survey-wrap{max-width:560px;margin:0 auto}
@@ -2161,7 +2182,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     }catch(e){}
     return 'assets/pets/avatar-scholar.png';
   }
-  el.innerHTML='<div class="pgl-cinema"><section class="pgl-console"><div class="pgl-brandline"><div class="pgl-logo"><i>P</i><span>PRESENCE WORKBOOK</span></div><div class="pgl-secure">SECURE LIVE</div></div><div class="pgl-kicker">DAILY MISSION · TEAM OPERATING SYSTEM</div><div class="pgl-cinema-title">오늘의 작전을<br><em>불러오는 중</em></div><p class="pgl-cinema-sub">사람, 성장, 현장과 수익의 기록을 하나의 플레이 공간으로 연결하고 있어요.</p><div class="pgl-missions" id="pglMissions"><div class="pgl-mission on"><b>01 · IDENTITY</b><span>나의 공간 확인</span></div><div class="pgl-mission"><b>02 · TEAM DATA</b><span>팀 기록 동기화</span></div><div class="pgl-mission"><b>03 · MISSION</b><span>오늘 화면 준비</span></div></div><div class="pgl-loadbox"><div class="pgl-loadmeta"><span class="pgl-dynamic-msg" id="presenceGameLoaderMsg">Presence 서버에 안전하게 연결하는 중…</span><strong class="pgl-percent" id="pglPercent">08%</strong></div><div class="pgl-track"><i id="pglFill"></i></div></div></section><section class="pgl-world" aria-hidden="true"><div class="pgl-world-head"><span>MY PRESENCE COMPANION</span><b class="pgl-livechip">● ONLINE</b></div><div class="pgl-stage"><div class="pgl-scanbeam"></div><div class="pgl-platform"></div><img class="pgl-hero" id="pglHeroPet" src="'+rememberedAvatar()+'" alt=""><div class="pgl-data a"><b>PROFILE</b><span>개인 성장 기록 연결</span></div><div class="pgl-data b"><b>WORKSPACE</b><span>Today · People · Progress · Profit</span></div><div class="pgl-pet-ready"><i></i><span>나의 Presence 공간 생성 중</span></div></div></section></div>';
+  el.innerHTML='<div class="pgl-cinema"><section class="pgl-console"><div class="pgl-brandline"><div class="pgl-logo"><i>P</i><span>PRESENCE WORKBOOK</span></div><div class="pgl-secure">MY WORLD</div></div><div class="pgl-kicker">MY GARDEN · DAILY ADVENTURE</div><div class="pgl-cinema-title">나의 Presence 공간을<br><em>불러오는 중</em></div><p class="pgl-cinema-sub">병아리와 정원, 오늘의 기록이 있는 나만의 플레이 공간을 준비하고 있어요.</p><div class="pgl-missions" id="pglMissions"><div class="pgl-mission on"><b>01 · GARDEN</b><span>나의 정원 열기</span></div><div class="pgl-mission"><b>02 · COMPANION</b><span>병아리 만나기</span></div><div class="pgl-mission"><b>03 · WORKBOOK</b><span>오늘 기록 준비</span></div></div><div class="pgl-loadbox"><div class="pgl-loadmeta"><span class="pgl-dynamic-msg" id="presenceGameLoaderMsg">나의 Presence 공간을 찾는 중…</span><strong class="pgl-percent" id="pglPercent">08%</strong></div><div class="pgl-track"><i id="pglFill"></i></div></div></section><section class="pgl-world" aria-hidden="true"><div class="pgl-world-head"><span>MY PRESENCE COMPANION</span><b class="pgl-livechip">● READY</b></div><div class="pgl-stage"><div class="pgl-scanbeam"></div><div class="pgl-platform"></div><img class="pgl-hero" id="pglHeroPet" src="'+rememberedAvatar()+'" alt=""><div class="pgl-data a"><b>MY GARDEN</b><span>나의 성장 정원 준비</span></div><div class="pgl-data b"><b>DAILY MAP</b><span>Today · People · Progress · Profit</span></div><div class="pgl-pet-ready"><i></i><span>병아리가 마중 나오는 중</span></div></div></section></div>';
 })();
 </script>
 <div id="presenceEntryLobby" aria-hidden="true">
@@ -2172,7 +2193,7 @@ window.__presencePetChoice='sun';window.__presenceEntryPass=false;
 window.__pglTimer=null;window.__pglValue=8;
 window.showPresenceLoader=function(msg){
   var el=document.getElementById('presenceGameLoader');if(!el)return;clearInterval(window.__pglTimer);el.classList.remove('complete');el.classList.add('show');window.__pglValue=8;
-  var messages=[msg||'Presence 서버에 안전하게 연결하는 중…','나의 팀 기록을 동기화하는 중…','오늘의 미션과 성장 공간을 배치하는 중…','거의 다 준비됐어요 · 잠시만 기다려주세요'];
+  var messages=[msg||'나의 Presence 공간을 찾는 중…','병아리와 정원을 깨우는 중…','오늘의 기록과 미션을 펼치는 중…','거의 다 준비됐어요 · 곧 만나요'];
   var step=0,fill=document.getElementById('pglFill'),pct=document.getElementById('pglPercent'),m=document.getElementById('presenceGameLoaderMsg'),cards=[].slice.call(document.querySelectorAll('#pglMissions .pgl-mission'));
   function draw(){if(fill)fill.style.width=window.__pglValue+'%';if(pct)pct.textContent=String(Math.round(window.__pglValue)).padStart(2,'0')+'%';if(m)m.textContent=messages[Math.min(step,messages.length-1)];cards.forEach(function(c,i){c.classList.toggle('on',i<=Math.min(step,2));});}
   draw();
@@ -2180,7 +2201,7 @@ window.showPresenceLoader=function(msg){
   window.__pglTimer=setInterval(function(){if(!el.classList.contains('show')){clearInterval(window.__pglTimer);return;}window.__pglValue=Math.min(92,window.__pglValue+6+Math.random()*7);step=window.__pglValue>72?3:(window.__pglValue>43?2:(window.__pglValue>22?1:0));draw();},420);
 };
 window.hidePresenceLoader=function(){var el=document.getElementById('presenceGameLoader');if(!el)return;clearInterval(window.__pglTimer);window.__pglValue=100;var fill=document.getElementById('pglFill'),pct=document.getElementById('pglPercent'),m=document.getElementById('presenceGameLoaderMsg');if(fill)fill.style.width='100%';if(pct)pct.textContent='100%';if(m)m.textContent='Presence 준비 완료 · 입장합니다';document.querySelectorAll('#pglMissions .pgl-mission').forEach(function(c){c.classList.add('on');});el.classList.add('complete');setTimeout(function(){el.classList.remove('show','complete');},260);};
-setTimeout(function(){if(document.getElementById('presenceGameLoader')&&document.getElementById('presenceGameLoader').classList.contains('show'))window.showPresenceLoader('Presence 서버에 안전하게 연결하는 중…');},0);
+setTimeout(function(){if(document.getElementById('presenceGameLoader')&&document.getElementById('presenceGameLoader').classList.contains('show'))window.showPresenceLoader('나의 Presence 공간을 찾는 중…');},0);
 window.selectPresencePet=function(k,btn){window.__presencePetChoice=k||'sun';document.querySelectorAll('.pe-choice').forEach(function(x){x.classList.toggle('on',x.dataset.pet===window.__presencePetChoice);});var map={sun:['🐥','☀️','햇살 병아리 · 밝고 씩씩해요'],mint:['🐣','🌱','새싹 병아리 · 차분하고 다정해요'],peach:['🐤','💗','노을 병아리 · 용감한 장난꾸러기예요']},v=map[window.__presencePetChoice]||map.sun,a=document.getElementById('peAvatar');if(a){a.textContent=v[0];a.dataset.badge=v[1];}var t=document.getElementById('pePreviewType');if(t)t.textContent=v[2];if(btn)btn.blur();};
 window.previewPresencePetName=function(){var i=document.getElementById('peNickname'),o=document.getElementById('pePreviewName');if(o)o.textContent=(i&&i.value.trim())||'나의 삐약이';};
 window.showPresenceEntryLobby=function(){if(typeof me==='undefined'||!me)return;window.hidePresenceLoader();var u=me,l=document.getElementById('presenceEntryLobby');if(!l)return;l.classList.add('show');l.setAttribute('aria-hidden','false');var un=document.getElementById('peUserName');if(un)un.textContent=u.name||'팀원';var fallback=(u.name||'나')+'의 삐약이';function fill(p){p=p||{};window.__presencePetChoice=p.variant||'sun';var i=document.getElementById('peNickname');if(i)i.value=p.nickname||fallback;window.selectPresencePet(window.__presencePetChoice);window.previewPresencePetName();try{if(typeof renderEntryCostume==='function')renderEntryCostume();}catch(e){}}fill((typeof state!=='undefined'&&state.petProfiles&&state.petProfiles[u.uid])||null);try{if(typeof DB!=='undefined'&&DB.get)DB.get('petProfiles/'+u.uid).then(function(p){if(p){state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;fill(p);}});}catch(e){}};
@@ -2189,7 +2210,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
 </script>
 
 <!-- ===================== AUTH GATE ===================== -->
-<div id="authGate">
+<div id="authGate" class="hidden" aria-hidden="true">
   <div class="auth-card">
     <div class="auth-logo">
       <span class="hero-plate"><img src="data:image/png;base64,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" alt="Presence" style="height:78px;width:auto;display:block" /></span>
@@ -2505,6 +2526,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         </div>
       </div>
             <div class="sales-hero">
+        <div class="sale-calendar" id="saleCalendar" aria-label="내 날짜별 세일즈 달력"></div>
         <div class="sh-date" id="saleDate">—</div>
         <div class="sh-who" id="saleWho">—</div>
         <div class="sh-count" id="saleCount">0</div>
@@ -2512,8 +2534,10 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         <div class="sale-stepper">
           <button class="step-btn" onclick="adjSale(-1)" aria-label="빼기">−</button>
           <button class="step-btn plus" onclick="adjSale(1)" aria-label="더하기">+</button>
+          <button class="sale-na-btn" id="saleNA" onclick="toggleSaleNA()" aria-pressed="false">NA</button>
         </div>
-        <button class="sale-done" onclick="commitSale()">✅ 완료 · 오늘 세일즈 기록</button>
+        <div class="sale-status" id="saleStatus">선택한 날짜의 최종 세일즈 또는 NA를 저장하세요.</div>
+        <button class="sale-done" id="saleDone" onclick="commitSale()">✅ 선택일 기록 저장</button>
         <div class="sh-month"><span>이번 달 누적 <b id="saleMonth">0</b></span><span>이번 달 AVG <b id="saleAvg">0.0</b></span></div>
       </div>
       <div class="gauge-card">
@@ -4214,6 +4238,8 @@ let competitionView='daiso';
 
 function renderAuth(){
   try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
+  const gate=document.getElementById('authGate');
+  if(gate){gate.classList.remove('hidden');gate.setAttribute('aria-hidden','false');}
   const v=document.getElementById('authView');
   if(authState.view==='login'){
     v.innerHTML=`
@@ -4437,6 +4463,7 @@ function enterApp(){
   window.__presenceEntryPass=false;
   if(rememberPref())lsSet('presence_sess',{uid:me.uid,t:Date.now()});else lsDel('presence_sess');
   document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('authGate').setAttribute('aria-hidden','true');
   document.getElementById('app').classList.remove('hidden');
   document.body.classList.add('app-on');
   document.body.classList.toggle('can-mod',isFounder(me));
@@ -4470,6 +4497,7 @@ async function logout(){
 
 function rememberPref(){const v=lsGet('presence_remember');return v===null?true:!!v;}
 async function tryAutoLogin(){
+  const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
   if(!rememberPref())return false;
   if(lsGet('presence_auth_policy')!==AUTH_POLICY_VERSION){lsSet('presence_auth_policy',AUTH_POLICY_VERSION);lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}
   const s=lsGet('presence_sess');if(!s)return false;
@@ -4762,7 +4790,7 @@ function dailyRally(name){
 /* 편집하면 그 칸을 시트에 자동 반영 (디바운스 — 연속 클릭은 마지막에 1번만 전송) */
 let _cellSyncTimers={};
 function autoSyncCell(date,name){
-  if(!canDaily(me))return;
+  if(!me||(!canDaily(me)&&name!==me.name))return;
   const url=effectiveWebhook();if(!url||!/script\.google\.com/.test(url))return;
   const key=date+'|'+name;
   if(_cellSyncTimers[key])clearTimeout(_cellSyncTimers[key]);
@@ -6235,7 +6263,7 @@ function setCompetitionView(mode,silent){
 }
 function openDaisoCompetition(){if(typeof goTab==='function')goTab('comp');setCompetitionView('daiso',true);}
 var pdrDate=TODAY,pdrMonth=TODAY.slice(0,7),pdrUid='';
-var daisoSaleDraft=0,daisoSaleDraftDate='',daisoSaleSaveBusy=false;
+var daisoSaleDraft=0,daisoSaleDraftNA=false,daisoSaleDraftDate='',daisoSaleSaveBusy=false;
 function pdrAddDays(ds,n){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function pdrUsers(){return rosterMembers().map(function(r){return Object.values(state.users||{}).find(function(u){return u&&u.name===r.name&&u.status==='active';});}).filter(Boolean);}
 function pdrTargetUid(){const users=pdrUsers();if(!me)return '';if(!isFounder(me))return me.uid;if(pdrUid&&users.some(function(u){return u.uid===pdrUid;}))return pdrUid;pdrUid=users[0]?users[0].uid:me.uid;return pdrUid;}
@@ -6270,25 +6298,26 @@ function renderRecruitDaily(){
 function daisoSalesPoint(name,date){let n=0;Object.values(state.sales||{}).forEach(function(e){if(e&&e.name===name&&e.date===date&&!e.na&&!e.rally)n=Math.max(n,+e.count||0);});return n>=3?3:(n>=2?2:(n>=1?1:0));}
 function daisoOwnSaleCount(date){if(!me)return 0;const e=(state.sales||{})[date+'|'+me.name];return e&&!e.na&&!e.rally?Math.max(0,+e.count||0):0;}
 function daisoPointForCount(n){return n>=3?3:(n>=2?2:(n>=1?1:0));}
-function daisoEnsureSaleDraft(){if(daisoSaleDraftDate!==pdrDate){daisoSaleDraftDate=pdrDate;daisoSaleDraft=daisoOwnSaleCount(pdrDate);}}
+function daisoEnsureSaleDraft(){if(daisoSaleDraftDate!==pdrDate){const e=mySaleRecord(pdrDate);daisoSaleDraftDate=pdrDate;daisoSaleDraft=daisoOwnSaleCount(pdrDate);daisoSaleDraftNA=!!(e&&e.na);}}
 function daisoSaleDraftDOM(){
   const count=document.getElementById('daisoSelfCount'),point=document.getElementById('daisoSelfPoint');
-  if(count)count.textContent=daisoSaleDraft;if(point)point.textContent='+'+daisoPointForCount(daisoSaleDraft)+'점';
+  const na=document.getElementById('daisoSelfNA');if(count)count.textContent=daisoSaleDraftNA?'NA':daisoSaleDraft;if(point)point.textContent=daisoSaleDraftNA?'집계 제외':'+'+daisoPointForCount(daisoSaleDraft)+'점';if(na)na.classList.toggle('on',daisoSaleDraftNA);
 }
 function daisoAdjustOwnSale(delta){
   if(!me||daisoSaleSaveBusy)return;if(pdrDate>TODAY){toast('미래 날짜에는 세일즈를 입력할 수 없어요');return;}
-  daisoEnsureSaleDraft();daisoSaleDraft=Math.max(0,Math.min(300,daisoSaleDraft+delta));daisoSaleDraftDOM();
+  daisoEnsureSaleDraft();if(daisoSaleDraftNA){daisoSaleDraftNA=false;daisoSaleDraft=0;}daisoSaleDraft=Math.max(0,Math.min(300,daisoSaleDraft+delta));daisoSaleDraftDOM();
 }
+function daisoToggleOwnNA(){if(!me||daisoSaleSaveBusy)return;if(pdrDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}daisoEnsureSaleDraft();daisoSaleDraftNA=!daisoSaleDraftNA;if(daisoSaleDraftNA)daisoSaleDraft=0;else daisoSaleDraft=daisoOwnSaleCount(pdrDate);daisoSaleDraftDOM();}
 async function daisoSaveOwnSale(){
   if(!me||daisoSaleSaveBusy)return;if(pdrDate>TODAY){toast('미래 날짜에는 세일즈를 입력할 수 없어요');return;}
   if(isTestBot(me)){toast('관찰 계정은 집계에 반영되지 않아요');return;}
   daisoEnsureSaleDraft();const date=pdrDate,key=date+'|'+me.name,t=Date.now(),prior=state.sales[key],count=daisoSaleDraft;
-  const entry={name:me.name,role:me.role,date:date,count:count,t:t};daisoSaleSaveBusy=true;
-  if(count>0)state.sales[key]=entry;else delete state.sales[key];renderDaisoCompetition();
+  const entry=daisoSaleDraftNA?{name:me.name,role:me.role,date:date,count:0,na:true,t:t}:(count>0?{name:me.name,role:me.role,date:date,count:count,t:t}:null);daisoSaleSaveBusy=true;
+  if(entry)state.sales[key]=entry;else delete state.sales[key];renderDaisoCompetition();
   try{
-    if(LIVE)await DB.set('sales/'+date+'/'+nk(me.name),count>0?{name:me.name,role:me.role,count:count,t:t}:null);
-    sendSaleToSheet({date:date,name:me.name,uid:me.uid||me.name,role:me.role,count:count,t:t});
-    toast(date+' 내 세일즈를 '+count+'건으로 저장했어요 · 순위가 즉시 반영됩니다');
+    if(LIVE)await DB.set('sales/'+date+'/'+nk(me.name),entry?{name:me.name,role:me.role,count:entry.count,na:!!entry.na,t:t}:null);
+    autoSyncCell(date,me.name);sendSaleToSheet({date:date,name:me.name,uid:me.uid||me.name,role:me.role,count:entry?entry.count:0,na:!!(entry&&entry.na),t:t});
+    toast(entry&&entry.na?date+'을 NA로 저장했어요 · 일일결과와 시트에 반영됩니다':date+' 내 세일즈를 '+count+'건으로 저장했어요 · 순위가 즉시 반영됩니다');
   }catch(e){
     if(prior)state.sales[key]=prior;else delete state.sales[key];console.warn('[daiso-self-sale]',e);toast('저장하지 못했어요. 연결을 확인하고 다시 눌러 주세요');
   }finally{daisoSaleSaveBusy=false;daisoSaleDraftDate='';renderSales();renderPerfGauge();renderScores();renderComp();renderDaisoCompetition();}
@@ -6296,12 +6325,12 @@ async function daisoSaveOwnSale(){
 function daisoSalesCalendarHTML(){
   const first=new Date(pdrMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
   for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
-  for(let n=1;n<=last.getDate();n++){const ds=pdrMonth+'-'+String(n).padStart(2,'0'),count=daisoOwnSaleCount(ds),has=count>0;days+='<button class="'+(ds===pdrDate?'sel ':'')+(ds===TODAY?'today ':'')+(has?'has':'')+'" onclick="pdrSetDate(\''+ds+'\')" aria-label="'+ds+(has?' 세일즈 '+count+'건':'')+'">'+n+'</button>';}
+  for(let n=1;n<=last.getDate();n++){const ds=pdrMonth+'-'+String(n).padStart(2,'0'),e=mySaleRecord(ds),na=!!(e&&e.na),count=daisoOwnSaleCount(ds),has=count>0;days+='<button class="'+(ds===pdrDate?'sel ':'')+(ds===TODAY?'today ':'')+(has?'has ':'')+(na?'na':'')+'" onclick="pdrSetDate(\''+ds+'\')" aria-label="'+ds+(na?' NA':(has?' 세일즈 '+count+'건':''))+'"><span>'+n+'</span>'+(na?'<small>NA</small>':(has?'<small>'+count+'건</small>':''))+'</button>';}
   return '<div class="pdr-month-head"><button onclick="pdrMonthMove(-1)" aria-label="이전 달">‹</button><b>'+pdrMonth.replace('-','년 ')+'월</b><button onclick="pdrMonthMove(1)" aria-label="다음 달">›</button></div><div class="pdr-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="pdr-days">'+days+'</div>';
 }
 function daisoOwnSaleHTML(){
   daisoEnsureSaleDraft();const point=daisoPointForCount(daisoSaleDraft),future=pdrDate>TODAY;
-  return '<section class="dc-self" aria-label="내 세일즈 날짜별 입력"><div class="dc-self-head"><div><b>✏️ 내 세일즈 날짜별 입력·수정</b><span>달력에서 날짜를 고른 뒤 그날의 최종 후원자 수를 저장하세요.</span></div><em class="dc-self-live">● LIVE RANK</em></div><div class="dc-self-layout"><div class="dc-self-editor">'+pdrDateHTML()+'<div class="dc-self-who"><span>'+esc(me.name)+' · '+esc(me.role)+'</span><small>'+pdrDate+(future?' · 미래 날짜':' · 본인 기록')+'</small></div><div class="dc-sale-step"><button onclick="daisoAdjustOwnSale(-1)" aria-label="세일즈 1 빼기">−</button><strong id="daisoSelfCount" class="dc-sale-count">'+daisoSaleDraft+'</strong><button class="plus" onclick="daisoAdjustOwnSale(1)" aria-label="세일즈 1 추가">+</button><button class="dc-sale-save" onclick="daisoSaveOwnSale()" '+(future||daisoSaleSaveBusy?'disabled':'')+'>'+(daisoSaleSaveBusy?'저장 중…':'저장·순위 반영')+'</button></div><div class="dc-sale-preview"><span>다이소 당일 최종 점수</span><b id="daisoSelfPoint">+'+point+'점</b></div><div class="dc-self-note">0건은 해당 날짜 기록을 지웁니다. 점수는 중복 합산 없이 최종 단계만 적용됩니다.</div></div><aside class="dc-self-cal">'+daisoSalesCalendarHTML()+'</aside></div></section>';
+  return '<section class="dc-self" aria-label="내 세일즈 날짜별 입력"><div class="dc-self-head"><div><b>✏️ 내 세일즈 날짜별 입력·수정</b><span>달력에서 날짜를 고른 뒤 그날의 최종 후원자 수 또는 NA를 저장하세요.</span></div><em class="dc-self-live">● LIVE RANK</em></div><div class="dc-self-layout"><aside class="dc-self-cal">'+daisoSalesCalendarHTML()+'</aside><div class="dc-self-editor">'+pdrDateHTML()+'<div class="dc-self-who"><span>'+esc(me.name)+' · '+esc(me.role)+'</span><small>'+pdrDate+(future?' · 미래 날짜':' · 본인 기록')+'</small></div><div class="dc-sale-step"><button onclick="daisoAdjustOwnSale(-1)" aria-label="세일즈 1 빼기">−</button><strong id="daisoSelfCount" class="dc-sale-count">'+(daisoSaleDraftNA?'NA':daisoSaleDraft)+'</strong><button class="plus" onclick="daisoAdjustOwnSale(1)" aria-label="세일즈 1 추가">+</button><button class="dc-sale-na '+(daisoSaleDraftNA?'on':'')+'" id="daisoSelfNA" onclick="daisoToggleOwnNA()" aria-label="NA 선택">NA</button><button class="dc-sale-save" onclick="daisoSaveOwnSale()" '+(future||daisoSaleSaveBusy?'disabled':'')+'>'+(daisoSaleSaveBusy?'저장 중…':'저장·순위 반영')+'</button></div><div class="dc-sale-preview"><span>다이소 당일 최종 점수</span><b id="daisoSelfPoint">'+(daisoSaleDraftNA?'집계 제외':('+'+point+'점'))+'</b></div><div class="dc-self-note">NA는 휴무로 저장되어 일일결과와 시트에 표시되고 컴페티션에서는 집계되지 않습니다. 0건은 해당 날짜 기록을 지웁니다.</div></div></div></section>';
 }
 function daisoSupportPoints(name){let p=0;for(let d=DAISO_FROM;d<=DAISO_UNTIL;d=pdrAddDays(d,1))p+=daisoSalesPoint(name,d);return p;}
 function daisoLeaderHitDate(u){try{const survey=surveyMerged(u),d=survey&&survey.leaderHit;if(/^\d{4}-\d{2}-\d{2}$/.test(d||''))return d;const a=lhAnalyze(u.name);return a&&a.hitDate||'';}catch(e){return '';}}
@@ -6455,46 +6484,67 @@ function nextTierLabel(n){
   if(n<2)return'벨 (2)';if(n<3)return'공 (3)';if(n<5)return'혼 (5)';if(n<10)return'텐 (10)';return'혼 (불꽃)';
 }
 const monthOf=d=>d.slice(0,7);
-function myTodayCount(){const e=state.sales[`${TODAY}|${me.name}`];return (e&&!e.na&&!e.rally)?(+e.count||0):0}
+function mySaleRecord(date){return me&&state.sales[`${date}|${me.name}`]||null}
+function mySaleCount(date){const e=mySaleRecord(date);return (e&&!e.na&&!e.rally)?(+e.count||0):0}
+function myTodayCount(){return mySaleCount(TODAY)}
 function sumMonth(name,mk){const m=mk||monthOf(TODAY);let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&(!name||e.name===name)&&!e.na&&!e.rally)s+=(+e.count||0)}return s}
-function activeDays(name){const m=monthOf(TODAY);const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&e.name===name&&(+e.count||0)>0)days.add(e.date)}return days.size||1}
-let saleDraft=0, saleEditing=false;
-function initSaleEditor(){ if(me){saleDraft=myTodayCount();saleEditing=false;renderSaleEditor();} }
+function activeDays(name,mk){const m=mk||monthOf(TODAY);const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&e.name===name&&!e.na&&!e.rally&&(+e.count||0)>0)days.add(e.date)}return days.size||1}
+let saleEditDate=TODAY,saleCalMonth=TODAY.slice(0,7),saleDraft=0,saleDraftNA=false,saleEditing=false,saleSaveBusy=false;
+function saleLoadDraft(){const e=mySaleRecord(saleEditDate);saleDraft=(e&&!e.na&&!e.rally)?Math.max(0,+e.count||0):0;saleDraftNA=!!(e&&e.na);saleEditing=false;}
+function initSaleEditor(){if(me){saleEditDate=TODAY;saleCalMonth=TODAY.slice(0,7);saleLoadDraft();renderSales();}}
+function salePickDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;saleEditDate=ds;saleCalMonth=ds.slice(0,7);saleLoadDraft();renderSales();}
+function saleMoveDate(n){const d=new Date(saleEditDate+'T12:00:00');d.setDate(d.getDate()+n);salePickDate(d.toISOString().slice(0,10));}
+function saleMonthMove(n){const d=new Date(saleCalMonth+'-01T12:00:00');d.setMonth(d.getMonth()+n);saleCalMonth=d.toISOString().slice(0,7);saleEditing=false;renderSales();}
+function saleCalendarHTML(){
+  const first=new Date(saleCalMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
+  for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
+  for(let n=1;n<=last.getDate();n++){
+    const ds=saleCalMonth+'-'+String(n).padStart(2,'0'),e=mySaleRecord(ds),na=!!(e&&e.na),count=(e&&!na&&!e.rally)?Math.max(0,+e.count||0):0,label=na?'NA':(count?count+'건':'');
+    days+='<button class="'+(ds===saleEditDate?'sel ':'')+(ds===TODAY?'today ':'')+(count?'has ':'')+(na?'na ':'')+'" onclick="salePickDate(\''+ds+'\')" aria-label="'+ds+(na?' NA':(count?' 세일즈 '+count+'건':''))+'"><span>'+n+'</span>'+(label?'<em>'+label+'</em>':'')+'</button>';
+  }
+  return '<div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-legend"><span><b>●</b> 세일즈 건수</span><span class="na">● NA</span><span>날짜를 눌러 조회·수정</span></div>';
+}
 function adjSale(delta){
-  if(!me)return;
+  if(!me||saleSaveBusy)return;if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
+  if(saleDraftNA){saleDraftNA=false;saleDraft=0;}
   const prev=saleDraft;
   saleDraft=Math.max(0,saleDraft+delta);
   saleEditing=true;
   if(delta>0 && saleDraft>=2 && saleDraft!==prev){const t=saleTier(saleDraft);if(t)animateTier(t)}
   renderSaleEditor();
 }
-function commitSale(){
-  if(!me)return;
-  if(isTestBot(me)){saleEditing=false;renderSales();renderPerfGauge();if(saleDraft>0&&document.getElementById('m-comp')&&document.getElementById('m-comp').classList.contains('active'))feedAnimalAnim();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
-  const key=`${TODAY}|${me.name}`, t=Date.now();
-  const prevCount=state.sales[key]?.count||0;
-  if(saleDraft>0){
-    state.sales[key]={name:me.name,role:me.role,date:TODAY,count:saleDraft,t};
-    if(LIVE)DB.set(`sales/${TODAY}/${nk(me.name)}`,{name:me.name,role:me.role,count:saleDraft,t});
-    sendSaleToSheet({date:TODAY,name:me.name,uid:me.name,role:me.role,count:saleDraft,t});
-    const newNoZero=prevCount===0;   // 오늘 처음 노제로 달성 → 닭에게 먹이 1개
-    if(newNoZero && document.getElementById('m-comp').classList.contains('active'))feedAnimalAnim();
-    toast(newNoZero?`오늘 세일즈 ${saleDraft}개 기록 완료! 🐔 닭에게 먹이를 줬어요 🌽`:`오늘 세일즈 ${saleDraft}개로 기록했어요 🎉`);
-  }else{
-    delete state.sales[key];
-    if(LIVE)DB.set(`sales/${TODAY}/${nk(me.name)}`,null);
-    toast('오늘 세일즈를 0으로 기록했어요');
-  }
-  saleEditing=false;
-  renderSales();renderPerfGauge();renderComp();renderScores();
+function toggleSaleNA(){
+  if(!me||saleSaveBusy)return;if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
+  saleDraftNA=!saleDraftNA;if(saleDraftNA)saleDraft=0;else saleDraft=mySaleCount(saleEditDate);saleEditing=true;renderSaleEditor();
+}
+async function commitSale(){
+  if(!me||saleSaveBusy)return;if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
+  if(isTestBot(me)){saleEditing=false;renderSales();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
+  const date=saleEditDate,key=`${date}|${me.name}`,t=Date.now(),prior=state.sales[key],prevCount=(prior&&!prior.na&&!prior.rally)?(+prior.count||0):0;
+  const entry=saleDraftNA?{name:me.name,role:me.role,date,count:0,na:true,t}:(saleDraft>0?{name:me.name,role:me.role,date,count:saleDraft,t}:null);
+  saleSaveBusy=true;if(entry)state.sales[key]=entry;else delete state.sales[key];renderSales();renderPerfGauge();renderScores();renderComp();renderDaisoCompetition();
+  try{
+    if(LIVE)await DB.set(`sales/${date}/${nk(me.name)}`,entry?{name:me.name,role:me.role,count:entry.count,na:!!entry.na,t}:null);
+    autoSyncCell(date,me.name);
+    sendSaleToSheet({date,name:me.name,uid:me.uid||me.name,role:me.role,count:entry?entry.count:0,na:!!(entry&&entry.na),t});
+    const newNoZero=date===TODAY&&prevCount===0&&entry&&!entry.na&&entry.count>0;
+    if(newNoZero&&document.getElementById('m-comp')&&document.getElementById('m-comp').classList.contains('active'))feedAnimalAnim();
+    toast(entry&&entry.na?`${date}을 NA로 저장했어요 · 일일결과와 시트에 반영됩니다`:entry?`${date} 세일즈 ${entry.count}건 저장 · 컴페티션 순위에 즉시 반영됩니다`:`${date} 기록을 0건으로 저장했어요`);
+  }catch(e){if(prior)state.sales[key]=prior;else delete state.sales[key];console.warn('[self-sale]',e);toast('저장하지 못했어요. 연결을 확인한 뒤 다시 눌러 주세요');}
+  finally{saleSaveBusy=false;saleLoadDraft();renderSales();renderPerfGauge();renderComp();renderScores();renderDaisoCompetition();}
 }
 function renderSaleEditor(){
-  const monthBase=sumMonth(me.name)-myTodayCount()+saleDraft;
-  document.getElementById('saleCount').textContent=saleDraft;
-  document.getElementById('saleNext').textContent=nextTierLabel(saleDraft);
+  const committed=mySaleCount(saleEditDate),draftCount=saleDraftNA?0:saleDraft,monthKey=monthOf(TODAY),monthBase=sumMonth(me.name,monthKey)-(saleEditDate.startsWith(monthKey)?committed:0)+(saleEditDate.startsWith(monthKey)?draftCount:0);
+  document.getElementById('saleCount').textContent=saleDraftNA?'NA':saleDraft;
+  document.getElementById('saleNext').textContent=saleDraftNA?'휴무':nextTierLabel(saleDraft);
   document.getElementById('saleMonth').textContent=monthBase;
-  document.getElementById('saleAvg').textContent=(monthBase/Math.max(activeDays(me.name),1)).toFixed(1);
-  const teamWeekLive=sumWeek(null)-myTodayCount()+saleDraft;   // 이번 주 팀 합계(내 입력 실시간 반영)
+  document.getElementById('saleAvg').textContent=(monthBase/Math.max(activeDays(me.name,monthKey),1)).toFixed(1);
+  const na=document.getElementById('saleNA'),status=document.getElementById('saleStatus'),done=document.getElementById('saleDone');
+  if(na){na.classList.toggle('on',saleDraftNA);na.setAttribute('aria-pressed',saleDraftNA?'true':'false');}
+  if(status){status.textContent=saleDraftNA?'NA 선택됨 · 해당 날짜는 휴무로 집계됩니다':'선택한 날짜의 최종 세일즈 건수를 저장하세요.';status.classList.toggle('na',saleDraftNA);}
+  if(done){done.disabled=saleSaveBusy||saleEditDate>TODAY;done.textContent=saleSaveBusy?'저장·동기화 중…':(saleEditDate>TODAY?'미래 날짜는 입력할 수 없어요':'✅ '+saleEditDate.slice(5).replace('-','.')+' 기록 저장');}
+  const now=new Date(TODAY+'T12:00:00'),dow=(now.getDay()+6)%7,mon=new Date(now);mon.setDate(now.getDate()-dow);const sun=new Date(mon);sun.setDate(mon.getDate()+6),monS=mon.toISOString().slice(0,10),sunS=sun.toISOString().slice(0,10),inWeek=saleEditDate>=monS&&saleEditDate<=sunS;
+  const teamWeekLive=sumWeek(null)-(inWeek?committed:0)+(inWeek?draftCount:0);
   setGauge('gFill','gPct','gMonth','gTarget',teamWeekLive,teamWeekTarget());
 }
 function animateTier(tier){
@@ -6511,9 +6561,10 @@ function setGauge(fillId,pctId,valId,tgtId,cur,target){
 }
 function renderSales(){
   if(!me)return;
-  document.getElementById('saleDate').textContent=new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+  const cal=document.getElementById('saleCalendar');if(cal)cal.innerHTML=saleCalendarHTML();
+  document.getElementById('saleDate').textContent=new Date(saleEditDate+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
   document.getElementById('saleWho').textContent=me.name+' · '+me.role;
-  if(!saleEditing) saleDraft=myTodayCount();
+  if(!saleEditing)saleLoadDraft();
   renderSaleEditor();
   // today team feed (확정된 것만)
   const rows=Object.values(state.sales).filter(e=>e.date===TODAY&&e.count>0).sort((a,b)=>b.count-a.count);
@@ -6555,7 +6606,7 @@ function renderPrevMonth(){
     (extra.avg||extra.income?`<div style="display:flex;gap:10px;margin-top:10px"><div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px"><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">팀 AVG</div><div style="font-family:var(--disp);font-weight:700;font-size:17px;color:var(--green-soft)">${extra.avg||'—'}</div></div><div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px"><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">팀 인컴</div><div style="font-family:var(--disp);font-weight:700;font-size:17px;color:var(--cream)">${extra.income||'—'}</div></div></div>`:'');
 }
 function sendSaleToSheet(e){
-  postWebhook({type:'sale',date:e.date,name:e.name,id:e.uid,role:e.role,count:e.count,at:new Date(e.t).toISOString()});
+  postWebhook({type:'sale',date:e.date,name:e.name,id:e.uid,role:e.role,count:e.na?'na':e.count,na:!!e.na,rally:!!e.rally,status:e.na?'NA':(e.rally?'랠리':'세일즈'),at:new Date(e.t).toISOString()});
 }
 
 
@@ -10943,7 +10994,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.stability-self-sales-2';
+const APP_VERSION='2026-08-22.asset-login-dated-na-1';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -10974,7 +11025,8 @@ function checkForUpdate(auto){
   }catch(e){}
 }
 (async function boot(){
-  try{window.showPresenceLoader&&window.showPresenceLoader('팀 데이터에 안전하게 연결하는 중…');}catch(e){}
+  const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
+  try{window.showPresenceLoader&&window.showPresenceLoader('나의 Presence 공간을 찾는 중…');}catch(e){}
   await initFirebase();
   loadSheets();
   FX.init();applyHomeFx(state.homeFx&&state.homeFx.type?state.homeFx.type:null);
