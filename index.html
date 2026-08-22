@@ -11268,7 +11268,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.recap-range-reports-6';
+const APP_VERSION='2026-08-22.profit-recap-nav-7';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -15769,7 +15769,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   /* Secondary navigation — four calm shortcuts plus a grouped menu instead of a long tool strip. */
   #subRail.subrail-organized{display:block!important;position:relative;padding:7px 16px 9px!important;overflow:visible!important;background:color-mix(in srgb,var(--ink) 94%,transparent);border-top:1px solid var(--line)}
   .subrail-compact{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;overflow-x:auto;scrollbar-width:none}.subrail-compact::-webkit-scrollbar{display:none}
-  .subrail-compact .stab{flex:0 0 auto;min-height:36px;border:1px solid transparent;border-radius:11px;padding:8px 11px!important;color:var(--muted);background:transparent;font-size:11.5px!important}.subrail-compact .stab:hover{background:rgba(255,255,255,.04);color:var(--cream)}.subrail-compact .stab.active{color:var(--cream);border-color:rgba(134,178,255,.22);background:rgba(134,178,255,.09)}
+  .subrail-compact .stab{flex:0 0 auto;min-height:44px;border:1px solid transparent;border-radius:11px;padding:8px 11px!important;color:var(--muted);background:transparent;font-size:11.5px!important}.subrail-compact .stab:hover{background:rgba(255,255,255,.04);color:var(--cream)}.subrail-compact .stab.active{color:var(--cream);border-color:rgba(134,178,255,.22);background:rgba(134,178,255,.09)}
   .subrail-compact .subrail-more{margin-left:6px;padding-left:13px!important;padding-right:13px!important;border-color:var(--line);background:rgba(255,255,255,.025);font-weight:900}.subrail-compact .subrail-more .em{width:20px;height:20px;display:grid;place-items:center;border-radius:7px;background:rgba(255,255,255,.055)}
   .subrail-panel{width:min(920px,calc(100vw - 32px));margin:8px auto 0;padding:15px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:linear-gradient(145deg,rgba(34,39,50,.98),rgba(17,21,29,.98));box-shadow:0 22px 48px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.05);animation:subMenuIn .18s ease both}
   .subrail-section{min-width:0;padding:11px;border-radius:13px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.045)}.subrail-section h4{margin:0 0 8px;padding:0 4px;color:#9fb3cc;font-size:10px;font-weight:950;letter-spacing:.13em}.subrail-section>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.subrail-section .stab{min-width:0;justify-content:flex-start;border:0;border-radius:9px;padding:9px!important;background:transparent;color:var(--cream);font-size:11.5px!important;text-align:left}.subrail-section .stab:hover,.subrail-section .stab.active{background:rgba(126,182,255,.1)}.subrail-section .stab .em{font-size:13px}.subrail-section .count{margin-left:auto}
@@ -15777,9 +15777,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   @media(min-width:980px){
     nav.rail{overflow-y:auto;overflow-x:hidden}
     #subRail.subrail-organized{width:100%;padding:7px 8px 12px!important}
-    .subrail-compact{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:6px;overflow:visible}
-    .subrail-compact .stab{display:none;min-width:0;margin:0!important;justify-content:flex-start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .subrail-compact .stab.active{display:flex}.subrail-compact .subrail-more{display:flex!important;width:78px;min-width:78px;padding:0 8px!important;justify-content:center;gap:4px;font-size:10px!important}.subrail-compact .subrail-more .em{font-size:13px}
+    .subrail-compact{display:flex;flex-direction:column;align-items:stretch;gap:5px;overflow:visible}
+    .subrail-compact .stab{display:flex;width:100%;min-width:0;margin:0!important;justify-content:flex-start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .subrail-compact .subrail-more{display:flex!important;width:100%;min-width:0;margin:1px 0 0!important;padding:0 10px!important;justify-content:flex-start;gap:7px;font-size:10.5px!important}.subrail-compact .subrail-more .em{font-size:13px}
     .subrail-panel{width:100%;margin:7px 0 0;padding:8px;grid-template-columns:1fr;gap:7px;border-radius:13px;box-shadow:inset 0 1px rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.16)}
     .subrail-section{padding:8px}.subrail-section>div{grid-template-columns:repeat(2,minmax(0,1fr))}.subrail-section .stab{padding:8px 6px!important;font-size:9.6px!important;gap:4px}.subrail-section .stab .em{font-size:11px}
   }
