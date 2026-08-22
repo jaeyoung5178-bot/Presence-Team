@@ -192,7 +192,7 @@
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
     },
     "weeklyProfitRecaps": {
-      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'",
       "$payDate": {
         "$uid": {
           ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O'))) ",
@@ -200,11 +200,31 @@
         }
       }
     },
+    "weeklyProfitRecapsPrivate": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'",
+      "$uid": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active'",
+        "$payDate": {
+          ".write": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O')))",
+          ".validate": "!newData.exists() || (newData.child('uid').val() == $uid && newData.child('payDate').val() == $payDate && newData.child('weekEnding').isString() && newData.child('netPayment').isNumber() && newData.child('netPayment').val() >= 0 && newData.child('rejectCLCount').isNumber() && newData.child('rejectCLCount').val() >= 0 && newData.child('rejectSWCount').isNumber() && newData.child('rejectSWCount').val() >= 0 && newData.child('updatedAt').isNumber())"
+        }
+      }
+    },
     "profitMonthlyBep": {
-      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'",
       "$month": {
         "$uid": {
           ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O'))) ",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+    "profitMonthlyBepPrivate": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'",
+      "$uid": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active'",
+        "$month": {
+          ".write": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O')))",
           ".validate": "newData.isNumber() && newData.val() >= 0"
         }
       }

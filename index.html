@@ -5264,7 +5264,7 @@ async function saveProfitRecap(){
   state.profitMonthlyBep=state.profitMonthlyBep||{};state.profitMonthlyBep[month]=state.profitMonthlyBep[month]||{};const oldBep=state.profitMonthlyBep[month][me.uid];state.profitMonthlyBep[month][me.uid]=bep;
   const old=prcMyRecord(info.pay,me.uid);state.weeklyProfitRecaps=state.weeklyProfitRecaps||{};state.weeklyProfitRecaps[info.pay]=state.weeklyProfitRecaps[info.pay]||{};state.weeklyProfitRecaps[info.pay][me.uid]=rec;renderProfitRecap();
   const btn=document.getElementById('prcSaveBtn');if(btn){btn.disabled=true;btn.textContent='저장 중…';}
-  try{if(LIVE){const incomeKey=(typeof nk==='function'?nk(me.name):(me.name||me.uid).replace(/\s/g,''));await Promise.all([DB.set('weeklyProfitRecaps/'+info.pay+'/'+me.uid,rec),DB.set('profitMonthlyBep/'+month+'/'+me.uid,bep),DB.set('incomeWk/'+info.we+'/'+incomeKey,rec.netPayment)]);}toast('✅ 주간 리캡을 저장했어요');}
+  try{if(LIVE){await Promise.all([DB.set('weeklyProfitRecaps/'+info.pay+'/'+me.uid,rec),DB.set('weeklyProfitRecapsPrivate/'+me.uid+'/'+info.pay,rec),DB.set('profitMonthlyBep/'+month+'/'+me.uid,bep),DB.set('profitMonthlyBepPrivate/'+me.uid+'/'+month,bep)]);}toast('✅ 주간 리캡을 저장했어요');}
   catch(e){if(old)state.weeklyProfitRecaps[info.pay][me.uid]=old;else delete state.weeklyProfitRecaps[info.pay][me.uid];if(oldBep==null)delete state.profitMonthlyBep[month][me.uid];else state.profitMonthlyBep[month][me.uid]=oldBep;renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
 }
 function prcPptLoad(){return new Promise(function(resolve,reject){if(window.PptxGenJS){resolve(window.PptxGenJS);return;}const old=document.getElementById('pptxgen-lib');if(old){old.addEventListener('load',function(){resolve(window.PptxGenJS);},{once:true});old.addEventListener('error',reject,{once:true});return;}const s=document.createElement('script');s.id='pptxgen-lib';s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=function(){resolve(window.PptxGenJS)};s.onerror=function(){reject(new Error('PPT library load failed'))};document.head.appendChild(s);});}
@@ -8679,7 +8679,16 @@ async function initFirebase(){
   const rawSet=(p,v)=>fb.set(fb.ref(db,p),v);
   const rawOn=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
   const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await auth.authStateReady();if(auth.currentUser)return auth.currentUser;return (await authMod.signInAnonymously(auth)).user;};
-  const unlock=async uid=>{const cfg=await rawGet('privateConfig');applyPrivateConfig(cfg||{});unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}return rawGet('users/'+uid);};
+  const unlock=async uid=>{const cfg=await rawGet('privateConfig');applyPrivateConfig(cfg||{});unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
+    const owner=uid===FOUNDER.uid;
+    if(owner){
+      rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
+      rawOn('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};const mirror={};Object.keys(v||{}).forEach(month=>Object.keys(v[month]||{}).forEach(id=>{mirror['profitMonthlyBepPrivate/'+id+'/'+month]=v[month][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit BEP mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
+    }else{
+      rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
+      rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();});
+    }
+    return rawGet('users/'+uid);};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(fb.ref(db,p),v);DB.remove=p=>fb.remove(fb.ref(db,p));
   DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
@@ -8742,8 +8751,6 @@ async function initFirebase(){
   DB.on('devLinks',v=>{state.devLinks=v||{};if(me&&isFounder(me))renderDevLinks();});
   DB.on('salesMeta',v=>{state.salesMeta=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('incomeWk',v=>{state.incomeWk=v||{};try{var pane=document.getElementById('ft-rc');if(pane&&pane.classList.contains('active')&&ftCurWE&&typeof ftWkLoad==='function')ftWkLoad();}catch(e){}});
-  DB.on('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
-  DB.on('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();});
   DB.on('bep',v=>{state.bep=v||{};if(me&&isFounder(me)&&document.getElementById('smBody'))renderSalesMgr();});
   DB.on('feedLog',v=>{state.feedLog=Array.isArray(v)?v:(v?Object.values(v):[]);if(document.getElementById('feedLogBody'))renderFeedLog();});
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
@@ -11274,7 +11281,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-22.profit-recap-nav-10';
+const APP_VERSION='2026-08-22.profit-recap-private-11';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
