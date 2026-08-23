@@ -21,7 +21,9 @@ for (const fixture of fixtures) {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(`${baseUrl}/?qa=promotion-auth-${fixture.name}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(700);
+  /* 운영 Firebase 초기화 시간이 기기마다 다르므로 로그인 게이트가 실제로 준비된 뒤
+     승격 설문 fixture를 주입한다. 고정 지연만 쓰면 느린 부팅이 테스트 화면을 덮을 수 있다. */
+  await page.locator('#authGate:not(.hidden) .auth-card').waitFor({ state: 'visible', timeout: 20000 });
   await page.evaluate((f) => {
     window.eval(`me={uid:'qa-${f.role}',name:'${f.user}',id:'qa-${f.role}',role:'${f.role}',status:'active',surveys:{}}`);
     window.eval(`authState={view:'survey',draft:null,surveyKey:'${f.survey}',surveyCtx:'gate',sel:{}}`);
