@@ -425,7 +425,7 @@
     "authSessions": {
       "$authUid": {
         ".read": "auth != null && auth.uid == $authUid",
-        ".write": "auth != null && auth.uid == $authUid && ((data.exists() && !newData.exists()) || (!data.exists() && newData.child('idKey').isString() && newData.child('userUid').isString() && newData.child('proof').isString() && newData.child('createdAt').isNumber() && newData.child('createdAt').val() <= now + 300000 && root.child('privateAuth').child('byId').child(newData.child('idKey').val()).child('uid').val() == newData.child('userUid').val() && root.child('privateAuth').child('byId').child(newData.child('idKey').val()).child('pwHash').val() == newData.child('proof').val() && root.child('users').child(newData.child('userUid').val()).child('status').val() == 'active'))"
+        ".write": "auth != null && auth.uid == $authUid && ((data.exists() && !newData.exists()) || (newData.exists() && newData.child('idKey').isString() && newData.child('userUid').isString() && newData.child('proof').isString() && newData.child('createdAt').isNumber() && newData.child('createdAt').val() <= now + 300000 && root.child('privateAuth').child('byId').child(newData.child('idKey').val()).child('uid').val() == newData.child('userUid').val() && root.child('privateAuth').child('byId').child(newData.child('idKey').val()).child('pwHash').val() == newData.child('proof').val() && root.child('users').child(newData.child('userUid').val()).child('status').val() == 'active'))"
       }
     },
     "callbackSessions": {
