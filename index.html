@@ -8730,7 +8730,11 @@ async function initFirebase(){
   const profitRecapOff=[];
   const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};};
   const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),8000,'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),8000,'anonymous sign-in')).user;};
-  const unlock=async uid=>{let cfg=null,cfgRequest=rawGet('privateConfig');try{cfg=await within(cfgRequest,5000,'private config');applyPrivateConfig(cfg||{});}catch(e){console.warn('[login] private config delayed; continuing while it finishes');cfgRequest.then(v=>applyPrivateConfig(v||{})).catch(()=>{});}unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
+  const unlock=async uid=>{const profileRequest=rawGet('users/'+uid),cfgRequest=rawGet('privateConfig');
+    /* 웹훅·운영 설정은 로그인 판정에 필요하지 않다. 이를 먼저 기다리면 느린 연결에서
+       정상 계정도 로그인 중처럼 오래 보이므로 프로필과 병렬로 받고 도착 즉시 적용한다. */
+    cfgRequest.then(v=>applyPrivateConfig(v||{})).catch(e=>console.warn('[login] private config will retry with the next session',e&&e.code?e.code:'failed'));
+    unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
     clearProfitRecapSession();
     const owner=uid===FOUNDER.uid;
     if(owner){
@@ -8740,7 +8744,7 @@ async function initFirebase(){
       profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
       profitRecapOff.push(rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
     }
-    return within(rawGet('users/'+uid),8000,'user profile');};
+    return within(profileRequest,8000,'user profile');};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(fb.ref(db,p),v);DB.remove=p=>fb.remove(fb.ref(db,p));
   DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));DB.clearProfitRecapSession=clearProfitRecapSession;
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
@@ -11339,7 +11343,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-24.login-transition-15';
+const APP_VERSION='2026-08-24.login-transition-16';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -15919,8 +15923,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   window.showPresenceEntryLobby=function(){
     if(typeof me==='undefined'||!me)return false;var u=me,l=document.getElementById('presenceEntryLobby');if(!l)return false;
     window.showPresenceLoader('나의 병아리와 성장 기록을 불러오는 중…');
-    var settled=false,timer=setTimeout(function(){start(null);},1800);
-    function start(p){if(settled)return;settled=true;clearTimeout(timer);if(p&&(p.adoptedAt||p.nickname)){p=Object.assign({},p,{variant:'presence',adoptedAt:p.adoptedAt||Date.now()});state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;if(!p.adoptedAt&&LIVE)DB.set('petProfiles/'+u.uid,p);window.__presenceEntryPass=true;l.classList.remove('show');l.setAttribute('aria-hidden','true');setTimeout(function(){window.enterApp();},60);return;}
+    var settled=false,timer=setTimeout(safeEnter,2500);
+    /* 조회가 느린 것을 "프로필 없음"으로 오판하면 기존 팀원에게 입양 화면이 다시 뜬다.
+       시간 초과는 워크북으로 안전 진입하고, 실제 null 응답일 때만 최초 입양을 보여준다. */
+    function safeEnter(){if(settled)return;settled=true;clearTimeout(timer);window.__presenceEntryPass=true;l.classList.remove('show');l.setAttribute('aria-hidden','true');setTimeout(function(){window.enterApp();},60);}
+    function start(p){if(settled)return;if(p&&(p.adoptedAt||p.nickname)){p=Object.assign({},p,{variant:'presence',adoptedAt:p.adoptedAt||Date.now()});state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;if(!p.adoptedAt&&LIVE)DB.set('petProfiles/'+u.uid,p);safeEnter();return;}settled=true;clearTimeout(timer);
       window.hidePresenceLoader();l.classList.add('show');l.setAttribute('aria-hidden','false');var un=document.getElementById('peUserName'),i=document.getElementById('peNickname');if(un)un.textContent=u.name||'팀원';if(i)i.value=(u.name||'나')+'의 삐약이';window.__presencePetChoice='presence';window.previewPresencePetName();window.renderEntryCostume();}
     var cached=state.petProfiles&&state.petProfiles[u.uid];if(cached){start(cached);return true;}try{DB.get('petProfiles/'+u.uid).then(start).catch(function(){start(null);});}catch(e){start(null);}return true;
   };
@@ -16021,6 +16028,6 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20260809-6"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
-<script src="assets/presence-loader-guard.js?v=20260824-7"></script>
+<script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 </body>
 </html>
