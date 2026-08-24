@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var RECOVERY_MS = 9000;
+  var RECOVERY_MS = 6000;
   var recoveryTimer = 0;
   var originalShow = null;
   var originalHide = null;
@@ -150,9 +150,10 @@
   function showLoginFallback() {
     var auth = document.getElementById('authGate');
     var app = document.getElementById('app');
-    if (auth) auth.classList.remove('hidden');
+    if (auth) { auth.classList.remove('hidden'); auth.setAttribute('aria-hidden', 'false'); }
     if (app && !document.body.classList.contains('app-on')) app.classList.add('hidden');
     try {
+      if (typeof setLoginBusy === 'function') setLoginBusy(false);
       if (typeof window.renderAuth === 'function') window.renderAuth();
       else if (typeof renderAuth === 'function') renderAuth();
     } catch (error) {}

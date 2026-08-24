@@ -4458,7 +4458,8 @@ async function doLogin(){
   authMsg('안전하게 로그인하는 중이에요…','info');
   let u=null,loginErr=null;try{u=await DB.login(isTestName_(id)?canonBot(id):id,hash(pw));}catch(e){loginErr=e;console.warn('[login]',e&&e.code?e.code:'failed')}
   if(!u){loginInFlight=false;setLoginBusy(false);authMsg(loginErr&&(/network|unavailable|timeout/i.test(String(loginErr.code||loginErr.message||'')))?'서버 연결이 지연되고 있어요. 잠시 후 다시 눌러 주세요':'아이디 또는 비밀번호가 올바르지 않아요','err');return}
-  loginInFlight=false;
+  /* 인증은 이미 끝났다. 이후 로비/설문/앱 준비가 느려도 로그인 버튼을 잠근 채 두지 않는다. */
+  loginInFlight=false;setLoginBusy(false);
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
   if(u.status!=='active'){try{await DB.logout();}catch(e){}authMsg('현재 로그인할 수 없는 계정이에요. 관리자에게 상태를 확인해 주세요','err');setLoginBusy(false);return}
   const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
@@ -4488,7 +4489,24 @@ function continueLogin(u){
     authMsg(`✅ ${ROLE_LABEL[u.role]} 설문만 완료하면 바로 로그인돼요 · 마지막 한 단계예요!`,'info');return;
   }
   u.lastLogin=Date.now();if(LIVE)DB.set('users/'+u.uid+'/lastLogin',u.lastLogin);
+  const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
+  try{window.showPresenceLoader&&window.showPresenceLoader('로그인 완료 · 나의 공간으로 이동하는 중…');}catch(e){}
+  armPostAuthGuard(u);
   enterApp();
+}
+let postAuthGuardTimer=0;
+function armPostAuthGuard(u){
+  clearTimeout(postAuthGuardTimer);
+  postAuthGuardTimer=setTimeout(function(){
+    if(!me||!u||me.uid!==u.uid||['survey','newpw','pending'].includes(authState.view))return;
+    const app=document.getElementById('app'),lobby=document.getElementById('presenceEntryLobby');
+    const appOn=!!(app&&!app.classList.contains('hidden')&&document.body.classList.contains('app-on'));
+    const lobbyOn=!!(lobby&&lobby.classList.contains('show'));
+    if(appOn||lobbyOn)return;
+    console.warn('[post-auth guard] optional entry scene timed out; entering workbook safely');
+    window.__presenceEntryPass=true;
+    try{enterApp();}catch(e){const gate=document.getElementById('authGate');if(gate){gate.classList.remove('hidden');gate.setAttribute('aria-hidden','false');}setLoginBusy(false);}
+  },4500);
 }
 /* ===== 첫필드 백필 — 예전엔 리더 설문에만 있었음 ===== */
 function firstFieldOf(u){if(!u||!u.surveys)return '';var ks=Object.keys(u.surveys);for(var i=0;i<ks.length;i++){var a=u.surveys[ks[i]]&&u.surveys[ks[i]].answers;if(a&&a.firstField)return a.firstField;}return '';}
@@ -4625,8 +4643,9 @@ function sendSurveyToSheet(user,key,rec){
 
 /* enter / leave */
 function enterApp(){
-  if(me&&!window.__presenceEntryPass){try{window.showPresenceEntryLobby();}catch(e){}return;}
+  if(me&&!window.__presenceEntryPass){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
   window.__presenceEntryPass=false;
+  clearTimeout(postAuthGuardTimer);setLoginBusy(false);
   if(rememberPref())lsSet('presence_sess',{uid:me.uid,t:Date.now()});else lsDel('presence_sess');
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('authGate').setAttribute('aria-hidden','true');
@@ -4660,7 +4679,7 @@ function reconcileAuthProfiles(){
   Object.values(state.users||{}).filter(u=>u&&u.uid&&(u.loginKey||u.id)&&u.role&&u.status).forEach(u=>DB.syncAccountProfile(u).catch(e=>console.warn('[auth profile reconcile]',u.uid,e&&e.code?e.code:'failed')));
 }
 async function logout(){
-  if(window.__logoutBusy)return;window.__logoutBusy=true;loginInFlight=false;lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
+  if(window.__logoutBusy)return;window.__logoutBusy=true;loginInFlight=false;clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
   authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on','can-mod','can-daily','is-bot');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal');setLoginBusy(true);authMsg('로그아웃을 안전하게 마무리하는 중이에요…','info');
   try{await DB.logout();}catch(e){}finally{window.__logoutBusy=false;setLoginBusy(false);const m=document.getElementById('authMsg');if(m&&m.textContent.indexOf('로그아웃을')===0)m.className='auth-msg'}
@@ -8707,10 +8726,11 @@ async function initFirebase(){
   const rawGet=p=>fb.get(fb.ref(db,p)).then(s=>s.val());
   const rawSet=(p,v)=>fb.set(fb.ref(db,p),v);
   const rawOn=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
+  const within=(promise,ms,stage)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>{const e=new Error(stage+' timeout');e.code='network/timeout';reject(e);},ms))]);
   const profitRecapOff=[];
   const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};};
-  const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await auth.authStateReady();if(auth.currentUser)return auth.currentUser;return (await authMod.signInAnonymously(auth)).user;};
-  const unlock=async uid=>{const cfg=await rawGet('privateConfig');applyPrivateConfig(cfg||{});unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
+  const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),8000,'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),8000,'anonymous sign-in')).user;};
+  const unlock=async uid=>{let cfg=null,cfgRequest=rawGet('privateConfig');try{cfg=await within(cfgRequest,5000,'private config');applyPrivateConfig(cfg||{});}catch(e){console.warn('[login] private config delayed; continuing while it finishes');cfgRequest.then(v=>applyPrivateConfig(v||{})).catch(()=>{});}unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
     clearProfitRecapSession();
     const owner=uid===FOUNDER.uid;
     if(owner){
@@ -8720,14 +8740,14 @@ async function initFirebase(){
       profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
       profitRecapOff.push(rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
     }
-    return rawGet('users/'+uid);};
+    return within(rawGet('users/'+uid),8000,'user profile');};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(fb.ref(db,p),v);DB.remove=p=>fb.remove(fb.ref(db,p));
   DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));DB.clearProfitRecapSession=clearProfitRecapSession;
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
   /* 기존 세션 삭제→재생성의 두 단계 사이에서 연결이 끊기면 정상 비밀번호도 실패했다.
      검증된 새 세션으로 한 번에 교체해 로그인 작업을 원자적으로 만든다. */
-  DB.login=async(id,proof)=>{const au=await ensureAnon(),key=authKey(id),uid=await rawGet('loginIndex/'+key);if(!uid)return null;await rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()});return unlock(uid);};
-  DB.restoreSession=async uid=>{const au=await ensureAnon(),s=await rawGet('authSessions/'+au.uid);if(!s||s.userUid!==uid)return null;return unlock(uid);};
+  DB.login=async(id,proof)=>{const au=await ensureAnon(),key=authKey(id),uid=await within(rawGet('loginIndex/'+key),7000,'login index');if(!uid)return null;await within(rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()}),7000,'login session');return unlock(uid);};
+  DB.restoreSession=async uid=>{const au=await ensureAnon(),s=await within(rawGet('authSessions/'+au.uid),7000,'restore session');if(!s||s.userUid!==uid)return null;return unlock(uid);};
   DB.signup=async(u,proof)=>{
     const au=await ensureAnon(),key=authKey(u.id),uid=au.uid;
     if(await rawGet('loginIndex/'+key)){const e=new Error('duplicate');e.code='signup/duplicate';throw e;}
@@ -11319,7 +11339,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-24.promotion-auth-14';
+const APP_VERSION='2026-08-24.login-transition-15';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -11331,7 +11351,7 @@ function showUpdateBanner(v){
 }
 function _updApply(){ try{location.replace(location.pathname+'?v='+Date.now());}catch(e){location.reload();} }
 function updDoUpdate(){ _updApply(); }
-function _updAuthBusy(){try{return typeof authState!=='undefined'&&['signup','survey','newpw'].includes(authState.view);}catch(e){return false;}}
+function _updAuthBusy(){try{const lobby=document.getElementById('presenceEntryLobby');return loginInFlight||(typeof authState!=='undefined'&&['signup','survey','newpw'].includes(authState.view))||!!(me&&!document.body.classList.contains('app-on'))||!!(lobby&&lobby.classList.contains('show'));}catch(e){return false;}}
 /* 설문·가입·비밀번호 변경 중에는 배너/자동 새로고침 모두 보류해 작성 내용 이탈을 막는다. */
 function _updSafe(){ try{ if(document.visibilityState!=='visible'||_updAuthBusy())return false; var ae=document.activeElement; if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return false; }catch(e){} return true; }
 function checkForUpdate(auto){
@@ -15897,11 +15917,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
   window.selectPresencePet=function(){window.__presencePetChoice='presence';};
   window.renderEntryCostume=function(){var a=document.getElementById('peAvatar');if(!a)return;var p=typeof me!=='undefined'&&me?singleProfile():{equipped:{}};a.innerHTML=presencePetArt(p,1);var old=document.getElementById('peCostume');if(old)old.remove();};
   window.showPresenceEntryLobby=function(){
-    if(typeof me==='undefined'||!me)return;var u=me,l=document.getElementById('presenceEntryLobby');if(!l)return;
+    if(typeof me==='undefined'||!me)return false;var u=me,l=document.getElementById('presenceEntryLobby');if(!l)return false;
     window.showPresenceLoader('나의 병아리와 성장 기록을 불러오는 중…');
-    function start(p){if(p&&(p.adoptedAt||p.nickname)){p=Object.assign({},p,{variant:'presence',adoptedAt:p.adoptedAt||Date.now()});state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;if(!p.adoptedAt&&LIVE)DB.set('petProfiles/'+u.uid,p);window.__presenceEntryPass=true;l.classList.remove('show');l.setAttribute('aria-hidden','true');setTimeout(function(){window.enterApp();},60);return;}
+    var settled=false,timer=setTimeout(function(){start(null);},1800);
+    function start(p){if(settled)return;settled=true;clearTimeout(timer);if(p&&(p.adoptedAt||p.nickname)){p=Object.assign({},p,{variant:'presence',adoptedAt:p.adoptedAt||Date.now()});state.petProfiles=state.petProfiles||{};state.petProfiles[u.uid]=p;if(!p.adoptedAt&&LIVE)DB.set('petProfiles/'+u.uid,p);window.__presenceEntryPass=true;l.classList.remove('show');l.setAttribute('aria-hidden','true');setTimeout(function(){window.enterApp();},60);return;}
       window.hidePresenceLoader();l.classList.add('show');l.setAttribute('aria-hidden','false');var un=document.getElementById('peUserName'),i=document.getElementById('peNickname');if(un)un.textContent=u.name||'팀원';if(i)i.value=(u.name||'나')+'의 삐약이';window.__presencePetChoice='presence';window.previewPresencePetName();window.renderEntryCostume();}
-    var cached=state.petProfiles&&state.petProfiles[u.uid];if(cached){start(cached);return;}try{DB.get('petProfiles/'+u.uid).then(start).catch(function(){start(null);});}catch(e){start(null);}
+    var cached=state.petProfiles&&state.petProfiles[u.uid];if(cached){start(cached);return true;}try{DB.get('petProfiles/'+u.uid).then(start).catch(function(){start(null);});}catch(e){start(null);}return true;
   };
   window.enterPresenceWorld=function(){
     if(typeof me==='undefined'||!me)return;var i=document.getElementById('peNickname'),p=singleProfile();p.nickname=(i&&i.value||'').trim()||((me.name||'나')+'의 삐약이');p.variant='presence';p.adoptedAt=Date.now();saveSingle(p,true);var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true');}window.__presenceEntryPass=true;window.showPresenceLoader('나의 병아리와 Presence에 입장하는 중…');setTimeout(function(){window.enterApp();},360);
@@ -16000,6 +16021,6 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20260809-6"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
-<script src="assets/presence-loader-guard.js?v=20260727-6"></script>
+<script src="assets/presence-loader-guard.js?v=20260824-7"></script>
 </body>
 </html>
