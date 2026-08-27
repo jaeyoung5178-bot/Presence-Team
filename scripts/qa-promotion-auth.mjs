@@ -2,11 +2,11 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const baseUrl = process.env.PRESENCE_QA_URL || 'http://127.0.0.1:8765';
+const baseUrl = process.env.PRESENCE_QA_URL || 'http://127.0.0.1:4173';
 const fixtures = [
-  { name: 'phone-member', width: 390, height: 844, role: 'IC', survey: 'IC', user: '모바일회원' },
-  { name: 'tablet-leader', width: 1024, height: 768, role: 'LR', survey: 'LR', user: '태블릿리더' },
-  { name: 'desktop-admin', width: 1440, height: 900, role: 'AOP', survey: 'TL', user: '임재영' },
+  { name: 'phone-member', width: 390, height: 844, role: 'LR', survey: 'LR', user: '모바일회원', admin: false },
+  { name: 'tablet-leader', width: 1024, height: 768, role: 'TL', survey: 'TL', user: '태블릿리더', admin: false },
+  { name: 'desktop-admin', width: 1440, height: 900, role: 'AOP', survey: 'TL', user: '임재영', admin: true },
 ];
 
 const browser = await chromium.launch({
@@ -20,42 +20,104 @@ for (const fixture of fixtures) {
   const page = await browser.newPage({ viewport: fixture, deviceScaleFactor: 1 });
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto(`${baseUrl}/?qa=promotion-auth-${fixture.name}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  /* 운영 Firebase 초기화 시간이 기기마다 다르므로 로그인 게이트가 실제로 준비된 뒤
-     승격 설문 fixture를 주입한다. 고정 지연만 쓰면 느린 부팅이 테스트 화면을 덮을 수 있다. */
+  await page.goto(`${baseUrl}/?qa=promotion-invite-${fixture.name}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.locator('#authGate:not(.hidden) .auth-card').waitFor({ state: 'visible', timeout: 20000 });
-  await page.evaluate((f) => {
-    window.eval(`me={uid:'qa-${f.role}',name:'${f.user}',id:'qa-${f.role}',role:'${f.role}',status:'active',surveys:{}}`);
-    window.eval(`authState={view:'survey',draft:null,surveyKey:'${f.survey}',surveyCtx:'gate',sel:{}}`);
-    document.getElementById('app')?.classList.add('hidden');
+
+  const loginResult = await page.evaluate((f) => {
+    DB.set = async () => {};
+    DB.update = async () => {};
+    DB.get = async () => null;
+    DB.tx = async (_path, fn) => ({ committed: true, snapshot: fn(null) });
+    DB.updatePromotionAccount = async () => {};
+    window.showPresenceEntryLobby = () => false;
+    window.__presenceEntryPass = true;
+    const current = {
+      uid: f.admin ? 'admin' : `qa-${f.role}`,
+      name: f.user,
+      id: f.admin ? 'admin-qa' : `qa-${f.role}`,
+      role: f.role,
+      status: 'active',
+      surveys: f.admin ? { TL: { answers: { qa: 'done' }, t: Date.now() } } : {},
+    };
+    const target = f.admin ? { uid: 'qa-target', name: '승진대상자', id: 'qa-target', role: f.survey, status: 'active', surveys: {} } : current;
+    const invite = { uid: target.uid, name: target.name, role: target.role, surveyKey: f.survey, token: `qatoken${f.name.replace(/-/g, '')}123456`, status: 'pending', createdAt: Date.now(), createdBy: 'admin', completedAt: 0 };
+    state.users = { [current.uid]: current, [target.uid]: target };
+    state.promotionSurveys = { [target.uid]: { [f.survey]: invite } };
+    me = current;
+    continueLogin(current);
+    const app = document.getElementById('app');
     const gate = document.getElementById('authGate');
-    gate?.classList.remove('hidden');
-    gate?.setAttribute('aria-hidden', 'false');
-    window.renderAuth();
+    const result = {
+      loginAllowed: !!app && !app.classList.contains('hidden') && document.body.classList.contains('app-on'),
+      gateHiddenAfterLogin: !!gate && gate.classList.contains('hidden'),
+      invite,
+    };
+    document.querySelectorAll('.modal.on').forEach((el) => el.classList.remove('on'));
+    showPromotionInfo(invite, f.admin ? 'admin' : 'target');
+    return result;
   }, fixture);
-  await page.waitForTimeout(100);
-  const report = await page.evaluate(() => {
-    const card = document.querySelector('#authGate .auth-card');
-    const button = document.getElementById('surveySubmitBtn');
-    const rect = card.getBoundingClientRect();
-    const buttonRect = button.getBoundingClientRect();
-    const firstInteractive = document.querySelector('#svForm input, #svForm textarea, #svForm .opt');
-    const firstRect = firstInteractive?.getBoundingClientRect();
+
+  await page.waitForTimeout(150);
+  const popupReport = await page.evaluate(() => {
+    const modal = document.getElementById('promotionSurveyModal');
+    const box = modal.querySelector('.promo-survey-box');
+    const rect = box.getBoundingClientRect();
+    const buttons = [...box.querySelectorAll('button')].map((b) => Math.round(b.getBoundingClientRect().height));
     return {
-      title: document.querySelector('#authView .auth-h')?.textContent?.trim() || '',
-      gateVisible: getComputedStyle(document.getElementById('authGate')).display !== 'none',
-      cardInsideViewport: rect.left >= -1 && rect.right <= innerWidth + 1,
+      popupVisible: modal.classList.contains('on'),
+      title: document.getElementById('promotionSurveyTitle')?.textContent?.trim() || '',
+      boxInsideViewport: rect.left >= -1 && rect.right <= innerWidth + 1,
+      boxRect: { left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width), viewport: innerWidth },
       horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
-      submitTarget: { width: Math.round(buttonRect.width), height: Math.round(buttonRect.height) },
-      firstTargetHeight: Math.round(firstRect?.height || 0),
-      updateGuarded: window._updSafe() === false,
+      buttonMinHeight: buttons.length ? Math.min(...buttons) : 0,
+      linkVisible: !!document.getElementById('promotionSurveyLinkInput'),
     };
   });
-  report.fixture = fixture.name;
-  report.errors = errors;
+
+  let formReport = { notTarget: fixture.admin };
+  if (!fixture.admin) {
+    await page.getByRole('button', { name: '설문 참여하기' }).click();
+    await page.waitForTimeout(80);
+    formReport = await page.evaluate(() => {
+      const card = document.querySelector('#authGate .auth-card');
+      const submit = document.getElementById('surveySubmitBtn');
+      const rect = card.getBoundingClientRect();
+      const submitRect = submit.getBoundingClientRect();
+      const first = document.querySelector('#svForm input, #svForm textarea, #svForm .opt');
+      const firstRect = first?.getBoundingClientRect();
+      return {
+        promotionContext: authState.surveyCtx === 'promotion',
+        appStillLoggedIn: document.body.classList.contains('app-on') && !document.getElementById('app').classList.contains('hidden'),
+        formInsideViewport: rect.left >= -1 && rect.right <= innerWidth + 1,
+        submitTargetHeight: Math.round(submitRect.height),
+        firstTargetHeight: Math.round(firstRect?.height || 0),
+        hasLaterButton: [...document.querySelectorAll('#authView button')].some((b) => b.textContent.includes('나중에 작성')),
+      };
+    });
+  }
+
+  let completionReport = null;
+  if (fixture.name === 'phone-member') {
+    await page.evaluate(() => {
+      document.querySelectorAll('#svForm input.svtext').forEach((el) => { el.value = el.type === 'date' ? '2026-08-27' : (el.inputMode === 'numeric' ? '010-1234-5678' : 'qa@example.com'); });
+      document.querySelectorAll('#svForm textarea').forEach((el) => { el.value = '승진 설문 화면 검수 응답입니다.'; });
+      document.querySelectorAll('#svForm .opts').forEach((wrap) => { const first = wrap.querySelector('.opt'); if (first) first.click(); });
+    });
+    await page.getByRole('button', { name: '설문 제출하기' }).click();
+    await page.waitForTimeout(120);
+    completionReport = await page.evaluate(() => ({
+      completionPopup: document.getElementById('promotionSurveyModal').classList.contains('on') && document.getElementById('promotionSurveyTitle')?.textContent.includes('완료되었어요'),
+      loginStillAllowed: document.body.classList.contains('app-on') && !document.getElementById('app').classList.contains('hidden'),
+      status: state.promotionSurveys[me.uid]?.LR?.status,
+      surveySaved: !!me.surveys?.LR?.answers && Object.keys(me.surveys.LR.answers).length > 0,
+    }));
+  }
+
+  const report = { fixture: fixture.name, loginResult, popupReport, formReport, completionReport, errors };
   reports.push(report);
-  if (!report.title || !report.gateVisible || !report.cardInsideViewport || report.horizontalOverflow || report.submitTarget.height < 44 || report.firstTargetHeight < 44 || !report.updateGuarded || errors.length) failures.push(report);
-  await page.screenshot({ path: `/tmp/presence-promotion-auth-${fixture.name}.png`, fullPage: false });
+  const failed = !loginResult.loginAllowed || !loginResult.gateHiddenAfterLogin || !popupReport.popupVisible || !popupReport.title || !popupReport.boxInsideViewport || popupReport.horizontalOverflow || popupReport.buttonMinHeight < 42 || !popupReport.linkVisible || errors.length || (!fixture.admin && (!formReport.promotionContext || !formReport.appStillLoggedIn || !formReport.formInsideViewport || formReport.submitTargetHeight < 44 || formReport.firstTargetHeight < 44 || !formReport.hasLaterButton)) || (completionReport && (!completionReport.completionPopup || !completionReport.loginStillAllowed || completionReport.status !== 'completed' || !completionReport.surveySaved));
+  if (failed) failures.push(report);
+  await page.screenshot({ path: `/tmp/presence-promotion-invite-${fixture.name}.png`, fullPage: false });
   await page.close();
 }
 

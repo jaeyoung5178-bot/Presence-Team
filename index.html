@@ -1037,12 +1037,26 @@ table.scores tr.top1 .big{color:var(--green)}
 /* modal / footer / toast */
 .modal{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(4px);z-index:var(--z-modal-base);display:none;align-items:center;justify-content:center;padding:18px}
 .modal.on{display:flex}
-.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:460px;width:100%;animation:pop .25s ease;box-shadow:var(--shadow);max-height:88vh;overflow-y:auto}
-@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:460px;width:100%;animation:presenceModalPop .25s ease;box-shadow:var(--shadow);max-height:88vh;overflow-y:auto}
+@keyframes presenceModalPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 .modal h3{font-family:var(--disp);font-size:18px;margin-bottom:6px}
 .modal p{font-size:13px;color:var(--muted);margin-bottom:14px}
 .modal .acts{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
 .modal input[type=file]{width:100%;background:var(--card);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:10px;font-size:12.5px}
+.promo-survey-box{max-width:580px!important;padding:24px!important}
+#promotionSurveyModal{z-index:750}
+.promo-survey-hero{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.promo-survey-icon{display:flex;align-items:center;justify-content:center;width:52px;height:52px;flex:0 0 52px;border-radius:16px;background:linear-gradient(145deg,rgba(92,188,46,.23),rgba(70,182,221,.2));border:1px solid rgba(92,188,46,.38);font-size:25px}
+.promo-survey-copy h3{font-size:21px;margin:1px 0 5px}.promo-survey-copy p{line-height:1.65;margin:0}
+.promo-survey-link{display:flex;gap:8px;align-items:stretch;margin:14px 0}
+.promo-survey-link input{min-width:0;flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--cream);font-size:12px;padding:12px;outline:none}
+.promo-survey-link button,.promo-survey-actions button{min-height:46px}
+.promo-survey-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.promo-survey-actions .btn{flex:1 1 145px}
+.promo-survey-note{padding:11px 13px;border-radius:12px;background:rgba(70,182,221,.09);border:1px solid rgba(70,182,221,.25);color:#a9dff1;font-size:12.5px;line-height:1.6}
+.promo-admin-list{display:grid;gap:9px}.promo-admin-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--card)}
+.promo-admin-name{font-weight:800;color:var(--cream);font-size:13.5px}.promo-admin-meta{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}.promo-admin-actions{display:flex;gap:7px}.promo-admin-actions .btn{min-height:42px;white-space:nowrap}
+.auth-link-note{margin:-8px 0 16px;padding:11px 13px;border-radius:12px;background:rgba(92,188,46,.14);border:1px solid rgba(164,230,124,.38);color:#eaffdf;font-size:12.5px;line-height:1.55}
+@media(max-width:520px){.promo-survey-box{padding:19px!important}.promo-survey-link{flex-direction:column}.promo-survey-link button{width:100%}.promo-admin-row{grid-template-columns:1fr}.promo-admin-actions{width:100%}.promo-admin-actions .btn{flex:1}.promo-survey-actions{flex-direction:column}.promo-survey-actions .btn{width:100%;flex-basis:auto;min-height:48px}}
 
 footer{border-top:1px solid var(--line);margin-top:24px;padding:30px 0 calc(44px + var(--safe-b));text-align:center;color:var(--muted);font-size:12px}
 @media(max-width:979px){ footer{ padding-bottom:calc(104px + var(--safe-b)); } }  /* 하단탭바(~94px)에 안 가리도록 */
@@ -3799,6 +3813,13 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
           </div>
         </div>
         <div class="adm-card">
+          <div class="ah"><h3>📨 승진 설문</h3><span class="badge zero" id="promotionSurveyBadge">0</span></div>
+          <div class="adm-body">
+            <p style="font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:12px">대상자는 로그인 제한 없이 워크북을 이용합니다. 아래 전용 링크를 복사해 카카오톡이나 메시지로 보낼 수 있어요.</p>
+            <div id="promotionSurveyAdminList" class="promo-admin-list"></div>
+          </div>
+        </div>
+        <div class="adm-card">
           <div class="ah"><h3>가입 승인 대기</h3><span class="badge zero" id="pendBadge">0</span></div>
           <div class="adm-body" id="pendList"></div>
         </div>
@@ -4015,6 +4036,10 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
   <h3 id="svViewTitle">설문 응답</h3><p id="svViewSub"></p>
   <div id="svViewBody" class="sv-view"></div>
   <div class="acts"><button class="btn ghost" onclick="closeModal('surveyViewModal')">닫기</button><button class="btn" onclick="exportSurveyPdf()">📄 PDF로 저장</button></div>
+</div></div>
+
+<div class="modal" id="promotionSurveyModal" role="dialog" aria-modal="true" aria-labelledby="promotionSurveyTitle"><div class="box promo-survey-box">
+  <div id="promotionSurveyModalBody"></div>
 </div></div>
 
 <div class="modal" id="recruitModal"><div class="box">
@@ -4269,7 +4294,7 @@ function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 const now=Date.now();
 let state={
   pr:0,
-  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},training:[],recruit:{},daisoRecruitDaily:{},
+  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},promotionSurveys:{},promotionSurveyResponses:{},training:[],recruit:{},daisoRecruitDaily:{},
   waters:{},
   comp:{label:'노제로 챌린지',start:now,weeks:2},
   feeds:[],
@@ -4381,7 +4406,7 @@ state.sales={};   // 실데이터만 — 데모 세일즈 없음
 /* ============================================================
    AUTH
    ============================================================ */
-let authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};
+let authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,promotionUid:null,promotionToken:null,sel:{}};
 let loginInFlight=false;
 let surveySubmitInFlight=false;
 let competitionView='daiso';
@@ -4394,6 +4419,7 @@ function renderAuth(){
   if(authState.view==='login'){
     v.innerHTML=`
       <div class="auth-tabs"><button class="active">로그인</button><button onclick="goSignup()">회원가입</button></div>
+      ${promotionLinkRequest()?'<div class="auth-link-note">📨 <b>승진 설문 전용 링크</b>로 들어왔어요.<br>대상자 본인 계정으로 로그인하면 설문이 바로 열립니다. 워크북 로그인은 설문과 관계없이 정상 이용할 수 있어요.</div>':''}
       <div class="auth-msg" id="authMsg"></div>
       <div class="field"><label>아이디</label><input id="liId" placeholder="아이디" autocomplete="username" /></div>
       <div class="field"><label>비밀번호</label><input id="liPw" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();doLogin()}" /></div>
@@ -4413,13 +4439,16 @@ function renderAuth(){
       <button class="btn block" style="margin-top:6px" onclick="submitSignup()">다음 — 설문 작성</button>`;
   }else if(authState.view==='survey'){
     const S=SURVEYS[authState.surveyKey];
+    const isPromotion=authState.surveyCtx==='promotion';
     v.innerHTML=`
       <div class="auth-h">${esc(S.title)}</div>
       <div class="auth-p">${esc(S.intro)}</div>
       ${(authState.surveyCtx==='gate'&&me&&!isTestBot(me))?`<div style="margin:10px 0;padding:12px 14px;background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.38);border-radius:11px;font-size:13px;color:var(--green-soft);line-height:1.65">📝 <b>${esc(me.name)}</b>님, ${ROLE_LABEL[me.role]||me.role} 승급을 축하해요!<br>이 설문을 <b style="color:var(--cream)">완료하면 바로 로그인</b>돼요 — 마지막 한 단계만 남았어요. 모든 항목을 채운 뒤 아래 <b>제출하고 로그인</b>을 눌러주세요.</div>`:''}
+      ${isPromotion&&me?`<div style="margin:10px 0;padding:12px 14px;background:rgba(92,188,46,.12);border:1px solid rgba(92,188,46,.38);border-radius:11px;font-size:13px;color:var(--green-soft);line-height:1.65">🎉 <b>${esc(me.name)}</b>님, ${ROLE_LABEL[me.role]||me.role} 승진을 축하해요!<br>설문은 편할 때 작성하면 되고, <b style="color:var(--cream)">로그인과 워크북 이용은 전혀 제한되지 않아요.</b></div>`:''}
       <div class="auth-msg" id="authMsg"></div>
       <div id="svForm">${surveyFormHTML(authState.surveyKey)}</div>
-      <button class="btn block" id="surveySubmitBtn" style="margin-top:8px" onclick="submitSurvey()">${authState.surveyCtx==='gate'?'제출하고 로그인':'가입 신청하기'}</button>
+      <button class="btn block" id="surveySubmitBtn" style="margin-top:8px" onclick="submitSurvey()">${isPromotion?'설문 제출하기':(authState.surveyCtx==='gate'?'제출하고 로그인':'가입 신청하기')}</button>
+      ${isPromotion?'<button class="btn ghost block" style="margin-top:8px" onclick="closePromotionSurveyForm()">나중에 작성</button>':''}
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&!me.obs)?'<button class="btn ghost block" style="margin-top:8px" onclick="skipSurveyTest()">⏭ 설문 생략하고 입장 (테스트봇)</button>':''}
       ${(authState.surveyCtx==='gate'&&me&&isTestBot(me)&&me.obs)?'<div class="auth-p" style="margin-top:8px;font-size:12px">관찰 모드 — 생략 없이 전 과정을 체험합니다.</div>':''}
       ${authState.surveyCtx==='gate'?'<div class="auth-foot"><b style="cursor:pointer" onclick="logout()">로그아웃</b></div>':''}`;
@@ -4481,18 +4510,136 @@ async function submitNewPw(){
 }
 /* 설문 '실제 완료' 판정 — 답이 1개 이상 들어있어야 완료로 인정(빈 껍데기·강제삽입은 미완료 처리) */
 function surveyDone(u,key){if(!u||!u.surveys)return false;var r=u.surveys[key];if(!r)return false;var a=r.answers;return !!(a&&typeof a==='object'&&Object.keys(a).length>0);}
-function continueLogin(u){
-  try{lsSet('presence_lastauth',Date.now());}catch(e){}   /* 실제 인증(비번/Face ID) 시점 — 30일 재인증 기준 */
-  const rk=reqSurvey(u.role,u.name);
-  if(rk && SURVEYS[rk] && !surveyDone(u,rk)){ // 직급에 맞는 설문 미완료 → 게이팅
-    authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
-    authMsg(`✅ ${ROLE_LABEL[u.role]} 설문만 완료하면 바로 로그인돼요 · 마지막 한 단계예요!`,'info');return;
+function surveyRecordFor(uid,key){return (state.promotionSurveyResponses&&state.promotionSurveyResponses[uid]&&state.promotionSurveyResponses[uid][key])||(state.users[uid]&&state.users[uid].surveys&&state.users[uid].surveys[key])||null;}
+/* 승진 설문은 로그인과 완전히 분리한다.
+   초대는 promotionSurveys/{uid}/{surveyKey}에 보관하고, 전용 링크는 대상자 본인과 관리자만 열 수 있다. */
+function promotionLinkRequest(){
+  try{
+    const raw=new URLSearchParams(location.search).get('promotionSurvey');if(!raw)return null;
+    const p=String(raw).split('.');if(p.length!==3||!p[0]||!SURVEYS[p[1]]||!/^[A-Za-z0-9_-]{12,80}$/.test(p[2]))return null;
+    return {uid:p[0],surveyKey:p[1],token:p[2]};
+  }catch(e){return null}
+}
+function promotionInviteFor(uid,key){return state.promotionSurveys&&state.promotionSurveys[uid]&&state.promotionSurveys[uid][key]||null;}
+function promotionSurveyLink(invite){
+  if(!invite)return '';
+  const u=new URL(location.origin+location.pathname);u.searchParams.set('promotionSurvey',[invite.uid,invite.surveyKey,invite.token].join('.'));return u.toString();
+}
+function promotionToken(){
+  try{return crypto.randomUUID().replace(/-/g,'')}catch(e){return String(Date.now())+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}
+}
+function buildPromotionInvite(u,role,key){return {uid:u.uid,name:u.name||'',role:role,surveyKey:key,token:promotionToken(),status:'pending',createdAt:Date.now(),createdBy:(me&&me.uid)||u.uid,completedAt:0};}
+function promotionRecords(){
+  const out=[];Object.keys(state.promotionSurveys||{}).forEach(uid=>Object.keys(state.promotionSurveys[uid]||{}).forEach(key=>{const r=state.promotionSurveys[uid][key];if(r&&r.uid&&SURVEYS[r.surveyKey])out.push(r)}));
+  return out.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+}
+function pendingPromotionSurveyInvites(){
+  if(!me)return [];
+  return promotionRecords().filter(r=>r.status==='pending'&&(isFounder(me)||r.uid===me.uid)&&!surveyDone(state.users[r.uid]||(r.uid===me.uid?me:null),r.surveyKey));
+}
+function clearPromotionSurveyQuery(){
+  try{const u=new URL(location.href);u.searchParams.delete('promotionSurvey');history.replaceState(history.state,'',u.pathname+(u.search?u.search:'')+(u.hash||''));}catch(e){}
+}
+async function ensurePromotionInvite(u){
+  const key=reqSurvey(u&&u.role,u&&u.name);if(!u||!key||!SURVEYS[key])return null;
+  let current=promotionInviteFor(u.uid,key);
+  if(!current&&LIVE){try{current=await DB.get('promotionSurveys/'+u.uid+'/'+key);}catch(e){console.warn('[promotion invite read]',e&&e.code||e)}}
+  if(surveyDone(u,key)){
+    if(current&&current.status==='pending'){
+      const done={...current,status:'completed',completedAt:(u.surveys[key]&&u.surveys[key].t)||Date.now(),completedBy:u.uid};
+      state.promotionSurveys[u.uid]=state.promotionSurveys[u.uid]||{};state.promotionSurveys[u.uid][key]=done;
+      if(LIVE)DB.set('promotionSurveys/'+u.uid+'/'+key,done).catch(e=>console.warn('[promotion invite reconcile]',e&&e.code||e));
+    }
+    return null;
   }
+  if(current){state.promotionSurveys[u.uid]=state.promotionSurveys[u.uid]||{};state.promotionSurveys[u.uid][key]=current;return current;}
+  const draft=buildPromotionInvite(u,u.role,key);
+  if(LIVE){
+    try{const r=await DB.tx('promotionSurveys/'+u.uid+'/'+key,old=>old||draft);current=r&&r.snapshot||draft;}
+    catch(e){console.warn('[promotion invite create]',e&&e.code||e);return null;}
+  }else current=draft;
+  state.promotionSurveys[u.uid]=state.promotionSurveys[u.uid]||{};state.promotionSurveys[u.uid][key]=current;
+  renderBell();if(isFounder(me))renderPromotionSurveyAdmin();schedulePromotionSurveyPopup(250);return current;
+}
+function promoDate(ts){if(!ts)return '';try{return new Date(ts).toLocaleDateString('ko-KR',{year:'numeric',month:'short',day:'numeric'});}catch(e){return ''}}
+async function copyPromotionSurveyLink(uid,key,token){
+  const rec=promotionInviteFor(uid,key)||{uid,surveyKey:key,token};const link=promotionSurveyLink(rec);if(!link)return;
+  try{await navigator.clipboard.writeText(link);toast('승진 설문 링크를 복사했어요 📋');}
+  catch(e){const inp=document.getElementById('promotionSurveyLinkInput');if(inp){inp.focus();inp.select();try{document.execCommand('copy');toast('승진 설문 링크를 복사했어요 📋');return}catch(_){}}prompt('아래 링크를 복사해 주세요',link);}
+}
+function showPromotionInfo(rec,mode){
+  const box=document.getElementById('promotionSurveyModalBody');if(!box||!rec)return;
+  const target=me&&me.uid===rec.uid,admin=me&&isFounder(me),done=rec.status==='completed';
+  const link=promotionSurveyLink(rec);const role=ROLE_LABEL[rec.role]||rec.role||rec.surveyKey;
+  box.innerHTML=`<div class="promo-survey-hero"><span class="promo-survey-icon">${done?'✅':'📨'}</span><div class="promo-survey-copy"><h3 id="promotionSurveyTitle">${done?`${esc(rec.name)}님 설문이 완료되었어요`:`${esc(rec.name)}님 설문지가 도착했어요`}</h3><p>${done?`${esc(role)} 설문이 안전하게 대상자 자료로 기록되었습니다.`:`${target?'승진을 축하해요! 편할 때 전용 링크에서 작성해 주세요.':'대상자에게 아래 전용 링크를 보내면 본인 로그인 후 작성할 수 있어요.'}`}</p></div></div>
+    ${done?'':`<div class="promo-survey-link"><input id="promotionSurveyLinkInput" readonly value="${esc(link)}" aria-label="승진 설문 전용 링크"><button class="btn ghost" onclick="copyPromotionSurveyLink('${rec.uid}','${rec.surveyKey}','${rec.token}')">링크 복사</button></div>`}
+    <div class="promo-survey-note">🔓 설문 미완료 상태여도 로그인과 워크북 이용은 제한되지 않습니다.<br>🔒 설문 작성은 대상자 본인 계정에서만 가능하고, 응답 내용은 관리자만 볼 수 있어요.</div>
+    <div class="promo-survey-actions">${!done&&target?`<button class="btn" onclick="openPromotionSurveyForm('${rec.uid}','${rec.surveyKey}','${rec.token}')">설문 참여하기</button>`:''}${!done&&admin&&!target?`<button class="btn" onclick="copyPromotionSurveyLink('${rec.uid}','${rec.surveyKey}','${rec.token}')">대상자 링크 복사</button>`:''}<button class="btn ghost" onclick="closeModal('promotionSurveyModal')">${done?'확인':'나중에'}</button></div>`;
+  openModal('promotionSurveyModal');
+}
+function showPromotionAccessMessage(title,msg){
+  const box=document.getElementById('promotionSurveyModalBody');if(!box)return;
+  box.innerHTML=`<div class="promo-survey-hero"><span class="promo-survey-icon">🔒</span><div class="promo-survey-copy"><h3 id="promotionSurveyTitle">${esc(title)}</h3><p>${esc(msg)}</p></div></div><div class="promo-survey-actions"><button class="btn ghost" onclick="closeModal('promotionSurveyModal');clearPromotionSurveyQuery()">확인</button></div>`;openModal('promotionSurveyModal');
+}
+function openPromotionSurveyInvite(uid,key,token){
+  const rec=promotionInviteFor(uid,key);
+  if(!me){return}
+  if(!rec||rec.token!==token){showPromotionAccessMessage('설문 링크를 확인할 수 없어요','링크가 만료되었거나 대상자 계정이 아닙니다. 관리자에게 새 링크를 요청해 주세요.');return}
+  if(rec.status==='completed'){showPromotionInfo(rec,'completed');clearPromotionSurveyQuery();return}
+  if(me.uid!==uid){
+    if(isFounder(me)){showPromotionInfo(rec,'admin');return}
+    showPromotionAccessMessage('대상자 전용 링크예요','이 설문은 지정된 대상자 본인 계정으로 로그인해야 작성할 수 있어요.');return;
+  }
+  showPromotionInfo(rec,'target');
+}
+function openPromotionSurveyForm(uid,key,token){
+  const rec=promotionInviteFor(uid,key);if(!me||me.uid!==uid||!rec||rec.token!==token||rec.status!=='pending'){toast('대상자 본인만 참여할 수 있어요');return}
+  closeModal('promotionSurveyModal');surveySubmitInFlight=false;authState.view='survey';authState.surveyKey=key;authState.surveyCtx='promotion';authState.promotionUid=uid;authState.promotionToken=token;authState.sel={};renderAuth();
+}
+function closePromotionSurveyForm(){
+  surveySubmitInFlight=false;authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,promotionUid:null,promotionToken:null,sel:{}};
+  const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true')}clearPromotionSurveyQuery();toast('설문은 알림이나 관리자에게 받은 링크에서 언제든 작성할 수 있어요');
+}
+async function maybeShowPromotionSurveyPopup(){
+  if(!me||!document.body.classList.contains('app-on')||window.__promotionPopupBusy)return;
+  window.__promotionPopupBusy=true;
+  try{
+    const req=promotionLinkRequest();
+    if(req){
+      let rec=promotionInviteFor(req.uid,req.surveyKey);
+      if(!rec&&LIVE&&(me.uid===req.uid||isFounder(me))){try{rec=await DB.get('promotionSurveys/'+req.uid+'/'+req.surveyKey);if(rec){state.promotionSurveys[req.uid]=state.promotionSurveys[req.uid]||{};state.promotionSurveys[req.uid][req.surveyKey]=rec;}}catch(e){}}
+      openPromotionSurveyInvite(req.uid,req.surveyKey,req.token);return;
+    }
+    const pending=pendingPromotionSurveyInvites();if(!pending.length)return;
+    const rec=pending[0],seen=window.__promotionPopupShown||(window.__promotionPopupShown={});const id=rec.uid+'|'+rec.surveyKey+'|'+rec.token;if(seen[id])return;
+    const other=document.querySelector('.modal.on:not(#promotionSurveyModal)');if(other){schedulePromotionSurveyPopup(900);return}
+    seen[id]=1;showPromotionInfo(rec,isFounder(me)&&me.uid!==rec.uid?'admin':'target');
+  }finally{window.__promotionPopupBusy=false}
+}
+function schedulePromotionSurveyPopup(ms){clearTimeout(window.__promotionPopupTimer);window.__promotionPopupTimer=setTimeout(maybeShowPromotionSurveyPopup,ms||700);}
+function applyPromotionSurveyState(next){
+  const prev=state.promotionSurveys||{};state.promotionSurveys=next||{};
+  if(me&&isFounder(me)){
+    promotionRecords().forEach(r=>{const old=prev[r.uid]&&prev[r.uid][r.surveyKey];if(old&&old.status==='pending'&&r.status==='completed')showPromotionInfo(r,'completed')});
+    renderPromotionSurveyAdmin();
+  }
+  if(me){renderBell();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();schedulePromotionSurveyPopup(500)}
+}
+function renderPromotionSurveyAdmin(){
+  const box=document.getElementById('promotionSurveyAdminList'),badge=document.getElementById('promotionSurveyBadge');if(!box||!me||!isFounder(me))return;
+  const all=promotionRecords(),pending=all.filter(r=>r.status==='pending'&&!surveyDone(state.users[r.uid],r.surveyKey));if(badge){badge.textContent=pending.length;badge.classList.toggle('zero',pending.length===0)}
+  const rows=pending.concat(all.filter(r=>r.status==='completed').slice(0,5));
+  box.innerHTML=rows.length?rows.map(r=>`<div class="promo-admin-row"><div><div class="promo-admin-name">${r.status==='completed'?'✅':'📨'} ${esc(r.name)} · ${esc(ROLE_LABEL[r.role]||r.role||r.surveyKey)}</div><div class="promo-admin-meta">${r.status==='completed'?`완료 ${promoDate(r.completedAt)}`:`대기 중 · 생성 ${promoDate(r.createdAt)}`}</div></div><div class="promo-admin-actions">${r.status==='pending'?`<button class="btn ghost sm" onclick="copyPromotionSurveyLink('${r.uid}','${r.surveyKey}','${r.token}')">링크 복사</button>`:`<button class="btn ghost sm" onclick="viewSurvey('${r.uid}','${r.surveyKey}')">응답 보기</button>`}</div></div>`).join(''):'<div class="empty-row">진행 중인 승진 설문이 없어요</div>';
+}
+function continueLogin(u,isAutoRestore){
+  if(!isAutoRestore)try{lsSet('presence_lastauth',Date.now());}catch(e){}   /* 실제 인증(비번/Face ID) 시점 — 60일 재인증 기준 */
+  /* 승진 설문은 더 이상 로그인 게이트가 아니다. 초대 생성도 로그인 성공을 기다리게 하지 않는다. */
   u.lastLogin=Date.now();if(LIVE)DB.set('users/'+u.uid+'/lastLogin',u.lastLogin);
   const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
   try{window.showPresenceLoader&&window.showPresenceLoader('로그인 완료 · 나의 공간으로 이동하는 중…');}catch(e){}
   armPostAuthGuard(u);
   enterApp();
+  ensurePromotionInvite(u).catch(e=>console.warn('[promotion invite]',e&&e.code||e));
 }
 let postAuthGuardTimer=0;
 function armPostAuthGuard(u){
@@ -4596,7 +4743,28 @@ async function submitSurvey(){
     authState.draftPw=null;
     surveySubmitInFlight=false;
     authState.view='pending';renderAuth();
-  }else{ // gate: 이미 active 사용자, 승격 설문 완료 → 바로 입장
+  }else if(authState.surveyCtx==='promotion'){
+    const uid=authState.promotionUid,token=authState.promotionToken,invite=promotionInviteFor(uid,key);
+    if(!me||me.uid!==uid||!invite||invite.token!==token||invite.status!=='pending'){
+      surveySubmitInFlight=false;if(submitBtn){submitBtn.disabled=false;submitBtn.removeAttribute('aria-busy');submitBtn.textContent='설문 제출하기'}authMsg('대상자 본인 계정에서 유효한 링크로 다시 열어 주세요','err');return;
+    }
+    const savedAt=Date.now(),doneInvite={...invite,status:'completed',completedAt:savedAt,completedBy:me.uid};
+    try{
+      const marker={t:savedAt,private:true};
+      if(LIVE)await DB.update('',{['users/'+me.uid+'/surveys/'+key]:marker,['users/'+me.uid+'/lastLogin']:savedAt,['promotionSurveyResponses/'+me.uid+'/'+key]:rec,['promotionSurveys/'+me.uid+'/'+key]:doneInvite});
+      me.surveys=me.surveys||{};me.surveys[key]=rec;me.lastLogin=savedAt;state.promotionSurveys[me.uid]=state.promotionSurveys[me.uid]||{};state.promotionSurveys[me.uid][key]=doneInvite;state.promotionSurveyResponses[me.uid]=state.promotionSurveyResponses[me.uid]||{};state.promotionSurveyResponses[me.uid][key]=rec;
+      if(ans.firstField&&me.name&&!isTestBot(me)){const _mi=miGet(me.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)await DB.set('memberInfo/'+nk(me.name),_mi);}
+    }catch(e){
+      console.error('[promotion survey save]',e);surveySubmitInFlight=false;
+      if(submitBtn){submitBtn.disabled=false;submitBtn.removeAttribute('aria-busy');submitBtn.textContent='다시 제출하기'}
+      authMsg('설문 저장 연결이 잠시 끊겼어요. 작성 내용은 그대로예요. 다시 제출해 주세요.','err');return;
+    }
+    sendSurveyToSheet(me,key,rec);surveySubmitInFlight=false;
+    authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,promotionUid:null,promotionToken:null,sel:{}};
+    const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true')}clearPromotionSurveyQuery();renderBell();renderPromotionSurveyAdmin();
+    if(LIVE&&FOUNDER.uid!==me.uid)addNotif(FOUNDER.uid,{type:'promotionSurveyDone',name:me.name,role:me.role,surveyKey:key,t:Date.now(),read:false});
+    showPromotionInfo(doneInvite,'completed');toast('승진 설문이 안전하게 저장됐어요 ✅');
+  }else{ // 레거시 게이트 호환: 기존 화면이 남아 있어도 저장 후 입장
     if(isTestBot(me)){me.surveys=me.surveys||{};me.surveys[key]=rec;me.lastLogin=Date.now();surveySubmitInFlight=false;enterApp();toast('테스트봇 — 설문 체험 완료, 입장합니다');return;}
     const oldSurvey=me.surveys&&me.surveys[key],savedAt=Date.now();
     try{
@@ -4667,7 +4835,7 @@ function enterApp(){
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
   if(isFounder(me))finalizeComp();
-  showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);
+  showAnnounceIfNew();setTimeout(maybeShowGiftPopup,650);setTimeout(maybeGiftStartPopup,900);setTimeout(maybeShowWelcome,780);schedulePromotionSurveyPopup(1250);
   setTimeout(maybeAskFirstField,1100);setTimeout(maybeDemoFarmGift,1500);
   if(isFounder(me)){showRewardReminder();pullRoster({});renderManagerAdmin();setTimeout(function(){try{reconcileRetiredStatus();}catch(e){}try{reconcileAuthProfiles();}catch(e){}},1600);}
   setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
@@ -4680,6 +4848,7 @@ function reconcileAuthProfiles(){
 }
 async function logout(){
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginInFlight=false;clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
+  clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
   authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on','can-mod','can-daily','is-bot');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal');setLoginBusy(true);authMsg('로그아웃을 안전하게 마무리하는 중이에요…','info');
   try{await DB.logout();}catch(e){}finally{window.__logoutBusy=false;setLoginBusy(false);const m=document.getElementById('authMsg');if(m&&m.textContent.indexOf('로그아웃을')===0)m.className='auth-msg'}
@@ -4699,15 +4868,7 @@ async function tryAutoLogin(){
   let u=null;try{u=await DB.restoreSession(s.uid);}catch(e){}if(!u||u.status!=='active'){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}
   state.users[u.uid]=u;
   if(u.mustChangePw){me=u;authState.view='newpw';renderAuth();return true;}
-  const rk=reqSurvey(u.role,u.name);
-  if(rk&&SURVEYS[rk]&&!surveyDone(u,rk)){
-    /* 유효한 자동로그인 세션을 버리고 로그인창으로 되돌리지 않는다.
-       승격 직후에는 곧바로 해당 직급 설문을 이어서 보여준다. */
-    me=u;authState.view='survey';authState.surveyKey=rk;authState.surveyCtx='gate';authState.sel={};renderAuth();
-    authMsg(`자동 로그인 확인 완료 · ${ROLE_LABEL[u.role]||u.role} 설문만 저장하면 바로 입장해요`,'info');
-    return true;
-  }
-  me=u;enterApp();return true;
+  me=u;continueLogin(u,true);return true;
 }
 
 /* ============================================================
@@ -7018,7 +7179,7 @@ function renderAdmin(){
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
   document.getElementById('pendList').innerHTML=pend.length?pend.map(u=>`<div class="pend"><span class="pav" style="background:${avColor(u.name)}">${avInner(u.name)}</span><div class="pinfo"><div class="pn">${esc(u.name)} <span style="font-size:11px;color:var(--muted)">· ${ROLE_LABEL[u.role]}</span></div><div class="pid">@${esc(u.id)}</div></div><div class="pacts"><button class="vbtn view" onclick="viewSurvey('${u.uid}','${u.role}')">설문</button><button class="vbtn ok" onclick="approve('${u.uid}')">승인</button><button class="vbtn no" onclick="reject('${u.uid}')">거절</button></div></div>`).join(''):'<div class="empty-row">승인 대기 중인 가입 신청이 없어요</div>';
-  renderSurveyResponses();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderMemberAdmin();renderDepartedAdmin();renderDataUsage();renderSalesMgr();updateCounts();
+  renderSurveyResponses();renderPromotionSurveyAdmin();renderTokenAdmin();renderAnnounceAdmin();renderRewardAdmin();renderMemberAdmin();renderDepartedAdmin();renderDataUsage();renderSalesMgr();updateCounts();
 }
 function tokenIssued(){
   const grants=state.tokenGrants||{},log=state.tokenLog||[],net={};
@@ -8032,7 +8193,7 @@ function renderSurveyResponses(){
   const active=document.getElementById('survListActive'),departed=document.getElementById('survListDeparted'),legacy=document.getElementById('survList');
   if(!active&&!legacy)return;
   const rowsA=[],rowsD=[];
-  Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=u.surveys[k];(isDeparted(u.name)?rowsD:rowsA).push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed});}})});
+  Object.values(state.users).forEach(u=>{if(isTestBot(u))return;Object.keys(u.surveys||{}).forEach(k=>{if(SURVEYS[k]){const rec=surveyRecordFor(u.uid,k)||u.surveys[k];(isDeparted(u.name)?rowsD:rowsA).push({uid:u.uid,name:u.name,role:u.role,key:k,t:rec.t||0,seed:!!rec._seed});}})});
   const sf=(a,b)=>b.t-a.t;rowsA.sort(sf);rowsD.sort(sf);
   const row=r=>`<button class="surv-row" onclick="viewSurvey('${r.uid}','${r.key}')"><span class="surv-av" style="background:${avColor(r.name)}">${avInner(r.name)}</span><span class="surv-info"><span class="surv-nm">${esc(r.name)} <span class="surv-role">· ${esc(r.role)}</span></span><span class="surv-meta">${esc(SURVEYS[r.key].title)}${r.seed?' · 데모':(r.t?' · '+new Date(r.t).toLocaleDateString('ko-KR'):'')}</span></span><span class="surv-go">보기 →</span></button>`;
   const total=rowsA.length+rowsD.length;
@@ -8049,7 +8210,20 @@ function renderSurveyResponses(){
 async function approve(uid){const u=state.users[uid];if(!u)return;const old=u.status;u.status='active';renderAdmin();try{if(LIVE)await DB.updateAccount(u,{role:u.role,status:'active'});}catch(e){u.status=old;renderAdmin();console.error('[approve account]',e);toast('승인 저장에 실패했어요. 연결을 확인한 뒤 다시 눌러 주세요');return;}syncCallbackProfile(u);miSetJoin(u.name);syncMemberToSheet(u.name,u.role);renderAdmin();toast(`${u.name}님 가입을 승인했어요 ✓ · 로그인 권한까지 함께 활성화됐어요`)}
 function reject(uid){const u=state.users[uid];if(!u)return;if(!confirm(`${u.name}님을 삭제할까요?`))return;delete state.users[uid];if(LIVE)DB.set('users/'+uid,null);renderAdmin();toast('삭제했어요')}
 async function resetPw(uid){const u=state.users[uid];if(!u)return;const np=prompt(`${u.name}님의 새 임시 비밀번호를 입력하세요 (이 비번을 본인에게 알려주세요)`,'presence'+Math.floor(Math.random()*900+100));if(!np)return;if(np.length<4){toast('4자 이상으로 해주세요');return}u.mustChangePw=true;if(LIVE){await DB.changePassword(u,hash(np));DB.set('users/'+uid+'/mustChangePw',true);}alert(`${u.name}님의 임시 비밀번호는\n\n${np}\n\n입니다. 본인에게 알려주세요.\n(${u.name}님이 처음 로그인하면 새 비밀번호를 직접 설정하게 됩니다.)`);toast('임시 비밀번호를 발급했어요 · 본인이 첫 로그인 시 변경합니다')}
-async function changeRole(uid,role){const u=state.users[uid];if(!u)return;const old=u.role;u.role=role;renderAdmin();try{if(LIVE)await DB.updateAccount(u,{role:role,status:u.status});}catch(e){u.role=old;renderAdmin();console.error('[change role account]',e);toast('직급 변경 저장에 실패했어요. 연결을 확인한 뒤 다시 눌러 주세요');return;}syncCallbackProfile(u);const rk=reqSurvey(role,u.name);toast(rk&&(!u.surveys||!u.surveys[rk])?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급! 로그인 권한도 함께 반영됐어요. 다음 입장 때 설문이 바로 이어져요`:`${u.name}님 직급과 로그인 권한을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);renderAdmin()}
+async function changeRole(uid,role){
+  const u=state.users[uid];if(!u)return;const old=u.role,rk=reqSurvey(role,u.name),needsInvite=old!==role&&rk&&SURVEYS[rk]&&!surveyDone(u,rk);
+  let invite=null;if(needsInvite){const cur=promotionInviteFor(uid,rk);invite=(cur&&cur.status==='pending')?cur:buildPromotionInvite(u,role,rk);}
+  u.role=role;renderAdmin();
+  try{if(LIVE)await DB.updatePromotionAccount(u,role,invite);}
+  catch(e){u.role=old;renderAdmin();console.error('[change role account]',e);toast('직급 변경 저장에 실패했어요. 연결을 확인한 뒤 다시 눌러 주세요');return;}
+  if(invite){
+    state.promotionSurveys[uid]=state.promotionSurveys[uid]||{};state.promotionSurveys[uid][rk]=invite;
+    addNotif(uid,{type:'promotionSurvey',name:u.name,role:role,surveyKey:rk,token:invite.token,t:Date.now(),read:false,target:{promotionUid:uid,surveyKey:rk,token:invite.token}});
+  }
+  syncCallbackProfile(u);
+  toast(invite?`${u.name}님 → ${ROLE_LABEL[role]||role} 승급 완료! 로그인은 즉시 가능하고 설문 링크가 발급됐어요`:`${u.name}님 직급과 로그인 권한을 ${ROLE_LABEL[role]||role}(으)로 변경했어요`);
+  renderAdmin();renderBell();
+}
 function gfAvatarHTML(name){return `<span class="av" style="background:${avColor(name)}">${avInner(name)}</span>`;}
 function gfAnswerHTML(v){
   if(v==null||v===''||(Array.isArray(v)&&v.length===0))return '<div class="gf-a empty">응답 없음</div>';
@@ -8063,7 +8237,7 @@ function downloadSurveysCSV(){
   Object.values(state.users||{}).forEach(u=>{
     if(isTestBot(u))return;
     Object.keys(u.surveys||{}).forEach(k=>{
-      const rec=u.surveys[k];if(!rec||rec._seed||!SURVEYS[k])return;
+      const rec=surveyRecordFor(u.uid,k)||u.surveys[k];if(!rec||rec._seed||!SURVEYS[k]||!rec.answers)return;
       (byKey[k]=byKey[k]||[]).push({u,rec});
     });
   });
@@ -8092,8 +8266,8 @@ function downloadSurveysCSV(){
 }
 function viewSurvey(uid,key){
   if(me&&!isFounder(me)){toast('설문은 관리자만 열람할 수 있어요');return}
-  const u=state.users[uid];if(!u||!u.surveys[key]||!SURVEYS[key]){toast('해당 설문 응답이 없어요');return}
-  const S=SURVEYS[key],rec=u.surveys[key],a=rec.answers||{};
+  const u=state.users[uid],rec=surveyRecordFor(uid,key);if(!u||!rec||!rec.answers||!SURVEYS[key]){toast('해당 설문 응답이 없어요');return}
+  const S=SURVEYS[key],a=rec.answers||{};
   const meta=rec._seed?'데모 시드 · 실제 응답 아님':(rec.t?new Date(rec.t).toLocaleString('ko-KR'):'');
   const header=`<div class="gf-card gf-head"><div class="gf-title">${esc(S.title)}</div>${S.intro?`<div class="gf-desc">${esc(S.intro)}</div>`:''}<div class="gf-resp">${gfAvatarHTML(u.name)}<span class="nm">${esc(u.name)} <span style="color:#80868b;font-weight:600">· ${esc(u.role)}</span></span><span class="meta">${esc(meta)}</span></div></div>`;
   const body=rec._seed
@@ -8157,8 +8331,8 @@ function addNotif(uid,n){if(!state.notifs[uid])state.notifs[uid]=[];state.notifs
 function notifyMentions(text,ctx,by,target){const ms=parseMentions(text);ms.forEach(u=>{if(me&&u.uid===me.uid)return;addNotif(u.uid,{by:by||(me?me.name:'누군가'),ctx,text:(text||'').slice(0,90),t:Date.now(),read:false,target:target||null})});if(ms.length){renderBell();toast('🔔 '+ms.map(u=>u.name).join(', ')+'님에게 알림을 보냈어요')}}
 function myNotifs(){return (me&&state.notifs[me.uid])?state.notifs[me.uid]:[]}
 function pendingApprovalUsers(){return (me&&isFounder(me))?Object.values(state.users||{}).filter(u=>u&&u.status==='pending'):[]}
-function bellBaseCount(){return myNotifs().filter(n=>!n.read).length+pendingApprovalUsers().length}
-function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=bellBaseCount();b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0);const btn=document.getElementById('bellBtn');if(btn){const p=pendingApprovalUsers().length;btn.setAttribute('aria-label',p?`알림 · 가입 승인 대기 ${p}명`:'알림');btn.title=p?`가입 승인 대기 ${p}명`:''}}
+function bellBaseCount(){return myNotifs().filter(n=>!n.read&&n.type!=='promotionSurvey').length+pendingApprovalUsers().length+pendingPromotionSurveyInvites().length}
+function renderBell(){const b=document.getElementById('bellBadge');if(!b||!me)return;const un=bellBaseCount();b.textContent=un>9?'9+':un;b.classList.toggle('show',un>0);const btn=document.getElementById('bellBtn');if(btn){const p=pendingApprovalUsers().length,s=pendingPromotionSurveyInvites().length;btn.setAttribute('aria-label',s?`알림 · 승진 설문 ${s}건 대기`:(p?`알림 · 가입 승인 대기 ${p}명`:'알림'));btn.title=s?`승진 설문 ${s}건 대기`:(p?`가입 승인 대기 ${p}명`:'')}}
 function openPendingApprovals(){closeModal('notifModal');goTab('admin');setTimeout(function(){const el=document.getElementById('pendList');if(el){try{el.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){el.scrollIntoView()}}},120)}
 /* 알림 클릭 → 태그된 위치로 이동 (댓글이면 그 카드로 스크롤·하이라이트) */
 function notifOpen(t){
@@ -8166,6 +8340,7 @@ function notifOpen(t){
   var n=myNotifs().find(function(x){return x.t===t;}); if(!n)return;
   if(!n.read){n.read=true; if(LIVE)DB.set('notifs/'+me.uid,myNotifs()); renderBell();}
   try{closeModal('notifModal');}catch(e){}
+  if(n.type==='promotionSurvey'&&n.target){openPromotionSurveyInvite(n.target.promotionUid,n.target.surveyKey,n.target.token);return;}
   var tg=n.target; if(!tg||!tg.tab)return;
   if(typeof goTab==='function')goTab(tg.tab);
   if(tg.gid&&tg.tab){ setTimeout(function(){scrollToGcard(tg.tab,tg.gid);},420); }
@@ -8178,6 +8353,8 @@ function scrollToGcard(key,gid){
   setTimeout(function(){el.classList.remove('flash');},2000);
 }
 function notifInner(n){
+  if(n.type==='promotionSurvey'){return `<div class="notif-top">📨 <b>${esc(n.name||'회원')}님 승진 설문 도착</b></div><div class="notif-prev">${esc(ROLE_LABEL[n.role]||n.role||'승진')} 설문 전용 링크가 발급됐어요 · 로그인은 제한되지 않아요.</div><div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='promotionSurveyDone'){return `<div class="notif-top">✅ <b>${esc(n.name||'회원')}님 설문 완료</b></div><div class="notif-prev">승진 설문 응답이 대상자 자료로 안전하게 저장됐어요.</div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='tokengrant'){return `<div class="notif-top">🪙 <b>이벤트 먹이 토큰 지급 대기</b></div><div class="notif-prev"><b>${esc(n.title||'행사')}</b> 마감 · 참석 <b>${n.n||0}명</b> 집계 완료</div><div class="tg-acts"><button class="tg-give" onclick="evApproveGrant('${n.sid}')">🪙 지급 완료</button><button class="tg-hold" onclick="evHoldGrant('${n.sid}')">보류</button></div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='cheer'){return `<div class="notif-top"><b>🎉 첫 필드 ${n.day}일차 응원</b></div>${n.msg?`<div class="notif-prev">${esc(n.msg)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
@@ -8191,8 +8368,10 @@ function renderNotifList(){
   const box=document.getElementById('notifList');if(!box)return;
   const list=myNotifs().slice().sort((a,b)=>b.t-a.t);
   const pend=pendingApprovalUsers();
-  var h=pend.length?'<div class="notif-pending" id="pendingApprovalCard"><div class="notif-pending-top"><span>🔔 <b>가입 승인 대기 '+pend.length+'명</b></span><button class="notif-pending-go" onclick="openPendingApprovals()">바로 승인</button></div><div class="notif-pending-names">'+pend.map(function(u){return esc(u.name)+' · @'+esc(u.id);}).join('<br>')+'</div></div>':'';
-  if(!list.length&&!pend.length){ h+='<div class="rank-empty">받은 알림이 없어요</div>'; }
+  const promos=pendingPromotionSurveyInvites();
+  var h=promos.length?'<div class="notif-pending"><div class="notif-pending-top"><span>📨 <b>승진 설문 '+promos.length+'건 대기</b></span><button class="notif-pending-go" onclick="closeModal(\'notifModal\');openPromotionSurveyInvite(\''+promos[0].uid+'\',\''+promos[0].surveyKey+'\',\''+promos[0].token+'\')">'+(isFounder(me)?'링크 보기':'설문 참여')+'</button></div><div class="notif-pending-names">'+promos.map(function(r){return esc(r.name)+' · '+esc(ROLE_LABEL[r.role]||r.role||r.surveyKey);}).join('<br>')+'</div></div>':'';
+  h+=pend.length?'<div class="notif-pending" id="pendingApprovalCard"><div class="notif-pending-top"><span>🔔 <b>가입 승인 대기 '+pend.length+'명</b></span><button class="notif-pending-go" onclick="openPendingApprovals()">바로 승인</button></div><div class="notif-pending-names">'+pend.map(function(u){return esc(u.name)+' · @'+esc(u.id);}).join('<br>')+'</div></div>':'';
+  if(!list.length&&!pend.length&&!promos.length){ h+='<div class="rank-empty">받은 알림이 없어요</div>'; }
   if(list.length){
     h+=list.map(function(n){
       var cls='notif-item'+(notifIsReward(n)?' gift':'')+(n.read?'':' unread');
@@ -8712,7 +8891,7 @@ function openOxGuide(){closeModal('oxfamModal');openModal('oxGuideModal');}
    ============================================================ */
 const DB={
   push(){},set(){return Promise.resolve();},on(){},get(){return Promise.resolve(null);},update(){return Promise.resolve();},remove(){return Promise.resolve();},tx(){return Promise.resolve({committed:false,snapshot:null});},
-  login(){return Promise.resolve(null);},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},syncAccountProfile(){return Promise.resolve();},updateAccount(){return Promise.resolve();},clearProfitRecapSession(){},logout(){}
+  login(){return Promise.resolve(null);},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},syncAccountProfile(){return Promise.resolve();},updateAccount(){return Promise.resolve();},updatePromotionAccount(){return Promise.resolve();},clearProfitRecapSession(){},logout(){}
 };
 function authKey(id){return String(id||'').trim().toLowerCase().replace(/[.#$\/\[\]]/g,'_');}
 async function initFirebase(){
@@ -8728,7 +8907,7 @@ async function initFirebase(){
   const rawOn=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
   const within=(promise,ms,stage)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>{const e=new Error(stage+' timeout');e.code='network/timeout';reject(e);},ms))]);
   const profitRecapOff=[];
-  const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};};
+  const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};state.promotionSurveys={};state.promotionSurveyResponses={};};
   const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),8000,'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),8000,'anonymous sign-in')).user;};
   const unlock=async uid=>{const profileRequest=rawGet('users/'+uid),cfgRequest=rawGet('privateConfig');
     /* 웹훅·운영 설정은 로그인 판정에 필요하지 않다. 이를 먼저 기다리면 느린 연결에서
@@ -8738,9 +8917,12 @@ async function initFirebase(){
     clearProfitRecapSession();
     const owner=uid===FOUNDER.uid;
     if(owner){
+      profitRecapOff.push(rawOn('promotionSurveys',v=>applyPromotionSurveyState(v||{})));
+      profitRecapOff.push(rawOn('promotionSurveyResponses',v=>{state.promotionSurveyResponses=v||{};if(me&&isFounder(me)){renderSurveyResponses();renderPromotionSurveyAdmin();}}));
       profitRecapOff.push(rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
       profitRecapOff.push(rawOn('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};const mirror={};Object.keys(v||{}).forEach(month=>Object.keys(v[month]||{}).forEach(id=>{mirror['profitMonthlyBepPrivate/'+id+'/'+month]=v[month][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit BEP mirror]',e));if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&isFounder(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
     }else{
+      profitRecapOff.push(rawOn('promotionSurveys/'+uid,v=>applyPromotionSurveyState({[uid]:v||{}})));
       profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
       profitRecapOff.push(rawOn('profitMonthlyBepPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(month=>{own[month]={[uid]:v[month]};});state.profitMonthlyBep=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
     }
@@ -8771,6 +8953,7 @@ async function initFirebase(){
      pwHash는 건드리지 않으며, 승격/승인 시 두 저장소가 다시 어긋나지 않게 한다. */
   DB.syncAccountProfile=async u=>fb.update(fb.ref(db,'privateAuth/byId/'+authKey(u.loginKey||u.id)),{role:u.role,status:u.status});
   DB.updateAccount=async(u,patch)=>{const next={...u,...(patch||{})},key=authKey(u.loginKey||u.id),updates={};if(Object.prototype.hasOwnProperty.call(patch||{},'role')){updates['users/'+u.uid+'/role']=next.role;updates['privateAuth/byId/'+key+'/role']=next.role;}if(Object.prototype.hasOwnProperty.call(patch||{},'status')){updates['users/'+u.uid+'/status']=next.status;updates['privateAuth/byId/'+key+'/status']=next.status;}return fb.update(fb.ref(db),updates);};
+  DB.updatePromotionAccount=async(u,role,invite)=>{const key=authKey(u.loginKey||u.id),updates={};updates['users/'+u.uid+'/role']=role;updates['privateAuth/byId/'+key+'/role']=role;if(invite)updates['promotionSurveys/'+u.uid+'/'+invite.surveyKey]=invite;return fb.update(fb.ref(db),updates);};
   DB.logout=async()=>{clearProfitRecapSession();try{if(auth.currentUser)await rawSet('authSessions/'+auth.currentUser.uid,null);}catch(e){}try{await authMod.signOut(auth);}catch(e){}};
   window.__PRESENCE_SECURE_DB={on:(p,cb)=>DB.on(p,cb),set:(p,v)=>DB.set(p,v),update:(p,v)=>DB.update(p,v),remove:p=>DB.remove(p),tx:(p,fn)=>DB.tx(p,fn)};
   DB.on('.info/connected',v=>{setConn(!!v);});
@@ -11343,7 +11526,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-24.login-transition-16';
+const APP_VERSION='2026-08-27.promotion-invite-17';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
