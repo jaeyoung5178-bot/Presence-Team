@@ -437,6 +437,17 @@
         }
       }
     },
+    "promotionSurveyHistory": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active'",
+      "$uid": {
+        "$surveyKey": {
+          "$entryId": {
+            ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && !data.exists() && newData.child('token').val() == root.child('promotionSurveys').child($uid).child($surveyKey).child('token').val()))",
+            ".validate": "!newData.exists() || (newData.child('answers').exists() && newData.child('t').isNumber() && newData.child('token').isString())"
+          }
+        }
+      }
+    },
     "promotionSurveys": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active'",
       "$uid": {

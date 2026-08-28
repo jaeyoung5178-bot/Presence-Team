@@ -4535,7 +4535,9 @@ function promotionRecords(){
 }
 function pendingPromotionSurveyInvites(){
   if(!me)return [];
-  return promotionRecords().filter(r=>r.status==='pending'&&(isFounder(me)||r.uid===me.uid)&&!surveyDone(state.users[r.uid]||(r.uid===me.uid?me:null),r.surveyKey));
+  /* 재발급 설문은 기존 응답을 보존하므로 users/{uid}/surveys에 완료 기록이 있어도
+     pending 초대 자체를 기준으로 표시해야 한다. */
+  return promotionRecords().filter(r=>r.status==='pending'&&(isFounder(me)||r.uid===me.uid));
 }
 function clearPromotionSurveyQuery(){
   try{const u=new URL(location.href);u.searchParams.delete('promotionSurvey');history.replaceState(history.state,'',u.pathname+(u.search?u.search:'')+(u.hash||''));}catch(e){}
@@ -4544,6 +4546,11 @@ async function ensurePromotionInvite(u){
   const key=reqSurvey(u&&u.role,u&&u.name);if(!u||!key||!SURVEYS[key])return null;
   let current=promotionInviteFor(u.uid,key);
   if(!current&&LIVE){try{current=await DB.get('promotionSurveys/'+u.uid+'/'+key);}catch(e){console.warn('[promotion invite read]',e&&e.code||e)}}
+  /* 관리자가 다시 발급한 pending 초대가 최우선이다. 예전 응답이 남아 있다는 이유로
+     로그인 순간 완료 처리하면 새 링크가 사라지므로 절대 자동 완료하지 않는다. */
+  if(current&&current.status==='pending'){
+    state.promotionSurveys[u.uid]=state.promotionSurveys[u.uid]||{};state.promotionSurveys[u.uid][key]=current;return current;
+  }
   if(surveyDone(u,key)){
     if(current&&current.status==='pending'){
       const done={...current,status:'completed',completedAt:(u.surveys[key]&&u.surveys[key].t)||Date.now(),completedBy:u.uid};
@@ -4627,7 +4634,7 @@ function applyPromotionSurveyState(next){
 }
 function renderPromotionSurveyAdmin(){
   const box=document.getElementById('promotionSurveyAdminList'),badge=document.getElementById('promotionSurveyBadge');if(!box||!me||!isFounder(me))return;
-  const all=promotionRecords(),pending=all.filter(r=>r.status==='pending'&&!surveyDone(state.users[r.uid],r.surveyKey));if(badge){badge.textContent=pending.length;badge.classList.toggle('zero',pending.length===0)}
+  const all=promotionRecords(),pending=all.filter(r=>r.status==='pending');if(badge){badge.textContent=pending.length;badge.classList.toggle('zero',pending.length===0)}
   const rows=pending.concat(all.filter(r=>r.status==='completed').slice(0,5));
   box.innerHTML=rows.length?rows.map(r=>`<div class="promo-admin-row"><div><div class="promo-admin-name">${r.status==='completed'?'✅':'📨'} ${esc(r.name)} · ${esc(ROLE_LABEL[r.role]||r.role||r.surveyKey)}</div><div class="promo-admin-meta">${r.status==='completed'?`완료 ${promoDate(r.completedAt)}`:`대기 중 · 생성 ${promoDate(r.createdAt)}`}</div></div><div class="promo-admin-actions">${r.status==='pending'?`<button class="btn ghost sm" onclick="copyPromotionSurveyLink('${r.uid}','${r.surveyKey}','${r.token}')">링크 복사</button>`:`<button class="btn ghost sm" onclick="viewSurvey('${r.uid}','${r.surveyKey}')">응답 보기</button>`}</div></div>`).join(''):'<div class="empty-row">진행 중인 승진 설문이 없어요</div>';
 }
@@ -4751,7 +4758,7 @@ async function submitSurvey(){
     const savedAt=Date.now(),doneInvite={...invite,status:'completed',completedAt:savedAt,completedBy:me.uid};
     try{
       const marker={t:savedAt,private:true};
-      if(LIVE)await DB.update('',{['users/'+me.uid+'/surveys/'+key]:marker,['users/'+me.uid+'/lastLogin']:savedAt,['promotionSurveyResponses/'+me.uid+'/'+key]:rec,['promotionSurveys/'+me.uid+'/'+key]:doneInvite});
+      if(LIVE)await DB.update('',{['users/'+me.uid+'/surveys/'+key]:marker,['users/'+me.uid+'/lastLogin']:savedAt,['promotionSurveyResponses/'+me.uid+'/'+key]:rec,['promotionSurveyHistory/'+me.uid+'/'+key+'/'+token]:{...rec,token:token,submittedAt:savedAt},['promotionSurveys/'+me.uid+'/'+key]:doneInvite});
       me.surveys=me.surveys||{};me.surveys[key]=rec;me.lastLogin=savedAt;state.promotionSurveys[me.uid]=state.promotionSurveys[me.uid]||{};state.promotionSurveys[me.uid][key]=doneInvite;state.promotionSurveyResponses[me.uid]=state.promotionSurveyResponses[me.uid]||{};state.promotionSurveyResponses[me.uid][key]=rec;
       if(ans.firstField&&me.name&&!isTestBot(me)){const _mi=miGet(me.name);_mi.join=ans.firstField;_mi.left=null;if(LIVE)await DB.set('memberInfo/'+nk(me.name),_mi);}
     }catch(e){
@@ -7728,16 +7735,28 @@ function mbSetRole(uid,role){if(!(me&&isFounder(me)))return;changeRole(uid,role)
 function mbToggleMgr(){if(!mbName||!(me&&isFounder(me)))return;toggleManager(mbName);if(document.getElementById('memberModal').classList.contains('on'))renderMember();}
 function mbToggleSec(){if(!mbName||!(me&&isFounder(me)))return;toggleSectorLeader(mbName);if(document.getElementById('memberModal').classList.contains('on'))renderMember();}
 function mbResetPw(){if(!mbName||!(me&&isFounder(me)))return;var u=userByName(mbName);if(u)resetPw(u.uid);else toast('가입 계정이 없어요');}
-function mbResetSurvey(){
+async function mbResetSurvey(){
   if(!mbName||!(me&&isFounder(me)))return;
   var u=userByName(mbName);if(!u){toast('가입 계정이 없어요');return;}
   var rk=reqSurvey(u.role,u.name);
   if(!rk){toast('이 직급은 받을 설문이 없어요');return;}
   var lbl=(ROLE_LABEL[rk]||rk)+' 설문';
-  if(!confirm(u.name+'님의 '+lbl+' 기록을 지울까요?\n다음 로그인 때 '+lbl+'이(가) 다시 떠요. (첫필드 등 다른 정보는 그대로 유지)'))return;
-  if(u.surveys&&u.surveys[rk])delete u.surveys[rk];
-  if(LIVE)DB.set('users/'+u.uid+'/surveys/'+rk,null);
-  toast(u.name+'님 '+lbl+' 초기화 완료 · 다음 로그인 때 다시 떠요 ✅');
+  if(!confirm(u.name+'님의 '+lbl+' 전용 링크를 새로 발급할까요?\n\n· 기존 설문 응답은 보존됩니다.\n· 로그인·자동로그인·비밀번호·계정 상태에는 영향이 없습니다.\n· 대상자가 로그인 중이면 알림으로 바로 표시됩니다.'))return;
+  if(window.__surveyReissueBusy)return;window.__surveyReissueBusy=true;
+  var oldInvite=promotionInviteFor(u.uid,rk),oldRec=surveyRecordFor(u.uid,rk),invite=buildPromotionInvite(u,u.role,rk);
+  invite.reissued=true;invite.reissuedAt=invite.createdAt;invite.reissuedBy=me.uid;
+  var updates={};updates['promotionSurveys/'+u.uid+'/'+rk]=invite;
+  if(oldRec&&oldRec.answers){
+    var archiveId='before_'+String(oldRec.t||Date.now())+'_'+String((oldInvite&&oldInvite.token)||'legacy').replace(/[^A-Za-z0-9_-]/g,'').slice(0,18);
+    updates['promotionSurveyHistory/'+u.uid+'/'+rk+'/'+archiveId]={answers:oldRec.answers,t:oldRec.t||Date.now(),token:String((oldInvite&&oldInvite.token)||'legacy'),archivedAt:Date.now(),archivedBy:me.uid};
+  }
+  try{if(LIVE)await DB.update('',updates);}
+  catch(e){console.error('[survey link reissue]',e);window.__surveyReissueBusy=false;toast('설문 링크 발급에 실패했어요. 연결을 확인한 뒤 다시 눌러 주세요');return;}
+  state.promotionSurveys[u.uid]=state.promotionSurveys[u.uid]||{};state.promotionSurveys[u.uid][rk]=invite;
+  addNotif(u.uid,{type:'promotionSurvey',name:u.name,role:u.role,surveyKey:rk,token:invite.token,t:Date.now(),read:false,reissued:true,target:{promotionUid:u.uid,surveyKey:rk,token:invite.token}});
+  window.__promotionPopupShown=window.__promotionPopupShown||{};delete window.__promotionPopupShown[u.uid+'|'+rk+'|'+invite.token];
+  window.__surveyReissueBusy=false;renderBell();renderPromotionSurveyAdmin();showPromotionInfo(invite,'admin');
+  toast(u.name+'님 '+lbl+' 링크를 새로 발급했어요 · 로그인 영향 없음 ✅');
   if(document.getElementById('memberModal').classList.contains('on'))renderMember();
 }
 function mbDeleteAcct(){if(!mbName||!(me&&isFounder(me)))return;var u=userByName(mbName);if(!u){toast('가입 계정이 없어요');return;}reject(u.uid);if(!state.users[u.uid])closeMember();}
@@ -7816,7 +7835,7 @@ function renderMember(){
           +'</div></div>';
         h+='<div class="mb-mhint">🧑‍💼 매니저 = 일일 결과만 입력·수정 · 🗺️ 섹터리더 = 사이트 관리 · 🛡️ 리젝노트 · 🐑 셋업비서 = 해당 탭 사용 권한.</div>';
         h+='<div class="mb-mgrow"><span class="mb-mgl">계정</span><span class="mb-acctid">@'+esc(u.id)+'</span></div>';
-        if(!_isMe){var _rk=reqSurvey(u.role,u.name);h+='<div class="mb-mbtnrow"><button class="mb-mbtn" onclick="mbResetPw()">🔑 비번 재설정</button>'+(_rk?'<button class="mb-mbtn" onclick="mbResetSurvey()">🎫 '+(ROLE_LABEL[_rk]||_rk)+' 설문 다시받기</button>':'')+'<button class="mb-mbtn danger" onclick="mbDeleteAcct()">🗑️ 계정 삭제</button></div>';}
+        if(!_isMe){var _rk=reqSurvey(u.role,u.name);h+='<div class="mb-mbtnrow"><button class="mb-mbtn" onclick="mbResetPw()">🔑 비번 재설정</button>'+(_rk?'<button class="mb-mbtn" onclick="mbResetSurvey()">🎫 '+(ROLE_LABEL[_rk]||_rk)+' 설문 링크 재발급</button>':'')+'<button class="mb-mbtn danger" onclick="mbDeleteAcct()">🗑️ 계정 삭제</button></div>';}
         else h+='<div class="mb-mhint">본인(관리자) 계정이에요.</div>';
       } else {
         h+='<div class="mb-mhint">아직 <b>가입 계정이 없는</b> 팀원이에요. 본인이 회원가입(아이디 '+esc(FOUNDER.id)+' 로그인 화면의 “가입”)을 하면 직급·권한·설문·계정이 여기에 연결돼요.</div>';
@@ -11527,7 +11546,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-27.promotion-invite-18';
+const APP_VERSION='2026-08-28.promotion-reissue-19';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){

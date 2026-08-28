@@ -42,9 +42,11 @@ for (const fixture of fixtures) {
     const target = f.admin ? { uid: 'qa-target', name: '승진대상자', id: 'qa-target', role: f.survey, status: 'active', surveys: {} } : current;
     const invite = { uid: target.uid, name: target.name, role: target.role, surveyKey: f.survey, token: `qatoken${f.name.replace(/-/g, '')}123456`, status: 'pending', createdAt: Date.now(), createdBy: 'admin', completedAt: 0 };
     state.users = { [current.uid]: current, [target.uid]: target };
+    state.extraMembers = f.admin ? [target.name] : [];
     state.promotionSurveys = { [target.uid]: { [f.survey]: invite } };
     me = current;
     continueLogin(current);
+    if (f.admin) { window.__adminOff = false; window.__previewRole = null; }
     const app = document.getElementById('app');
     const gate = document.getElementById('authGate');
     const result = {
@@ -113,9 +115,69 @@ for (const fixture of fixtures) {
     }));
   }
 
-  const report = { fixture: fixture.name, loginResult, popupReport, formReport, completionReport, errors };
+  let reissueReport = null;
+  if (fixture.admin) {
+    reissueReport = await page.evaluate(async (f) => {
+      const target = state.users['qa-target'];
+      const oldAnswers = { firstField: '2026-08-01', goal: '기존 응답은 보존되어야 합니다.' };
+      const oldSurvey = { answers: oldAnswers, t: 1785500000000 };
+      const oldInvite = {
+        uid: target.uid,
+        name: target.name,
+        role: target.role,
+        surveyKey: f.survey,
+        token: 'qaoldtoken1234567890',
+        status: 'completed',
+        createdAt: 1785400000000,
+        createdBy: 'admin',
+        completedAt: 1785500000000,
+        completedBy: target.uid,
+      };
+      target.surveys = { [f.survey]: oldSurvey };
+      state.promotionSurveyResponses = { [target.uid]: { [f.survey]: oldSurvey } };
+      state.promotionSurveys = { [target.uid]: { [f.survey]: oldInvite } };
+      mbName = target.name;
+      renderMember();
+      const before = {
+        role: target.role,
+        status: target.status,
+        id: target.id,
+        surveys: JSON.stringify(target.surveys),
+        meUid: me.uid,
+        appOn: document.body.classList.contains('app-on'),
+        gateHidden: document.getElementById('authGate').classList.contains('hidden'),
+        founder: isFounder(me),
+        surveyKey: reqSurvey(target.role, target.name),
+        busy: !!window.__surveyReissueBusy,
+      };
+      window.confirm = () => true;
+      await mbResetSurvey();
+      const invite = state.promotionSurveys[target.uid]?.[f.survey];
+      const after = {
+        role: target.role,
+        status: target.status,
+        id: target.id,
+        surveys: JSON.stringify(target.surveys),
+        meUid: me.uid,
+        appOn: document.body.classList.contains('app-on'),
+        gateHidden: document.getElementById('authGate').classList.contains('hidden'),
+      };
+      return {
+        responsePreserved: before.surveys === after.surveys && after.surveys.includes('기존 응답은 보존되어야 합니다.'),
+        accountUnchanged: before.role === after.role && before.status === after.status && before.id === after.id,
+        sessionUnchanged: before.meUid === after.meUid && before.appOn === after.appOn && before.gateHidden === after.gateHidden,
+        pendingInviteCreated: invite?.status === 'pending' && invite?.token !== oldInvite.token && invite?.reissued === true,
+        adminLinkVisible: document.getElementById('promotionSurveyModal').classList.contains('on') && !!document.getElementById('promotionSurveyLinkInput')?.value,
+        buttonLabelUpdated: document.getElementById('mbBody')?.textContent?.includes('설문 링크 재발급') === true,
+        before,
+        invite,
+      };
+    }, fixture);
+  }
+
+  const report = { fixture: fixture.name, loginResult, popupReport, formReport, completionReport, reissueReport, errors };
   reports.push(report);
-  const failed = !loginResult.loginAllowed || !loginResult.gateHiddenAfterLogin || !popupReport.popupVisible || !popupReport.title || !popupReport.boxInsideViewport || popupReport.horizontalOverflow || popupReport.buttonMinHeight < 42 || !popupReport.linkVisible || errors.length || (!fixture.admin && (!formReport.promotionContext || !formReport.appStillLoggedIn || !formReport.formInsideViewport || formReport.submitTargetHeight < 44 || formReport.firstTargetHeight < 44 || !formReport.hasLaterButton)) || (completionReport && (!completionReport.completionPopup || !completionReport.loginStillAllowed || completionReport.status !== 'completed' || !completionReport.surveySaved));
+  const failed = !loginResult.loginAllowed || !loginResult.gateHiddenAfterLogin || !popupReport.popupVisible || !popupReport.title || !popupReport.boxInsideViewport || popupReport.horizontalOverflow || popupReport.buttonMinHeight < 42 || !popupReport.linkVisible || errors.length || (!fixture.admin && (!formReport.promotionContext || !formReport.appStillLoggedIn || !formReport.formInsideViewport || formReport.submitTargetHeight < 44 || formReport.firstTargetHeight < 44 || !formReport.hasLaterButton)) || (completionReport && (!completionReport.completionPopup || !completionReport.loginStillAllowed || completionReport.status !== 'completed' || !completionReport.surveySaved)) || (reissueReport && (!reissueReport.responsePreserved || !reissueReport.accountUnchanged || !reissueReport.sessionUnchanged || !reissueReport.pendingInviteCreated || !reissueReport.adminLinkVisible || !reissueReport.buttonLabelUpdated));
   if (failed) failures.push(report);
   await page.screenshot({ path: `/tmp/presence-promotion-invite-${fixture.name}.png`, fullPage: false });
   await page.close();
