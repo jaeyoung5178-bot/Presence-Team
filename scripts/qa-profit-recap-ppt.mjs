@@ -29,6 +29,11 @@ await page.evaluate(() => {
   state.managers = [];
   state.extraMembers = [];
   state.removedMembers = [];
+  state.memberInfo = {
+    '임재영': { join: '2026-01-01', left: null },
+    '황혜진': { join: '2025-07-01', left: null },
+    '윤채영': { join: '2025-08-10', left: null },
+  };
   state.sales = {};
   const sale = (date, user, count) => { state.sales[`${date}|${user.name}`] = { date, name: user.name, role: user.role, count, t: 1 }; };
   ['2026-07-28', '2026-08-04', '2026-08-11', '2026-08-18'].forEach((d, i) => sale(d, a, [2, 3, 4, 5][i]));
@@ -74,6 +79,7 @@ const desktop = await page.evaluate(() => {
     weeklySales: d.weeklySales,
     weeklyRejects: d.weeklyRejects,
     weeklyIncome: d.weeklyIncome,
+    rowOrder: d.rows.map((r) => r.name),
     totals: d.totals,
     yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, income: yoon.income, bond: yoon.bond, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
     previewChecks: {
@@ -86,7 +92,8 @@ const desktop = await page.evaluate(() => {
       distinctTypes: ['세일즈 · 막대', '리젝 · 선', '실인컴 · 영역'].every((v) => preview.includes(v)),
       independentAxes: preview.includes('지표별 독립 축'),
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
-      payType: preview.includes('급여') && preview.includes('시1·성3'),
+      joinOrderLabel: preview.includes('입사일 순'),
+      payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
     },
@@ -214,6 +221,7 @@ const pptxStat = await stat(output);
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
+if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
 if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') failures.push('Payroll activity period is incorrect');
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
