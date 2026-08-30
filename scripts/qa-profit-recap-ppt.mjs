@@ -26,6 +26,7 @@ await page.evaluate(() => {
   const a = { uid: 'qa-a', name: '윤채영', id: 'yoon', loginKey: 'yoon', role: 'TL', status: 'active', surveys: {} };
   const b = { uid: 'qa-b', name: '황혜진', id: 'hwang', loginKey: 'hwang', role: 'LR', status: 'active', surveys: {} };
   state.users = { admin, 'qa-a': a, 'qa-b': b };
+  state.managers = [];
   state.extraMembers = [];
   state.removedMembers = [];
   state.sales = {};
@@ -43,7 +44,8 @@ await page.evaluate(() => {
   [100, 200, 300, 400].forEach((income, i) => put(pays[i], a, income, [1, 1, 2, 0][i], 0, [0, 0, 1, 0][i], 0));
   [50, 60, 70, 80].forEach((income, i) => put(pays[i], b, income, [5, 1, 0, 0][i], 0, 0, 0, i === 0 ? 'hourly' : 'performance'));
   state.profitMonthlyBep = { '2026-08': { 'qa-a': 2000, 'qa-b': 2000 } };
-  DB.set = async () => {};
+  window.__qaRecapWrites = [];
+  DB.set = async (path, value) => { window.__qaRecapWrites.push({ path, value }); };
   DB.update = async () => {};
   DB.get = async () => null;
   DB.on = () => () => {};
@@ -147,6 +149,41 @@ const leaderPhone = await page.evaluate(async () => {
   };
 });
 
+const managerPhone = await page.evaluate(async () => {
+  const manager = state.users['qa-a'];
+  state.managers = [manager.name];
+  me = manager;
+  profitRecapTargetUid = 'qa-b';
+  profitRecapPayDate = '2026-08-14';
+  window.__qaRecapWrites = [];
+  document.querySelectorAll('.mpanel').forEach((panel) => panel.classList.remove('active'));
+  document.getElementById('m-profitrecap')?.classList.add('active');
+  renderProfitRecap();
+  const before = {
+    manager: isManager(me),
+    canManage: canManageTeamRecords(me),
+    selected: document.getElementById('prcTargetUid')?.value || '',
+    targetText: document.querySelector('#m-profitrecap .prc-target')?.textContent || '',
+    net: document.getElementById('prcNet')?.value || '',
+  };
+  document.getElementById('prcNet').value = '777';
+  await saveProfitRecap();
+  const controls = [...document.querySelectorAll('#m-profitrecap .prc-target select,#m-profitrecap input,#m-profitrecap button')].filter((el) => getComputedStyle(el).display !== 'none' && !el.closest('[hidden]') && el.getBoundingClientRect().height > 0);
+  const undersized = controls.map((el) => ({ label: el.textContent.trim() || el.getAttribute('aria-label'), h: Math.round(el.getBoundingClientRect().height) })).filter((x) => x.h < 44);
+  document.querySelectorAll('.mpanel').forEach((panel) => panel.classList.remove('active'));
+  document.getElementById('m-recap')?.classList.add('active');
+  renderProfitRecapAdminView();
+  const saved = state.weeklyProfitRecaps['2026-08-14']['qa-b'];
+  return {
+    before,
+    saved: { uid: saved?.uid, name: saved?.name, netPayment: saved?.netPayment, updatedBy: saved?.updatedBy },
+    paths: window.__qaRecapWrites.map((x) => x.path),
+    adminPreview: (document.getElementById('profitRecapAdminView')?.textContent || '').includes('팀 전체'),
+    horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+    undersized,
+  };
+});
+
 await page.setViewportSize({ width: 1440, height: 900 });
 await page.evaluate(() => {
   me = state.users.admin;
@@ -180,9 +217,10 @@ if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) f
 if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested structure');
 if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
 if (leaderPhone.first.hourlyPressed !== 'true' || leaderPhone.first.performancePressed !== 'false' || !leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('급여 금액만') || !leaderPhone.first.label.includes('시급 급여') || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
+if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, managerPhone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
 if (failures.length) process.exit(1);
