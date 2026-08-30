@@ -81,10 +81,10 @@ const desktop = await page.evaluate(() => {
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
       formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
       netSales: preview.includes('Net Sales · 리젝·리섭 반영'),
-      combinedTrend: preview.includes('세일즈·리젝·실인컴 주차별 통합 추이'),
-      combinedLegend: ['세일즈', '리젝', '실인컴'].every((v) => document.querySelector('.pra-chart-legend')?.textContent.includes(v)),
-      dualAxis: preview.includes('왼쪽 축 건수 / 오른쪽 축 실인컴'),
-      incomeOneLine: [...document.querySelectorAll('.pra-combo text.income-value')].length > 0 && [...document.querySelectorAll('.pra-combo text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
+      distinctTrend: preview.includes('세일즈·리젝·실인컴 주차별 추이'),
+      distinctTypes: ['세일즈 · 막대', '리젝 · 선', '실인컴 · 영역'].every((v) => preview.includes(v)),
+      independentAxes: preview.includes('지표별 독립 축'),
+      incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       payType: preview.includes('급여') && preview.includes('시1·성3'),
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
@@ -220,8 +220,8 @@ if (JSON.stringify(desktop.weeklyIncome) !== JSON.stringify([150, 260, 370, 480]
 if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 9 || desktop.totals.income !== 1260 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 2.67) failures.push('Team totals or explicit zero-day field count are incorrect');
 if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.rejects !== 4 || desktop.yoon.resubmits !== 1 || desktop.yoon.rejectRate !== 21.4 || JSON.stringify(desktop.yoon.weekly) !== JSON.stringify([2, 3, 4, 5])) failures.push('Member reject-rate or weekly calculations are incorrect');
 if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) failures.push('Hourly/performance recap counts are incorrect');
-if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 1) failures.push('Preview does not match requested single-chart structure');
-if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 1 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 1 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
+if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested three-chart structure');
+if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
 if (leaderPhone.first.hourlyPressed !== 'true' || leaderPhone.first.performancePressed !== 'false' || !leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('급여 금액만') || !leaderPhone.first.label.includes('시급 급여') || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
 if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
