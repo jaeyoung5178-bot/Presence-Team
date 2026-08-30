@@ -96,7 +96,8 @@ const desktop = await page.evaluate(() => {
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       joinOrderLabel: preview.includes('입사일 순'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
-      productivitySlide: preview.includes('필드 생산성과 리젝 손실') && preview.includes('총 생산성') && preview.includes('CL 리젝') && preview.includes('SW 리젝'),
+      productivitySlide: preview.includes('총생산성에서 실제 인컴과 리젝 손실까지') && preview.includes('총생산성 대비 실현률') && preview.includes('CL 리젝') && preview.includes('SW 리젝'),
+      sharedDenominator: preview.includes('세 링 모두 총생산성') && preview.includes('CL/SW도 전체 세일즈 기준') && preview.includes('서로 더하는 파이가 아니라'),
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
     },
@@ -225,7 +226,7 @@ const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
-if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000) failures.push('Productivity or CL/SW reject breakdown is incorrect');
+if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2) failures.push('Productivity, actual-income, or CL/SW whole-sales breakdown is incorrect');
 if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') failures.push('Payroll activity period is incorrect');
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
