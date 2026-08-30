@@ -479,7 +479,7 @@
     "loginIndex": {
       "$idKey": {
         ".read": true,
-        ".write": "auth != null && !data.exists() && newData.isString() && newData.val() == auth.uid"
+        ".write": "auth != null && ((!data.exists() && newData.isString() && newData.val() == auth.uid) || (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active' && newData.isString() && root.child('privateAuth').child('byId').child($idKey).child('uid').val() == newData.val() && root.child('users').child(newData.val()).child('status').exists()))"
       }
     },
     "users": {

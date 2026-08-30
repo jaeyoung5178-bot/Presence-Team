@@ -4408,8 +4408,14 @@ state.sales={};   // 실데이터만 — 데모 세일즈 없음
    ============================================================ */
 let authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,promotionUid:null,promotionToken:null,sel:{}};
 let loginInFlight=false;
+let loginAttemptSeq=0;
 let surveySubmitInFlight=false;
 let competitionView='daiso';
+
+function authWithin(promise,ms,stage){
+  let timer=0;
+  return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>{const e=new Error((stage||'auth')+' timeout');e.code='network/timeout';reject(e);},ms);})]).finally(()=>clearTimeout(timer));
+}
 
 function renderAuth(){
   try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
@@ -4473,7 +4479,7 @@ function renderAuth(){
   }
 }
 function authMsg(t,cls){const m=document.getElementById('authMsg');if(!m)return;m.textContent=t;m.className='auth-msg show '+cls}
-function goLogin(){loginInFlight=false;surveySubmitInFlight=false;authState.view='login';renderAuth()}
+function goLogin(){loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}surveySubmitInFlight=false;authState.view='login';renderAuth()}
 function goSignup(){surveySubmitInFlight=false;authState.view='signup';renderAuth()}
 
 function findUserById(id){if(!id)return null;const _q=String(id).trim().toLowerCase();return Object.values(state.users).find(u=>u&&u.id&&String(u.id).toLowerCase()===_q)}
@@ -4483,12 +4489,17 @@ async function doLogin(){
   const idEl=document.getElementById('liId'),pwEl=document.getElementById('liPw');if(!idEl||!pwEl)return;
   const id=idEl.value.trim(),pw=pwEl.value;
   if(!id||!pw){authMsg('아이디와 비밀번호를 입력해 주세요','err');return}
-  loginInFlight=true;setLoginBusy(true);
+  const attempt=++loginAttemptSeq;loginInFlight=true;setLoginBusy(true);
   authMsg('안전하게 로그인하는 중이에요…','info');
-  let u=null,loginErr=null;try{u=await DB.login(isTestName_(id)?canonBot(id):id,hash(pw));}catch(e){loginErr=e;console.warn('[login]',e&&e.code?e.code:'failed')}
-  if(!u){loginInFlight=false;setLoginBusy(false);authMsg(loginErr&&(/network|unavailable|timeout/i.test(String(loginErr.code||loginErr.message||'')))?'서버 연결이 지연되고 있어요. 잠시 후 다시 눌러 주세요':'아이디 또는 비밀번호가 올바르지 않아요','err');return}
+  let u=null,loginErr=null;
+  try{
+    if(LIVE&&!window.__firebaseReady){authMsg('로그인 서버 연결을 확인하는 중이에요…','info');const ready=await waitForFirebaseReady(6500);if(!ready){const e=new Error('firebase unavailable');e.code='network/unavailable';throw e;}}
+    u=await authWithin(DB.login(isTestName_(id)?canonBot(id):id,hash(pw)),13000,'login');
+  }catch(e){loginErr=e;try{DB.cancelLogin&&DB.cancelLogin();}catch(_){}console.warn('[login]',e&&e.code?e.code:'failed')}
+  finally{if(attempt===loginAttemptSeq){loginInFlight=false;setLoginBusy(false);}}
+  if(attempt!==loginAttemptSeq)return;
+  if(!u){authMsg(loginErr&&(/network|unavailable|timeout/i.test(String(loginErr.code||loginErr.message||'')))?'연결이 지연되어 로그인을 중단했어요. 입력 내용은 그대로예요 · 다시 눌러 주세요':'아이디 또는 비밀번호가 올바르지 않아요','err');return}
   /* 인증은 이미 끝났다. 이후 로비/설문/앱 준비가 느려도 로그인 버튼을 잠근 채 두지 않는다. */
-  loginInFlight=false;setLoginBusy(false);
   if(u.status==='pending'){me=u;authState.view='pending';authState.draft=u;renderAuth();return}
   if(u.status!=='active'){try{await DB.logout();}catch(e){}authMsg('현재 로그인할 수 없는 계정이에요. 관리자에게 상태를 확인해 주세요','err');setLoginBusy(false);return}
   const remEl=document.getElementById('liRemember');lsSet('presence_remember',remEl?!!remEl.checked:true);
@@ -4849,13 +4860,17 @@ function enterApp(){
   setTimeout(function(){try{recallOnboardNotifs();}catch(e){}try{onboardNudge();}catch(e){}try{leaderOnboardNudge();}catch(e){}},1400);
   if(isTestBot(me))setTimeout(()=>toast('👀 관찰(테스트) 모드 · 버튼·이펙트는 모두 체험되지만 기록·집계·로그엔 반영되지 않아요'),700);
 }
-function reconcileAuthProfiles(){
+async function reconcileAuthProfiles(){
   if(!LIVE||!me||!isFounder(me)||window.__authProfilesReconciled)return;
   window.__authProfilesReconciled=true;
-  Object.values(state.users||{}).filter(u=>u&&u.uid&&(u.loginKey||u.id)&&u.role&&u.status).forEach(u=>DB.syncAccountProfile(u).catch(e=>console.warn('[auth profile reconcile]',u.uid,e&&e.code?e.code:'failed')));
+  const users=Object.values(state.users||{}).filter(u=>u&&u.uid&&(u.loginKey||u.id)&&u.role&&u.status);
+  const results=await Promise.allSettled(users.map(u=>DB.syncAccountProfile(u)));
+  const failed=results.filter(r=>r.status==='rejected').length;
+  if(failed){window.__authProfileRetryCount=(window.__authProfileRetryCount||0)+1;console.warn('[auth profile reconcile]',failed,'account(s) failed, attempt',window.__authProfileRetryCount);if(window.__authProfileRetryCount<3)setTimeout(()=>{window.__authProfilesReconciled=false;reconcileAuthProfiles();},5000);}
+  else window.__authProfileRetryCount=0;
 }
 async function logout(){
-  if(window.__logoutBusy)return;window.__logoutBusy=true;loginInFlight=false;clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
+  if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
   clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
   authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on','can-mod','can-daily','is-bot');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal');setLoginBusy(true);authMsg('로그아웃을 안전하게 마무리하는 중이에요…','info');
@@ -4866,14 +4881,14 @@ function rememberPref(){const v=lsGet('presence_remember');return v===null?true:
 async function tryAutoLogin(){
   const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
   if(!rememberPref())return false;
-  if(lsGet('presence_auth_policy')!==AUTH_POLICY_VERSION){lsSet('presence_auth_policy',AUTH_POLICY_VERSION);lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}
+  if(lsGet('presence_auth_policy')!==AUTH_POLICY_VERSION){lsSet('presence_auth_policy',AUTH_POLICY_VERSION);lsDel('presence_sess');try{await authWithin(DB.logout(),4000,'policy logout');}catch(e){}return false;}
   const s=lsGet('presence_sess');if(!s)return false;
-  if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false}
+  if(Date.now()-s.t>SESSION_DAYS*86400000){lsDel('presence_sess');try{await authWithin(DB.logout(),4000,'expired logout');}catch(e){}return false}
   /* 60일마다 한 번은 재인증 — 그 사이에는 자동 로그인 후 캐릭터 로비로 입장 */
   {let la=lsGet('presence_lastauth');
    if(la===null){la=Date.now();lsSet('presence_lastauth',la);}
-   if(Date.now()-la>SESSION_DAYS*86400000){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}}
-  let u=null;try{u=await DB.restoreSession(s.uid);}catch(e){}if(!u||u.status!=='active'){lsDel('presence_sess');try{await DB.logout();}catch(e){}return false;}
+   if(Date.now()-la>SESSION_DAYS*86400000){lsDel('presence_sess');try{await authWithin(DB.logout(),4000,'reauth logout');}catch(e){}return false;}}
+  let u=null;try{u=await authWithin(DB.restoreSession(s.uid),10000,'auto login');}catch(e){console.warn('[auto login]',e&&e.code?e.code:'failed')}if(!u||u.status!=='active'){lsDel('presence_sess');try{await authWithin(DB.logout(),4000,'restore cleanup');}catch(e){}return false;}
   state.users[u.uid]=u;
   if(u.mustChangePw){me=u;authState.view='newpw';renderAuth();return true;}
   me=u;continueLogin(u,true);return true;
@@ -8911,15 +8926,29 @@ function openOxGuide(){closeModal('oxfamModal');openModal('oxGuideModal');}
    ============================================================ */
 const DB={
   push(){},set(){return Promise.resolve();},on(){},get(){return Promise.resolve(null);},update(){return Promise.resolve();},remove(){return Promise.resolve();},tx(){return Promise.resolve({committed:false,snapshot:null});},
-  login(){return Promise.resolve(null);},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},syncAccountProfile(){return Promise.resolve();},updateAccount(){return Promise.resolve();},updatePromotionAccount(){return Promise.resolve();},clearProfitRecapSession(){},logout(){}
+  login(){return Promise.resolve(null);},cancelLogin(){},restoreSession(){return Promise.resolve(null);},signup(){return Promise.reject(new Error('offline'));},changePassword(){return Promise.reject(new Error('offline'));},syncAccountProfile(){return Promise.resolve();},updateAccount(){return Promise.resolve();},updatePromotionAccount(){return Promise.resolve();},clearProfitRecapSession(){},logout(){return Promise.resolve();}
 };
 function authKey(id){return String(id||'').trim().toLowerCase().replace(/[.#$\/\[\]]/g,'_');}
-async function initFirebase(){
-  if(!LIVE)return;
+let firebaseInitTask=null,firebaseInitGeneration=0;
+function ensureFirebaseReady(){
+  if(!LIVE){window.__firebaseReady=true;return Promise.resolve(true);}
+  if(window.__firebaseReady)return Promise.resolve(true);
+  if(!firebaseInitTask){const generation=++firebaseInitGeneration;const task=Promise.resolve().then(()=>initFirebase(generation)).catch(()=>false).finally(()=>{if(firebaseInitTask===task)firebaseInitTask=null;});firebaseInitTask=task;}
+  return firebaseInitTask;
+}
+async function waitForFirebaseReady(ms){
+  if(window.__firebaseReady)return true;
+  const task=ensureFirebaseReady();
+  try{return !!(await authWithin(task,ms||6500,'firebase ready'));}catch(e){if(firebaseInitTask===task){firebaseInitGeneration++;firebaseInitTask=null;}return false;}
+}
+async function initFirebase(generation){
+  if(!LIVE){window.__firebaseReady=true;return true;}
+  window.__firebaseReady=false;
   try{
   const appMod=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
   const fb=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
   const authMod=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  if(generation&&generation!==firebaseInitGeneration)return false;
   let app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp(FIREBASE_CONFIG);}
   const db=fb.getDatabase(app),auth=authMod.getAuth(app),queued=[];let unlocked=false;
   const rawGet=p=>fb.get(fb.ref(db,p)).then(s=>s.val());
@@ -8928,7 +8957,7 @@ async function initFirebase(){
   const within=(promise,ms,stage)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>{const e=new Error(stage+' timeout');e.code='network/timeout';reject(e);},ms))]);
   const profitRecapOff=[];
   const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};state.promotionSurveys={};state.promotionSurveyResponses={};};
-  const ensureAnon=async()=>{if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),8000,'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),8000,'anonymous sign-in')).user;};
+  const ensureAnon=async(deadline)=>{const left=()=>Math.max(700,(deadline||Date.now()+6500)-Date.now());if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),left(),'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),left(),'anonymous sign-in')).user;};
   const unlock=async uid=>{const profileRequest=rawGet('users/'+uid),cfgRequest=rawGet('privateConfig');
     /* 웹훅·운영 설정은 로그인 판정에 필요하지 않다. 이를 먼저 기다리면 느린 연결에서
        정상 계정도 로그인 중처럼 오래 보이므로 프로필과 병렬로 받고 도착 즉시 적용한다. */
@@ -8952,8 +8981,10 @@ async function initFirebase(){
   DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
   /* 기존 세션 삭제→재생성의 두 단계 사이에서 연결이 끊기면 정상 비밀번호도 실패했다.
      검증된 새 세션으로 한 번에 교체해 로그인 작업을 원자적으로 만든다. */
-  DB.login=async(id,proof)=>{const au=await ensureAnon(),key=authKey(id),uid=await within(rawGet('loginIndex/'+key),7000,'login index');if(!uid)return null;await within(rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()}),7000,'login session');return unlock(uid);};
-  DB.restoreSession=async uid=>{const au=await ensureAnon(),s=await within(rawGet('authSessions/'+au.uid),7000,'restore session');if(!s||s.userUid!==uid)return null;return unlock(uid);};
+  let loginGeneration=0;
+  DB.cancelLogin=()=>{loginGeneration++;};
+  DB.login=async(id,proof)=>{const gen=++loginGeneration,deadline=Date.now()+12000,left=()=>Math.max(700,deadline-Date.now()),au=await ensureAnon(deadline),key=authKey(id),uid=await within(rawGet('loginIndex/'+key),left(),'login index');if(!uid)return null;await within(rawSet('authSessions/'+au.uid,{idKey:key,userUid:uid,proof:proof,createdAt:Date.now()}),left(),'login session');if(gen!==loginGeneration){const e=new Error('login superseded');e.code='auth/superseded';throw e;}return within(unlock(uid),left(),'user profile');};
+  DB.restoreSession=async uid=>{const deadline=Date.now()+9000,left=()=>Math.max(700,deadline-Date.now()),au=await ensureAnon(deadline),s=await within(rawGet('authSessions/'+au.uid),left(),'restore session');if(!s||s.userUid!==uid)return null;return within(unlock(uid),left(),'restore profile');};
   DB.signup=async(u,proof)=>{
     const au=await ensureAnon(),key=authKey(u.id),uid=au.uid;
     if(await rawGet('loginIndex/'+key)){const e=new Error('duplicate');e.code='signup/duplicate';throw e;}
@@ -8968,13 +8999,14 @@ async function initFirebase(){
     });
     return uid;
   };
-  DB.changePassword=async(u,proof)=>rawSet('privateAuth/byId/'+authKey(u.id)+'/pwHash',proof);
+  DB.changePassword=async(u,proof)=>rawSet('privateAuth/byId/'+authKey(u.loginKey||u.id)+'/pwHash',proof);
   /* 공개 사용자 레코드와 비공개 로그인 메타데이터를 함께 갱신한다.
-     pwHash는 건드리지 않으며, 승격/승인 시 두 저장소가 다시 어긋나지 않게 한다. */
-  DB.syncAccountProfile=async u=>fb.update(fb.ref(db,'privateAuth/byId/'+authKey(u.loginKey||u.id)),{role:u.role,status:u.status});
-  DB.updateAccount=async(u,patch)=>{const next={...u,...(patch||{})},key=authKey(u.loginKey||u.id),updates={};if(Object.prototype.hasOwnProperty.call(patch||{},'role')){updates['users/'+u.uid+'/role']=next.role;updates['privateAuth/byId/'+key+'/role']=next.role;}if(Object.prototype.hasOwnProperty.call(patch||{},'status')){updates['users/'+u.uid+'/status']=next.status;updates['privateAuth/byId/'+key+'/status']=next.status;}return fb.update(fb.ref(db),updates);};
-  DB.updatePromotionAccount=async(u,role,invite)=>{const key=authKey(u.loginKey||u.id),updates={};updates['users/'+u.uid+'/role']=role;updates['privateAuth/byId/'+key+'/role']=role;if(invite)updates['promotionSurveys/'+u.uid+'/'+invite.surveyKey]=invite;return fb.update(fb.ref(db),updates);};
-  DB.logout=async()=>{clearProfitRecapSession();try{if(auth.currentUser)await rawSet('authSessions/'+auth.currentUser.uid,null);}catch(e){}try{await authMod.signOut(auth);}catch(e){}};
+     pwHash는 건드리지 않으며, loginKey·loginIndex까지 원자적으로 복구해
+     구형 계정도 승격/승인 뒤 로그인 경로가 다시 어긋나지 않게 한다. */
+  DB.syncAccountProfile=async u=>{const key=authKey(u.loginKey||u.id),updates={};updates['privateAuth/byId/'+key+'/role']=u.role;updates['privateAuth/byId/'+key+'/status']=u.status;updates['users/'+u.uid+'/loginKey']=key;updates['loginIndex/'+key]=u.uid;return fb.update(fb.ref(db),updates);};
+  DB.updateAccount=async(u,patch)=>{const next={...u,...(patch||{})},key=authKey(u.loginKey||u.id),updates={};updates['users/'+u.uid+'/loginKey']=key;updates['loginIndex/'+key]=u.uid;if(Object.prototype.hasOwnProperty.call(patch||{},'role')){updates['users/'+u.uid+'/role']=next.role;updates['privateAuth/byId/'+key+'/role']=next.role;}if(Object.prototype.hasOwnProperty.call(patch||{},'status')){updates['users/'+u.uid+'/status']=next.status;updates['privateAuth/byId/'+key+'/status']=next.status;}return fb.update(fb.ref(db),updates);};
+  DB.updatePromotionAccount=async(u,role,invite)=>{const key=authKey(u.loginKey||u.id),updates={};updates['users/'+u.uid+'/role']=role;updates['users/'+u.uid+'/loginKey']=key;updates['privateAuth/byId/'+key+'/role']=role;updates['loginIndex/'+key]=u.uid;if(invite)updates['promotionSurveys/'+u.uid+'/'+invite.surveyKey]=invite;return fb.update(fb.ref(db),updates);};
+  DB.logout=async()=>{clearProfitRecapSession();loginGeneration++;const cur=auth.currentUser;try{if(cur)await within(rawSet('authSessions/'+cur.uid,null),1800,'logout session');}catch(e){}try{await within(authMod.signOut(auth),1800,'logout auth');}catch(e){}};
   window.__PRESENCE_SECURE_DB={on:(p,cb)=>DB.on(p,cb),set:(p,v)=>DB.set(p,v),update:(p,v)=>DB.update(p,v),remove:p=>DB.remove(p),tx:(p,fn)=>DB.tx(p,fn)};
   DB.on('.info/connected',v=>{setConn(!!v);});
   DB.on('pr',v=>{state.pr=(typeof v==='number')?v:0;renderTree()});
@@ -9042,7 +9074,9 @@ async function initFirebase(){
     if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderBell();renderRecruitDaily();renderDaisoCompetition();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
   });
-  }catch(e){console.warn('Firebase 연결 실패 — 로컬 모드로 동작합니다',e);}
+  if(generation&&generation!==firebaseInitGeneration)return false;
+  window.__firebaseReady=true;window.dispatchEvent(new CustomEvent('presence:firebase-ready'));return true;
+  }catch(e){if(!generation||generation===firebaseInitGeneration)window.__firebaseReady=false;console.warn('Firebase 연결 실패 — 재연결할 수 있는 로그인 화면으로 전환합니다',e);return false;}
 }
 
 /* ════════════════════════════════════════════
@@ -11546,7 +11580,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-28.promotion-reissue-19';
+const APP_VERSION='2026-08-30.auth-recovery-20';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -11581,11 +11615,11 @@ function checkForUpdate(auto){
 (async function boot(){
   const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
   try{window.showPresenceLoader&&window.showPresenceLoader('나의 Presence 공간을 찾는 중…');}catch(e){}
-  await initFirebase();
+  const firebaseReady=await waitForFirebaseReady(9000);
   loadSheets();
   FX.init();applyHomeFx(state.homeFx&&state.homeFx.type?state.homeFx.type:null);
   window.addEventListener('pointerdown',function unlockOnce(){SND.unlock();const k=fxHasSound(fxOnLocal()?(state._fxType||(state.homeFx&&state.homeFx.type)):null);if(k&&sndOn())SND.play(k);window.removeEventListener('pointerdown',unlockOnce);},{passive:true});
-  if(!(await tryAutoLogin()))renderAuth();
+  if(!firebaseReady||!(await tryAutoLogin())){renderAuth();if(!firebaseReady)authMsg('로그인 서버 연결이 지연되고 있어요. 아이디와 비밀번호를 입력하면 자동으로 다시 연결합니다.','info');}
   try{renderToday();}catch(e){}
   window.addEventListener('resize',()=>{try{syncTopOffset();}catch(e){}});
   setInterval(()=>{if(me){renderWaterFeed();renderGb();renderWins()}},60000);
