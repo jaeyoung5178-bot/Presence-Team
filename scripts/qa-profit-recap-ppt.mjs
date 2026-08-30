@@ -35,13 +35,13 @@ await page.evaluate(() => {
   state.sales['2026-08-20|황혜진'] = { date: '2026-08-20', name: '황혜진', role: 'LR', count: 0, checked: true, t: 1 };
   state.weeklyProfitRecaps = {};
   const pays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
-  const put = (pay, user, income, rejectCL, rejectSW, resubmitCL, resubmitSW) => {
+  const put = (pay, user, income, rejectCL, rejectSW, resubmitCL, resubmitSW, payType = 'performance') => {
     const w = prcWeekInfo(pay);
     state.weeklyProfitRecaps[pay] ||= {};
-    state.weeklyProfitRecaps[pay][user.uid] = { uid: user.uid, name: user.name, role: user.role, payDate: pay, incomeDate: pay, activityFrom: w.sd, activityTo: w.ed, weekEnding: w.we, netPayment: income, rejectCLCount: rejectCL, rejectSWCount: rejectSW, resubmitCLCount: resubmitCL, resubmitSWCount: resubmitSW, bondBalance: 1000, bep: 2000 };
+    state.weeklyProfitRecaps[pay][user.uid] = { uid: user.uid, name: user.name, role: user.role, payType, payDate: pay, incomeDate: pay, activityFrom: w.sd, activityTo: w.ed, weekEnding: w.we, netPayment: income, rejectCLCount: rejectCL, rejectSWCount: rejectSW, resubmitCLCount: resubmitCL, resubmitSWCount: resubmitSW, bondBalance: payType === 'performance' ? 1000 : 0, bep: payType === 'performance' ? 2000 : 0, updatedAt: 1 };
   };
   [100, 200, 300, 400].forEach((income, i) => put(pays[i], a, income, [1, 1, 2, 0][i], 0, [0, 0, 1, 0][i], 0));
-  [50, 60, 70, 80].forEach((income, i) => put(pays[i], b, income, [0, 1, 0, 0][i], 0, 0, 0));
+  [50, 60, 70, 80].forEach((income, i) => put(pays[i], b, income, [5, 1, 0, 0][i], 0, 0, 0, i === 0 ? 'hourly' : 'performance'));
   state.profitMonthlyBep = { '2026-08': { 'qa-a': 2000, 'qa-b': 2000 } };
   DB.set = async () => {};
   DB.update = async () => {};
@@ -73,15 +73,17 @@ const desktop = await page.evaluate(() => {
     weeklyRejects: d.weeklyRejects,
     weeklyIncome: d.weeklyIncome,
     totals: d.totals,
-    yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)) },
+    yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
     previewChecks: {
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
-      formula: preview.includes('리젝률=(리젝−리섭)÷세일즈'),
+      formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
       netSales: preview.includes('Net Sales · 리젝·리섭 반영'),
       salesTrend: preview.includes('세일즈 추이'),
       rejectTrend: preview.includes('리젝 추이'),
       incomeTrend: preview.includes('실인컴 추이'),
+      payType: preview.includes('급여') && preview.includes('시1·성3'),
+      performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
     },
     chartCount: document.querySelectorAll('#m-recap .pra-chart').length,
@@ -110,7 +112,48 @@ const phone = await page.evaluate(() => {
   };
 });
 
+const leaderPhone = await page.evaluate(async () => {
+  const leader = state.users['qa-a'];
+  me = leader;
+  profitRecapPayDate = '2026-07-31';
+  document.querySelectorAll('.mpanel').forEach((panel) => panel.classList.remove('active'));
+  document.getElementById('m-profitrecap')?.classList.add('active');
+  renderProfitRecap();
+  const hourlyButton = document.querySelector('#m-profitrecap [data-pay-type="hourly"]');
+  const performanceButton = document.querySelector('#m-profitrecap [data-pay-type="performance"]');
+  const perf = document.getElementById('prcPerformanceFields');
+  const first = {
+    hourlyPressed: hourlyButton?.getAttribute('aria-pressed'),
+    performancePressed: performanceButton?.getAttribute('aria-pressed'),
+    performanceHidden: !!perf?.hidden,
+    note: document.getElementById('prcPayTypeNote')?.textContent || '',
+    label: document.querySelector('label[for="prcNet"]')?.textContent || '',
+  };
+  document.getElementById('prcNet').value = '123456';
+  await saveProfitRecap();
+  const saved = state.weeklyProfitRecaps['2026-07-31']['qa-a'];
+  prcSetPayType('performance');
+  const switched = {
+    performanceHidden: !!document.getElementById('prcPerformanceFields')?.hidden,
+    performancePressed: document.querySelector('#m-profitrecap [data-pay-type="performance"]')?.getAttribute('aria-pressed'),
+  };
+  const controls = [...document.querySelectorAll('#m-profitrecap .prc-paytype button,#m-profitrecap input,#m-profitrecap .prc-save')].filter((el) => getComputedStyle(el).display !== 'none' && !el.closest('[hidden]'));
+  return {
+    first,
+    switched,
+    saved: { payType: saved?.payType, netPayment: saved?.netPayment, hourlyPay: saved?.hourlyPay, rejectCLCount: saved?.rejectCLCount, rejectSWCount: saved?.rejectSWCount, bondBalance: saved?.bondBalance, bep: saved?.bep },
+    horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+    undersized: controls.map((el) => ({ label: el.textContent.trim() || el.getAttribute('aria-label'), h: Math.round(el.getBoundingClientRect().height) })).filter((x) => x.h < 44),
+  };
+});
+
 await page.setViewportSize({ width: 1440, height: 900 });
+await page.evaluate(() => {
+  me = state.users.admin;
+  document.querySelectorAll('.mpanel').forEach((panel) => panel.classList.remove('active'));
+  document.getElementById('m-recap')?.classList.add('active');
+  renderProfitRecapAdminView();
+});
 await page.addScriptTag({ path: pptxBundle });
 const downloadPromise = page.waitForEvent('download', { timeout: 30000 }).catch(() => null);
 await page.evaluate(() => exportProfitRecapPpt('team'));
@@ -133,11 +176,13 @@ if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) fail
 if (JSON.stringify(desktop.weeklyIncome) !== JSON.stringify([150, 260, 370, 480])) failures.push('Weekly net income aggregation is incorrect');
 if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 9 || desktop.totals.income !== 1260 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 2.67) failures.push('Team totals or explicit zero-day field count are incorrect');
 if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.rejects !== 4 || desktop.yoon.resubmits !== 1 || desktop.yoon.rejectRate !== 21.4 || JSON.stringify(desktop.yoon.weekly) !== JSON.stringify([2, 3, 4, 5])) failures.push('Member reject-rate or weekly calculations are incorrect');
+if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) failures.push('Hourly/performance recap counts are incorrect');
 if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested structure');
 if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
+if (leaderPhone.first.hourlyPressed !== 'true' || leaderPhone.first.performancePressed !== 'false' || !leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('급여 금액만') || !leaderPhone.first.label.includes('시급 급여') || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, tablet, phone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
 if (failures.length) process.exit(1);

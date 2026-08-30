@@ -741,10 +741,13 @@ table.scores tr.top1 .big{color:var(--green)}
 .sale-cal-days button.has{background:rgba(92,188,46,.14);border-color:rgba(92,188,46,.34);color:var(--cream)}
 .sale-cal-days button.has.zero{background:rgba(92,188,46,.19);border-color:rgba(92,188,46,.48)}
 .sale-cal-days button.na{background:rgba(228,171,68,.10);border-color:rgba(228,171,68,.28);color:var(--amber)}
+.sale-cal-days button.pre-field{opacity:.34;cursor:default;background:transparent;border-color:transparent;color:var(--faint)}
+.sale-cal-days button.first-field-day{border-color:rgba(55,185,237,.72);box-shadow:inset 0 0 0 1px rgba(55,185,237,.12)}
 .sale-cal-days button.sel{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 7px 18px -10px rgba(99,102,241,.95)}
 .sale-cal-days button em{display:block;max-width:100%;font-style:normal;font-family:var(--mono);font-size:8px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--green-soft)}
+.sale-cal-days button em.first-field-label{color:#67d5ff;font-family:var(--font);font-weight:900;letter-spacing:-.03em}
 .sale-cal-days button.na em{color:var(--amber)}.sale-cal-days button.sel em{color:#fff}
-.sale-cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;color:var(--faint);font-size:10px}.sale-cal-legend b{color:var(--green-soft)}.sale-cal-legend .na{color:var(--amber)}
+.sale-cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;color:var(--faint);font-size:10px}.sale-cal-legend b{color:var(--green-soft)}.sale-cal-legend .na{color:var(--amber)}.sale-cal-legend .first{color:#67d5ff;font-weight:800}
 .sale-stepper .step-btn{width:62px;height:62px}
 .sale-na-btn{min-width:62px;height:62px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--muted);font-size:14px;font-weight:900;cursor:pointer}
 .sale-na-btn.on{background:linear-gradient(135deg,#e4ab44,#f3d17a);border-color:transparent;color:#3b2a08;box-shadow:0 9px 24px -12px rgba(230,176,82,.95)}
@@ -1002,6 +1005,7 @@ table.scores tr.top1 .big{color:var(--green)}
 
 .dc-self-cal .pdr-days button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.dc-self-cal .pdr-days button small{font:800 7px var(--mono);color:#37b9ed}.dc-self-cal .pdr-days button.na small{color:var(--amber)}
 .dc-self-cal .pdr-days button.has{background:rgba(92,188,46,.14);border-color:rgba(92,188,46,.34)}.dc-self-cal .pdr-days button.has::after{background:var(--green-soft)}.dc-self-cal .pdr-days button.na{background:rgba(228,171,68,.10);border-color:rgba(228,171,68,.28)}.dc-self-cal .pdr-days button.sel{background:var(--green);border-color:transparent}
+.dc-self-cal .pdr-days button.pre-field{opacity:.34;cursor:default;background:transparent;border-color:transparent}.dc-self-cal .pdr-days button.first-field-day{border-color:rgba(55,185,237,.72)}.dc-self-cal .pdr-days button small.first-field-label{color:#67d5ff;font-family:var(--font);font-weight:900}.dc-self-cal .pdr-days button.sel small{color:var(--green-ink)}
 /* 날짜별 리쿠르팅 입력 */
 .pdr-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.7fr);gap:14px}.pdr-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px}.pdr-date{display:grid;grid-template-columns:44px minmax(150px,1fr) 44px auto;gap:7px;align-items:center}.pdr-date button,.pdr-step button,.pdr-today{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);font:800 15px var(--font);cursor:pointer}.pdr-date input,.pdr-user{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 11px;font:700 13px var(--font);color-scheme:dark}.pdr-today{padding:0 13px;font-size:12px;white-space:nowrap}.pdr-user{margin-top:10px}.pdr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.pdr-stat{min-width:0;background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:13px}.pdr-stat>span{display:block;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}.pdr-stat>small{display:block;color:var(--faint);font-size:9.5px;margin-top:2px}.pdr-step{display:grid;grid-template-columns:44px minmax(38px,1fr) 44px;gap:6px;align-items:center;margin-top:11px}.pdr-step strong{text-align:center;color:var(--cream);font:900 25px var(--disp)}.pdr-step button.plus{border-color:rgba(92,188,46,.55);background:rgba(92,188,46,.14);color:var(--green-soft)}.pdr-month-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.pdr-month-head b{font-size:14px}.pdr-month-head button{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);cursor:pointer}.pdr-week,.pdr-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.pdr-week span{text-align:center;color:var(--faint);font-size:10px;padding:4px 0}.pdr-days button{position:relative;aspect-ratio:1;min-width:0;min-height:38px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font:700 11px var(--font);cursor:pointer}.pdr-days button:hover{background:var(--card-2)}.pdr-days button.sel{background:var(--green);color:var(--green-ink);font-weight:900}.pdr-days button.today{border-color:var(--green)}.pdr-days button.has::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;border-radius:50%;background:#ffd35c;transform:translateX(-50%)}.pdr-days button.blank{visibility:hidden}.pdr-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.pdr-history h4{margin:0 0 7px;font-size:12px}.pdr-history button{width:100%;min-height:44px;display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;align-items:center;border:0;border-bottom:1px solid var(--line-soft);background:transparent;color:var(--muted);font:700 11px var(--font);text-align:left;cursor:pointer}.pdr-history b{color:var(--cream)}
 @media(max-width:760px){.perfseg{overflow-x:auto;scrollbar-width:none}.pseg-b{flex:0 0 calc(50% - 3px);white-space:nowrap}.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-podiums{grid-template-columns:1fr}.dc-person{grid-template-columns:minmax(0,1fr) auto;gap:9px;padding:12px}.dc-metrics{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}.dc-self-layout{grid-template-columns:1fr}.pdr-layout{grid-template-columns:1fr}.pdr-grid{grid-template-columns:1fr}.pdr-stat{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,1fr);align-items:center}.pdr-stat>small{grid-column:1}.pdr-step{grid-column:2;grid-row:1/3;margin:0}.pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.pdr-today{grid-column:1/-1}.dc-datebar .pdr-today{grid-column:auto}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px auto}}
@@ -1189,6 +1193,8 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .daily-sum b{color:var(--green);font-size:14px}
 .daily-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:8px}
 .daily-row.na{opacity:.66}
+.daily-row.pre-field{opacity:.5;background:rgba(255,255,255,.015)}
+.daily-row.first-field{border-color:rgba(55,185,237,.5);box-shadow:inset 3px 0 0 rgba(55,185,237,.75)}
 .daily-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--green-ink);flex:0 0 auto;overflow:hidden}
 .daily-av img{width:100%;height:100%;object-fit:cover}
 .daily-nm{flex:1;font-weight:700;font-size:13.5px}
@@ -1200,6 +1206,8 @@ details[open] .t-open{display:inline;color:var(--muted)}
 .daily-val{font-family:var(--mono);font-size:16px;min-width:36px;text-align:center;color:var(--cream);font-weight:700}
 .daily-row.na .daily-val{color:var(--amber)}
 .daily-row.rally .daily-val{color:var(--wepair)}
+.daily-row.pre-field .daily-val{min-width:72px;color:var(--faint);font-family:var(--font);font-size:11px}
+.daily-first-field{display:inline-flex;margin-left:5px;padding:2px 6px;border-radius:999px;background:rgba(55,185,237,.13);color:#67d5ff;font-size:9px;font-style:normal;font-weight:900}
 .drally{font-size:11px!important;font-weight:800;width:auto!important;padding:0 9px!important}
 .drally.on{background:var(--wepair)!important;color:#062430!important;border-color:var(--wepair)!important}
 .daily-ctrl{flex-wrap:wrap;justify-content:flex-end}
@@ -1720,6 +1728,11 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-profitrecap .prc-status{display:flex;align-items:center;gap:9px;background:rgba(230,176,82,.11);border:1px solid rgba(230,176,82,.28);border-radius:12px;padding:11px 13px;margin-bottom:15px;font-size:12.5px;color:var(--muted);line-height:1.5}
 #m-profitrecap .prc-status.saved{background:rgba(92,188,46,.1);border-color:rgba(92,188,46,.3)}
 #m-profitrecap .prc-status strong{color:var(--cream)}
+#m-profitrecap .prc-paytype{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px;padding:6px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.1)}
+#m-profitrecap .prc-paytype button{min-height:48px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--muted);font-size:14px;font-weight:900;cursor:pointer}
+#m-profitrecap .prc-paytype button.on{border-color:rgba(92,188,46,.45);background:rgba(92,188,46,.14);color:var(--green-soft);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+#m-profitrecap .prc-paytype-note{grid-column:1/-1;margin:0 6px 4px;color:var(--faint);font-size:10.5px;line-height:1.5}
+#m-profitrecap .prc-performance[hidden]{display:none!important}
 #m-profitrecap .prc-money{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 #m-profitrecap .prc-field{display:flex;flex-direction:column;gap:7px;min-width:0}
 #m-profitrecap .prc-field.full{grid-column:1/-1}
@@ -4226,8 +4239,8 @@ function weekRange(){const now=new Date();const day=now.getDay();const diff=(day
 function weeksInMonth(mk){const y=+mk.slice(0,4),m=+mk.slice(5,7);const days=new Date(y,m,0).getDate();const fday=new Date(y,m-1,1).getDay();const offset=(fday===0?6:fday-1);return Math.max(1,Math.ceil((offset+days)/7));}
 function weekIndexInMonth(){const now=new Date();const d=now.getDate();const fday=new Date(now.getFullYear(),now.getMonth(),1).getDay();const offset=(fday===0?6:fday-1);return Math.floor((offset+d-1)/7)+1;}
 function teamWeekTarget(){return Math.max(1,Math.round(teamTargetNow()/weeksInMonth(curMonthKey())));}
-function sumWeek(name){const {sd,ed}=weekRange();let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date>=sd&&e.date<=ed&&(!name||e.name===name)&&!e.na&&!e.rally)s+=(+e.count||0);}return s;}
-function activeWeekDays(){const {sd,ed}=weekRange();const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date>=sd&&e.date<=ed&&!e.na&&!e.rally)days.add(e.date);}return days.size||1;}
+function sumWeek(name){const {sd,ed}=weekRange();let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date>=sd&&e.date<=ed&&(!name||e.name===name)&&saleEntryCountsAsWork(e))s+=(+e.count||0);}return s;}
+function activeWeekDays(){const {sd,ed}=weekRange();const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date>=sd&&e.date<=ed&&saleEntryCountsAsWork(e))days.add(e.date);}return days.size||1;}
 function teamTargetNow(){return MONTHLY_TEAM_TARGET[curMonthKey()]||TEAM_TARGET}
 function teamAchievedFor(mk){const live=sumMonth(null,mk);return live>0?live:(MONTHLY_TEAM_DONE[mk]||0);}  // 앱에 그 달 데이터가 있으면 실데이터, 없으면 과거 폴백 (이중합산 방지)
 /* ============================================================ */
@@ -4718,6 +4731,16 @@ function armPostAuthGuard(u){
 }
 /* ===== 첫필드 백필 — 예전엔 리더 설문에만 있었음 ===== */
 function firstFieldOf(u){if(!u||!u.surveys)return '';var ks=Object.keys(u.surveys);for(var i=0;i<ks.length;i++){var a=u.surveys[ks[i]]&&u.surveys[ks[i]].answers;if(a&&a.firstField)return a.firstField;}return '';}
+function salesFirstFieldDate(name){
+  name=String(name||'').replace(/\s/g,'');if(!name)return '';
+  try{var u=Object.values((state&&state.users)||{}).find(function(x){return x&&String(x.name||'').replace(/\s/g,'')===name;});var ff=firstFieldOf(u);if(/^\d{4}-\d{2}-\d{2}$/.test(ff||''))return ff;}catch(e){}
+  try{var m=typeof miInfo==='function'?miInfo(name):null;var join=m&&m.join;if(/^\d{4}-\d{2}-\d{2}$/.test(join||''))return join;}catch(e){}
+  return '';
+}
+function saleDatePhase(name,date){var ff=salesFirstFieldDate(name);if(!ff||!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return '';return date<ff?'before':(date===ff?'first':'after');}
+function saleBeforeFirstField(name,date){return saleDatePhase(name,date)==='before';}
+function saleEntryIsRecorded(e){if(!e||saleBeforeFirstField(e.name,e.date))return false;if(e.na||e.rally)return true;return Number(e.count)>0||e.checked===true;}
+function saleEntryCountsAsWork(e){return !!(saleEntryIsRecorded(e)&&!e.na&&!e.rally);}
 function needsFirstField(u){if(!u)return false;if(typeof isAdminName==='function'&&isAdminName(u.name))return false;if(typeof isTestBot==='function'&&isTestBot(u))return false;if(u.status&&u.status!=='active')return false;return !firstFieldOf(u);}
 var _ffCont=null;
 function askFirstField(cb){_ffCont=cb||null;showFirstFieldModal();}
@@ -5130,8 +5153,9 @@ function importSheetData(data,opt){
       const role=roleOf(name),val=row[nm],key=`${date}|${name}`,t=Date.now();
       const sval=String(val).trim();let ne=null;
       const slow=sval.toLowerCase();
+      if(saleBeforeFirstField(name,date))return;       // 첫필드 이전은 근무 전이므로 어떤 값도 가져오지 않음
       if(slow==='na'||slow==='n')ne={name,role,date,count:0,na:true,checked:true,t};
-      else if(sval!==''){const c=Number(sval);if(!isNaN(c)&&c>=0&&c<=300)ne={name,role,date,count:c,checked:true,t};}  // 명시적 0 = 필드 뛰고 결과 0(출근일 포함) · 빈칸=무시 · 300 초과=인컴 오염 무시 · '랠리'=무시
+      else if(sval!==''){const c=Number(sval);if(!isNaN(c)&&c>0&&c<=300)ne={name,role,date,count:c,checked:true,t};}  // 시트의 0은 빈 셀 수식과 구분 불가: 앱에서 직접 0건 저장한 checked 레코드만 확정 · 300 초과=인컴 오염 무시
       if(!ne)return;
       const cur=state.sales[key];
       if(fillOnly&&cur)return;
@@ -5174,7 +5198,7 @@ function renderDailyCalendar(){
   if(!dailyCalYM)dailyCalYM={y:+sel.slice(0,4),m:+sel.slice(5,7)};
   const y=dailyCalYM.y,m=dailyCalYM.m,mk=`${y}-${dpad(m)}`;
   const startDow=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();
-  const has={};for(const k in state.sales){const e=state.sales[k];if(e.date&&e.date.slice(0,7)===mk)has[e.date]=true;}
+  const has={};for(const k in state.sales){const e=state.sales[k];if(e.date&&e.date.slice(0,7)===mk&&saleEntryIsRecorded(e))has[e.date]=true;}
   let cells='';
   for(let i=0;i<startDow;i++)cells+='<div class="dc-cell empty"></div>';
   for(let d=1;d<=days;d++){
@@ -5192,21 +5216,24 @@ function membersSorted(){var arr=Object.values(state.users).filter(u=>u.status==
 function dailyAdj(name,delta){
   if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
+  if(saleBeforeFirstField(name,d)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}
   let cnt=(cur&&!cur.na&&!cur.rally)?(+cur.count||0):0;cnt=Math.max(0,cnt+delta);
-  state.sales[key]={name,role,date:d,count:cnt,t};
-  if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:cnt,t});
+  state.sales[key]={name,role,date:d,count:cnt,checked:true,t};
+  if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:cnt,checked:true,t});
   renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
 }
 function dailyNA(name){
   if(!canDaily(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
+  if(saleBeforeFirstField(name,d)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}
   if(cur&&cur.na){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
-  else{state.sales[key]={name,role,date:d,count:0,na:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,na:true,t});}
+  else{state.sales[key]={name,role,date:d,count:0,na:true,checked:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,na:true,checked:true,t});}
   renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
 }
 function dailyRally(name){
   if(!isFounder(me)||!name)return;
   const d=dailyDateVal(),key=`${d}|${name}`,cur=state.sales[key],role=roleOf(name),t=Date.now();
+  if(saleBeforeFirstField(name,d)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}
   if(cur&&cur.rally){delete state.sales[key];if(LIVE)DB.set(`sales/${d}/${nk(name)}`,null);}
   else{state.sales[key]={name,role,date:d,count:0,rally:true,t};if(LIVE)DB.set(`sales/${d}/${nk(name)}`,{name,role,count:0,rally:true,t});}
   renderDaily();renderScores();renderPerfGauge();renderComp();autoSyncCell(d,name);
@@ -5252,7 +5279,7 @@ function sheetWrite(payload,onDone){
 function dailyComplete(){
   if(!canDaily(me)){toast('권한이 없어요');return;}
   const d=dailyDateVal();
-  const list=rosterMembers().filter(u=>state.sales[`${d}|${u.name}`]);
+  const list=rosterMembers().filter(u=>saleEntryIsRecorded(state.sales[`${d}|${u.name}`]));
   if(!list.length){toast('입력된 결과가 없어요 — 먼저 +/− 로 점수를 입력하세요');return;}
   const btn=document.getElementById('dailyDoneBtn');if(btn){btn.disabled=true;btn.textContent='📤 시트로 전송 중…';}
   setSheetSync&&setSheetSync('sync');
@@ -5280,11 +5307,11 @@ function renderDaily(){
   const d=dailyDateVal(),members=rosterMembers();
   let tot=0,act=0,nac=0;
   box.innerHTML=members.length?members.map(u=>{
-    const e=state.sales[`${d}|${u.name}`],na=!!(e&&e.na),rally=!!(e&&e.rally),cnt=(e&&!na&&!rally)?(+e.count||0):0;
-    const lock=na||rally;
+    const phase=saleDatePhase(u.name,d),before=phase==='before',first=phase==='first',raw=state.sales[`${d}|${u.name}`],e=saleEntryIsRecorded(raw)?raw:null,na=!!(e&&e.na),rally=!!(e&&e.rally),cnt=(e&&!na&&!rally)?(+e.count||0):0;
+    const lock=before||na||rally;
     if(e&&!na&&!rally){tot+=cnt;if(cnt>0)act++;} if(na)nac++;
-    const val=na?'NA':(rally?'랠리':cnt);
-    return `<div class="daily-row${na?' na':''}${rally?' rally':''}"><span class="daily-av" style="background:${avColor(u.name)}">${avInner(u.name)}</span><span class="daily-nm">${esc(u.name)}<small> · ${esc(u.role)}${u.registered?'':' <i style="font-style:normal;color:var(--faint)">·미가입</i>'}</small></span><div class="daily-ctrl"><button class="dminus" onclick="dailyAdj('${esc(u.name)}',-1)" ${lock?'disabled':''}>−</button><b class="daily-val">${val}</b><button class="dplus" onclick="dailyAdj('${esc(u.name)}',1)" ${lock?'disabled':''}>+</button><button class="dna${na?' on':''}" onclick="dailyNA('${esc(u.name)}')">NA</button></div></div>`;
+    const val=before?'기록 없음':(na?'NA':(rally?'랠리':(e?cnt:'—')));
+    return `<div class="daily-row${before?' pre-field':''}${first?' first-field':''}${na?' na':''}${rally?' rally':''}"><span class="daily-av" style="background:${avColor(u.name)}">${avInner(u.name)}</span><span class="daily-nm">${esc(u.name)}<small> · ${esc(u.role)}${u.registered?'':' <i style="font-style:normal;color:var(--faint)">·미가입</i>'}${first?' <i class="daily-first-field">첫필드!</i>':''}</small></span><div class="daily-ctrl"><button class="dminus" onclick="dailyAdj('${esc(u.name)}',-1)" ${lock?'disabled':''}>−</button><b class="daily-val">${val}</b><button class="dplus" onclick="dailyAdj('${esc(u.name)}',1)" ${lock?'disabled':''}>+</button><button class="dna${na?' on':''}" onclick="dailyNA('${esc(u.name)}')" ${before?'disabled':''}>NA</button></div></div>`;
   }).join(''):'<div class="empty-row">명단이 없어요</div>';
   const sum=document.getElementById('dailySum');
   if(sum)sum.innerHTML=`<span>📅 ${d}</span><span>합계 <b>${tot}</b></span><span>참여 <b>${act}</b>명</span><span>휴무 <b>${nac}</b>명</span>`;
@@ -5298,7 +5325,7 @@ function selectStatMonth(mk){curStatMonth=mk;renderMonthBtns();renderMonthStats(
 function renderMonthStats(mk){
   const box=document.getElementById('monthStats');if(!box)return;
   const agg={};
-  for(const k in state.sales){const e=state.sales[k];if(!e.date.startsWith(mk))continue;
+  for(const k in state.sales){const e=state.sales[k];if(!e.date.startsWith(mk)||!saleEntryIsRecorded(e))continue;
     if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0,days:0,na:0,rally:0};
     if(e.na)agg[e.name].na++;else if(e.rally)agg[e.name].rally++;else{const c=+e.count||0;agg[e.name].sales+=c;agg[e.name].days++;}
   }
@@ -5443,6 +5470,17 @@ function renderRecap(){
 function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementById('rc-mk').value.trim();if(!/^\d{4}-\d{2}$/.test(mk)){toast('월 형식은 2026-06 처럼 입력하세요');return}const rec={done:parseInt(document.getElementById('rc-done').value,10)||0,avg:document.getElementById('rc-avg').value.trim(),income:document.getElementById('rc-income').value.trim(),note:document.getElementById('rc-note').value.trim()};const nr={...(state.recaps||{}),[mk]:rec};state.recaps=nr;if(LIVE)DB.set('recaps',nr);renderRecap();toast('리캡을 저장했어요 ✓');}
 /* ===== Profit · 금요일 주간 리캡 (리더 본인 작성 / 관리자 현황) ===== */
 let profitRecapPayDate='';
+let profitRecapPayType='hourly';
+function prcPayTypeOf(r){if(r&&r.payType==='hourly')return 'hourly';if(r&&r.payType==='performance')return 'performance';return r&&r.updatedAt?'performance':'hourly';}
+function prcApplyPayType(){
+  const type=profitRecapPayType==='performance'?'performance':'hourly',perf=document.getElementById('prcPerformanceFields'),label=document.querySelector('label[for="prcNet"]'),note=document.getElementById('prcPayTypeNote');
+  document.querySelectorAll('#m-profitrecap .prc-paytype button').forEach(function(btn){const on=btn.dataset.payType===type;btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on?'true':'false');});
+  if(perf)perf.hidden=type!=='performance';
+  if(label)label.innerHTML=type==='hourly'?'이번 주 시급 급여 <small>· 통장에 실제 들어온 시급제 급여</small>':'이번 주 인컴 <small>· 통장에 실제 들어온 성과 급여</small>';
+  if(note)note.textContent=type==='hourly'?'시급제는 급여 금액만 기록하며 리젝·리섭·본드·BEP는 묻지 않아요.':'성과급은 실인컴과 CL/SW 리젝·리섭, 잔여 본드와 월 BEP를 함께 기록해요.';
+}
+function prcSetPayType(type){profitRecapPayType=type==='performance'?'performance':'hourly';prcApplyPayType();}
+function prcPayTypeHTML(type){return '<div class="prc-paytype" role="group" aria-label="급여 형태"><button type="button" data-pay-type="hourly" class="'+(type==='hourly'?'on':'')+'" aria-pressed="'+(type==='hourly'?'true':'false')+'" onclick="prcSetPayType(\'hourly\')">⏱ 시급</button><button type="button" data-pay-type="performance" class="'+(type==='performance'?'on':'')+'" aria-pressed="'+(type==='performance'?'true':'false')+'" onclick="prcSetPayType(\'performance\')">📈 성과</button><p class="prc-paytype-note" id="prcPayTypeNote"></p></div>';}
 function prcAddDays(ds,n){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return ymd(d);}
 function prcFriday(ds){const d=new Date((ds||TODAY)+'T12:00:00');if(isNaN(d))return TODAY;const diff=(d.getDay()-5+7)%7;d.setDate(d.getDate()-diff);return ymd(d);}
 function prcWeekInfo(pay){pay=prcFriday(pay);const we=prcAddDays(pay,-5);return {pay:pay,we:we,sd:prcAddDays(we,-6),ed:we};}
@@ -5458,12 +5496,12 @@ function prcStatusHTML(rec,info){
   const isFriday=new Date(TODAY+'T12:00:00').getDay()===5,isPast=info.pay<TODAY;
   if(rec)return '<div class="prc-status saved"><span>✅</span><div><strong>작성 완료</strong><br>저장된 리캡을 다시 열어 수정할 수 있어요.</div></div>';
   if(info.pay>TODAY)return '<div class="prc-status"><span>🔒</span><div><strong>아직 급여일 전이에요.</strong><br>해당 금요일부터 작성할 수 있어요.</div></div>';
-  return '<div class="prc-status"><span>🧾</span><div><strong>'+(isFriday&&!isPast?'오늘 작성하는 리캡이에요.':'놓친 주간도 보완 작성할 수 있어요.')+'</strong><br>급여명세서의 실입금과 리젝 건수를 확인해 주세요.</div></div>';
+  return '<div class="prc-status"><span>🧾</span><div><strong>'+(isFriday&&!isPast?'오늘 작성하는 리캡이에요.':'놓친 주간도 보완 작성할 수 있어요.')+'</strong><br>급여 형태를 먼저 선택한 뒤 이번 주 입금액을 기록해 주세요.</div></div>';
 }
 function prcTeamHTML(pay){
   if(!isFounder(me))return '';
   const leaders=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&ri(u.role)>=1&&!isTestBot(u);}).sort(function(a,b){return ri(b.role)-ri(a.role)||String(a.name).localeCompare(String(b.name),'ko');});
-  const rows=leaders.map(function(u){const r=prcMyRecord(pay,u.uid);return '<div class="prc-team-row"><b>'+esc(u.name)+' <small>'+esc(u.role)+'</small></b><span>'+(r?'작성 완료':'미작성')+'</span><em>'+(r?'₩ '+prcFmt(r.netPayment):'—')+'</em></div>';}).join('');
+  const rows=leaders.map(function(u){const r=prcMyRecord(pay,u.uid),type=prcPayTypeOf(r);return '<div class="prc-team-row"><b>'+esc(u.name)+' <small>'+esc(u.role)+'</small></b><span>'+(r?(type==='hourly'?'시급 · 완료':'성과 · 완료'):'미작성')+'</span><em>'+(r?'₩ '+prcFmt(r.netPayment):'—')+'</em></div>';}).join('');
   return '<details class="prc-detail prc-team"><summary><span>👥 선택 주간 리더 작성 현황</span><span>'+leaders.filter(function(u){return !!prcMyRecord(pay,u.uid);}).length+' / '+leaders.length+'</span></summary><div class="prc-detail-grid" style="display:block">'+(rows||'<div class="prc-empty">활성 리더가 없어요.</div>')+'</div></details>';
 }
 function prcBep(month,uid){return Number((((state.profitMonthlyBep||{})[month]||{})[uid||((me||{}).uid)]||0))||0;}
@@ -5481,10 +5519,10 @@ function prcPayDates(from,to){
   const out=[],months=prcRangeMonths(from,to);months.forEach(function(mk){const y=+mk.slice(0,4),m=+mk.slice(5,7),last=new Date(y,m,0).getDate();for(let day=1;day<=last;day++){const ds=mk+'-'+String(day).padStart(2,'0'),d=new Date(ds+'T12:00:00');if(d.getDay()===5)out.push(ds);}});return out;
 }
 function prcPeriodForPays(pays){if(!pays.length)return {from:'',to:''};const first=prcWeekInfo(pays[0]),last=prcWeekInfo(pays[pays.length-1]);return {from:first.sd,to:last.ed};}
-function prcSalesBetween(name,fromDate,toDate){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){const ds=String((s||{}).date||'');if(!s||s.name!==name||ds<fromDate||ds>toDate||s.na||s.rally)return;const count=Number(s.count)||0;sales+=count;days.add(ds);});return {sales:sales,days:days.size};}
+function prcSalesBetween(name,fromDate,toDate){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){const ds=String((s||{}).date||'');if(!s||s.name!==name||ds<fromDate||ds>toDate||!saleEntryCountsAsWork(s))return;const count=Number(s.count)||0;sales+=count;days.add(ds);});return {sales:sales,days:days.size};}
 function prcWeekSales(name,pay){const w=prcWeekInfo(pay);return prcSalesBetween(name,w.sd,w.ed);}
-function prcRejectTotal(r){return prcNum((r||{}).rejectCLCount)+prcNum((r||{}).rejectSWCount);}
-function prcResubmitTotal(r){return prcNum((r||{}).resubmitCLCount)+prcNum((r||{}).resubmitSWCount);}
+function prcRejectTotal(r){return prcPayTypeOf(r)==='hourly'?0:prcNum((r||{}).rejectCLCount)+prcNum((r||{}).rejectSWCount);}
+function prcResubmitTotal(r){return prcPayTypeOf(r)==='hourly'?0:prcNum((r||{}).resubmitCLCount)+prcNum((r||{}).resubmitSWCount);}
 function prcRejectRate(rejects,resubmits,sales){return sales?Math.max(0,rejects-resubmits)/sales*100:0;}
 function prcPct(v){return Number(v||0).toFixed(1)+'%';}
 function prcWeekLabel(pay){const d=prcWeekInfo(pay).ed;return 'WE '+Number(d.slice(5,7))+'/'+Number(d.slice(8,10));}
@@ -5493,10 +5531,10 @@ function prcMonthChip(from,to){return from===to?from.replace('-','.'):(from.repl
 function prcAdminMembers(uid){const all=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&!isTestBot(u);});if(uid)return all.filter(function(u){return u.uid===uid;});return all;}
 function prcAdminAgg(from,to,uid){
   const pays=prcPayDates(from,to),period=prcPeriodForPays(pays),records=prcRangeRecords(from,to,uid),members=prcAdminMembers(uid),recordByUid={};records.forEach(function(r){recordByUid[r.uid]=recordByUid[r.uid]||{};recordByUid[r.uid][r.payDate]=r;});
-  let rows=members.map(function(u){const byPay=recordByUid[u.uid]||{},rr=pays.map(function(p){return byPay[p]||null;}),saved=rr.filter(Boolean),weekly=pays.map(function(pay){return prcWeekSales(u.name,pay).sales;}),span=period.from?prcSalesBetween(u.name,period.from,period.to):{sales:0,days:0},last=saved.slice().sort(function(a,b){return String(b.payDate).localeCompare(String(a.payDate));})[0]||{},rejects=saved.reduce(function(s,r){return s+prcRejectTotal(r);},0),resubmits=saved.reduce(function(s,r){return s+prcResubmitTotal(r);},0);return {uid:u.uid,name:u.name||'—',role:u.role||'',fieldDays:span.days,sales:weekly.reduce(function(s,v){return s+v;},0),income:saved.reduce(function(s,r){return s+Number(r.netPayment||0);},0),rejects:rejects,resubmits:resubmits,rejectRate:prcRejectRate(rejects,resubmits,weekly.reduce(function(s,v){return s+v;},0)),bond:Number(last.bondBalance||0),bep:prcBep(to,u.uid)||Number(last.bep||0),weekly:weekly,records:rr,savedWeeks:saved.length};});
+  let rows=members.map(function(u){const byPay=recordByUid[u.uid]||{},rr=pays.map(function(p){return byPay[p]||null;}),saved=rr.filter(Boolean),performance=saved.filter(function(r){return prcPayTypeOf(r)==='performance';}),hourlyWeeks=saved.length-performance.length,performanceWeeks=performance.length,weekly=pays.map(function(pay){return prcWeekSales(u.name,pay).sales;}),span=period.from?prcSalesBetween(u.name,period.from,period.to):{sales:0,days:0},lastPerformance=performance.slice().sort(function(a,b){return String(b.payDate).localeCompare(String(a.payDate));})[0]||{},rejects=performance.reduce(function(s,r){return s+prcRejectTotal(r);},0),resubmits=performance.reduce(function(s,r){return s+prcResubmitTotal(r);},0),payLabel=hourlyWeeks&&performanceWeeks?('시'+hourlyWeeks+'·성'+performanceWeeks):(hourlyWeeks?('시급 '+hourlyWeeks):(performanceWeeks?('성과 '+performanceWeeks):'—'));return {uid:u.uid,name:u.name||'—',role:u.role||'',fieldDays:span.days,sales:weekly.reduce(function(s,v){return s+v;},0),income:saved.reduce(function(s,r){return s+Number(r.netPayment||0);},0),rejects:rejects,resubmits:resubmits,rejectRate:prcRejectRate(rejects,resubmits,weekly.reduce(function(s,v){return s+v;},0)),bond:Number(lastPerformance.bondBalance||0),bep:prcBep(to,u.uid)||Number(lastPerformance.bep||0),weekly:weekly,records:rr,savedWeeks:saved.length,hourlyWeeks:hourlyWeeks,performanceWeeks:performanceWeeks,payLabel:payLabel};});
   rows=rows.filter(function(x){return uid||x.sales||x.income||x.rejects||x.resubmits||x.savedWeeks;}).sort(function(a,b){return b.sales-a.sales||b.income-a.income||String(a.name).localeCompare(String(b.name),'ko');});
   const weeklySales=pays.map(function(_,i){return rows.reduce(function(s,x){return s+(x.weekly[i]||0);},0);}),weeklyRejects=pays.map(function(pay){return records.filter(function(r){return r.payDate===pay;}).reduce(function(s,r){return s+prcRejectTotal(r);},0);}),weeklyIncome=pays.map(function(pay){return records.filter(function(r){return r.payDate===pay;}).reduce(function(s,r){return s+Number(r.netPayment||0);},0);});let cumulative=0;
-  const totals={fieldDays:rows.reduce(function(s,x){return s+x.fieldDays;},0),sales:rows.reduce(function(s,x){return s+x.sales;},0),income:rows.reduce(function(s,x){return s+x.income;},0),rejects:rows.reduce(function(s,x){return s+x.rejects;},0),resubmits:rows.reduce(function(s,x){return s+x.resubmits;},0),bond:rows.reduce(function(s,x){return s+x.bond;},0),weekly:weeklySales};totals.netSales=Math.max(0,totals.sales-totals.rejects+totals.resubmits);totals.avg=totals.fieldDays?totals.sales/totals.fieldDays:0;totals.rejectRate=prcRejectRate(totals.rejects,totals.resubmits,totals.sales);
+  const totals={fieldDays:rows.reduce(function(s,x){return s+x.fieldDays;},0),sales:rows.reduce(function(s,x){return s+x.sales;},0),income:rows.reduce(function(s,x){return s+x.income;},0),rejects:rows.reduce(function(s,x){return s+x.rejects;},0),resubmits:rows.reduce(function(s,x){return s+x.resubmits;},0),bond:rows.reduce(function(s,x){return s+x.bond;},0),weekly:weeklySales,hourlyWeeks:rows.reduce(function(s,x){return s+x.hourlyWeeks;},0),performanceWeeks:rows.reduce(function(s,x){return s+x.performanceWeeks;},0)};totals.payLabel=totals.hourlyWeeks&&totals.performanceWeeks?('시'+totals.hourlyWeeks+'·성'+totals.performanceWeeks):(totals.hourlyWeeks?('시급 '+totals.hourlyWeeks):(totals.performanceWeeks?('성과 '+totals.performanceWeeks):'—'));totals.netSales=Math.max(0,totals.sales-totals.rejects+totals.resubmits);totals.avg=totals.fieldDays?totals.sales/totals.fieldDays:0;totals.rejectRate=prcRejectRate(totals.rejects,totals.resubmits,totals.sales);
   return {records:records,rows:rows,pays:pays,weeklySales:weeklySales,weeklyRejects:weeklyRejects,weeklyIncome:weeklyIncome,cumulativeSales:weeklySales.map(function(v){cumulative+=v;return cumulative;}),period:period,totals:totals};
 }
 function prcTrendSeries(data,key){const vals=data[key]||[];if(data.pays.length<=6)return {labels:data.pays.map(prcWeekLabel),values:vals.slice()};const map={};data.pays.forEach(function(p,i){const k=p.slice(0,7);map[k]=(map[k]||0)+(Number(vals[i])||0);});return {labels:Object.keys(map),values:Object.values(map)};}
@@ -5504,14 +5542,14 @@ function prcTrendValue(v,money){if(!money)return prcFmt(v);const n=Number(v)||0;
 function prcAdminBars(labels,vals,color,money){const max=Math.max.apply(null,vals.concat([1]));return '<div class="pra-bars">'+vals.map(function(v,i){return '<div class="pra-bar" style="height:'+Math.max(3,Math.round(v/max*112))+'px;background:'+(color||'#255deb')+'"><b>'+prcTrendValue(v,money)+'</b><span>'+esc(labels[i]||'')+'</span></div>';}).join('')+'</div>';}
 function prcAdminLine(pays,vals){if(!vals.length)return '<div class="pra-empty">데이터 없음</div>';const max=Math.max.apply(null,vals.concat([1])),w=520,h=145,pad=28,step=vals.length>1?(w-pad*2)/(vals.length-1):0,pts=vals.map(function(v,i){return {x:pad+i*step,y:h-pad-(v/max)*(h-pad*2),v:v};}),line=pts.map(function(p){return p.x+','+p.y;}).join(' ');return '<svg class="pra-line" viewBox="0 0 '+w+' '+h+'" aria-label="누적 세일즈 추이"><line x1="'+pad+'" y1="'+(h-pad)+'" x2="'+(w-pad)+'" y2="'+(h-pad)+'" stroke="#cbd5e1"/><polyline points="'+line+'" fill="none" stroke="#255deb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'+pts.map(function(p,i){return '<circle cx="'+p.x+'" cy="'+p.y+'" r="6" fill="#255deb"/><text x="'+p.x+'" y="'+Math.max(12,p.y-10)+'" text-anchor="middle" font-size="10" font-weight="800" fill="#1e293b">'+prcFmt(p.v)+'</text><text x="'+p.x+'" y="'+(h-7)+'" text-anchor="middle" font-size="9" fill="#64748b">'+esc(prcWeekLabel(pays[i]))+'</text>';}).join('')+'</svg>';}
 function prcRateClass(rate){return rate<=15?'good':rate<=30?'warn':'bad';}
-function prcRowTotals(rows,pays){const out={fieldDays:0,sales:0,income:0,rejects:0,resubmits:0,weekly:pays.map(function(){return 0;})};rows.forEach(function(x){out.fieldDays+=x.fieldDays;out.sales+=x.sales;out.income+=x.income;out.rejects+=x.rejects;out.resubmits+=x.resubmits;x.weekly.forEach(function(v,i){out.weekly[i]+=v||0;});});out.rejectRate=prcRejectRate(out.rejects,out.resubmits,out.sales);return out;}
+function prcRowTotals(rows,pays){const out={fieldDays:0,sales:0,income:0,rejects:0,resubmits:0,hourlyWeeks:0,performanceWeeks:0,weekly:pays.map(function(){return 0;})};rows.forEach(function(x){out.fieldDays+=x.fieldDays;out.sales+=x.sales;out.income+=x.income;out.rejects+=x.rejects;out.resubmits+=x.resubmits;out.hourlyWeeks+=x.hourlyWeeks||0;out.performanceWeeks+=x.performanceWeeks||0;x.weekly.forEach(function(v,i){out.weekly[i]+=v||0;});});out.payLabel=out.hourlyWeeks&&out.performanceWeeks?('시'+out.hourlyWeeks+'·성'+out.performanceWeeks):(out.hourlyWeeks?('시급 '+out.hourlyWeeks):(out.performanceWeeks?('성과 '+out.performanceWeeks):'—'));out.rejectRate=prcRejectRate(out.rejects,out.resubmits,out.sales);return out;}
 function prcAdminTable(data,rows,start){
-  const head='<tr><th>팀원</th><th>필드일</th><th>세일즈</th><th>인컴</th><th>리젝</th><th>리섭</th><th>리젝률</th>'+data.pays.map(function(_,i){return '<th>W'+(i+1)+'</th>';}).join('')+'</tr>';
-  const body=rows.map(function(x){return '<tr><td>'+esc(x.name)+' '+esc(x.role)+'</td><td>'+x.fieldDays+'일</td><td class="sales">'+x.sales+'</td><td class="income">₩'+prcFmt(x.income)+'</td><td>'+x.rejects+'</td><td>'+x.resubmits+'</td><td class="rate '+prcRateClass(x.rejectRate)+'">'+prcPct(x.rejectRate)+'</td>'+x.weekly.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>';}).join(''),chunk=prcRowTotals(rows,data.pays),total=data.totals,label=(start+1)+'–'+(start+rows.length)+' 합계';
-  const sumRow=function(cls,name,x){return '<tr class="'+cls+'"><td>'+name+'</td><td>'+x.fieldDays+'일</td><td>'+x.sales+'</td><td>₩'+prcFmt(x.income)+'</td><td>'+x.rejects+'</td><td>'+x.resubmits+'</td><td>'+prcPct(x.rejectRate)+'</td>'+x.weekly.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>';};
+  const head='<tr><th>팀원</th><th>급여</th><th>필드일</th><th>세일즈</th><th>인컴</th><th>리젝</th><th>리섭</th><th>리젝률</th>'+data.pays.map(function(_,i){return '<th>W'+(i+1)+'</th>';}).join('')+'</tr>';
+  const body=rows.map(function(x){return '<tr><td>'+esc(x.name)+' '+esc(x.role)+'</td><td>'+esc(x.payLabel)+'</td><td>'+x.fieldDays+'일</td><td class="sales">'+x.sales+'</td><td class="income">₩'+prcFmt(x.income)+'</td><td>'+x.rejects+'</td><td>'+x.resubmits+'</td><td class="rate '+prcRateClass(x.rejectRate)+'">'+prcPct(x.rejectRate)+'</td>'+x.weekly.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>';}).join(''),chunk=prcRowTotals(rows,data.pays),total=data.totals,label=(start+1)+'–'+(start+rows.length)+' 합계';
+  const sumRow=function(cls,name,x){return '<tr class="'+cls+'"><td>'+name+'</td><td>'+esc(x.payLabel||'—')+'</td><td>'+x.fieldDays+'일</td><td>'+x.sales+'</td><td>₩'+prcFmt(x.income)+'</td><td>'+x.rejects+'</td><td>'+x.resubmits+'</td><td>'+prcPct(x.rejectRate)+'</td>'+x.weekly.map(function(v){return '<td>'+v+'</td>';}).join('')+'</tr>';};
   return '<p class="pra-table-hint">표를 좌우로 밀어 W1–W'+data.pays.length+'까지 확인하세요.</p><div class="pra-table-wrap"><table class="pra-table"><thead>'+head+'</thead><tbody>'+body+sumRow('pra-chunk-total',label,chunk)+sumRow('pra-team-total','팀 합계',total)+'</tbody></table></div>';
 }
-function prcAdminDetailSlides(data,scope,scopeName,rangeLabel){const source=data.rows,pageSize=5,total=Math.max(1,Math.ceil(source.length/pageSize));let html='';for(let start=0;start<source.length;start+=pageSize){const rows=source.slice(start,start+pageSize),page=Math.floor(start/pageSize)+1;html+='<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">세일즈 디테일</div><h3 class="pra-title">팀원별 세일즈 성과 상세 · '+page+' / '+total+'</h3><div class="pra-sub">스프레드시트 순서 · 리젝률=(리젝−리섭)÷세일즈 · '+rangeLabel+'</div>'+prcAdminTable(data,rows,start)+'<div class="pra-page">'+(page+2)+'</div></article>';}return html;}
+function prcAdminDetailSlides(data,scope,scopeName,rangeLabel){const source=data.rows,pageSize=5,total=Math.max(1,Math.ceil(source.length/pageSize));let html='';for(let start=0;start<source.length;start+=pageSize){const rows=source.slice(start,start+pageSize),page=Math.floor(start/pageSize)+1;html+='<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">세일즈 디테일</div><h3 class="pra-title">팀원별 세일즈 성과 상세 · '+page+' / '+total+'</h3><div class="pra-sub">급여 형태 포함 · 리젝률은 성과제 주차만 (리젝−리섭)÷세일즈 · '+rangeLabel+'</div>'+prcAdminTable(data,rows,start)+'<div class="pra-page">'+(page+2)+'</div></article>';}return html;}
 function prcCoverHTML(data,from,to,scopeName){const t=data.totals,p=data.period;return '<article class="pra-slide pra-cover-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-cover-card"><span class="pra-cover-chip">'+esc(prcMonthChip(from,to))+'</span><h3 class="pra-cover-title">'+esc(prcMonthTitle(from,to))+'</h3><div class="pra-cover-period">기간: '+esc(p.from)+' – '+esc(p.to)+' &nbsp;|&nbsp; Presence Team · '+esc(scopeName)+'</div><div class="pra-cover-metrics"><div class="pra-cover-metric"><b>'+t.sales+'</b><span>월간 총 세일즈</span></div><div class="pra-cover-metric"><b class="gold">₩'+prcFmt(t.income)+'</b><span>월간 실인컴</span></div><div class="pra-cover-metric"><b>'+t.avg.toFixed(2)+'</b><span>팀 월간 AVG</span></div><div class="pra-cover-metric"><b>'+t.fieldDays+'일</b><span>Field Days</span></div></div></div><div class="pra-page">1</div></article>';}
 function prcSummaryHTML(data,rangeLabel){const t=data.totals,sales=prcTrendSeries(data,'weeklySales'),rejects=prcTrendSeries(data,'weeklyRejects'),income=prcTrendSeries(data,'weeklyIncome');return '<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">팀 세일즈 현황</div><h3 class="pra-title">세일즈·리젝·실인컴 주차별 추이</h3><div class="pra-sub">'+data.pays.length+'회 급여 주차 실적 비교 ('+esc(data.period.from)+' – '+esc(data.period.to)+')</div><div class="pra-metrics"><div class="pra-metric"><b>'+t.sales+'</b><span>Gross 세일즈</span></div><div class="pra-metric"><b>'+t.avg.toFixed(2)+'</b><span>월간 팀 AVG</span></div><div class="pra-metric"><b>'+t.fieldDays+'</b><span>총 Field Days</span></div><div class="pra-metric"><b>'+t.netSales+'</b><span>Net Sales · 리젝·리섭 반영</span></div></div><div class="pra-charts"><div class="pra-chart"><h4>세일즈 추이</h4>'+prcAdminBars(sales.labels,sales.values,'#255deb',false)+'</div><div class="pra-chart"><h4>리젝 추이</h4>'+prcAdminBars(rejects.labels,rejects.values,'#ff4055',false)+'</div><div class="pra-chart"><h4>실인컴 추이</h4>'+prcAdminBars(income.labels,income.values,'#009e6c',true)+'</div></div><div class="pra-page">2</div></article>';}
 function renderProfitRecapAdminView(){
@@ -5533,17 +5571,18 @@ function renderProfitRecap(){
   if(!canProfitRecap(me)){box.innerHTML='';return;}
   if(!profitRecapPayDate)profitRecapPayDate=prcFriday(TODAY);
   const info=prcWeekInfo(profitRecapPayDate);profitRecapPayDate=info.pay;
-  const r=prcMyRecord(info.pay,me.uid)||{},month=info.pay.slice(0,7),bep=prcBep(month,me.uid)||prcWon(r.bep);
-  const history=prcRecordsFor(me.uid).slice(0,10).map(function(x){return '<button class="prc-hrow" onclick="prcSetPayDate(\''+esc(x.payDate)+'\')"><div class="prc-hrow-top"><span>'+esc(x.activityFrom||'')+' ~ '+esc(x.weekEnding||'')+'</span><strong>인컴 '+esc((x.incomeDate||x.payDate||'').slice(5).replace('-','.'))+'</strong></div><div class="prc-hrow-val"><b>₩ '+prcFmt(x.netPayment)+'</b><span>리젝 '+(prcNum(x.rejectCLCount)+prcNum(x.rejectSWCount))+' · 리섭 '+(prcNum(x.resubmitCLCount)+prcNum(x.resubmitSWCount))+' · 본드 ₩'+prcFmt(x.bondBalance)+'</span></div></button>';}).join('');
+  const r=prcMyRecord(info.pay,me.uid)||{},month=info.pay.slice(0,7),bep=prcBep(month,me.uid)||prcWon(r.bep),type=prcPayTypeOf(r);profitRecapPayType=type;
+  const history=prcRecordsFor(me.uid).slice(0,10).map(function(x){const xt=prcPayTypeOf(x),detail=xt==='hourly'?'시급제 · 급여만 기록':'리젝 '+prcRejectTotal(x)+' · 리섭 '+prcResubmitTotal(x)+' · 본드 ₩'+prcFmt(x.bondBalance);return '<button class="prc-hrow" onclick="prcSetPayDate(\''+esc(x.payDate)+'\')"><div class="prc-hrow-top"><span>'+esc(x.activityFrom||'')+' ~ '+esc(x.weekEnding||'')+'</span><strong>'+(xt==='hourly'?'시급':'성과')+' '+esc((x.incomeDate||x.payDate||'').slice(5).replace('-','.'))+'</strong></div><div class="prc-hrow-val"><b>₩ '+prcFmt(x.netPayment)+'</b><span>'+detail+'</span></div></button>';}).join('');
   box.innerHTML='<div class="prc-shell"><div class="prc-card">'+
     '<div class="prc-weekbar"><button onclick="prcMove(-7)" aria-label="이전 인컴 주간">‹</button><div class="prc-weekpick"><input id="prcPayDate" type="date" value="'+info.pay+'" max="'+TODAY+'" onchange="prcSetPayDate(this.value)" aria-label="인컴일 선택"></div><button onclick="prcMove(7)" aria-label="다음 인컴 주간"'+(prcAddDays(info.pay,7)>TODAY?' disabled':'')+'>›</button></div>'+
-    '<div class="prc-period"><b>'+month.replace('-','년 ')+'월 주간 인컴 리캡</b></div><div class="prc-dates"><div class="prc-datebox"><span>필드 활동일</span><b>'+info.sd+' ~ '+info.ed+'</b></div><div class="prc-datebox"><span>인컴일</span><b>'+info.pay+' (금)</b></div></div>'+prcStatusHTML(r,info)+
-    '<div class="prc-money">'+prcFieldMoney('prcNet','이번 주 인컴',r.netPayment,'통장에 실제 들어온 금액',true)+'</div>'+
-    '<div class="prc-metric"><div class="prc-metric-head"><b>리젝</b><span>종류별 건수 · 합계는 자동 계산</span></div><div class="prc-counts">'+prcCount('prcRcl','CL',r.rejectCLCount)+prcCount('prcRsw','SW',r.rejectSWCount)+'</div></div>'+
+    '<div class="prc-period"><b>'+month.replace('-','년 ')+'월 주간 인컴 리캡</b></div><div class="prc-dates"><div class="prc-datebox"><span>필드 활동일</span><b>'+info.sd+' ~ '+info.ed+'</b></div><div class="prc-datebox"><span>인컴일</span><b>'+info.pay+' (금)</b></div></div>'+prcStatusHTML(r,info)+prcPayTypeHTML(type)+
+    '<div class="prc-money">'+prcFieldMoney('prcNet',type==='hourly'?'이번 주 시급 급여':'이번 주 인컴',r.netPayment,type==='hourly'?'통장에 실제 들어온 시급제 급여':'통장에 실제 들어온 성과 급여',true)+'</div>'+
+    '<div id="prcPerformanceFields" class="prc-performance"'+(type==='performance'?'':' hidden')+'><div class="prc-metric"><div class="prc-metric-head"><b>리젝</b><span>종류별 건수 · 합계는 자동 계산</span></div><div class="prc-counts">'+prcCount('prcRcl','CL',r.rejectCLCount)+prcCount('prcRsw','SW',r.rejectSWCount)+'</div></div>'+
     '<div class="prc-metric"><div class="prc-metric-head"><b>리섭 · 재제출 성공</b><span>리젝 중 다시 살아난 건 · 리젝률에서 차감</span></div><div class="prc-counts">'+prcCount('prcScl','CL',r.resubmitCLCount)+prcCount('prcSsw','SW',r.resubmitSWCount)+'</div></div>'+
-    '<div class="prc-money" style="margin-top:12px">'+prcFieldMoney('prcBond','잔여 본드',r.bondBalance,'이번 주 기준 잔액',true)+prcFieldMoney('prcBep','월 BEP',bep,'이달 한 번 저장하면 자동 적용',true)+'</div><div class="prc-auto">✓ BEP는 월간 값이에요. 같은 달에는 이전 저장값이 자동으로 채워지며, 변경할 때만 수정하면 됩니다.</div>'+
+    '<div class="prc-money" style="margin-top:12px">'+prcFieldMoney('prcBond','잔여 본드',r.bondBalance,'이번 주 기준 잔액',true)+prcFieldMoney('prcBep','월 BEP',bep,'이달 한 번 저장하면 자동 적용',true)+'</div><div class="prc-auto">✓ BEP는 월간 값이에요. 같은 달에는 이전 저장값이 자동으로 채워지며, 변경할 때만 수정하면 됩니다.</div></div>'+
     '<button class="prc-save" id="prcSaveBtn" onclick="saveProfitRecap()"'+(info.pay>TODAY?' disabled':'')+'>'+(r.updatedAt?'수정 내용 저장':'이번 주 리캡 저장')+'</button>'+prcTeamHTML(info.pay)+'</div>'+
     '<aside class="prc-card"><div class="prc-side-title"><b>최근 주간 리캡</b><span>탭하면 바로 수정</span></div><div class="prc-history">'+(history||'<div class="prc-empty">아직 작성한 리캡이 없어요.<br>금요일 인컴을 확인한 뒤 첫 기록을 남겨보세요.</div>')+'</div>'+prcExportHTML(month)+'</aside></div>';
+  prcApplyPayType();
 }
 function prcSetPayDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;const f=prcFriday(ds);if(f>TODAY){toast('아직 오지 않은 급여일은 작성할 수 없어요');return;}if(f!==ds)toast('급여일인 금요일로 맞췄어요');profitRecapPayDate=f;renderProfitRecap();}
 function prcMove(n){const next=prcAddDays(profitRecapPayDate||prcFriday(TODAY),n);if(next>TODAY){toast('다음 급여일 이후에는 이동할 수 없어요');return;}profitRecapPayDate=next;renderProfitRecap();}
@@ -5551,18 +5590,18 @@ async function saveProfitRecap(){
   if(!canProfitRecap(me)){toast('리더 이상만 작성할 수 있어요');return;}
   const info=prcWeekInfo(profitRecapPayDate||TODAY);if(info.pay>TODAY){toast('급여일 이후에 작성해 주세요');return;}
   const val=id=>((document.getElementById(id)||{}).value||'');
-  const month=info.pay.slice(0,7),bep=prcWon(val('prcBep'));
-  const rec={uid:me.uid,name:me.name||'',role:me.role||'LR',payDate:info.pay,incomeDate:info.pay,weekEnding:info.we,activityFrom:info.sd,activityTo:info.ed,netPayment:prcWon(val('prcNet')),rejectCLCount:prcNum(val('prcRcl')),rejectSWCount:prcNum(val('prcRsw')),resubmitCLCount:prcNum(val('prcScl')),resubmitSWCount:prcNum(val('prcSsw')),bondBalance:prcWon(val('prcBond')),bep:bep,updatedAt:Date.now(),updatedBy:me.uid};
-  state.profitMonthlyBep=state.profitMonthlyBep||{};state.profitMonthlyBep[month]=state.profitMonthlyBep[month]||{};const oldBep=state.profitMonthlyBep[month][me.uid];state.profitMonthlyBep[month][me.uid]=bep;
+  const month=info.pay.slice(0,7),payType=profitRecapPayType==='performance'?'performance':'hourly',netPayment=prcWon(val('prcNet')),bep=payType==='performance'?prcWon(val('prcBep')):prcBep(month,me.uid);
+  const rec={uid:me.uid,name:me.name||'',role:me.role||'LR',payType:payType,payDate:info.pay,incomeDate:info.pay,weekEnding:info.we,activityFrom:info.sd,activityTo:info.ed,netPayment:netPayment,hourlyPay:payType==='hourly'?netPayment:0,rejectCLCount:payType==='performance'?prcNum(val('prcRcl')):0,rejectSWCount:payType==='performance'?prcNum(val('prcRsw')):0,resubmitCLCount:payType==='performance'?prcNum(val('prcScl')):0,resubmitSWCount:payType==='performance'?prcNum(val('prcSsw')):0,bondBalance:payType==='performance'?prcWon(val('prcBond')):0,bep:payType==='performance'?bep:0,updatedAt:Date.now(),updatedBy:me.uid};
+  state.profitMonthlyBep=state.profitMonthlyBep||{};state.profitMonthlyBep[month]=state.profitMonthlyBep[month]||{};const oldBep=state.profitMonthlyBep[month][me.uid];if(payType==='performance')state.profitMonthlyBep[month][me.uid]=bep;
   const old=prcMyRecord(info.pay,me.uid);state.weeklyProfitRecaps=state.weeklyProfitRecaps||{};state.weeklyProfitRecaps[info.pay]=state.weeklyProfitRecaps[info.pay]||{};state.weeklyProfitRecaps[info.pay][me.uid]=rec;renderProfitRecap();
   const btn=document.getElementById('prcSaveBtn');if(btn){btn.disabled=true;btn.textContent='저장 중…';}
-  try{if(LIVE){await Promise.all([DB.set('weeklyProfitRecaps/'+info.pay+'/'+me.uid,rec),DB.set('weeklyProfitRecapsPrivate/'+me.uid+'/'+info.pay,rec),DB.set('profitMonthlyBep/'+month+'/'+me.uid,bep),DB.set('profitMonthlyBepPrivate/'+me.uid+'/'+month,bep)]);}toast('✅ 주간 리캡을 저장했어요');}
-  catch(e){if(old)state.weeklyProfitRecaps[info.pay][me.uid]=old;else delete state.weeklyProfitRecaps[info.pay][me.uid];if(oldBep==null)delete state.profitMonthlyBep[month][me.uid];else state.profitMonthlyBep[month][me.uid]=oldBep;renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
+  try{if(LIVE){const writes=[DB.set('weeklyProfitRecaps/'+info.pay+'/'+me.uid,rec),DB.set('weeklyProfitRecapsPrivate/'+me.uid+'/'+info.pay,rec)];if(payType==='performance')writes.push(DB.set('profitMonthlyBep/'+month+'/'+me.uid,bep),DB.set('profitMonthlyBepPrivate/'+me.uid+'/'+month,bep));await Promise.all(writes);}toast('✅ '+(payType==='hourly'?'시급':'성과')+' 주간 리캡을 저장했어요');}
+  catch(e){if(old)state.weeklyProfitRecaps[info.pay][me.uid]=old;else delete state.weeklyProfitRecaps[info.pay][me.uid];if(payType==='performance'){if(oldBep==null)delete state.profitMonthlyBep[month][me.uid];else state.profitMonthlyBep[month][me.uid]=oldBep;}renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
 }
 function prcPptLoad(){return new Promise(function(resolve,reject){if(window.PptxGenJS){resolve(window.PptxGenJS);return;}const old=document.getElementById('pptxgen-lib');if(old){old.addEventListener('load',function(){resolve(window.PptxGenJS);},{once:true});old.addEventListener('error',reject,{once:true});return;}const s=document.createElement('script');s.id='pptxgen-lib';s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=function(){resolve(window.PptxGenJS)};s.onerror=function(){reject(new Error('PPT library load failed'))};document.head.appendChild(s);});}
 function prcRangeRecords(from,to,uid){const rows=[];Object.keys(state.weeklyProfitRecaps||{}).sort().forEach(function(pay){const mk=pay.slice(0,7);if(mk<from||mk>to)return;Object.values((state.weeklyProfitRecaps||{})[pay]||{}).forEach(function(r){if(r&&(!uid||r.uid===uid))rows.push(r);});});return rows;}
 function prcMonthRecords(month,uid){return prcRangeRecords(month,month,uid);}
-function prcSalesRange(name,from,to){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){const mk=String((s||{}).date||'').slice(0,7);if(s&&s.name===name&&mk>=from&&mk<=to&&!s.na&&!s.rally){sales+=Number(s.count)||0;days.add(s.date);}});return {sales:sales,days:days.size};}
+function prcSalesRange(name,from,to){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){const mk=String((s||{}).date||'').slice(0,7);if(s&&s.name===name&&mk>=from&&mk<=to&&saleEntryCountsAsWork(s)){sales+=Number(s.count)||0;days.add(s.date);}});return {sales:sales,days:days.size};}
 function prcSalesFor(name,month){return prcSalesRange(name,month,month);}
 function prcPptText(slide,pptx,text,x,y,w,h,size,color,bold,align){slide.addText(String(text==null?'':text),{x:x,y:y,w:w,h:h,fontFace:'Noto Sans KR',fontSize:size,color:color||'1E293B',bold:!!bold,margin:0,breakLine:false,fit:'shrink',valign:'mid',align:align||'left'});}
 function prcPptBrand(slide,pptx){const logo=((document.querySelector('.auth-logo img')||{}).src||'');if(logo)slide.addImage({data:logo,x:11.82,y:.1,w:.58,h:.38,transparency:8});else prcPptText(slide,pptx,'▰',11.82,.14,.55,.38,25,'5B5F66',true,'center');prcPptText(slide,pptx,'Presence',11.5,.5,1.2,.2,9,'111827',true,'center');prcPptText(slide,pptx,'머물고 싶은 팀',11.47,.68,1.25,.13,5.5,'64748B',false,'center');}
@@ -5576,11 +5615,11 @@ function prcPptSummary(pptx,data,page){const slide=pptx.addSlide(),t=data.totals
   prcPptTrendChart(slide,pptx,'세일즈 추이',sales,.5,'255DEB',false);prcPptTrendChart(slide,pptx,'리젝 추이',rejects,4.7,'FF4055',false);prcPptTrendChart(slide,pptx,'실인컴 추이',income,8.9,'009E6C',true);return slide;
 }
 function prcPptCell(text,fill,color,bold,align){return {text:String(text),options:{fill:fill||'FFFFFF',color:color||'1E293B',bold:!!bold,align:align||'center',valign:'middle',fontFace:'Noto Sans KR'}};}
-function prcPptDetail(pptx,data,rows,start,rowPage,rowPages,weekStart,weekEnd,page,rangeLabel){const slide=pptx.addSlide(),pays=data.pays.slice(weekStart,weekEnd),chunk=prcRowTotals(rows,data.pays),total=data.totals,weekTag=data.pays.length>5?' · 주차 '+(weekStart+1)+'–'+weekEnd:'';slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'세일즈 디테일','팀원별 세일즈 성과 상세 · '+rowPage+' / '+rowPages,'스프레드시트 순서 · 리젝률=(리젝−리섭)÷세일즈 · '+rangeLabel+weekTag,page);
-  const header=['팀원','필드일','세일즈','인컴','리젝','리섭','리젝률'].concat(pays.map(function(_,i){return 'W'+(weekStart+i+1);})).map(function(v){return prcPptCell(v,'F1F3F5','1E293B',true);});
-  const tableRows=[header];rows.forEach(function(x,ri2){const fill=ri2%2?'FAFAFA':'FFFFFF',rateColor=x.rejectRate<=15?'009E6C':x.rejectRate<=30?'FF9F0A':'FF4055';tableRows.push([prcPptCell(x.name+' '+x.role,fill,'1E293B',true,'left'),prcPptCell(x.fieldDays+'일',fill),prcPptCell(x.sales,fill,'255DEB',true),prcPptCell('₩'+prcFmt(x.income),fill,'1E293B',true),prcPptCell(x.rejects,fill),prcPptCell(x.resubmits,fill),prcPptCell(prcPct(x.rejectRate),fill,rateColor,true)].concat(x.weekly.slice(weekStart,weekEnd).map(function(v){return prcPptCell(v,fill);})));});
-  const sumLine=function(label,x,fill){return [prcPptCell(label,fill,'1E293B',true,'left'),prcPptCell(x.fieldDays+'일',fill,'1E293B',true),prcPptCell(x.sales,fill,'1E293B',true),prcPptCell('₩'+prcFmt(x.income),fill,'F59E0B',true),prcPptCell(x.rejects,fill,'1E293B',true),prcPptCell(x.resubmits,fill,'1E293B',true),prcPptCell(prcPct(x.rejectRate),fill,x.rejectRate<=15?'009E6C':x.rejectRate<=30?'FF9F0A':'FF4055',true)].concat(x.weekly.slice(weekStart,weekEnd).map(function(v){return prcPptCell(v,fill,'1E293B',true);}));};tableRows.push(sumLine((start+1)+'–'+(start+rows.length)+' 합계',chunk,'FAFAFA'));tableRows.push(sumLine('팀 합계',total,'BED9FB'));
-  const base=[1.68,.75,.72,1.38,.56,.56,.72],remaining=12.32-base.reduce(function(s,v){return s+v;},0),ww=remaining/Math.max(1,pays.length),cols=base.concat(pays.map(function(){return ww;}));slide.addTable(tableRows,{x:.5,y:2.5,w:12.32,h:3.92,border:{type:'solid',color:'E5E7EB',pt:.55},fill:'FFFFFF',color:'1E293B',fontFace:'Noto Sans KR',fontSize:9.2,margin:.055,rowH:.47,colW:cols,align:'center',valign:'middle',autoFit:false});prcPptText(slide,pptx,'입력 상태: 인컴 '+rows.reduce(function(s,x){return s+x.savedWeeks;},0)+' / '+(rows.length*data.pays.length)+' 주차',.62,6.72,5,.2,9,'94A3B8',false);return slide;
+function prcPptDetail(pptx,data,rows,start,rowPage,rowPages,weekStart,weekEnd,page,rangeLabel){const slide=pptx.addSlide(),pays=data.pays.slice(weekStart,weekEnd),chunk=prcRowTotals(rows,data.pays),total=data.totals,weekTag=data.pays.length>5?' · 주차 '+(weekStart+1)+'–'+weekEnd:'';slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'세일즈 디테일','팀원별 세일즈 성과 상세 · '+rowPage+' / '+rowPages,'급여 형태 포함 · 리젝률은 성과제 주차만 (리젝−리섭)÷세일즈 · '+rangeLabel+weekTag,page);
+  const header=['팀원','급여','필드일','세일즈','인컴','리젝','리섭','리젝률'].concat(pays.map(function(_,i){return 'W'+(weekStart+i+1);})).map(function(v){return prcPptCell(v,'F1F3F5','1E293B',true);});
+  const tableRows=[header];rows.forEach(function(x,ri2){const fill=ri2%2?'FAFAFA':'FFFFFF',rateColor=x.rejectRate<=15?'009E6C':x.rejectRate<=30?'FF9F0A':'FF4055';tableRows.push([prcPptCell(x.name+' '+x.role,fill,'1E293B',true,'left'),prcPptCell(x.payLabel,fill,'475569',true),prcPptCell(x.fieldDays+'일',fill),prcPptCell(x.sales,fill,'255DEB',true),prcPptCell('₩'+prcFmt(x.income),fill,'1E293B',true),prcPptCell(x.rejects,fill),prcPptCell(x.resubmits,fill),prcPptCell(prcPct(x.rejectRate),fill,rateColor,true)].concat(x.weekly.slice(weekStart,weekEnd).map(function(v){return prcPptCell(v,fill);})));});
+  const sumLine=function(label,x,fill){return [prcPptCell(label,fill,'1E293B',true,'left'),prcPptCell(x.payLabel||'—',fill,'475569',true),prcPptCell(x.fieldDays+'일',fill,'1E293B',true),prcPptCell(x.sales,fill,'1E293B',true),prcPptCell('₩'+prcFmt(x.income),fill,'F59E0B',true),prcPptCell(x.rejects,fill,'1E293B',true),prcPptCell(x.resubmits,fill,'1E293B',true),prcPptCell(prcPct(x.rejectRate),fill,x.rejectRate<=15?'009E6C':x.rejectRate<=30?'FF9F0A':'FF4055',true)].concat(x.weekly.slice(weekStart,weekEnd).map(function(v){return prcPptCell(v,fill,'1E293B',true);}));};tableRows.push(sumLine((start+1)+'–'+(start+rows.length)+' 합계',chunk,'FAFAFA'));tableRows.push(sumLine('팀 합계',total,'BED9FB'));
+  const base=[1.46,.78,.68,.66,1.24,.5,.5,.66],remaining=12.32-base.reduce(function(s,v){return s+v;},0),ww=remaining/Math.max(1,pays.length),cols=base.concat(pays.map(function(){return ww;}));slide.addTable(tableRows,{x:.5,y:2.5,w:12.32,h:3.92,border:{type:'solid',color:'E5E7EB',pt:.55},fill:'FFFFFF',color:'1E293B',fontFace:'Noto Sans KR',fontSize:8.8,margin:.045,rowH:.47,colW:cols,align:'center',valign:'middle',autoFit:false});prcPptText(slide,pptx,'입력 상태: 리캡 '+rows.reduce(function(s,x){return s+x.savedWeeks;},0)+' / '+(rows.length*data.pays.length)+' 주차 · 시급 '+chunk.hourlyWeeks+' · 성과 '+chunk.performanceWeeks,.62,6.72,7.1,.2,9,'94A3B8',false);return slide;
 }
 async function exportProfitRecapPpt(scope){
   if(!isFounder(me)){toast('관리자만 다운로드할 수 있어요');return;}
@@ -6873,22 +6912,22 @@ function renderRecruitDaily(){
   const hist=Object.keys(state.daisoRecruitDaily||{}).filter(function(d){const x=pdrRecord(d,uid);return x.recruit+x.showup+x.starter>0;}).sort().reverse().slice(0,8).map(function(d){const x=pdrRecord(d,uid);return '<button onclick="pdrSetDate(\''+d+'\')"><b>'+d.slice(5).replace('-','.')+'</b><span>리쿠르팅 '+x.recruit+'</span><span>쇼업 '+x.showup+'</span><span>스타터 '+x.starter+'</span></button>';}).join('');
   box.innerHTML='<div class="pdr-layout"><div class="pdr-card">'+pdrDateHTML()+picker+'<div class="pdr-grid">'+stats+'</div><div style="margin-top:10px;color:var(--faint);font-size:10.5px">저장 즉시 다이소 컴페티션의 PR 스타터 점수에 반영됩니다.</div></div><aside class="pdr-card">'+pdrCalendarHTML(uid)+'<div class="pdr-history"><h4>최근 기록</h4>'+(hist||'<div style="color:var(--faint);font-size:11px;padding:8px 0">아직 기록이 없어요.</div>')+'</div></aside></div>';
 }
-function daisoSalesPoint(name,date){let n=0;Object.values(state.sales||{}).forEach(function(e){if(e&&e.name===name&&e.date===date&&!e.na&&!e.rally)n=Math.max(n,+e.count||0);});return n>=3?3:(n>=2?2:(n>=1?1:0));}
-function daisoOwnSaleCount(date){if(!me)return 0;const e=(state.sales||{})[date+'|'+me.name];return e&&!e.na&&!e.rally?Math.max(0,+e.count||0):0;}
+function daisoSalesPoint(name,date){let n=0;Object.values(state.sales||{}).forEach(function(e){if(e&&e.name===name&&e.date===date&&saleEntryCountsAsWork(e))n=Math.max(n,+e.count||0);});return n>=3?3:(n>=2?2:(n>=1?1:0));}
+function daisoOwnSaleCount(date){if(!me)return 0;const e=(state.sales||{})[date+'|'+me.name];return saleEntryCountsAsWork(e)?Math.max(0,+e.count||0):0;}
 function daisoPointForCount(n){return n>=3?3:(n>=2?2:(n>=1?1:0));}
 function daisoEnsureSaleDraft(){if(daisoSaleDraftDate!==pdrDate){const e=mySaleRecord(pdrDate);daisoSaleDraftDate=pdrDate;daisoSaleDraft=daisoOwnSaleCount(pdrDate);daisoSaleDraftNA=!!(e&&e.na);}}
 function daisoSaleDraftDOM(){
   const count=document.getElementById('daisoSelfCount'),point=document.getElementById('daisoSelfPoint');
   const na=document.getElementById('daisoSelfNA'),save=document.getElementById('daisoSelfSave');if(count)count.textContent=daisoSaleDraftNA?'NA':daisoSaleDraft;if(point)point.textContent=daisoSaleDraftNA?'집계 제외':'+'+daisoPointForCount(daisoSaleDraft)+'점';if(na)na.classList.toggle('on',daisoSaleDraftNA);if(save){save.disabled=daisoSaleSaveBusy||!daisoCanSaveOwnSale();save.textContent=pdrDate>TODAY?(daisoSaleDraftNA?'NA 미리 저장':'미래 날짜는 NA만 가능'):'저장·순위 반영';}
 }
-function daisoCanSaveOwnSale(){return pdrDate<=TODAY||(daisoSaleDraftNA&&pdrDate<=saleNAFutureLimit())}
+function daisoCanSaveOwnSale(){return !!(me&&!saleBeforeFirstField(me.name,pdrDate)&&(pdrDate<=TODAY||(daisoSaleDraftNA&&pdrDate<=saleNAFutureLimit())))}
 function daisoAdjustOwnSale(delta){
-  if(!me||daisoSaleSaveBusy)return;if(pdrDate>TODAY){toast('미래 날짜에는 세일즈를 입력할 수 없어요');return;}
+  if(!me||daisoSaleSaveBusy)return;if(saleBeforeFirstField(me.name,pdrDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(pdrDate>TODAY){toast('미래 날짜에는 세일즈를 입력할 수 없어요');return;}
   daisoEnsureSaleDraft();if(daisoSaleDraftNA){daisoSaleDraftNA=false;daisoSaleDraft=0;}daisoSaleDraft=Math.max(0,Math.min(300,daisoSaleDraft+delta));daisoSaleDraftDOM();
 }
-function daisoToggleOwnNA(){if(!me||daisoSaleSaveBusy)return;if(pdrDate>TODAY&&pdrDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}daisoEnsureSaleDraft();daisoSaleDraftNA=!daisoSaleDraftNA;if(daisoSaleDraftNA)daisoSaleDraft=0;else daisoSaleDraft=daisoOwnSaleCount(pdrDate);daisoSaleDraftDOM();}
+function daisoToggleOwnNA(){if(!me||daisoSaleSaveBusy)return;if(saleBeforeFirstField(me.name,pdrDate)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}if(pdrDate>TODAY&&pdrDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}daisoEnsureSaleDraft();daisoSaleDraftNA=!daisoSaleDraftNA;if(daisoSaleDraftNA)daisoSaleDraft=0;else daisoSaleDraft=daisoOwnSaleCount(pdrDate);daisoSaleDraftDOM();}
 async function daisoSaveOwnSale(){
-  if(!me||daisoSaleSaveBusy)return;if(!daisoCanSaveOwnSale()){toast('미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요');return;}
+  if(!me||daisoSaleSaveBusy)return;if(saleBeforeFirstField(me.name,pdrDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(!daisoCanSaveOwnSale()){toast('미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요');return;}
   if(isTestBot(me)){toast('관찰 계정은 집계에 반영되지 않아요');return;}
   daisoEnsureSaleDraft();const date=pdrDate,key=date+'|'+me.name,t=Date.now(),prior=state.sales[key],count=daisoSaleDraft;
   const entry=daisoSaleDraftNA?{name:me.name,role:me.role,date:date,count:0,na:true,checked:true,t:t}:{name:me.name,role:me.role,date:date,count:Math.max(0,+count||0),checked:true,t:t};daisoSaleSaveBusy=true;
@@ -6904,7 +6943,7 @@ async function daisoSaveOwnSale(){
 function daisoSalesCalendarHTML(){
   const first=new Date(pdrMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
   for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
-  for(let n=1;n<=last.getDate();n++){const ds=pdrMonth+'-'+String(n).padStart(2,'0'),e=mySaleRecord(ds),na=!!(e&&e.na),count=daisoOwnSaleCount(ds),has=!!(e&&!na&&!e.rally);days+='<button class="'+(ds===pdrDate?'sel ':'')+(ds===TODAY?'today ':'')+(has?'has ':'')+(has&&count===0?'zero ':'')+(na?'na':'')+'" onclick="pdrSetDate(\''+ds+'\')" aria-label="'+ds+(na?' NA':(has?' 세일즈 '+count+'건 입력 완료':' 미입력'))+'"><span>'+n+'</span>'+(na?'<small>NA</small>':(has?'<small>'+count+'건</small>':''))+'</button>';}
+  for(let n=1;n<=last.getDate();n++){const ds=pdrMonth+'-'+String(n).padStart(2,'0'),phase=saleDatePhase(me.name,ds),before=phase==='before',firstField=phase==='first',raw=mySaleRecord(ds),e=saleEntryIsRecorded(raw)?raw:null,na=!!(e&&e.na),count=daisoOwnSaleCount(ds),has=!!(e&&!na&&!e.rally),aria=before?' 근무 시작 전 · 기록 없음':(firstField?' 첫 필드':(na?' NA':(has?' 세일즈 '+count+'건 입력 완료':' 미입력')));days+='<button class="'+(ds===pdrDate?'sel ':'')+(ds===TODAY?'today ':'')+(before?'pre-field ':'')+(firstField?'first-field-day ':'')+(has?'has ':'')+(has&&count===0?'zero ':'')+(na?'na':'')+'" '+(before?'disabled':'onclick="pdrSetDate(\''+ds+'\')"')+' aria-label="'+ds+aria+'"><span>'+n+'</span>'+(firstField?'<small class="first-field-label">첫필드!</small>':'')+(na?'<small>NA</small>':(has?'<small>'+count+'건</small>':''))+'</button>';}
   return '<div class="pdr-month-head"><button onclick="pdrMonthMove(-1)" aria-label="이전 달">‹</button><b>'+pdrMonth.replace('-','년 ')+'월</b><button onclick="pdrMonthMove(1)" aria-label="다음 달">›</button></div><div class="pdr-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="pdr-days">'+days+'</div>';
 }
 function daisoOwnSaleHTML(){
@@ -7066,8 +7105,8 @@ const monthOf=d=>d.slice(0,7);
 function mySaleRecord(date){return me&&state.sales[`${date}|${me.name}`]||null}
 function mySaleCount(date){const e=mySaleRecord(date);return (e&&!e.na&&!e.rally)?(+e.count||0):0}
 function myTodayCount(){return mySaleCount(TODAY)}
-function sumMonth(name,mk){const m=mk||monthOf(TODAY);let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&(!name||e.name===name)&&!e.na&&!e.rally)s+=(+e.count||0)}return s}
-function activeDays(name,mk){const m=mk||monthOf(TODAY);const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&e.name===name&&!e.na&&!e.rally)days.add(e.date)}return days.size||1}
+function sumMonth(name,mk){const m=mk||monthOf(TODAY);let s=0;for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&(!name||e.name===name)&&saleEntryCountsAsWork(e))s+=(+e.count||0)}return s}
+function activeDays(name,mk){const m=mk||monthOf(TODAY);const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&e.name===name&&saleEntryCountsAsWork(e))days.add(e.date)}return days.size||1}
 let saleEditDate=TODAY,saleCalMonth=TODAY.slice(0,7),saleDraft=0,saleDraftNA=false,saleEditing=false,saleSaveBusy=false,saleAdminTargetName='';
 function saleRecordFor(name,date){return name&&state.sales[`${date}|${name}`]||null}
 function saleTargetUser(){
@@ -7078,10 +7117,10 @@ function saleTargetUser(){
   }
   return me;
 }
-function saleEditorRecord(date){const target=saleTargetUser();return target?saleRecordFor(target.name,date):null}
+function saleEditorRecord(date){const target=saleTargetUser(),e=target?saleRecordFor(target.name,date):null;return saleEntryIsRecorded(e)?e:null}
 function saleEditorCount(date){const e=saleEditorRecord(date);return (e&&!e.na&&!e.rally)?(+e.count||0):0}
 function saleNAFutureLimit(){const d=new Date(TODAY+'T12:00:00');d.setDate(d.getDate()+7);return d.toISOString().slice(0,10)}
-function saleCanSave(){return saleEditDate<=TODAY||(saleDraftNA&&saleEditDate<=saleNAFutureLimit())}
+function saleCanSave(){const target=saleTargetUser();return !!(target&&!saleBeforeFirstField(target.name,saleEditDate)&&(saleEditDate<=TODAY||(saleDraftNA&&saleEditDate<=saleNAFutureLimit())))}
 function saleLoadDraft(){const e=saleEditorRecord(saleEditDate);saleDraft=(e&&!e.na&&!e.rally)?Math.max(0,+e.count||0):0;saleDraftNA=!!(e&&e.na);saleEditing=false;}
 function initSaleEditor(){if(me){saleAdminTargetName=saleAdminTargetName||me.name;saleEditDate=TODAY;saleCalMonth=TODAY.slice(0,7);saleLoadDraft();renderSales();}}
 function salePickDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;saleEditDate=ds;saleCalMonth=ds.slice(0,7);const dt=document.getElementById('aseDate');if(me&&isFounder(me)&&dt)dt.value=ds;saleLoadDraft();renderSales();if(me&&isFounder(me))aseLoad();}
@@ -7091,14 +7130,14 @@ function saleCalendarHTML(){
   const target=saleTargetUser(),targetName=target?target.name:'',targetRole=target?target.role:'',first=new Date(saleCalMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
   for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
   for(let n=1;n<=last.getDate();n++){
-    const ds=saleCalMonth+'-'+String(n).padStart(2,'0'),e=saleRecordFor(targetName,ds),na=!!(e&&e.na),recorded=!!(e&&!na&&!e.rally),count=recorded?Math.max(0,+e.count||0):0,label=na?'NA':(recorded?count+'건':'');
-    days+='<button class="'+(ds===saleEditDate?'sel ':'')+(ds===TODAY?'today ':'')+(recorded?'has ':'')+(recorded&&count===0?'zero ':'')+(na?'na ':'')+'" onclick="salePickDate(\''+ds+'\')" aria-label="'+ds+(na?' NA':(recorded?' 세일즈 '+count+'건 입력 완료':' 미입력'))+'"><span>'+n+'</span>'+(label?'<em>'+label+'</em>':'')+'</button>';
+    const ds=saleCalMonth+'-'+String(n).padStart(2,'0'),phase=saleDatePhase(targetName,ds),before=phase==='before',firstField=phase==='first',raw=saleRecordFor(targetName,ds),e=saleEntryIsRecorded(raw)?raw:null,na=!!(e&&e.na),recorded=!!(e&&!na&&!e.rally),count=recorded?Math.max(0,+e.count||0):0,label=na?'NA':(recorded?count+'건':''),aria=before?' 근무 시작 전 · 기록 없음':(firstField?' 첫 필드':(na?' NA':(recorded?' 세일즈 '+count+'건 입력 완료':' 미입력')));
+    days+='<button class="'+(ds===saleEditDate?'sel ':'')+(ds===TODAY?'today ':'')+(before?'pre-field ':'')+(firstField?'first-field-day ':'')+(recorded?'has ':'')+(recorded&&count===0?'zero ':'')+(na?'na ':'')+'" '+(before?'disabled':'onclick="salePickDate(\''+ds+'\')"')+' aria-label="'+ds+aria+'"><span>'+n+'</span>'+(firstField?'<em class="first-field-label">첫필드!</em>':'')+(label?'<em>'+label+'</em>':'')+'</button>';
   }
   const adminEditing=me&&isFounder(me)&&target&&target.uid!==me.uid;
-  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(adminEditing?'관리자 편집 중':'내 기록')+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-legend"><span><b>●</b> 입력 완료 (실제 건수)</span><span class="na">● NA</span><span>무표시: 미입력</span></div>';
+  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(adminEditing?'관리자 편집 중':'내 기록')+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-legend"><span><b>●</b> 직접 입력 완료</span><span class="na">● NA</span><span class="first">● 첫필드!</span><span>무표시: 미입력</span></div>';
 }
 function adjSale(delta){
-  if(!me||saleSaveBusy)return;if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
+  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
   if(saleDraftNA){saleDraftNA=false;saleDraft=0;}
   const prev=saleDraft;
   saleDraft=Math.max(0,saleDraft+delta);
@@ -7107,12 +7146,12 @@ function adjSale(delta){
   renderSaleEditor();
 }
 function toggleSaleNA(){
-  if(!me||saleSaveBusy)return;if(saleEditDate>TODAY&&saleEditDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}
+  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}if(saleEditDate>TODAY&&saleEditDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}
   saleDraftNA=!saleDraftNA;if(saleDraftNA)saleDraft=0;else saleDraft=saleEditorCount(saleEditDate);saleEditing=true;renderSaleEditor();
 }
 async function commitSale(){
-  if(!me||saleSaveBusy)return;if(!saleCanSave()){toast(saleEditDate>TODAY?'미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요':'저장할 수 없는 날짜예요');return;}
-  const target=saleTargetUser();if(!target)return;if(target.uid!==me.uid&&!isFounder(me)){toast('다른 팀원의 기록은 관리자만 수정할 수 있어요');return;}
+  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(!saleCanSave()){toast(saleEditDate>TODAY?'미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요':'저장할 수 없는 날짜예요');return;}
+  if(!target)return;if(target.uid!==me.uid&&!isFounder(me)){toast('다른 팀원의 기록은 관리자만 수정할 수 있어요');return;}
   if(isTestBot(target)){saleEditing=false;renderSales();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
   const date=saleEditDate,key=`${date}|${target.name}`,t=Date.now(),prior=state.sales[key],prevCount=(prior&&!prior.na&&!prior.rally)?(+prior.count||0):0;
   const entry=saleDraftNA?{name:target.name,role:target.role,date,count:0,na:true,checked:true,t}:{name:target.name,role:target.role,date,count:Math.max(0,+saleDraft||0),checked:true,t};
@@ -7130,15 +7169,17 @@ async function commitSale(){
 }
 function renderSaleEditor(){
   const target=saleTargetUser(),targetName=target?target.name:me.name,committed=saleEditorCount(saleEditDate),draftCount=saleDraftNA?0:saleDraft,monthKey=monthOf(TODAY),monthBase=sumMonth(targetName,monthKey)-(saleEditDate.startsWith(monthKey)?committed:0)+(saleEditDate.startsWith(monthKey)?draftCount:0);
+  const beforeFirst=!!(target&&saleBeforeFirstField(target.name,saleEditDate));
   document.getElementById('saleCount').textContent=saleDraftNA?'NA':saleDraft;
   document.getElementById('saleNext').textContent=saleDraftNA?'휴무':nextTierLabel(saleDraft);
   document.getElementById('saleMonth').textContent=monthBase;
   document.getElementById('saleAvg').textContent=(monthBase/Math.max(activeDays(targetName,monthKey),1)).toFixed(1);
   const na=document.getElementById('saleNA'),status=document.getElementById('saleStatus'),done=document.getElementById('saleDone');
-  if(na){na.classList.toggle('on',saleDraftNA);na.setAttribute('aria-pressed',saleDraftNA?'true':'false');}
+  if(na){na.classList.toggle('on',saleDraftNA);na.setAttribute('aria-pressed',saleDraftNA?'true':'false');na.disabled=beforeFirst;}
+  document.querySelectorAll('#m-sale .sale-stepper .step-btn').forEach(function(btn){btn.disabled=beforeFirst;});
   const saved=saleEditorRecord(saleEditDate),savedCount=(saved&&!saved.na&&!saved.rally)?Math.max(0,+saved.count||0):null;
-  if(status){status.textContent=saleDraftNA?(saleEditDate>TODAY?'NA 미리 선택됨 · 오늘부터 7일 뒤까지 저장할 수 있어요':'NA 선택됨 · 해당 날짜는 휴무로 집계됩니다'):(!saleEditing&&savedCount!==null?'입력 완료 · '+savedCount+'건 (리캡에 실제 건수 반영)':(saleEditDate>TODAY?'미래 날짜에는 세일즈 건수를 입력할 수 없어요. NA만 7일 전부터 미리 체크할 수 있어요.':'선택한 날짜의 최종 세일즈 건수를 저장하세요.'));status.classList.toggle('na',saleDraftNA);}
-  if(done){done.disabled=saleSaveBusy||!saleCanSave();done.textContent=saleSaveBusy?'저장·동기화 중…':(!saleCanSave()?(saleEditDate>TODAY?'미래 날짜는 NA만 미리 저장할 수 있어요':'저장할 수 없어요'):'✅ '+saleEditDate.slice(5).replace('-','.')+(saleEditDate>TODAY?' NA 미리 저장':' 기록 저장'));}
+  if(status){status.textContent=beforeFirst?'첫 필드 이전 · 근무 시작 전이라 기록이 없는 날짜예요.':(saleDraftNA?(saleEditDate>TODAY?'NA 미리 선택됨 · 오늘부터 7일 뒤까지 저장할 수 있어요':'NA 선택됨 · 해당 날짜는 휴무로 집계됩니다'):(!saleEditing&&savedCount!==null?'입력 완료 · '+savedCount+'건 (리캡에 실제 건수 반영)':(saleEditDate>TODAY?'미래 날짜에는 세일즈 건수를 입력할 수 없어요. NA만 7일 전부터 미리 체크할 수 있어요.':'아직 미입력 · 0건 또는 NA도 직접 저장해야 완료로 표시됩니다.')));status.classList.toggle('na',saleDraftNA&&!beforeFirst);}
+  if(done){done.disabled=saleSaveBusy||!saleCanSave();done.textContent=saleSaveBusy?'저장·동기화 중…':(beforeFirst?'첫 필드 이전 · 기록 없음':(!saleCanSave()?(saleEditDate>TODAY?'미래 날짜는 NA만 미리 저장할 수 있어요':'저장할 수 없어요'):'✅ '+saleEditDate.slice(5).replace('-','.')+(saleEditDate>TODAY?' NA 미리 저장':' 기록 저장')));}
   const now=new Date(TODAY+'T12:00:00'),dow=(now.getDay()+6)%7,mon=new Date(now);mon.setDate(now.getDate()-dow);const sun=new Date(mon);sun.setDate(mon.getDate()+6),monS=mon.toISOString().slice(0,10),sunS=sun.toISOString().slice(0,10),inWeek=saleEditDate>=monS&&saleEditDate<=sunS;
   const teamWeekLive=sumWeek(null)-(inWeek?committed:0)+(inWeek?draftCount:0);
   setGauge('gFill','gPct','gMonth','gTarget',teamWeekLive,teamWeekTarget());
@@ -7163,11 +7204,11 @@ function renderSales(){
   if(!saleEditing)saleLoadDraft();
   renderSaleEditor();
   // today team feed (확정된 것만)
-  const rows=Object.values(state.sales).filter(e=>e.date===TODAY&&e.count>0).sort((a,b)=>b.count-a.count);
+  const rows=Object.values(state.sales).filter(e=>e.date===TODAY&&e.count>0&&saleEntryCountsAsWork(e)).sort((a,b)=>b.count-a.count);
   document.getElementById('saleFeed').innerHTML=rows.length?rows.map(e=>{const t=saleTier(e.count);return `<div class="sf-row"><span class="av" style="background:${avColor(e.name)}">${avInner(e.name)}</span><span class="nm">${esc(e.name)}</span>${t?`<span class="tier">${t.label}</span>`:''}<span class="cnt">${e.count}</span></div>`}).join(''):'<div style="color:var(--faint);font-size:13px;padding:6px 2px">아직 오늘 세일즈가 없어요. +로 세고 완료를 누르세요!</div>';
   document.getElementById('saleSync').textContent=LIVE?'실시간':'데모';
 }
-function activeTeamDays(){const m=curMonthKey(),days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&!e.na&&!e.rally)days.add(e.date)}return days.size||1}
+function activeTeamDays(){const m=curMonthKey(),days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&saleEntryCountsAsWork(e))days.add(e.date)}return days.size||1}
 /* ══ 성과 세그먼트 (세일즈·컴페티션·목표 통합 전환) ══ */
 function renderPerfSeg(active){
   var items=[{k:'sale',e:'🔔',l:'세일즈'},{k:'profitrecap',e:'📒',l:'주간 리캡'},{k:'recruitdaily',e:'👤',l:'리쿠르팅'},{k:'comp',e:'🏆',l:'컴페티션'},{k:'perf',e:'📊',l:'목표'}].filter(function(x){return typeof tabVisible!=='function'||tabVisible(x.k);});
@@ -7182,7 +7223,7 @@ function renderPerfGauge(){
   const lab=document.getElementById('tgLab');if(lab)lab.textContent=mn+'월 팀 목표';
   const wsub=document.getElementById('tgWeekSub');if(wsub)wsub.textContent=`${mn}월 팀 목표 ${tgt} · 누적 ${team} · 달성 ${tgt?Math.round(team/tgt*100):0}%`;
   const a=document.getElementById('tgAvg');if(a)a.textContent=(sumMonth(null,mk)/activeTeamDays()).toFixed(2);
-  let todayTeam=0;for(const k in state.sales){const e=state.sales[k];if(e.date===TODAY&&!e.na&&!e.rally)todayTeam+=(+e.count||0);}
+  let todayTeam=0;for(const k in state.sales){const e=state.sales[k];if(e.date===TODAY&&saleEntryCountsAsWork(e))todayTeam+=(+e.count||0);}
   const inc=document.getElementById('tgIncome');if(inc)inc.textContent=todayTeam;
   renderPrevMonth();renderAdminSaleEdit();
 }
@@ -7210,7 +7251,7 @@ function sendSaleToSheet(e){
 
 function renderScores(){
   const m=curMonthKey(),agg={},rc={AOP:'aop',TL:'tl',LR:'lr'};
-  for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)){if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0};if(!e.na&&!e.rally)agg[e.name].sales+=(+e.count||0)}}
+  for(const k in state.sales){const e=state.sales[k];if(e.date.startsWith(m)&&saleEntryIsRecorded(e)){if(!agg[e.name])agg[e.name]={name:e.name,role:e.role,sales:0};if(saleEntryCountsAsWork(e))agg[e.name].sales+=(+e.count||0)}}
   const rows=Object.values(agg).sort((a,b)=>b.sales-a.sales);
   const _sb=document.getElementById('scoreBody');if(!_sb)return;
   _sb.innerHTML=rows.length?rows.map((r,i)=>`<tr class="${i===0?'top1':''}"><td><span class="nm"><span class="rk">${i+1}</span>${esc(r.name)}<span class="role ${rc[r.role]||''}">${esc(r.role)}</span></span></td><td class="big">${r.sales}</td></tr>`).join(''):'<tr><td colspan="2" style="color:var(--faint);padding:16px;text-align:center">이번 달 세일즈가 아직 없어요</td></tr>';
@@ -7379,7 +7420,7 @@ function toggleFeedAttend(name){
 function tokWorkDate(){const el=document.getElementById('tokWorkDate');return (el&&el.value)?el.value:TODAY;}
 function fieldersOn(d){
   d=d||TODAY;const out=[],roster={};rosterMembers().forEach(u=>roster[u.name]=u.role);
-  Object.keys(state.sales||{}).forEach(k=>{const e=state.sales[k];if(!e||e.date!==d)return;if(e.na||e.rally)return;if((+e.count||0)<1)return;if(isAdminName(e.name)||isDeparted(e.name))return;if(!(e.name in roster))return;
+  Object.keys(state.sales||{}).forEach(k=>{const e=state.sales[k];if(!e||e.date!==d||!saleEntryCountsAsWork(e))return;if((+e.count||0)<1)return;if(isAdminName(e.name)||isDeparted(e.name))return;if(!(e.name in roster))return;
     out.push({name:e.name,role:e.role||roster[e.name]||'IC',count:+e.count||0});});
   out.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ko'));
   return out;
@@ -7716,7 +7757,7 @@ function metaPullSheet(manual){
 }
 function smSync(st){const d=document.getElementById('smSyncDot'),t=document.getElementById('smSyncTxt');if(!d)return;d.className='sync-dot '+(st==='ok'?'ok':st==='err'?'err':st==='sync'?'sync':'idle');if(t)t.textContent=st==='ok'?'시트 연동됨 · '+new Date().toLocaleTimeString('ko-KR'):st==='err'?'연동 실패 — 배포 확인':st==='sync'?'동기화 중…':'대기 중';}
 function won(n){n=+n||0;return n.toLocaleString('ko-KR');}
-function activeDaysIn(name,mk){const s=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(mk)&&e.name===name&&!e.na&&!e.rally)s.add(e.date);}return s.size;}
+function activeDaysIn(name,mk){const s=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(mk)&&e.name===name&&saleEntryCountsAsWork(e))s.add(e.date);}return s.size;}
 function renderSalesMgr(){
   const box=document.getElementById('smBody');if(!box||!me||!isFounder(me))return;
   const mk=smMK(),mn=+mk.slice(5,7);
@@ -9142,7 +9183,7 @@ async function initFirebase(generation){
   DB.on('comp',v=>{state.comp=v||{};});
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
-  DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me&&isFounder(me))renderMemberAdmin();});
+  DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
   DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();}});
   DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
@@ -9159,7 +9200,7 @@ async function initFirebase(generation){
   DB.on('users',v=>{
     state.users=v?{...v}:{};
     if(me)me=state.users[me.uid]||me;
-    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderBell();renderRecruitDaily();renderDaisoCompetition();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
+    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
   });
   if(generation&&generation!==firebaseInitGeneration)return false;
@@ -11352,7 +11393,7 @@ function devStatusHTML(){
    ════════════════════════════════════════════ */
 const LH_WINDOW=5, LH_TARGET=8;
 const ONBOARD_SINCE='2026-06-28';   // 이 날짜 이후 첫필드한 사람만 신입 온보딩 적용 (기존 멤버 제외)
-function firstFieldDateOf(name){try{var u=Object.values(state.users).find(function(x){return x.name===name;});var ff=u?firstFieldOf(u):'';if(ff)return ff;}catch(e){}try{return (miInfo(name)||{}).join||'';}catch(e){return '';}}
+function firstFieldDateOf(name){return salesFirstFieldDate(name);}
 function isNewHire(name){var ff=firstFieldDateOf(name);return !!ff && ff>=ONBOARD_SINCE;}
 const ONBOARD_TRAIN={
   1:{t:'콜백싯 교육', d:'콜백싯 작성법부터. 필드 후 함께 작성하며 기록 습관 잡기.'},
@@ -11668,7 +11709,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-30.sales-zero-na-recap-trends-24';
+const APP_VERSION='2026-08-30.first-field-explicit-zero-paytype-25';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){

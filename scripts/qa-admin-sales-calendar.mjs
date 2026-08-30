@@ -29,17 +29,20 @@ for (const fixture of fixtures) {
     window.__presenceEntryPass = true;
     window.__adminOff = false;
     window.__previewRole = null;
-    const current = { uid: f.uid, name: f.user, id: `id-${f.name}`, loginKey: `id-${f.name}`, role: f.role, status: 'active', surveys: { [f.role]: { answers: { qa: 'done' }, t: Date.now() } } };
-    const target = { uid: 'qa-yoon', name: '윤채영', id: 'ilv0815', loginKey: 'ilv0815', role: 'TL', status: 'active', surveys: {} };
+    const current = { uid: f.uid, name: f.user, id: `id-${f.name}`, loginKey: `id-${f.name}`, role: f.role, status: 'active', surveys: { [f.role]: { answers: { qa: 'done', firstField: '2026-08-23' }, t: Date.now() } } };
+    const target = { uid: 'qa-yoon', name: '윤채영', id: 'ilv0815', loginKey: 'ilv0815', role: 'TL', status: 'active', surveys: { IC: { answers: { firstField: '2026-08-25' }, t: Date.now() } } };
     state.users = { [current.uid]: current, ...(f.admin ? { [target.uid]: target } : {}) };
     state.extraMembers = [];
     state.removedMembers = [];
     state.promotionSurveys = {};
     state.sales = {
+      [`2026-08-22|${current.name}`]: { name: current.name, role: current.role, date: '2026-08-22', count: 0, t: 0 },
       [`2026-08-24|${current.name}`]: { name: current.name, role: current.role, date: '2026-08-24', count: 0, checked: true, t: 0 },
       [`2026-08-25|${current.name}`]: { name: current.name, role: current.role, date: '2026-08-25', count: 9, t: 1 },
+      '2026-08-24|윤채영': { name: '윤채영', role: 'TL', date: '2026-08-24', count: 0, t: 1 },
       '2026-08-25|윤채영': { name: '윤채영', role: 'TL', date: '2026-08-25', count: 4, t: 2 },
       '2026-08-26|윤채영': { name: '윤채영', role: 'TL', date: '2026-08-26', count: 0, na: true, t: 3 },
+      '2026-08-28|윤채영': { name: '윤채영', role: 'TL', date: '2026-08-28', count: 0, t: 4 },
     };
     window.__qaDbWrites = [];
     window.__qaSheetWrites = [];
@@ -83,12 +86,18 @@ for (const fixture of fixtures) {
       const card = document.getElementById('adminSaleEdit');
       const context = document.querySelector('.sale-cal-context')?.textContent || '';
       const zeroDay = document.querySelector('.sale-cal-days button[aria-label^="2026-08-24 "]');
+      const preDay = document.querySelector('.sale-cal-days button[aria-label^="2026-08-22 "]');
+      const firstDay = document.querySelector('.sale-cal-days button[aria-label^="2026-08-23 "]');
       return {
         adminCardHidden: !card || getComputedStyle(card).display === 'none',
         ownCalendar: context.includes(me.name) && context.includes('내 기록'),
         zeroText: zeroDay?.textContent || '',
         zeroClass: zeroDay?.className || '',
         zeroBackground: zeroDay ? getComputedStyle(zeroDay).backgroundColor : '',
+        preText: preDay?.textContent || '',
+        preDisabled: !!preDay?.disabled,
+        preClass: preDay?.className || '',
+        firstText: firstDay?.textContent || '',
         horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
         errors: [],
       };
@@ -107,6 +116,9 @@ for (const fixture of fixtures) {
       who: document.getElementById('saleWho')?.textContent || '',
       calendarLabel: document.getElementById('saleCalendar')?.getAttribute('aria-label') || '',
       selectedDayText: document.querySelector('.sale-cal-days button.sel')?.textContent || '',
+      firstFieldText: document.querySelector('.sale-cal-days button[aria-label^="2026-08-25 "]')?.textContent || '',
+      preField: (() => { const el = document.querySelector('.sale-cal-days button[aria-label^="2026-08-24 "]'); return { text: el?.textContent || '', disabled: !!el?.disabled, className: el?.className || '' }; })(),
+      legacyBlank: (() => { const el = document.querySelector('.sale-cal-days button[aria-label^="2026-08-28 "]'); return { text: el?.textContent || '', className: el?.className || '' }; })(),
     }));
 
     await page.evaluate(() => {
@@ -202,8 +214,8 @@ for (const fixture of fixtures) {
 
   reports.push({ fixture: fixture.name, ...report, errors });
   const failed = fixture.admin
-    ? report.selected.selectedUser !== '윤채영' || report.selected.selectedDate !== '2026-08-25' || report.selected.adminCount !== '4' || !report.selected.context.includes('윤채영 · TL 세일즈 달력') || !report.selected.context.includes('관리자 편집 중') || !report.selected.who.includes('윤채영 · TL') || !report.selected.calendarLabel.includes('윤채영 TL') || !report.selected.selectedDayText.includes('4건') || report.saved.targetCount !== 5 || report.saved.adminCount !== 9 || !report.saved.dbPath.includes('sales/2026-08-25/') || report.saved.dbName !== '윤채영' || report.saved.sheetName !== '윤채영' || !report.zero.exists || report.zero.count !== 0 || report.zero.checked !== true || !report.zero.text.includes('0건') || !report.zero.className.includes('has') || !report.zero.className.includes('zero') || !report.zero.background || report.zero.background === 'rgba(0, 0, 0, 0)' || report.zero.dbValue?.count !== 0 || report.zero.dbValue?.checked !== true || report.zero.sheetValue?.count !== 0 || report.zero.activeDays !== 2 || report.zero.recapDays !== 2 || report.na.countText !== 'NA' || report.na.naPressed !== 'true' || report.na.adminCount !== '0' || report.na.selectedDate !== '2026-08-26' || report.futureReady.date !== report.futureReady.limit || report.futureReady.naPressed !== 'true' || report.futureReady.saveDisabled || !report.futureReady.saveText.includes('NA 미리 저장') || !report.futureSaved.entry?.na || report.futureSaved.entry?.count !== 0 || !report.futureSaved.dbPath.includes(`sales/${report.futureReady.limit}/`) || !report.futureSaved.dbValue?.na || report.beyondLimit.naPressed !== 'false' || !report.beyondLimit.saveDisabled || report.geometry.horizontalOverflow || report.geometry.undersized.length || errors.length
-    : !report.adminCardHidden || !report.ownCalendar || !report.zeroText.includes('0건') || !report.zeroClass.includes('has') || !report.zeroClass.includes('zero') || !report.zeroBackground || report.zeroBackground === 'rgba(0, 0, 0, 0)' || report.daiso?.zero?.count !== 0 || report.daiso?.zero?.checked !== true || !report.daiso?.futureEnabled || !report.daiso?.future?.na || report.daiso?.future?.count !== 0 || report.horizontalOverflow || errors.length;
+    ? report.selected.selectedUser !== '윤채영' || report.selected.selectedDate !== '2026-08-25' || report.selected.adminCount !== '4' || !report.selected.context.includes('윤채영 · TL 세일즈 달력') || !report.selected.context.includes('관리자 편집 중') || !report.selected.who.includes('윤채영 · TL') || !report.selected.calendarLabel.includes('윤채영 TL') || !report.selected.selectedDayText.includes('4건') || !report.selected.firstFieldText.includes('첫필드!') || !report.selected.preField.disabled || !report.selected.preField.className.includes('pre-field') || report.selected.preField.text.includes('0건') || report.selected.legacyBlank.text.includes('0건') || report.selected.legacyBlank.className.includes('has') || report.saved.targetCount !== 5 || report.saved.adminCount !== 9 || !report.saved.dbPath.includes('sales/2026-08-25/') || report.saved.dbName !== '윤채영' || report.saved.sheetName !== '윤채영' || !report.zero.exists || report.zero.count !== 0 || report.zero.checked !== true || !report.zero.text.includes('0건') || !report.zero.className.includes('has') || !report.zero.className.includes('zero') || !report.zero.background || report.zero.background === 'rgba(0, 0, 0, 0)' || report.zero.dbValue?.count !== 0 || report.zero.dbValue?.checked !== true || report.zero.sheetValue?.count !== 0 || report.zero.activeDays !== 2 || report.zero.recapDays !== 2 || report.na.countText !== 'NA' || report.na.naPressed !== 'true' || report.na.adminCount !== '0' || report.na.selectedDate !== '2026-08-26' || report.futureReady.date !== report.futureReady.limit || report.futureReady.naPressed !== 'true' || report.futureReady.saveDisabled || !report.futureReady.saveText.includes('NA 미리 저장') || !report.futureSaved.entry?.na || report.futureSaved.entry?.count !== 0 || !report.futureSaved.dbPath.includes(`sales/${report.futureReady.limit}/`) || !report.futureSaved.dbValue?.na || report.beyondLimit.naPressed !== 'false' || !report.beyondLimit.saveDisabled || report.geometry.horizontalOverflow || report.geometry.undersized.length || errors.length
+    : !report.adminCardHidden || !report.ownCalendar || !report.zeroText.includes('0건') || !report.zeroClass.includes('has') || !report.zeroClass.includes('zero') || !report.zeroBackground || report.zeroBackground === 'rgba(0, 0, 0, 0)' || !report.preDisabled || !report.preClass.includes('pre-field') || report.preText.includes('0건') || !report.firstText.includes('첫필드!') || report.daiso?.zero?.count !== 0 || report.daiso?.zero?.checked !== true || !report.daiso?.futureEnabled || !report.daiso?.future?.na || report.daiso?.future?.count !== 0 || report.horizontalOverflow || errors.length;
   if (failed) failures.push({ fixture: fixture.name, ...report, errors });
   await page.close();
 }
