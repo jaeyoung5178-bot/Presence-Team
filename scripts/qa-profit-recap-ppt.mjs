@@ -46,7 +46,7 @@ await page.evaluate(() => {
     state.weeklyProfitRecaps[pay] ||= {};
     state.weeklyProfitRecaps[pay][user.uid] = { uid: user.uid, name: user.name, role: user.role, payType, payDate: pay, incomeDate: pay, activityFrom: w.sd, activityTo: w.ed, weekEnding: w.we, netPayment: income, rejectCLCount: rejectCL, rejectSWCount: rejectSW, resubmitCLCount: resubmitCL, resubmitSWCount: resubmitSW, bondBalance: payType === 'performance' ? 1000 : 0, bep: payType === 'performance' ? 2000 : 0, updatedAt: 1 };
   };
-  [100, 200, 300, 400].forEach((income, i) => put(pays[i], a, income, [1, 1, 2, 0][i], 0, [0, 0, 1, 0][i], 0));
+  [100, 200, 300, 400].forEach((income, i) => put(pays[i], a, income, [1, 1, 1, 0][i], [0, 0, 1, 0][i], [0, 0, 1, 0][i], 0));
   [50, 60, 70, 80].forEach((income, i) => put(pays[i], b, income, [5, 1, 0, 0][i], 0, 0, 0, i === 0 ? 'hourly' : 'performance'));
   state.profitMonthlyBep = { '2026-08': { 'qa-a': 2000, 'qa-b': 2000 } };
   window.__qaRecapWrites = [];
@@ -72,6 +72,7 @@ await page.waitForTimeout(150);
 const desktop = await page.evaluate(() => {
   const d = prcAdminAgg('2026-08', '2026-08', '');
   const yoon = d.rows.find((r) => r.name === '윤채영');
+  const productivity = prcProductivityOf(d);
   const preview = document.getElementById('profitRecapAdminView')?.textContent || '';
   return {
     pays: d.pays,
@@ -80,6 +81,7 @@ const desktop = await page.evaluate(() => {
     weeklyRejects: d.weeklyRejects,
     weeklyIncome: d.weeklyIncome,
     rowOrder: d.rows.map((r) => r.name),
+    productivity,
     totals: d.totals,
     yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, income: yoon.income, bond: yoon.bond, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
     previewChecks: {
@@ -94,6 +96,7 @@ const desktop = await page.evaluate(() => {
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       joinOrderLabel: preview.includes('입사일 순'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
+      productivitySlide: preview.includes('필드 생산성과 리젝 손실') && preview.includes('총 생산성') && preview.includes('CL 리젝') && preview.includes('SW 리젝'),
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
     },
@@ -222,6 +225,7 @@ const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
+if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000) failures.push('Productivity or CL/SW reject breakdown is incorrect');
 if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') failures.push('Payroll activity period is incorrect');
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
