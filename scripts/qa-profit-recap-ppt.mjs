@@ -96,8 +96,8 @@ const desktop = await page.evaluate(() => {
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       joinOrderLabel: preview.includes('입사일 순'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
-      productivitySlide: preview.includes('생산성의') && preview.includes('리젝으로 빠졌습니다') && preview.includes('Actual income') && preview.includes('CLIENT REJECT') && preview.includes('SALESWORKS REJECT'),
-      sharedDenominator: preview.includes('전체 세일즈 100%의 순리젝 구성') && preview.includes('원 조각에 합산하지 않고') && preview.includes('별도 실현률'),
+      productivitySlide: preview.includes('리젝·본드 반영 후 생산성') && preview.includes('급여일 기준 입력 실인컴') && preview.includes('CLIENT REJECT') && preview.includes('SALESWORKS REJECT'),
+      sharedDenominator: preview.includes('총생산성 100%') && preview.includes('예상 본드') && preview.includes('원형 계산과 별도'),
       oneCompositeRing: document.querySelectorAll('#m-recap .pra-story-donut').length === 1 && document.querySelectorAll('#m-recap .pra-story-donut svg').length === 1,
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
@@ -227,7 +227,7 @@ const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
-if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2) failures.push('Productivity, actual-income, or CL/SW whole-sales breakdown is incorrect');
+if (desktop.productivity.unit !== 110000 || desktop.productivity.bondRate !== 0.35 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.estimatedBondValue !== 770000 || desktop.productivity.afterBondValue !== 1430000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2 || Number(desktop.productivity.bondPctOfSales.toFixed(1)) !== 29.2 || Number(desktop.productivity.afterBondPctOfSales.toFixed(1)) !== 54.2) failures.push('Productivity, bond, actual-income, or CL/SW whole-sales breakdown is incorrect');
 if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') failures.push('Payroll activity period is incorrect');
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
