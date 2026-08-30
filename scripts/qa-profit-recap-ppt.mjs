@@ -32,6 +32,7 @@ await page.evaluate(() => {
   const sale = (date, user, count) => { state.sales[`${date}|${user.name}`] = { date, name: user.name, role: user.role, count, t: 1 }; };
   ['2026-07-28', '2026-08-04', '2026-08-11', '2026-08-18'].forEach((d, i) => sale(d, a, [2, 3, 4, 5][i]));
   ['2026-07-29', '2026-08-05', '2026-08-12', '2026-08-19'].forEach((d, i) => sale(d, b, [1, 2, 3, 4][i]));
+  state.sales['2026-08-20|황혜진'] = { date: '2026-08-20', name: '황혜진', role: 'LR', count: 0, checked: true, t: 1 };
   state.weeklyProfitRecaps = {};
   const pays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
   const put = (pay, user, income, rejectCL, rejectSW, resubmitCL, resubmitSW) => {
@@ -69,17 +70,32 @@ const desktop = await page.evaluate(() => {
     pays: d.pays,
     period: d.period,
     weeklySales: d.weeklySales,
+    weeklyRejects: d.weeklyRejects,
+    weeklyIncome: d.weeklyIncome,
     totals: d.totals,
     yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)) },
     previewChecks: {
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
-      formula: preview.includes('리젝률=(리젝−리실)÷세일즈'),
-      netSales: preview.includes('Net Sales · 리젝·리실 반영'),
+      formula: preview.includes('리젝률=(리젝−리섭)÷세일즈'),
+      netSales: preview.includes('Net Sales · 리젝·리섭 반영'),
+      salesTrend: preview.includes('세일즈 추이'),
+      rejectTrend: preview.includes('리젝 추이'),
+      incomeTrend: preview.includes('실인컴 추이'),
+      typoRemoved: !preview.includes('리실'),
     },
+    chartCount: document.querySelectorAll('#m-recap .pra-chart').length,
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
   };
 });
+
+await page.setViewportSize({ width: 1024, height: 768 });
+await page.waitForTimeout(100);
+const tablet = await page.evaluate(() => ({
+  horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+  chartCount: document.querySelectorAll('#m-recap .pra-chart').length,
+  chartsInsideViewport: [...document.querySelectorAll('#m-recap .pra-chart')].every((el) => { const r = el.getBoundingClientRect(); return r.left >= -1 && r.right <= innerWidth + 1; }),
+}));
 
 await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(100);
@@ -89,6 +105,7 @@ const phone = await page.evaluate(() => {
   return {
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
     tableScrollable: !!tableWrap && tableWrap.scrollWidth > tableWrap.clientWidth,
+    chartCount: document.querySelectorAll('#m-recap .pra-chart').length,
     undersized: controls.map((el) => ({ label: el.textContent.trim() || el.getAttribute('aria-label'), h: Math.round(el.getBoundingClientRect().height) })).filter((x) => x.h < 44),
   };
 });
@@ -112,13 +129,15 @@ const failures = [];
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') failures.push('Payroll activity period is incorrect');
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
-if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 8 || desktop.totals.income !== 1260 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 3) failures.push('Team totals are incorrect');
+if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
+if (JSON.stringify(desktop.weeklyIncome) !== JSON.stringify([150, 260, 370, 480])) failures.push('Weekly net income aggregation is incorrect');
+if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 9 || desktop.totals.income !== 1260 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 2.67) failures.push('Team totals or explicit zero-day field count are incorrect');
 if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.rejects !== 4 || desktop.yoon.resubmits !== 1 || desktop.yoon.rejectRate !== 21.4 || JSON.stringify(desktop.yoon.weekly) !== JSON.stringify([2, 3, 4, 5])) failures.push('Member reject-rate or weekly calculations are incorrect');
-if (Object.values(desktop.previewChecks).some((v) => !v)) failures.push('Preview does not match requested structure');
-if (desktop.horizontalOverflow || phone.horizontalOverflow || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
+if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested structure');
+if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, phone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ desktop, tablet, phone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
 if (failures.length) process.exit(1);
