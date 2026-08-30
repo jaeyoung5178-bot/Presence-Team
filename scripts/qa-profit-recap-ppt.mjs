@@ -75,12 +75,13 @@ const desktop = await page.evaluate(() => {
     weeklyRejects: d.weeklyRejects,
     weeklyIncome: d.weeklyIncome,
     totals: d.totals,
-    yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
+    yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, income: yoon.income, bond: yoon.bond, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
     previewChecks: {
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
       formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
       netSales: preview.includes('Net Sales · 리젝·리섭 반영'),
+      remainingBond: preview.includes('잔여본드') && preview.includes('₩1,000'),
       distinctTrend: preview.includes('세일즈·리젝·실인컴 주차별 추이'),
       distinctTypes: ['세일즈 · 막대', '리젝 · 선', '실인컴 · 영역'].every((v) => preview.includes(v)),
       independentAxes: preview.includes('지표별 독립 축'),
@@ -217,8 +218,8 @@ if (desktop.period.from !== '2026-07-27' || desktop.period.to !== '2026-08-23') 
 if (JSON.stringify(desktop.weeklySales) !== JSON.stringify([3, 5, 7, 9])) failures.push('Weekly sales aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyRejects) !== JSON.stringify([1, 2, 2, 0])) failures.push('Weekly reject aggregation is incorrect');
 if (JSON.stringify(desktop.weeklyIncome) !== JSON.stringify([150, 260, 370, 480])) failures.push('Weekly net income aggregation is incorrect');
-if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 9 || desktop.totals.income !== 1260 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 2.67) failures.push('Team totals or explicit zero-day field count are incorrect');
-if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.rejects !== 4 || desktop.yoon.resubmits !== 1 || desktop.yoon.rejectRate !== 21.4 || JSON.stringify(desktop.yoon.weekly) !== JSON.stringify([2, 3, 4, 5])) failures.push('Member reject-rate or weekly calculations are incorrect');
+if (desktop.totals.sales !== 24 || desktop.totals.fieldDays !== 9 || desktop.totals.income !== 1260 || desktop.totals.bond !== 2000 || desktop.totals.rejects !== 5 || desktop.totals.resubmits !== 1 || desktop.totals.netSales !== 20 || Number(desktop.totals.avg.toFixed(2)) !== 2.67) failures.push('Team totals, bond, or explicit zero-day field count are incorrect');
+if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.income !== 1000 || desktop.yoon.bond !== 1000 || desktop.yoon.rejects !== 4 || desktop.yoon.resubmits !== 1 || desktop.yoon.rejectRate !== 21.4 || JSON.stringify(desktop.yoon.weekly) !== JSON.stringify([2, 3, 4, 5])) failures.push('Member bond, reject-rate, or weekly calculations are incorrect');
 if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) failures.push('Hourly/performance recap counts are incorrect');
 if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested three-chart structure');
 if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
