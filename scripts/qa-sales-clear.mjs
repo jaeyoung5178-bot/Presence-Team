@@ -169,7 +169,31 @@ try {
     if (role.manager) await page.screenshot({ path: `${output}/${surface.name}-manager-after.png` });
     assert.deepEqual(errors, [], `${fixture.label}: page errors`);
     console.log(`PASS ${fixture.label}: cancel, zero/NA/positive/future clear, scope, rollback, busy, restore, sync, responsive`);
-    if (role.admin && surface.name === 'desktop') console.log('AUGUST_RECAP', await page.evaluate(() => ({ pays: prcPayDates('2026-08', '2026-08').map(prcWeekInfo), period: prcPeriodForPays(prcPayDates('2026-08', '2026-08')) })));
+    if (role.admin && surface.name === 'desktop') {
+      const recap = await page.evaluate(() => {
+        state.users = { [me.uid]: me };
+        me.surveys[me.role].answers.firstField = '2026-07-27';
+        state.sales = {}; state.weeklyProfitRecaps = {};
+        const put = (date, count, extra = {}) => { state.sales[`${date}|${me.name}`] = { date, count, name: me.name, role: me.role, ...extra }; };
+        put('2026-07-27', 0, { checked: true });
+        put('2026-08-03', 0, { na: true });
+        put('2026-08-04', 0); // Not explicitly checked: still blank.
+        put('2026-08-05', 0, { cleared: true });
+        put('2026-07-26', 100, { checked: true }); // Before the period/first field.
+        put('2026-08-24', 100, { checked: true }); // Next month's pay period.
+        const zero = prcAdminAgg('2026-08', '2026-08', '');
+        put('2026-07-28', 6, { checked: true });
+        const pays = prcPayDates('2026-08', '2026-08');
+        for (const pay of [...pays, '2026-09-04']) state.weeklyProfitRecaps[pay] = { [me.uid]: { uid: me.uid, payDate: pay, netPayment: pay.startsWith('2026-08') ? 100 : 99999, payType: 'performance', updatedAt: 1 } };
+        const totals = prcAdminAgg('2026-08', '2026-08', '').totals;
+        return { zero: { rows: zero.rows.length, days: zero.totals.fieldDays, sales: zero.totals.sales, avg: zero.totals.avg }, totals: { days: totals.fieldDays, sales: totals.sales, avg: totals.avg, income: totals.income }, pays, period: prcPeriodForPays(pays) };
+      });
+      assert.deepEqual(recap.zero, { rows: 1, days: 1, sales: 0, avg: 0 });
+      assert.deepEqual(recap.totals, { days: 2, sales: 6, avg: 3, income: 400 });
+      assert.deepEqual(recap.pays, ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28']);
+      assert.deepEqual(recap.period, { from: '2026-07-27', to: '2026-08-23' });
+      console.log('PASS AUGUST_RECAP: explicit zero-only member included, NA/blank/cleared excluded, 4 paydays, aligned period, AVG', recap);
+    }
     await page.close();
   }
 } finally { await browser.close(); }

@@ -1811,6 +1811,8 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-recap .pra-download{min-height:46px;border:1px solid rgba(37,93,235,.5);border-radius:11px;background:#255deb;color:#fff;font-weight:900;padding:0 16px;cursor:pointer;white-space:nowrap}
 #m-recap .pra-deck{display:flex;flex-direction:column;gap:18px;margin-bottom:20px}
 #m-recap .pra-slide{position:relative;background:#fff;color:#1e293b;border-radius:18px;padding:34px 38px;box-shadow:0 18px 50px rgba(0,0,0,.25);aspect-ratio:16/9;min-height:510px;overflow:hidden}
+#m-recap .pra-slide.pra-income-reject-slide{aspect-ratio:auto;padding-bottom:48px}
+#m-recap .pra-income-reject-slide .pra-title{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif}
 #m-recap .pra-cover-slide{display:flex;flex-direction:column;justify-content:center;background:#fff;padding:42px 38px}
 #m-recap .pra-cover-card{background:#255deb;border-radius:24px;padding:42px 40px;color:#fff;box-shadow:0 12px 24px rgba(37,93,235,.2)}
 #m-recap .pra-cover-chip{display:inline-flex;align-items:center;justify-content:center;min-width:145px;min-height:34px;padding:0 18px;border-radius:999px;background:#fff;color:#255deb;font-weight:950;font-size:16px}
@@ -5629,7 +5631,7 @@ function prcAdminMembers(uid){const all=Object.values(state.users||{}).filter(fu
 function prcAdminAgg(from,to,uid){
   const pays=prcPayDates(from,to),period=prcPeriodForPays(pays),records=prcRangeRecords(from,to,uid),members=prcAdminMembers(uid),recordByUid={};records.forEach(function(r){recordByUid[r.uid]=recordByUid[r.uid]||{};recordByUid[r.uid][r.payDate]=r;});
   let rows=members.map(function(u){const byPay=recordByUid[u.uid]||{},rr=pays.map(function(p){return byPay[p]||null;}),saved=rr.filter(Boolean),performance=saved.filter(function(r){return prcPayTypeOf(r)==='performance';}),hourlyWeeks=saved.length-performance.length,performanceWeeks=performance.length,weekly=pays.map(function(pay){return prcWeekSales(u.name,pay).sales;}),span=period.from?prcSalesBetween(u.name,period.from,period.to):{sales:0,days:0},lastPerformance=performance.slice().sort(function(a,b){return String(b.payDate).localeCompare(String(a.payDate));})[0]||{},rejects=performance.reduce(function(s,r){return s+prcRejectTotal(r);},0),resubmits=performance.reduce(function(s,r){return s+prcResubmitTotal(r);},0),payLabel=hourlyWeeks&&performanceWeeks?('시'+hourlyWeeks+'·성'+performanceWeeks):(hourlyWeeks?('시급 '+hourlyWeeks):(performanceWeeks?('성과 '+performanceWeeks):'—'));return {uid:u.uid,name:u.name||'—',role:u.role||'',fieldDays:span.days,sales:weekly.reduce(function(s,v){return s+v;},0),income:saved.reduce(function(s,r){return s+Number(r.netPayment||0);},0),rejects:rejects,resubmits:resubmits,rejectRate:prcRejectRate(rejects,resubmits,weekly.reduce(function(s,v){return s+v;},0)),bond:Number(lastPerformance.bondBalance||0),bep:prcBep(to,u.uid)||Number(lastPerformance.bep||0),weekly:weekly,records:rr,savedWeeks:saved.length,hourlyWeeks:hourlyWeeks,performanceWeeks:performanceWeeks,payLabel:payLabel};});
-  rows=rows.filter(function(x){return uid||x.sales||x.income||x.rejects||x.resubmits||x.savedWeeks;}).sort(joinSort);
+  rows=rows.filter(function(x){return uid||x.fieldDays||x.sales||x.income||x.rejects||x.resubmits||x.savedWeeks;}).sort(joinSort);
   const weeklySales=pays.map(function(_,i){return rows.reduce(function(s,x){return s+(x.weekly[i]||0);},0);}),weeklyRejects=pays.map(function(pay){return records.filter(function(r){return r.payDate===pay;}).reduce(function(s,r){return s+prcRejectTotal(r);},0);}),weeklyIncome=pays.map(function(pay){return records.filter(function(r){return r.payDate===pay;}).reduce(function(s,r){return s+Number(r.netPayment||0);},0);});let cumulative=0;
   const totals={fieldDays:rows.reduce(function(s,x){return s+x.fieldDays;},0),sales:rows.reduce(function(s,x){return s+x.sales;},0),income:rows.reduce(function(s,x){return s+x.income;},0),rejects:rows.reduce(function(s,x){return s+x.rejects;},0),resubmits:rows.reduce(function(s,x){return s+x.resubmits;},0),bond:rows.reduce(function(s,x){return s+x.bond;},0),weekly:weeklySales,hourlyWeeks:rows.reduce(function(s,x){return s+x.hourlyWeeks;},0),performanceWeeks:rows.reduce(function(s,x){return s+x.performanceWeeks;},0)};totals.payLabel=totals.hourlyWeeks&&totals.performanceWeeks?('시'+totals.hourlyWeeks+'·성'+totals.performanceWeeks):(totals.hourlyWeeks?('시급 '+totals.hourlyWeeks):(totals.performanceWeeks?('성과 '+totals.performanceWeeks):'—'));totals.netSales=Math.max(0,totals.sales-totals.rejects+totals.resubmits);totals.avg=totals.fieldDays?totals.sales/totals.fieldDays:0;totals.rejectRate=prcRejectRate(totals.rejects,totals.resubmits,totals.sales);
   return {records:records,rows:rows,pays:pays,weeklySales:weeklySales,weeklyRejects:weeklyRejects,weeklyIncome:weeklyIncome,cumulativeSales:weeklySales.map(function(v){cumulative+=v;return cumulative;}),period:period,totals:totals};
@@ -5655,7 +5657,7 @@ function prcAdminTable(data,rows,start){
 }
 function prcAdminDetailSlides(data,scope,scopeName,rangeLabel){const source=data.rows,pageSize=5,total=Math.max(1,Math.ceil(source.length/pageSize));let html='';for(let start=0;start<source.length;start+=pageSize){const rows=source.slice(start,start+pageSize),page=Math.floor(start/pageSize)+1;html+='<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">세일즈 디테일</div><h3 class="pra-title">팀원별 세일즈 성과 상세 · '+page+' / '+total+'</h3><div class="pra-sub">입사일 순 · 리젝률은 성과제 주차만 (리젝−리섭)÷세일즈 · '+rangeLabel+'</div>'+prcAdminTable(data,rows,start)+'<div class="pra-page">'+(page+3)+'</div></article>';}return html;}
 function prcCoverHTML(data,from,to,scopeName){const t=data.totals,p=data.period;return '<article class="pra-slide pra-cover-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-cover-card"><span class="pra-cover-chip">'+esc(prcMonthChip(from,to))+'</span><h3 class="pra-cover-title">'+esc(prcMonthTitle(from,to))+'</h3><div class="pra-cover-period">기간: '+esc(p.from)+' – '+esc(p.to)+' &nbsp;|&nbsp; Presence Team · '+esc(scopeName)+'</div><div class="pra-cover-metrics"><div class="pra-cover-metric"><b>'+t.sales+'</b><span>월간 총 세일즈</span></div><div class="pra-cover-metric"><b class="gold">₩'+prcFmt(t.income)+'</b><span>월간 실인컴</span></div><div class="pra-cover-metric"><b>'+t.avg.toFixed(2)+'</b><span>팀 월간 AVG</span></div><div class="pra-cover-metric"><b>'+t.fieldDays+'일</b><span>Field Days</span></div></div></div><div class="pra-page">1</div></article>';}
-function prcSummaryHTML(data,rangeLabel){const t=data.totals,sales=prcTrendSeries(data,'weeklySales'),rejects=prcTrendSeries(data,'weeklyRejects'),income=prcTrendSeries(data,'weeklyIncome');return '<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">팀 세일즈 현황</div><h3 class="pra-title">세일즈·리젝·Actual Income 주차별 추이</h3><div class="pra-sub">'+data.pays.length+'회 급여 주차 실적 비교 · 지표별 독립 축 ('+esc(data.period.from)+' – '+esc(data.period.to)+')</div><div class="pra-metrics"><div class="pra-metric"><b>'+t.sales+'</b><span>Gross 세일즈</span></div><div class="pra-metric"><b>'+t.avg.toFixed(2)+'</b><span>월간 팀 AVG</span></div><div class="pra-metric"><b>'+t.fieldDays+'</b><span>총 Field Days</span></div><div class="pra-metric"><b>'+t.netSales+'</b><span>Net Sales · 리젝·리섭 반영</span></div></div><div class="pra-charts"><div class="pra-chart"><h4>세일즈 · 막대</h4>'+prcAdminBars(sales.labels,sales.values,'#255deb',false)+'</div><div class="pra-chart"><h4>리젝 · 선</h4>'+prcAdminMiniLine(rejects,'#ff4055',false,false)+'</div><div class="pra-chart"><h4>Actual Income · 꺾은선/영역</h4>'+prcAdminMiniLine(income,'#009e6c',true,true)+'</div></div><div class="pra-page">2</div></article>';}
+function prcSummaryHTML(data,rangeLabel){const t=data.totals,sales=prcTrendSeries(data,'weeklySales'),rejects=prcTrendSeries(data,'weeklyRejects'),income=prcTrendSeries(data,'weeklyIncome');return '<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">팀 세일즈 현황</div><h3 class="pra-title">주차별 세일즈·리젝·인컴</h3><div class="pra-sub">'+data.pays.length+'회 급여 주차 · 필드 기간 '+esc(data.period.from)+' – '+esc(data.period.to)+'</div><div class="pra-metrics"><div class="pra-metric"><b>'+t.sales+'</b><span>총 세일즈</span></div><div class="pra-metric"><b>'+t.avg.toFixed(2)+'</b><span>일평균 세일즈 (AVG)</span></div><div class="pra-metric"><b>'+t.fieldDays+'</b><span>총 필드일수</span></div><div class="pra-metric"><b>'+t.netSales+'</b><span>리젝 제외 세일즈</span></div></div><div class="pra-charts"><div class="pra-chart"><h4>세일즈 추이</h4>'+prcAdminBars(sales.labels,sales.values,'#255deb',false)+'</div><div class="pra-chart"><h4>리젝 추이</h4>'+prcAdminMiniLine(rejects,'#ff4055',false,false)+'</div><div class="pra-chart"><h4>실제 인컴 추이</h4>'+prcAdminMiniLine(income,'#009e6c',true,true)+'</div></div><div class="pra-page">2</div></article>';}
 const PRC_SALE_PRODUCTIVITY=110000;
 const PRC_BOND_RATE=.35;
 function prcProductivityOfBond35Legacy(data){
@@ -5749,11 +5751,16 @@ function prcPptTrendChart(slide,pptx,type,title,series,x,color,money){
 }
 function prcPptIncomeTrendChart(slide,pptx,title,series,x){
   const max=Math.max.apply(null,(series.values||[]).concat([1])),data=[{name:title,labels:series.labels,values:series.values}],common={x:x,y:4.05,w:3.92,h:2.65,catAxisLabelFontFace:'Noto Sans KR',catAxisLabelFontSize:8,valAxisLabelFontFace:'Noto Sans KR',valAxisLabelFontSize:7.5,valAxisMinVal:0,valAxisMaxVal:max*1.18,valAxisLabelFormatCode:'"₩"#,##0',showLegend:false,showTitle:true,title:title,titleFontFace:'Noto Sans KR',titleFontSize:13,valGridLine:{color:'E2E8F0',size:1},chartArea:{border:{color:'E2E8F0',pt:.7}},plotArea:{border:{color:'E2E8F0',pt:.5}}};
-  slide.addChart([{type:pptx.ChartType.area,data:data,options:{chartColors:['A9DDCE'],chartColorsOpacity:42,showLegend:false,showValue:false}},{type:pptx.ChartType.line,data:data,options:{chartColors:['009E6C'],showLegend:false,showValue:false,lineSize:2.5,lineDataSymbol:'circle',lineDataSymbolSize:5}}],common);
+  // One native combo chart: line and fill share axes, categories and data.
+  common.catAxisLabelPos='low';common.catAxisLabelFontSize=7;common.valAxisMajorUnit=Math.max(1,Math.ceil(max*1.18/4/100000)*100000);common.valAxisMaxVal=common.valAxisMajorUnit*4;
+  const labels=series.labels.map(function(label,i){return label+'\n₩'+prcFmt(series.values[i]);});
+  // PptxGenJS mutates each data object with its series ID; never reuse the object.
+  const makeData=function(){return [{name:title,labels:labels.slice(),values:series.values.slice()}];};
+  slide.addChart([{type:pptx.ChartType.area,data:makeData(),options:{chartColors:['A9DDCE'],chartColorsOpacity:42,showLegend:false,showValue:false}},{type:pptx.ChartType.line,data:makeData(),options:{chartColors:['009E6C'],showLegend:false,showValue:false,lineSize:2.5,lineDataSymbol:'circle',lineDataSymbolSize:5}}],common);
 }
 function prcPptIncomeLabels(slide,pptx,series,x,y,w,h){const vals=series.values||[],px=x+.72,pw=w-.8,step=vals.length>1?pw/(vals.length-1):0;vals.forEach(function(v,i){const xx=px+i*step;slide.addText('₩'+prcFmt(v),{x:xx-.51,y:y+h+.04,w:1.02,h:.18,fontFace:'Noto Sans KR',fontSize:7,color:'007E57',bold:true,align:'center',valign:'mid',margin:0,fit:'shrink',breakLine:false,wrap:false});});}
-function prcPptSummary(pptx,data,page){const slide=pptx.addSlide(),t=data.totals,sales=prcTrendSeries(data,'weeklySales'),rejects=prcTrendSeries(data,'weeklyRejects'),income=prcTrendSeries(data,'weeklyIncome');slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'팀 세일즈 현황','세일즈·리젝·Actual Income 주차별 추이',data.pays.length+'회 급여 주차 실적 비교 · 지표별 독립 축 ('+data.period.from+' – '+data.period.to+')',page);prcPptMetric(slide,pptx,.5,'Gross 세일즈',t.sales,'pcs');prcPptMetric(slide,pptx,3.55,'월간 팀 AVG',t.avg.toFixed(2),'AVG');prcPptMetric(slide,pptx,6.6,'총 Field Days',t.fieldDays,'일');prcPptMetric(slide,pptx,9.65,'Net Sales · 리젝·리섭 반영',t.netSales,'pcs');
-  prcPptTrendChart(slide,pptx,pptx.ChartType.bar,'세일즈 · 막대',sales,.5,'255DEB',false);prcPptTrendChart(slide,pptx,pptx.ChartType.line,'리젝 · 선',rejects,4.7,'FF4055',false);prcPptIncomeTrendChart(slide,pptx,'Actual Income · 꺾은선/영역',income,8.9);prcPptIncomeLabels(slide,pptx,income,8.9,4.05,3.92,2.65);return slide;
+function prcPptSummary(pptx,data,page){const slide=pptx.addSlide(),t=data.totals,sales=prcTrendSeries(data,'weeklySales'),rejects=prcTrendSeries(data,'weeklyRejects'),income=prcTrendSeries(data,'weeklyIncome');slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'팀 세일즈 현황','주차별 세일즈·리젝·인컴',data.pays.length+'회 급여 주차 · 필드 기간 '+data.period.from+' – '+data.period.to,page);prcPptMetric(slide,pptx,.5,'총 세일즈',t.sales,'건');prcPptMetric(slide,pptx,3.55,'일평균 세일즈 (AVG)',t.avg.toFixed(2),'AVG');prcPptMetric(slide,pptx,6.6,'총 필드일수',t.fieldDays,'일');prcPptMetric(slide,pptx,9.65,'리젝 제외 세일즈',t.netSales,'건');
+  prcPptTrendChart(slide,pptx,pptx.ChartType.bar,'세일즈 추이',sales,.5,'255DEB',false);prcPptTrendChart(slide,pptx,pptx.ChartType.line,'리젝 추이',rejects,4.7,'FF4055',false);prcPptIncomeTrendChart(slide,pptx,'실제 인컴 추이',income,8.9);return slide;
 }
 function prcPptProductivityLegacy(pptx,data,page){const slide=pptx.addSlide(),p=prcProductivityOf(data),clamp=function(v){return Math.max(0,Math.min(100,Number(v)||0));},incomeArc=clamp(p.incomeRealizationPct),rejectArc=clamp(p.rejectPctOfSales),clArc=clamp(p.clPctOfSales),swArc=clamp(p.swPctOfSales),restArc=Math.max(0,100-clArc-swArc),clear={fill:{color:'FFFFFF',transparency:100},border:{color:'FFFFFF',transparency:100,pt:0}};slide.background={color:'FFFFFF'};prcPptHeader(slide,pptx,'팀 생산성 구조','총생산성에서 실제 인컴과 리젝 손실까지','모든 링은 총생산성(세일즈 × ₩110,000)을 100%로 본 독립 비율 · CL/SW도 전체 세일즈 기준',page);
   slide.addChart(pptx.ChartType.doughnut,[{name:'실제 인컴 실현률',labels:['실제 인컴','미실현'],values:[incomeArc,Math.max(0,100-incomeArc)]}],{x:.42,y:2.2,w:5.22,h:4.62,holeSize:83,showLegend:false,showTitle:false,showPercent:false,showValue:false,chartColors:['009E6C','E7EDF4'],border:{color:'FFFFFF',pt:1},chartArea:clear,plotArea:clear});
@@ -5907,29 +5914,72 @@ function prcPptProductivityComplexLegacy(pptx,data,page){
   return slide;
 }
 function prcProductivityHTML(data){
-  const p=prcProductivityOf(data),cl=Math.max(0,p.clPctOfSales||0),sw=Math.max(0,p.swPctOfSales||0),rest=Math.max(0,100-cl-sw),warn=p.invalid?'<p class="pra-prod-note warn">⚠ 순리젝 건수가 총 세일즈보다 큽니다. 리캡 원본 건수를 확인해 주세요.</p>':'';
-  return '<article class="pra-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div><div class="pra-kicker">팀 인컴·리젝 현황</div><h3 class="pra-title">실제 인컴과 리젝을 한눈에</h3><div class="pra-sub">팀원 실제 입금액과 CL·SW 순리젝 현황</div><div class="pra-productivity"><div class="pra-story-card"><div class="pra-story-donut"><svg class="pra-ring-chart" viewBox="0 0 430 340" role="img" aria-label="실제 인컴 '+prcFmt(p.actualIncome)+'원, 총 리젝 '+p.netRejects+'건, 리젝률 '+prcPct(p.rejectPctOfSales)+', CL '+p.netCL+'건, SW '+p.netSW+'건"><circle class="pra-ring-value" cx="190" cy="164" r="112" pathLength="100" stroke="#e43d5b" stroke-width="42" stroke-dasharray="'+cl+' '+(100-cl)+'" transform="rotate(-90 190 164)"/><circle class="pra-ring-value" cx="190" cy="164" r="112" pathLength="100" stroke="#f4a127" stroke-width="42" stroke-dasharray="'+sw+' '+(100-sw)+'" stroke-dashoffset="-'+cl+'" transform="rotate(-90 190 164)"/><circle class="pra-ring-value" cx="190" cy="164" r="112" pathLength="100" stroke="#dfe7f0" stroke-width="42" stroke-dasharray="'+rest+' '+(100-rest)+'" stroke-dashoffset="-'+(cl+sw)+'" transform="rotate(-90 190 164)"/><text x="190" y="139" font-size="12" font-weight="850" text-anchor="middle" fill="#64748b">총 리젝</text><text x="190" y="177" font-size="31" font-weight="950" text-anchor="middle" fill="#1e293b">'+p.netRejects+'건</text><text x="190" y="204" font-size="18" font-weight="950" text-anchor="middle" fill="#ff4055">'+prcPct(p.rejectPctOfSales)+'</text></svg><div class="pra-ring-key"><span><i style="background:#e43d5b"></i>CL '+p.netCL+'건 · '+prcPct(p.clPctOfSales)+'</span><span><i style="background:#f4a127"></i>SW '+p.netSW+'건 · '+prcPct(p.swPctOfSales)+'</span></div></div></div><div class="pra-story-panel"><div class="pra-story-eyebrow">ACTUAL INCOME · 실제 인컴</div><div class="pra-story-income">₩'+prcFmt(p.actualIncome)+'</div><div class="pra-story-income-sub">모든 팀원이 주간 리캡에 입력한 실제 입금액 합계</div><div class="pra-story-totals first last"><div class="pra-story-total loss"><span>총 리젝</span><b>'+p.netRejects+'건</b></div><div class="pra-story-total loss"><span>리젝률</span><b>'+prcPct(p.rejectPctOfSales)+'</b></div></div><div class="pra-story-breakdown"><div class="pra-story-break"><span>CL REJECT</span><b>'+p.netCL+'건</b><small>'+prcPct(p.clPctOfSales)+'</small></div><div class="pra-story-break sw"><span>SW REJECT</span><b>'+p.netSW+'건</b><small>'+prcPct(p.swPctOfSales)+'</small></div></div>'+warn+'</div></div><div class="pra-page">3</div></article>';
+  const p=prcProductivityOf(data),valid=p.sales>0&&!p.invalid,cl=valid?p.clPctOfSales:0,sw=valid?p.swPctOfSales:0;
+  const rate=valid?prcPct(p.rejectPctOfSales):'—',warn=p.invalid?'<p class="pra-prod-note warn">순리젝이 총 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.</p>':'';
+  return `<article class="pra-slide pra-income-reject-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div>
+    <div class="pra-kicker">팀 인컴·리젝 현황</div><h3 class="pra-title">실제 인컴과 리젝을 한눈에</h3>
+    <div class="pra-sub">총 세일즈 ${prcFmt(p.sales)}건 · 리섭 반영 후 순리젝 ${prcFmt(p.netRejects)}건 · CL/SW 비율은 전체 세일즈 기준</div>
+    <div class="pra-productivity">
+      <div class="pra-story-card"><div class="pra-story-donut">
+        <svg class="pra-ring-chart" viewBox="0 0 360 340" role="img" aria-label="총 세일즈 ${p.sales}건 중 순리젝 ${p.netRejects}건, 리젝률 ${rate}">
+          <circle cx="180" cy="165" r="118" fill="none" stroke="#dfe7f0" stroke-width="42"/>
+          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#e43d5b" stroke-width="42" stroke-dasharray="${cl} ${100-cl}" transform="rotate(-90 180 165)"/>
+          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#f4a127" stroke-width="42" stroke-dasharray="${sw} ${100-sw}" stroke-dashoffset="-${cl}" transform="rotate(-90 180 165)"/>
+          <text x="180" y="117" font-size="14" font-weight="700" text-anchor="middle" fill="#64748b">총 리젝률</text>
+          <text x="180" y="163" font-size="39" font-weight="900" text-anchor="middle" fill="#1e293b">${rate}</text>
+          <text x="180" y="190" font-size="14" font-weight="700" text-anchor="middle" fill="#475569">${prcFmt(p.netRejects)}건 / ${prcFmt(p.sales)}건</text>
+          <text x="180" y="220" font-size="12" font-weight="700" text-anchor="middle" fill="#e43d5b">CL 리젝 ${valid?prcPct(p.clPctOfSales):'—'}</text>
+          <text x="180" y="242" font-size="12" font-weight="700" text-anchor="middle" fill="#a56b00">SW 리젝 ${valid?prcPct(p.swPctOfSales):'—'}</text>
+        </svg>
+        <div class="pra-ring-key"><span><i style="background:#dfe7f0"></i>리젝 제외 ${prcFmt(p.retained)}건</span></div>
+      </div></div>
+      <div class="pra-story-panel">
+        <div class="pra-story-eyebrow">ACTUAL INCOME · 실제 인컴</div>
+        <div class="pra-story-income" style="color:#087f6b">₩${prcFmt(p.actualIncome)}</div>
+        <div class="pra-story-totals first last" style="display:block">
+          <div class="pra-story-eyebrow">리젝 손실액 <span style="font-weight:500">(본드에서 우선차감)</span></div>
+          <div class="pra-story-income" style="color:#e43d5b">₩${prcFmt(p.rejectValue)}</div>
+          <div class="pra-story-income-sub">순리젝 ${prcFmt(p.netRejects)}건 × ₩110,000</div>
+        </div>
+        <div class="pra-story-breakdown">
+          <div class="pra-story-break"><span>CL REJECT · 클라이언트</span><b>${prcFmt(p.netCL)}건 · ${valid?prcPct(p.clPctOfSales):'—'}</b><small>₩${prcFmt(p.clValue)}</small></div>
+          <div class="pra-story-break sw"><span>SW REJECT · 세일즈웍스</span><b>${prcFmt(p.netSW)}건 · ${valid?prcPct(p.swPctOfSales):'—'}</b><small>₩${prcFmt(p.swValue)}</small></div>
+        </div>${warn}
+      </div>
+    </div><div class="pra-page">3</div></article>`;
 }
 function prcPptProductivity(pptx,data,page){
-  const slide=pptx.addSlide(),p=prcProductivityOf(data),clear={fill:{color:'FFFFFF',transparency:100},border:{color:'FFFFFF',transparency:100,pt:0}},values=p.sales?[p.netCL,p.netSW,Math.max(0,p.sales-p.netRejects)]:[0,0,1];
+  const slide=pptx.addSlide(),p=prcProductivityOf(data),valid=p.sales>0&&!p.invalid,rate=valid?prcPct(p.rejectPctOfSales):'—';
   slide.background={color:'FFFFFF'};
-  prcPptHeader(slide,pptx,'팀 인컴·리젝 현황','실제 인컴과 리젝을 한눈에','팀원 실제 입금액 · 총 리젝 '+p.netRejects+'건 · 리젝률 '+prcPct(p.rejectPctOfSales),page);
-  slide.addChart(pptx.ChartType.doughnut,[{name:'리젝 구성',labels:['CL 리젝','SW 리젝','리젝 없음'],values:values}],{x:.72,y:2.18,w:5.25,h:4.55,holeSize:66,showLegend:false,showTitle:false,showPercent:false,showValue:false,varyColors:true,chartColors:['E43D5B','F4A127','DFE7F0'],border:{color:'FFFFFF',pt:1.2},chartArea:clear,plotArea:clear});
-  prcPptText(slide,pptx,'총 리젝',1.68,3.58,3.3,.22,12,'64748B',true,'center');
-  prcPptText(slide,pptx,p.netRejects+'건',1.68,3.92,3.3,.5,30,'1E293B',true,'center');
-  prcPptText(slide,pptx,prcPct(p.rejectPctOfSales),1.68,4.48,3.3,.38,22,'FF4055',true,'center');
-  slide.addShape(pptx.ShapeType.ellipse,{x:1.12,y:6.35,w:.12,h:.12,fill:{color:'E43D5B'},line:{color:'E43D5B'}});prcPptText(slide,pptx,'CL 리젝  '+p.netCL+'건 · '+prcPct(p.clPctOfSales),1.32,6.27,1.95,.2,10,'334155',true);
-  slide.addShape(pptx.ShapeType.ellipse,{x:3.52,y:6.35,w:.12,h:.12,fill:{color:'F4A127'},line:{color:'F4A127'}});prcPptText(slide,pptx,'SW 리젝  '+p.netSW+'건 · '+prcPct(p.swPctOfSales),3.72,6.27,1.95,.2,10,'334155',true);
-  prcPptText(slide,pptx,'ACTUAL INCOME · 실제 인컴',6.72,2.55,4.9,.24,13,'64748B',true);
-  prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),6.72,3.02,5.45,.55,31,'009E6C',true);
-  prcPptText(slide,pptx,'모든 팀원이 주간 리캡에 입력한 실제 입금액 합계',6.72,3.67,5.0,.22,10,'475569',true);
-  slide.addShape(pptx.ShapeType.line,{x:6.72,y:4.18,w:5.25,h:0,line:{color:'E2E8F0',pt:1}});
-  prcPptText(slide,pptx,'총 리젝',6.72,4.56,2.2,.2,11,'64748B',true);prcPptText(slide,pptx,p.netRejects+'건',6.72,4.88,2.2,.42,24,'E43D5B',true);
-  prcPptText(slide,pptx,'리젝률',9.52,4.56,2.2,.2,11,'64748B',true);prcPptText(slide,pptx,prcPct(p.rejectPctOfSales),9.52,4.88,2.2,.42,24,'FF4055',true);
-  slide.addShape(pptx.ShapeType.line,{x:6.72,y:5.55,w:5.25,h:0,line:{color:'E2E8F0',pt:1}});
-  slide.addShape(pptx.ShapeType.rect,{x:6.72,y:5.92,w:.07,h:.52,fill:{color:'E43D5B'},line:{color:'E43D5B',transparency:100}});prcPptText(slide,pptx,'CL REJECT',6.98,5.87,1.35,.18,9,'64748B',true);prcPptText(slide,pptx,p.netCL+'건 · '+prcPct(p.clPctOfSales),6.98,6.13,1.95,.28,16,'1E293B',true);
-  slide.addShape(pptx.ShapeType.rect,{x:9.52,y:5.92,w:.07,h:.52,fill:{color:'F4A127'},line:{color:'F4A127',transparency:100}});prcPptText(slide,pptx,'SW REJECT',9.78,5.87,1.35,.18,9,'64748B',true);prcPptText(slide,pptx,p.netSW+'건 · '+prcPct(p.swPctOfSales),9.78,6.13,1.95,.28,16,'1E293B',true);
-  if(p.invalid)prcPptText(slide,pptx,'⚠ 순리젝 건수가 총 세일즈보다 큽니다. 원본 건수를 확인해 주세요.',6.72,6.72,5.25,.18,8,'D97706',true);
+  prcPptHeader(slide,pptx,'팀 인컴·리젝 현황','실제 인컴과 리젝을 한눈에','총 세일즈 '+prcFmt(p.sales)+'건 · 리섭 반영 후 순리젝 '+prcFmt(p.netRejects)+'건 · CL/SW 비율은 전체 세일즈 기준',page);
+  const values=valid?[p.netCL,p.netSW,p.retained]:[0,0,1];
+  slide.addChart(pptx.ChartType.doughnut,[{name:'전체 세일즈의 리젝 구성',labels:['CL 리젝','SW 리젝','리젝 제외'],values:values}],{
+    x:.68,y:2.25,w:4.92,h:4.42,holeSize:70,showLegend:false,showTitle:false,showPercent:false,showValue:false,showCatName:false,varyColors:true,
+    chartColors:['E43D5B','F4A127','DFE7F0'],chartArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},plotArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}}
+  });
+  prcPptText(slide,pptx,'총 리젝률',1.52,3.42,3.24,.28,14,'64748B',true,'center');
+  prcPptText(slide,pptx,rate,1.4,3.83,3.48,.62,40,'1E293B',true,'center');
+  prcPptText(slide,pptx,prcFmt(p.netRejects)+'건 / '+prcFmt(p.sales)+'건',1.52,4.57,3.24,.28,14,'475569',true,'center');
+  prcPptText(slide,pptx,'CL 리젝 '+(valid?prcPct(p.clPctOfSales):'—'),1.84,5.01,2.6,.22,12,'E43D5B',true,'center');
+  prcPptText(slide,pptx,'SW 리젝 '+(valid?prcPct(p.swPctOfSales):'—'),1.84,5.32,2.6,.22,12,'A56B00',true,'center');
+  slide.addShape(pptx.ShapeType.ellipse,{x:1.85,y:6.55,w:.12,h:.12,fill:{color:'DFE7F0'},line:{color:'DFE7F0'}});
+  prcPptText(slide,pptx,'리젝 제외 '+prcFmt(p.retained)+'건',2.06,6.49,2.2,.24,11,'64748B',false);
+  const x=6.25,w=6.0;
+  prcPptText(slide,pptx,'ACTUAL INCOME · 실제 인컴',x,2.5,w,.24,13,'64748B',true);
+  prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x,2.91,w,.54,32,'087F6B',true);
+  slide.addShape(pptx.ShapeType.line,{x:x,y:4.04,w:w,h:0,line:{color:'E2E8F0',pt:1}});
+  prcPptText(slide,pptx,'리젝 손실액',x,4.32,1.45,.25,14,'475569',true);
+  prcPptText(slide,pptx,'(본드에서 우선차감)',x+1.6,4.34,4.4,.23,11,'64748B');
+  prcPptText(slide,pptx,'₩'+prcFmt(p.rejectValue),x,4.74,w,.54,32,'E43D5B',true);
+  prcPptText(slide,pptx,'순리젝 '+prcFmt(p.netRejects)+'건 × ₩110,000',x,5.39,w,.23,11,'64748B');
+  [{name:'CL · 클라이언트',count:p.netCL,pct:p.clPctOfSales,value:p.clValue,color:'E43D5B',x:x},
+   {name:'SW · 세일즈웍스',count:p.netSW,pct:p.swPctOfSales,value:p.swValue,color:'F4A127',x:x+3.25}].forEach(function(item){
+    slide.addShape(pptx.ShapeType.rect,{x:item.x,y:5.93,w:.055,h:.82,fill:{color:item.color},line:{color:item.color}});
+    prcPptText(slide,pptx,item.name,item.x+.2,5.91,2.58,.2,11,'64748B',true);
+    prcPptText(slide,pptx,prcFmt(item.count)+'건 · '+(valid?prcPct(item.pct):'—'),item.x+.2,6.19,2.58,.28,19,'1E293B',true);
+    prcPptText(slide,pptx,'₩'+prcFmt(item.value),item.x+.2,6.57,2.58,.2,11,'64748B');
+  });
+  if(p.invalid)prcPptText(slide,pptx,'순리젝이 총 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.',.7,7.02,11.9,.22,9,'B45309');
   return slide;
 }
 function prcPptCell(text,fill,color,bold,align){return {text:String(text),options:{fill:fill||'FFFFFF',color:color||'1E293B',bold:!!bold,align:align||'center',valign:'middle',fontFace:'Noto Sans KR'}};}
@@ -5947,7 +5997,11 @@ async function exportProfitRecapPpt(scope){
   try{
     const PptxGenJS=await prcPptLoad(),pptx=new PptxGenJS(),users=Object.fromEntries(Object.values(state.users||{}).map(function(u){return [u.uid,u];})),person=uid?users[uid]:null,scopeName=person?(person.name+' '+(person.role||'')):((me.name||'관리자')+' '+(me.role||'')),rangeLabel=prcRangeLabel(from,to);pptx.layout='LAYOUT_WIDE';pptx.author='Presence';pptx.subject='팀 주간 리캡';pptx.title='Presence '+rangeLabel+' Recap';pptx.company='Presence';pptx.lang='ko-KR';pptx.theme={headFontFace:'Noto Sans KR',bodyFontFace:'Noto Sans KR',lang:'ko-KR'};
     prcPptCover(pptx,data,from,to,scopeName);prcPptSummary(pptx,data,2);prcPptProductivity(pptx,data,3);const rowPages=Math.max(1,Math.ceil(data.rows.length/5)),weekPages=Math.max(1,Math.ceil(data.pays.length/5));let page=4;for(let start=0;start<data.rows.length;start+=5){const rows=data.rows.slice(start,start+5),rowPage=Math.floor(start/5)+1;for(let ws=0;ws<data.pays.length;ws+=5){prcPptDetail(pptx,data,rows,start,rowPage,rowPages,ws,Math.min(ws+5,data.pays.length),page++,rangeLabel);}}
-    const file='Presence_'+from+'_'+to+'_'+scopeName.replace(/\s/g,'_')+'_팀리캡.pptx';await pptx.writeFile({fileName:file});toast('✅ 편집 가능한 전체자료 PPT 다운로드를 시작했어요');
+    const file='Presence_'+from+'_'+to+'_'+scopeName.replace(/\s/g,'_')+'_팀리캡.pptx';
+    if(!window.PresenceRecapPptx)throw new Error('PPT compatibility validator unavailable');
+    const blob=await PresenceRecapPptx.prepare(await pptx.write({outputType:'arraybuffer'})),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download=file;document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url);},60000);
+    toast('✅ 편집 가능한 PPT 다운로드를 시작했어요');
   }catch(e){console.error(e);toast('PPT를 만들지 못했어요. 잠시 후 다시 시도해 주세요.');}
 }
 /* ===== 콜백싯 (개인 Field Callback OS + 일지 · 본인만 보기 / 관리자 전체 열람) ===== */
@@ -12058,7 +12112,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-31.sales-uncheck-44';
+const APP_VERSION='2026-08-31.recap-ppt-compatible-46';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -14148,6 +14202,7 @@ function spawnKernel(layer,cx,cy){
   setTimeout(function(){ wrapGoTab(); try{ if(typeof state!=='undefined'&&state.homeOrder)apply(state.homeOrder); }catch(e){} syncFab(); }, 1200);
 })();
 </script>
+<script src="scripts/recap-pptx-compat.js?v=20260831-46"></script>
 <script src="ps-hub.js"></script>
 <script>
 /* 2024 스트릿 테리토리 코드 데이터 · 사내 영업자산 */

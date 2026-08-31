@@ -1,0 +1,64 @@
+/* PptxGenJS 3.12 emits a few non-conforming 2D chart elements.
+ * Normalize the package before download; keep native, editable charts/data.
+ * Do not silently publish a chart with missing axes or non-finite values.
+ */
+(function (root) {
+  'use strict';
+  const C = 'http://schemas.openxmlformats.org/drawingml/2006/chart';
+  const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+  const children = (node, name) => Array.from(node.children || []).filter(n => n.namespaceURI === C && n.localName === name);
+  function normalizeChart(xml) {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('Invalid chart XML');
+    const plot = doc.getElementsByTagNameNS(C, 'plotArea')[0];
+    if (!plot) throw new Error('Chart plot area missing');
+    const axes = new Set(Array.from(plot.children).filter(n => /^(cat|val|date|ser)Ax$/.test(n.localName)).map(n => children(n, 'axId')[0]?.getAttribute('val')));
+    const ids = new Set();
+    for (const series of Array.from(plot.getElementsByTagNameNS(C, 'ser'))) {
+      const id = children(series, 'idx')[0]?.getAttribute('val');
+      if (id == null || ids.has(id)) throw new Error('Duplicate chart series ID: use fresh data objects for each combo series');
+      ids.add(id);
+    }
+    for (const group of Array.from(plot.children)) {
+      if (!['barChart', 'lineChart', 'areaChart'].includes(group.localName)) continue;
+      // A 2D chart has category/value axes, not the library's spare 3D series axis.
+      for (const axis of children(group, 'axId')) if (!axes.has(axis.getAttribute('val'))) axis.remove();
+      if (children(group, 'axId').length !== 2) throw new Error('Unresolved 2D chart axes');
+      if (group.localName === 'lineChart' && !children(group, 'grouping').length) {
+        const grouping = doc.createElementNS(C, 'c:grouping');
+        grouping.setAttribute('val', 'standard');
+        group.insertBefore(grouping, group.firstChild);
+      }
+      for (const series of children(group, 'ser')) {
+        if (group.localName !== 'barChart') children(series, 'invertIfNegative').forEach(n => n.remove());
+        // PptxGenJS puts the line-series marker after dLbls. OOXML requires it before.
+        if (group.localName === 'lineChart') {
+          const marker = children(series, 'marker')[0];
+          if (marker) {
+            const before = Array.from(series.children).find(n => ['dPt', 'dLbls', 'trendline', 'errBars', 'cat', 'val', 'smooth', 'extLst'].includes(n.localName));
+            if (before) series.insertBefore(marker, before);
+          }
+        }
+      }
+    }
+    for (const cache of Array.from(doc.getElementsByTagNameNS(C, 'numCache'))) {
+      for (const pt of children(cache, 'pt')) {
+        const value = children(pt, 'v')[0]?.textContent;
+        if (value == null || value.trim() === '' || !Number.isFinite(Number(value))) throw new Error('Invalid numeric chart data');
+      }
+    }
+    for (const color of Array.from(doc.getElementsByTagNameNS(A, 'srgbClr'))) {
+      if (!/^[0-9a-f]{6}$/i.test(color.getAttribute('val') || '')) throw new Error('Invalid chart color');
+    }
+    return new XMLSerializer().serializeToString(doc);
+  }
+  async function prepare(buffer) {
+    if (!root.JSZip) throw new Error('PPT package library unavailable');
+    const zip = await root.JSZip.loadAsync(buffer, { checkCRC32: true });
+    const parts = Object.keys(zip.files).filter(n => /^ppt\/charts\/chart\d+\.xml$/.test(n));
+    if (!parts.length) throw new Error('PPT charts missing');
+    for (const part of parts) zip.file(part, normalizeChart(await zip.file(part).async('string')));
+    return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+  }
+  root.PresenceRecapPptx = { normalizeChart, prepare };
+})(window);

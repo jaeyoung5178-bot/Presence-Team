@@ -1,11 +1,11 @@
 import { createRequire } from 'node:module';
-import { stat } from 'node:fs/promises';
+import { stat, readFile } from 'node:fs/promises';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const baseUrl = process.env.PRESENCE_QA_URL || 'http://127.0.0.1:4173';
-const pptxBundle = '/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/pptxgenjs/dist/pptxgen.bundle.js';
-const output = '/tmp/presence-profit-recap-qa.pptx';
+const pptxBundle = process.env.PRESENCE_PPTX_BUNDLE;
+const output = process.env.PRESENCE_PPTX_OUTPUT || '/tmp/presence-profit-recap-qa.pptx';
 
 const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -88,17 +88,18 @@ const desktop = await page.evaluate(() => {
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
       formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
-      netSales: preview.includes('Net Sales · 리젝·리섭 반영'),
+      netSales: preview.includes('리젝 제외 세일즈'),
       remainingBond: preview.includes('잔여본드') && preview.includes('₩1,000'),
-      distinctTrend: preview.includes('세일즈·리젝·Actual Income 주차별 추이'),
-      distinctTypes: ['세일즈 · 막대', '리젝 · 선', 'Actual Income · 꺾은선/영역'].every((v) => preview.includes(v)),
-      independentAxes: preview.includes('지표별 독립 축'),
+      distinctTrend: preview.includes('주차별 세일즈·리젝·인컴'),
+      distinctTypes: ['세일즈 추이', '리젝 추이', '실제 인컴 추이'].every((v) => preview.includes(v)),
+      naturalTitles: !['세일즈 · 막대', '리젝 · 선', '꺾은선/영역', '지표별 독립 축'].some(v=>preview.includes(v)),
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       joinOrderLabel: preview.includes('입사일 순'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
       productivitySlide: preview.includes('실제 인컴과 리젝을 한눈에') && preview.includes('ACTUAL INCOME · 실제 인컴') && preview.includes('CL REJECT') && preview.includes('SW REJECT'),
       simplifiedProductivity: (() => { const slide=[...document.querySelectorAll('#m-recap .pra-slide')].find((el) => el.textContent.includes('팀 인컴·리젝 현황')); return !!slide && slide.textContent.includes('총 리젝') && slide.textContent.includes('리젝률') && !slide.textContent.includes('Gross Sales'); })(),
-      bondRemovedFromRing: ![...document.querySelectorAll('#m-recap .pra-slide')].find((el) => el.textContent.includes('팀 인컴·리젝 현황'))?.textContent.includes('본드'),
+      bondRemovedFromRing: !document.querySelector('#m-recap .pra-story-donut svg')?.textContent.includes('본드'),
+      lossWithoutBondCalculation: preview.includes('리젝 손실액') && preview.includes('(본드에서 우선차감)') && preview.includes('₩440,000') && preview.includes('순리젝 4건 × ₩110,000'),
       oneCompositeRing: document.querySelectorAll('#m-recap .pra-story-donut').length === 1 && document.querySelectorAll('#m-recap .pra-story-donut svg').length === 1,
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
@@ -211,7 +212,8 @@ await page.evaluate(() => {
   document.getElementById('m-recap')?.classList.add('active');
   renderProfitRecapAdminView();
 });
-await page.addScriptTag({ path: pptxBundle });
+// Exercise the same pinned 3.12 runtime as production by default, not an unrelated installed version.
+if (pptxBundle) await page.addScriptTag({ path: pptxBundle });
 const downloadPromise = page.waitForEvent('download', { timeout: 30000 }).catch(() => null);
 await page.evaluate(() => exportProfitRecapPpt('team'));
 const download = await downloadPromise;
@@ -223,9 +225,17 @@ if (!download) {
 }
 await download.saveAs(output);
 const pptxStat = await stat(output);
+const report = await page.evaluate(async bytes => {
+  const zip = await JSZip.loadAsync(new Uint8Array(bytes));
+  const paths=Object.keys(zip.files).filter(p=>/^ppt\/slides\/slide\d+\.xml$/.test(p)).sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));
+  const slides=await Promise.all(paths.map(p=>zip.file(p).async('string')));
+  const detail=slides.slice(3).join('');
+  return {slideCount:slides.length,weekly:slides[1]?.includes('주차별 세일즈·리젝·인컴'),reject:slides[2]?.includes('리젝 손실액'),detail:detail.includes('팀원별 세일즈 성과 상세')&&['W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t))};
+}, Array.from(await readFile(output)));
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
+if(report.slideCount!==4||!report.weekly||!report.reject||!report.detail)failures.push('Full report lost weekly charts or member detail slides');
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
 if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2 || Math.abs(desktop.productivity.modelPctTotal-100) > 0.000001) failures.push('Gross Sales, Reject Loss, Actual Income, or CL/SW one-ring breakdown is incorrect');
@@ -244,5 +254,5 @@ if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small')
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, managerPhone, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, managerPhone, report, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
 if (failures.length) process.exit(1);
