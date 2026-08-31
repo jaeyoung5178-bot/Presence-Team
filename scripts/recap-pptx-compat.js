@@ -7,6 +7,35 @@
   const C = 'http://schemas.openxmlformats.org/drawingml/2006/chart';
   const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
   const children = (node, name) => Array.from(node.children || []).filter(n => n.namespaceURI === C && n.localName === name);
+  function labelRejectSlices(doc, plot) {
+    for (const chart of Array.from(plot.getElementsByTagNameNS(C, 'doughnutChart'))) {
+      // MS-OE376 2.1.1475: Office forbids dLblPos within a doughnut series,
+      // although the generic OOXML XSD permits it. Omitted position defaults to center.
+      for (const position of Array.from(chart.getElementsByTagNameNS(C,'dLblPos'))) position.remove();
+      for (const series of children(chart, 'ser')) {
+        if (!children(series, 'tx')[0]?.textContent.includes('전체 세일즈의 리젝 구성')) continue;
+        const cache = children(series, 'val')[0]?.getElementsByTagNameNS(C, 'numCache')[0];
+        const values = children(cache || {}, 'pt').map(pt => Number(children(pt, 'v')[0]?.textContent));
+        const total = values.reduce((sum, n) => sum + n, 0);
+        // Keep the library's native label structure; edit only formatting/visibility.
+        // Labels therefore follow the editable chart and do not become floating text.
+        const labels = children(series, 'dLbls')[0];
+        if (!labels) throw new Error('Reject chart labels missing');
+        for (const label of [labels, ...children(labels, 'dLbl')]) {
+          const idx = Number(children(label, 'idx')[0]?.getAttribute('val'));
+          const visible = label !== labels && idx < 2 && total > 0 && values[idx] / total * 100 >= 4;
+          for (const name of ['showLegendKey','showVal','showCatName','showSerName','showBubbleSize','showPercent']) {
+            children(label, name).forEach(node => node.setAttribute('val', name === 'showPercent' && visible ? '1' : '0'));
+          }
+          children(label, 'numFmt').forEach(node => node.setAttribute('formatCode','0.0%'));
+          for (const body of Array.from(label.getElementsByTagNameNS(A,'bodyPr'))) body.setAttribute('wrap','none');
+          if (label === labels) continue;
+          for (const style of Array.from(label.getElementsByTagNameNS(A,'defRPr'))) { style.setAttribute('sz','1200');style.setAttribute('b','1'); }
+          for (const color of Array.from(label.getElementsByTagNameNS(A,'srgbClr'))) color.setAttribute('val',idx === 0 ? 'FFFFFF' : '432700');
+        }
+      }
+    }
+  }
   function normalizeChart(xml) {
     const doc = new DOMParser().parseFromString(xml, 'application/xml');
     if (doc.getElementsByTagName('parsererror').length) throw new Error('Invalid chart XML');
@@ -41,6 +70,7 @@
         }
       }
     }
+    labelRejectSlices(doc, plot);
     for (const cache of Array.from(doc.getElementsByTagNameNS(C, 'numCache'))) {
       for (const pt of children(cache, 'pt')) {
         const value = children(pt, 'v')[0]?.textContent;

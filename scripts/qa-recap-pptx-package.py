@@ -36,6 +36,10 @@ with ZipFile(args.pptx) as archive:
                 if not schema.validate(root):
                     failures.extend(f'{name}: {e.message}' for e in schema.error_log)
                 series = root.findall('.//' + C + 'ser')
+                # MS-OE376 2.1.1475: XSD-valid but Office-invalid label position.
+                for doughnut in root.findall('.//' + C + 'doughnutChart'):
+                    if doughnut.findall('.//' + C + 'dLblPos'):
+                        failures.append(f'{name}: Office forbids explicit doughnut label positions')
                 ids = [s.find(C + 'idx').get('val') for s in series]
                 if len(set(ids)) != len(ids):
                     failures.append(f'{name}: duplicate series IDs {ids}')

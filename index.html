@@ -5913,6 +5913,17 @@ function prcPptProductivityComplexLegacy(pptx,data,page){
   prcPptText(slide,pptx,'원형은 Gross Sales Value 100%를 리젝 제외 Gross·CL Reject Loss·SW Reject Loss로 나눕니다. Actual Income은 팀원이 직접 입력한 실제 지급 급여이므로 원형 조각에 합산하지 않고 별도 금액으로 표시합니다.',6.62,6.49,5.55,.4,7.7,'64748B');if(p.invalid)prcPptText(slide,pptx,'⚠ 순리젝 건수가 총 세일즈보다 큽니다. 원본 건수를 확인해 주세요.',6.62,6.91,5.55,.17,8,'D97706',true);
   return slide;
 }
+// Labels live on the annular band, not in the centre hole. Tiny slices retain
+// their exact percentage in the adjacent CL/SW breakdown rather than overflowing.
+function prcRejectRingLabels(p){
+  if(!p.sales||p.invalid)return [];
+  return [{name:'CL',start:0,pct:p.clPctOfSales,color:'#ffffff'},
+    {name:'SW',start:p.clPctOfSales,pct:p.swPctOfSales,color:'#432700'}]
+    .filter(function(item){return item.pct>=4;}).map(function(item){
+      const angle=(item.start+item.pct/2)*Math.PI/50;
+      return Object.assign({},item,{x:180+118*Math.sin(angle),y:165-118*Math.cos(angle),fontSize:item.pct<4.5?11:13});
+    });
+}
 function prcProductivityHTML(data){
   const p=prcProductivityOf(data),valid=p.sales>0&&!p.invalid,cl=valid?p.clPctOfSales:0,sw=valid?p.swPctOfSales:0;
   const rate=valid?prcPct(p.rejectPctOfSales):'—',warn=p.invalid?'<p class="pra-prod-note warn">순리젝이 총 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.</p>':'';
@@ -5925,11 +5936,10 @@ function prcProductivityHTML(data){
           <circle cx="180" cy="165" r="118" fill="none" stroke="#dfe7f0" stroke-width="42"/>
           <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#e43d5b" stroke-width="42" stroke-dasharray="${cl} ${100-cl}" transform="rotate(-90 180 165)"/>
           <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#f4a127" stroke-width="42" stroke-dasharray="${sw} ${100-sw}" stroke-dashoffset="-${cl}" transform="rotate(-90 180 165)"/>
-          <text x="180" y="117" font-size="14" font-weight="700" text-anchor="middle" fill="#64748b">총 리젝률</text>
-          <text x="180" y="163" font-size="39" font-weight="900" text-anchor="middle" fill="#1e293b">${rate}</text>
-          <text x="180" y="190" font-size="14" font-weight="700" text-anchor="middle" fill="#475569">${prcFmt(p.netRejects)}건 / ${prcFmt(p.sales)}건</text>
-          <text x="180" y="220" font-size="12" font-weight="700" text-anchor="middle" fill="#e43d5b">CL 리젝 ${valid?prcPct(p.clPctOfSales):'—'}</text>
-          <text x="180" y="242" font-size="12" font-weight="700" text-anchor="middle" fill="#a56b00">SW 리젝 ${valid?prcPct(p.swPctOfSales):'—'}</text>
+          <text x="180" y="133" font-size="14" font-weight="700" text-anchor="middle" fill="#64748b">총 리젝률</text>
+          <text x="180" y="180" font-size="39" font-weight="900" text-anchor="middle" fill="#1e293b">${rate}</text>
+          <text x="180" y="210" font-size="14" font-weight="700" text-anchor="middle" fill="#475569">${prcFmt(p.netRejects)}건 / ${prcFmt(p.sales)}건</text>
+          ${prcRejectRingLabels(p).map(function(item){return `<text class="pra-slice-label" data-series="${item.name}" data-start="${item.start}" data-share="${item.pct}" x="${item.x.toFixed(3)}" y="${item.y.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${item.color}" style="font:700 ${item.fontSize}px Arial,sans-serif;white-space:nowrap" aria-label="${item.name} 리젝 ${prcPct(item.pct)}">${prcPct(item.pct)}</text>`;}).join('')}
         </svg>
         <div class="pra-ring-key"><span><i style="background:#dfe7f0"></i>리젝 제외 ${prcFmt(p.retained)}건</span></div>
       </div></div>
@@ -5954,14 +5964,13 @@ function prcPptProductivity(pptx,data,page){
   prcPptHeader(slide,pptx,'팀 인컴·리젝 현황','실제 인컴과 리젝을 한눈에','총 세일즈 '+prcFmt(p.sales)+'건 · 리섭 반영 후 순리젝 '+prcFmt(p.netRejects)+'건 · CL/SW 비율은 전체 세일즈 기준',page);
   const values=valid?[p.netCL,p.netSW,p.retained]:[0,0,1];
   slide.addChart(pptx.ChartType.doughnut,[{name:'전체 세일즈의 리젝 구성',labels:['CL 리젝','SW 리젝','리젝 제외'],values:values}],{
-    x:.68,y:2.25,w:4.92,h:4.42,holeSize:70,showLegend:false,showTitle:false,showPercent:false,showValue:false,showCatName:false,varyColors:true,
+    x:.68,y:2.25,w:4.92,h:4.42,holeSize:70,showLegend:false,showTitle:false,showPercent:true,showValue:false,showCatName:false,varyColors:true,
+    dataLabelFormatCode:'0.0%',dataLabelFontFace:'Arial',dataLabelFontSize:12,
     chartColors:['E43D5B','F4A127','DFE7F0'],chartArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},plotArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}}
   });
-  prcPptText(slide,pptx,'총 리젝률',1.52,3.42,3.24,.28,14,'64748B',true,'center');
-  prcPptText(slide,pptx,rate,1.4,3.83,3.48,.62,40,'1E293B',true,'center');
-  prcPptText(slide,pptx,prcFmt(p.netRejects)+'건 / '+prcFmt(p.sales)+'건',1.52,4.57,3.24,.28,14,'475569',true,'center');
-  prcPptText(slide,pptx,'CL 리젝 '+(valid?prcPct(p.clPctOfSales):'—'),1.84,5.01,2.6,.22,12,'E43D5B',true,'center');
-  prcPptText(slide,pptx,'SW 리젝 '+(valid?prcPct(p.swPctOfSales):'—'),1.84,5.32,2.6,.22,12,'A56B00',true,'center');
+  prcPptText(slide,pptx,'총 리젝률',1.52,3.55,3.24,.28,14,'64748B',true,'center');
+  prcPptText(slide,pptx,rate,1.4,3.98,3.48,.62,40,'1E293B',true,'center');
+  prcPptText(slide,pptx,prcFmt(p.netRejects)+'건 / '+prcFmt(p.sales)+'건',1.52,4.78,3.24,.28,14,'475569',true,'center');
   slide.addShape(pptx.ShapeType.ellipse,{x:1.85,y:6.55,w:.12,h:.12,fill:{color:'DFE7F0'},line:{color:'DFE7F0'}});
   prcPptText(slide,pptx,'리젝 제외 '+prcFmt(p.retained)+'건',2.06,6.49,2.2,.24,11,'64748B',false);
   const x=6.25,w=6.0;
@@ -12112,7 +12121,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-31.recap-ppt-compatible-46';
+const APP_VERSION='2026-08-31.recap-slice-labels-47';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -14202,7 +14211,7 @@ function spawnKernel(layer,cx,cy){
   setTimeout(function(){ wrapGoTab(); try{ if(typeof state!=='undefined'&&state.homeOrder)apply(state.homeOrder); }catch(e){} syncFab(); }, 1200);
 })();
 </script>
-<script src="scripts/recap-pptx-compat.js?v=20260831-46"></script>
+<script src="scripts/recap-pptx-compat.js?v=20260831-47"></script>
 <script src="ps-hub.js"></script>
 <script>
 /* 2024 스트릿 테리토리 코드 데이터 · 사내 영업자산 */
