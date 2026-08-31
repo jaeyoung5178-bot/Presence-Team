@@ -18,7 +18,8 @@ const result=await page.evaluate(async()=>{
   assert(Math.abs(p.rejectPctOfSales-90/200*100)<1e-9,'Wrong percentage denominator');
   const previewHtml=prcProductivityHTML(data),ring=new DOMParser().parseFromString(previewHtml,'text/html').querySelector('svg');
   assert(ring.querySelector('[data-series="CL"]')?.textContent==='CL 40.0%'&&ring.querySelector('[data-series="SW"]')?.textContent==='SW 5.0%','Single-line CL/SW names and percentages missing on slices');
-  assert(ring.querySelector('[data-series="Net"]')?.textContent==='Net 세일즈'&&previewHtml.includes('Net 세일즈 110건'),'Grey slice must be named Net 세일즈');
+  assert(ring.querySelector('[data-series="Net"]')?.textContent==='Net 세일즈 55.0%'&&previewHtml.includes('Net 세일즈 110건 · 55.0%'),'Grey slice and key must show the Net sales percentage');
+  assert(Math.abs(p.retainedPctOfSales+p.rejectPctOfSales-100)<1e-9,'Net and reject shares must sum to 100%');
   assert(!ring.textContent.includes('CL 리젝')&&!ring.textContent.includes('SW 리젝'),'Old centre-hole labels remain');
   assert(!/팀원이 입력|실제 입금액 합계/.test(previewHtml),'Unwanted input-source explanation');
   for(const [sales,cl,sw] of [[0,0,0],[10,0,0],[10,10,0],[10,0,10],[10,8,5]]){
@@ -26,6 +27,8 @@ const result=await page.evaluate(async()=>{
     const html=prcProductivityHTML(d);
     assert(!/NaN|Infinity|undefined/.test(html),'Non-finite label');
     if(cl+sw>sales)assert(html.includes('원형 비중은 표시하지'),'Invalid composition needs warning');
+    const netPercent=sales>0&&cl+sw<=sales?((sales-cl-sw)/sales*100).toFixed(1)+'%':'—';
+    assert(html.includes('Net 세일즈 '+Math.max(0,sales-cl-sw)+'건 · '+netPercent),'Net key must show a percentage, including zero/empty states');
   }
   const Pptx=await prcPptLoad(),pptx=new Pptx();pptx.layout='LAYOUT_WIDE';pptx.title='Presence recap visual QA';
   prcPptSummary(pptx,data,2);prcPptProductivity(pptx,data,3);
@@ -45,7 +48,7 @@ const result=await page.evaluate(async()=>{
   const nativeLabels=Array.from(finalChart.getElementsByTagNameNS(ns,'dLbl'));
   assert(nativeLabels.length===3,'Missing native slice labels');
   assert(Array.from(finalChart.getElementsByTagNameNS(ns,'cat')[0].getElementsByTagNameNS(ns,'v')).map(x=>x.textContent).join('|')==='CL|SW|Net 세일즈','Native chart category names');
-  for(const label of nativeLabels.slice(0,2)){
+  for(const label of nativeLabels){
     assert(!label.getElementsByTagNameNS(ns,'dLblPos').length,'Doughnut must use Office default centre position');
     assert(label.getElementsByTagNameNS(ns,'showPercent')[0]?.getAttribute('val')==='1','Native percentage disabled');
     assert(label.getElementsByTagNameNS(ns,'showCatName')[0]?.getAttribute('val')==='1','Native category name disabled');
@@ -53,18 +56,18 @@ const result=await page.evaluate(async()=>{
     assert(label.getElementsByTagNameNS(ns,'numFmt')[0]?.getAttribute('formatCode')==='0.0%','Native label number format');
     assert(label.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main','bodyPr')[0]?.getAttribute('wrap')==='none','Native label can wrap');
   }
-  assert(nativeLabels[2].getElementsByTagNameNS(ns,'showPercent')[0]?.getAttribute('val')==='0','Unrequested grey slice label');
+  assert(nativeLabels[2].getElementsByTagNameNS(ns,'showPercent')[0]?.getAttribute('val')==='1','Net percentage missing on grey slice');
   assert(nativeLabels[2].getElementsByTagNameNS(ns,'showCatName')[0]?.getAttribute('val')==='1','Net 세일즈 label missing on grey slice');
   window.__qaChartData=data;
   return {bytes:Array.from(new Uint8Array(await output.arrayBuffer())),summary:{sales:p.sales,rejects:p.netRejects,income:p.actualIncome,loss:p.rejectValue,cl:p.clValue,sw:p.swValue,seriesIds:ids}};
 });
-const output=process.env.PRESENCE_CHART_OUTPUT||'/tmp/presence-recap-design-v48.pptx';
+const output=process.env.PRESENCE_CHART_OUTPUT||'/tmp/presence-recap-design-v49.pptx';
 await writeFile(output,Buffer.from(result.bytes));
 const preview=await page.evaluate(()=>({styles:Array.from(document.querySelectorAll('style,link[rel="stylesheet"]')).map(e=>e.outerHTML).join(''),html:prcProductivityHTML(window.__qaChartData)}));
 const visual=await browser.newPage();
 await visual.setContent('<html><head>'+preview.styles+'<style>body{background:white!important;display:block!important;margin:0!important;padding:12px!important}#m-recap{display:block!important;max-width:1400px;margin:auto}</style></head><body><section id="m-recap"><div class="pra-deck">'+preview.html+'</div></section></body></html>');
 // Include the reference proportions and narrow/empty/full slices without real payroll data.
-const variants=await page.evaluate(()=>[[1000,556,49],[100,12,4],[100,49,1],[100,100,0],[100,0,100],[0,0,0]].map(([sales,cl,sw])=>prcProductivityHTML({totals:{sales,income:0},rows:[{records:[{payType:'performance',rejectCLCount:cl,rejectSWCount:sw}]}]})));
+const variants=await page.evaluate(()=>[[1000,556,49],[100,12,4],[100,49,1],[100,80,4],[100,80,10],[100,90,6],[100,100,0],[100,0,100],[100,0,0],[0,0,0]].map(([sales,cl,sw])=>prcProductivityHTML({totals:{sales,income:0},rows:[{records:[{payType:'performance',rejectCLCount:cl,rejectSWCount:sw}]}]})));
 for(const html of [preview.html,...variants]){
 await visual.locator('.pra-deck').evaluate((el,html)=>el.innerHTML=html,html);
 for(const width of [1440,1024,390]){

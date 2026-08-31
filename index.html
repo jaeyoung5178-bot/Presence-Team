@@ -5920,12 +5920,12 @@ function prcRejectRingLabels(p){
   return [{name:'CL',start:0,pct:p.clPctOfSales,color:'#ffffff'},
     {name:'SW',start:p.clPctOfSales,pct:p.swPctOfSales,color:'#432700'},
     {name:'Net',start:p.rejectPctOfSales,pct:p.retainedPctOfSales,color:'#475569'}]
-    .filter(function(item){return item.pct>=4;}).map(function(item){
+    .filter(function(item){return item.pct>=(item.name==='Net'?16:4);}).map(function(item){
       const angle=(item.start+item.pct/2)*Math.PI/50;
-      let rotation=item.pct<8?(item.start+item.pct/2)*3.6-90:0;
+      let rotation=item.name==='Net'?(item.start+item.pct/2)*3.6:item.pct<8?(item.start+item.pct/2)*3.6-90:0;
       while(rotation>90)rotation-=180;
       while(rotation< -90)rotation+=180;
-      return Object.assign({},item,{x:180+118*Math.sin(angle),y:165-118*Math.cos(angle),fontSize:12,rotation:rotation,text:item.name==='Net'?'Net 세일즈':item.name+' '+prcPct(item.pct)});
+      return Object.assign({},item,{x:180+118*Math.sin(angle),y:165-118*Math.cos(angle),fontSize:12,rotation:rotation,text:(item.name==='Net'?'Net 세일즈':item.name)+' '+prcPct(item.pct)});
     });
 }
 function prcProductivityHTML(data){
@@ -5945,7 +5945,7 @@ function prcProductivityHTML(data){
           <text x="180" y="210" font-size="14" font-weight="700" text-anchor="middle" fill="#475569">${prcFmt(p.netRejects)}건 / ${prcFmt(p.sales)}건</text>
           ${prcRejectRingLabels(p).map(function(item){return `<text class="pra-slice-label" data-series="${item.name}" data-start="${item.start}" data-share="${item.pct}" x="${item.x.toFixed(3)}" y="${item.y.toFixed(3)}" transform="rotate(${item.rotation.toFixed(3)} ${item.x.toFixed(3)} ${item.y.toFixed(3)})" text-anchor="middle" dominant-baseline="central" fill="${item.color}" style="font:700 ${item.fontSize}px Arial,sans-serif;white-space:nowrap">${item.text}</text>`;}).join('')}
         </svg>
-        <div class="pra-ring-key"><span><i style="background:#dfe7f0"></i>Net 세일즈 ${prcFmt(p.retained)}건</span></div>
+        <div class="pra-ring-key"><span><i style="background:#dfe7f0"></i>Net 세일즈 ${prcFmt(p.retained)}건 · ${valid?prcPct(p.retainedPctOfSales):'—'}</span></div>
       </div></div>
       <div class="pra-story-panel">
         <div class="pra-story-eyebrow">ACTUAL INCOME · 실제 인컴</div>
@@ -5976,7 +5976,7 @@ function prcPptProductivity(pptx,data,page){
   prcPptText(slide,pptx,rate,1.4,3.98,3.48,.62,40,'1E293B',true,'center');
   prcPptText(slide,pptx,prcFmt(p.netRejects)+'건 / '+prcFmt(p.sales)+'건',1.52,4.78,3.24,.28,14,'475569',true,'center');
   slide.addShape(pptx.ShapeType.ellipse,{x:1.85,y:6.55,w:.12,h:.12,fill:{color:'DFE7F0'},line:{color:'DFE7F0'}});
-  prcPptText(slide,pptx,'Net 세일즈 '+prcFmt(p.retained)+'건',2.06,6.49,2.2,.24,11,'64748B',false);
+  prcPptText(slide,pptx,'Net 세일즈 '+prcFmt(p.retained)+'건 · '+(valid?prcPct(p.retainedPctOfSales):'—'),2.06,6.49,3.3,.24,11,'64748B',false);
   const x=6.25,w=6.0;
   prcPptText(slide,pptx,'ACTUAL INCOME · 실제 인컴',x,2.5,w,.24,13,'64748B',true);
   prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x,2.91,w,.54,32,'087F6B',true);
@@ -12125,7 +12125,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-31.recap-named-slices-48';
+const APP_VERSION='2026-08-31.recap-net-percentage-49';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -14215,7 +14215,7 @@ function spawnKernel(layer,cx,cy){
   setTimeout(function(){ wrapGoTab(); try{ if(typeof state!=='undefined'&&state.homeOrder)apply(state.homeOrder); }catch(e){} syncFab(); }, 1200);
 })();
 </script>
-<script src="scripts/recap-pptx-compat.js?v=20260831-48"></script>
+<script src="scripts/recap-pptx-compat.js?v=20260831-49"></script>
 <script src="ps-hub.js"></script>
 <script>
 /* 2024 스트릿 테리토리 코드 데이터 · 사내 영업자산 */

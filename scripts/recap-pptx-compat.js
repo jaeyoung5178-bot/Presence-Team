@@ -24,9 +24,10 @@
         for (const label of [labels, ...children(labels, 'dLbl')]) {
           const idx = Number(children(label, 'idx')[0]?.getAttribute('val'));
           const share=values[idx]/total*100;
-          const visible = label !== labels && total > 0 && share >= 4;
+          // Long Net labels follow the ring; tiny slices retain exact values in the key.
+          const visible = label !== labels && total > 0 && share >= (idx===2?16:4);
           for (const name of ['showLegendKey','showVal','showCatName','showSerName','showBubbleSize','showPercent']) {
-            children(label, name).forEach(node => node.setAttribute('val', visible && (name === 'showCatName' || (name === 'showPercent' && idx<2)) ? '1' : '0'));
+            children(label, name).forEach(node => node.setAttribute('val', visible && (name === 'showCatName' || name === 'showPercent') ? '1' : '0'));
           }
           children(label, 'numFmt').forEach(node => node.setAttribute('formatCode','0.0%'));
           for (const body of Array.from(label.getElementsByTagNameNS(A,'bodyPr'))) body.setAttribute('wrap','none');
@@ -36,7 +37,7 @@
           if(!separator){separator=doc.createElementNS(C,'c:separator');label.appendChild(separator);}
           separator.textContent='\u00a0';
           const start=values.slice(0,idx).reduce((sum,n)=>sum+n,0)/total*100;
-          let rotation=share<8?(start+share/2)*3.6-90:0;
+          let rotation=idx===2?(start+share/2)*3.6:share<8?(start+share/2)*3.6-90:0;
           while(rotation>90)rotation-=180;
           while(rotation< -90)rotation+=180;
           for(const body of Array.from(label.getElementsByTagNameNS(A,'bodyPr')))body.setAttribute('rot',String(Math.round(rotation*60000)));
