@@ -17,7 +17,8 @@ const result=await page.evaluate(async()=>{
   assert(p.netRejects===90&&p.sales===200,'Counts changed');
   assert(Math.abs(p.rejectPctOfSales-90/200*100)<1e-9,'Wrong percentage denominator');
   const previewHtml=prcProductivityHTML(data),ring=new DOMParser().parseFromString(previewHtml,'text/html').querySelector('svg');
-  assert(ring.querySelector('[data-series="CL"]')?.textContent==='40.0%'&&ring.querySelector('[data-series="SW"]')?.textContent==='5.0%','Single-line CL/SW percentages missing on slices');
+  assert(ring.querySelector('[data-series="CL"]')?.textContent==='CL 40.0%'&&ring.querySelector('[data-series="SW"]')?.textContent==='SW 5.0%','Single-line CL/SW names and percentages missing on slices');
+  assert(ring.querySelector('[data-series="Net"]')?.textContent==='Net 세일즈'&&previewHtml.includes('Net 세일즈 110건'),'Grey slice must be named Net 세일즈');
   assert(!ring.textContent.includes('CL 리젝')&&!ring.textContent.includes('SW 리젝'),'Old centre-hole labels remain');
   assert(!/팀원이 입력|실제 입금액 합계/.test(previewHtml),'Unwanted input-source explanation');
   for(const [sales,cl,sw] of [[0,0,0],[10,0,0],[10,10,0],[10,0,10],[10,8,5]]){
@@ -43,17 +44,21 @@ const result=await page.evaluate(async()=>{
   const finalZip=await JSZip.loadAsync(await output.arrayBuffer()),finalChart=new DOMParser().parseFromString(await finalZip.file('ppt/charts/chart4.xml').async('string'),'application/xml');
   const nativeLabels=Array.from(finalChart.getElementsByTagNameNS(ns,'dLbl'));
   assert(nativeLabels.length===3,'Missing native slice labels');
+  assert(Array.from(finalChart.getElementsByTagNameNS(ns,'cat')[0].getElementsByTagNameNS(ns,'v')).map(x=>x.textContent).join('|')==='CL|SW|Net 세일즈','Native chart category names');
   for(const label of nativeLabels.slice(0,2)){
     assert(!label.getElementsByTagNameNS(ns,'dLblPos').length,'Doughnut must use Office default centre position');
     assert(label.getElementsByTagNameNS(ns,'showPercent')[0]?.getAttribute('val')==='1','Native percentage disabled');
+    assert(label.getElementsByTagNameNS(ns,'showCatName')[0]?.getAttribute('val')==='1','Native category name disabled');
+    assert(label.getElementsByTagNameNS(ns,'separator')[0]?.textContent==='\u00a0','Native category and percentage must stay on one line');
     assert(label.getElementsByTagNameNS(ns,'numFmt')[0]?.getAttribute('formatCode')==='0.0%','Native label number format');
     assert(label.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main','bodyPr')[0]?.getAttribute('wrap')==='none','Native label can wrap');
   }
   assert(nativeLabels[2].getElementsByTagNameNS(ns,'showPercent')[0]?.getAttribute('val')==='0','Unrequested grey slice label');
+  assert(nativeLabels[2].getElementsByTagNameNS(ns,'showCatName')[0]?.getAttribute('val')==='1','Net 세일즈 label missing on grey slice');
   window.__qaChartData=data;
   return {bytes:Array.from(new Uint8Array(await output.arrayBuffer())),summary:{sales:p.sales,rejects:p.netRejects,income:p.actualIncome,loss:p.rejectValue,cl:p.clValue,sw:p.swValue,seriesIds:ids}};
 });
-const output=process.env.PRESENCE_CHART_OUTPUT||'/tmp/presence-recap-design-v47.pptx';
+const output=process.env.PRESENCE_CHART_OUTPUT||'/tmp/presence-recap-design-v48.pptx';
 await writeFile(output,Buffer.from(result.bytes));
 const preview=await page.evaluate(()=>({styles:Array.from(document.querySelectorAll('style,link[rel="stylesheet"]')).map(e=>e.outerHTML).join(''),html:prcProductivityHTML(window.__qaChartData)}));
 const visual=await browser.newPage();
@@ -74,10 +79,11 @@ for(const width of [1440,1024,390]){
   if(clipped)throw new Error('Preview content clipped '+width);
   const escaped=await visual.evaluate(()=>[...document.querySelectorAll('.pra-slice-label')].flatMap(label=>{
     const b=label.getBBox(),start=Number(label.dataset.start)*Math.PI/50,span=Number(label.dataset.share)*Math.PI/50;
-    const corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]];
+    const matrix=label.transform.baseVal.consolidate().matrix;
+    const corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>{const p=new DOMPoint(x,y).matrixTransform(matrix);return [p.x,p.y];});
     const outside=corners.some(([x,y])=>{
       const dx=x-180,dy=y-165,r=Math.hypot(dx,dy),angle=(Math.atan2(dx,-dy)+2*Math.PI)%(2*Math.PI),delta=(angle-start+2*Math.PI)%(2*Math.PI);
-      return r<97||r>139||delta>span;
+      return r<86||r>150||delta>span;
     });
     return outside?[label.dataset.series]:[];
   }));
