@@ -1816,7 +1816,14 @@ body.can-mod #fxPanel #fxBar{display:grid}
   #m-profitrecap .prc-weekbar button{width:44px;height:48px}
 }
 /* ===== Admin · PPT형 리캡 미리보기 ===== */
-#m-recap .pra-controls{display:grid;grid-template-columns:minmax(380px,1.45fr) 160px minmax(190px,1fr) auto;gap:9px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:15px}
+#m-recap .pra-month-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,240px);gap:18px;align-items:center;margin-bottom:10px;padding:16px 18px;border:1px solid rgba(37,93,235,.48);border-radius:16px;background:linear-gradient(135deg,rgba(37,93,235,.2),rgba(37,93,235,.07));box-shadow:0 10px 28px rgba(0,0,0,.12)}
+#m-recap .pra-month-copy{min-width:0}
+#m-recap .pra-month-copy label{display:block;color:var(--cream);font-size:15px;font-weight:900;margin-bottom:5px}
+#m-recap .pra-month-copy small{display:block;color:var(--muted);font-size:11.5px;line-height:1.5}
+#m-recap .pra-month-input{display:flex;flex-direction:column;gap:5px;min-width:0}
+#m-recap .pra-month-input input{width:100%;box-sizing:border-box;min-height:48px;border-radius:11px;border:1px solid rgba(115,153,255,.72);background:var(--surface);color:var(--cream);color-scheme:dark;padding:0 13px;font-size:16px;font-weight:850}
+#m-recap .pra-month-input span{color:#aac3ff;font-size:10.5px;font-weight:750;text-align:right}
+#m-recap .pra-controls{display:grid;grid-template-columns:160px minmax(190px,1fr) auto;gap:9px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px}
 #m-recap .pra-controls input,#m-recap .pra-controls select{width:100%;box-sizing:border-box;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--cream);color-scheme:dark;padding:0 12px;font-size:15px}
 #m-recap .pra-range{display:grid;grid-template-columns:130px 1fr auto 1fr;gap:7px;align-items:center;min-width:0}
 #m-recap .pra-range i{font-style:normal;color:var(--faint);font-weight:850;text-align:center}
@@ -1824,6 +1831,13 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-recap .pra-seg button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-weight:850;cursor:pointer}
 #m-recap .pra-seg button.on{background:#255deb;color:#fff}
 #m-recap .pra-download{min-height:46px;border:1px solid rgba(37,93,235,.5);border-radius:11px;background:#255deb;color:#fff;font-weight:900;padding:0 16px;cursor:pointer;white-space:nowrap}
+#m-recap .pra-advanced{margin:0 0 15px;border:1px solid var(--line);border-radius:13px;background:rgba(0,0,0,.08);overflow:hidden}
+#m-recap .pra-advanced summary{display:flex;align-items:center;justify-content:space-between;min-height:46px;padding:0 14px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:800;list-style:none}
+#m-recap .pra-advanced summary::-webkit-details-marker{display:none}
+#m-recap .pra-advanced summary::after{content:'＋';color:#aac3ff;font-size:17px}
+#m-recap .pra-advanced[open] summary::after{content:'−'}
+#m-recap .pra-advanced .pra-range{padding:12px 14px 14px;border-top:1px solid var(--line)}
+#m-recap .pra-advanced input,#m-recap .pra-advanced select{width:100%;box-sizing:border-box;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--cream);color-scheme:dark;padding:0 12px;font-size:15px}
 #m-recap .pra-deck{display:flex;flex-direction:column;gap:18px;margin-bottom:20px}
 #m-recap .pra-slide{position:relative;background:#fff;color:#1e293b;border-radius:18px;padding:34px 38px;box-shadow:0 18px 50px rgba(0,0,0,.25);aspect-ratio:16/9;min-height:510px;overflow:hidden}
 #m-recap .pra-slide.pra-income-reject-slide{aspect-ratio:auto;padding-bottom:48px}
@@ -1934,9 +1948,12 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-recap .pra-legacy{margin-top:18px;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:0 14px}
 #m-recap .pra-legacy>summary{min-height:48px;display:flex;align-items:center;cursor:pointer;color:var(--muted);font-weight:800;font-size:12px}
 #m-recap .pra-legacy-body{padding-bottom:14px}
-@media(max-width:1050px){#m-recap .pra-controls{grid-template-columns:1fr 1fr}.pra-download{width:100%}#m-recap .pra-range{grid-column:1/-1}}
+@media(max-width:1050px){#m-recap .pra-controls{grid-template-columns:1fr 1fr}.pra-download{width:100%;grid-column:1/-1}#m-recap .pra-range{grid-column:1/-1}}
 @media(max-width:620px){
+  #m-recap .pra-month-picker{grid-template-columns:1fr;gap:11px;padding:14px}
+  #m-recap .pra-month-input span{text-align:left}
   #m-recap .pra-controls{grid-template-columns:1fr;padding:10px}
+  #m-recap .pra-download{grid-column:auto;white-space:normal;padding:10px 12px;line-height:1.35}
   #m-recap .pra-range{grid-template-columns:1fr 1fr;grid-column:auto}
   #m-recap .pra-range select{grid-column:1/-1}#m-recap .pra-range i{display:none}
   #m-recap .pra-slide{aspect-ratio:auto;min-height:0;padding:24px 18px;border-radius:15px;overflow:visible}
@@ -5628,6 +5645,9 @@ let prcAdminScope='team',prcAdminFrom='',prcAdminTo='',prcAdminPreset='month',pr
 function prcAdminSetScope(scope){prcAdminScope=scope==='person'?'person':'team';renderProfitRecapAdminView();}
 function prcAdminSetUid(v){prcAdminUid=v||'';renderProfitRecapAdminView();}
 function prcMonthShift(mk,n){const d=new Date(mk+'-01T12:00:00');d.setMonth(d.getMonth()+n);return ymd(d).slice(0,7);}
+function prcLatestPayMonth(ds){return prcFriday(ds||TODAY).slice(0,7);}
+function prcMonthLabel(mk){return /^\d{4}-\d{2}$/.test(mk||'')?Number(mk.slice(0,4))+'년 '+Number(mk.slice(5,7))+'월':'';}
+function prcAdminSetMonth(v){if(!/^\d{4}-\d{2}$/.test(v||''))return;prcAdminPreset='month';prcAdminFrom=v;prcAdminTo=v;renderProfitRecapAdminView();}
 function prcRangeMonths(from,to){if(!/^\d{4}-\d{2}$/.test(from||'')||!/^\d{4}-\d{2}$/.test(to||''))return [];if(from>to){const t=from;from=to;to=t;}const out=[];for(let m=from,i=0;m<=to&&i<60;m=prcMonthShift(m,1),i++)out.push(m);return out;}
 function prcRangeLabel(from,to){return from===to?from.replace('-','년 ')+'월':from.replace('-','.')+' ~ '+to.replace('-','.');}
 function prcAdminSetPreset(kind){
@@ -5703,10 +5723,12 @@ function prcProductivityHTMLBond35Legacy(data){
 }
 function renderProfitRecapAdminView(){
   const box=document.getElementById('profitRecapAdminView');if(!box)return;if(!me||!canManageTeamRecords(me)){box.innerHTML='';return;}
-  if(!prcAdminTo)prcAdminTo=(profitRecapPayDate||TODAY).slice(0,7);if(!prcAdminFrom)prcAdminFrom=prcAdminTo;
+  if(!prcAdminTo)prcAdminTo=prcLatestPayMonth(TODAY);if(!prcAdminFrom)prcAdminFrom=prcAdminTo;
   const leaders=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&ri(u.role)>=1&&!isTestBot(u);}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});if(!prcAdminUid&&leaders[0])prcAdminUid=leaders[0].uid;
   const uid=prcAdminScope==='person'?prcAdminUid:'',data=prcAdminAgg(prcAdminFrom,prcAdminTo,uid),person=leaders.find(function(u){return u.uid===prcAdminUid;}),scopeName=prcAdminScope==='person'?((person||{}).name||'개인')+' '+((person||{}).role||''):(me.name||'관리자')+' '+(me.role||''),rangeLabel=prcRangeLabel(prcAdminFrom,prcAdminTo);
-  const controls='<div class="pra-controls"><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\')">전체자료 PPT 다운로드</button></div>';
+  const singleMonth=prcAdminFrom===prcAdminTo,chosenMonth=singleMonth?prcAdminFrom:prcAdminTo,selectionLabel=singleMonth?prcMonthLabel(prcAdminFrom):rangeLabel,downloadLabel=prcAdminScope==='person'?'개인자료':'팀 전체자료';
+  const monthPicker='<div class="pra-month-picker"><div class="pra-month-copy"><label for="praReportMonth">📅 다운로드할 리캡 월</label><small>월을 선택하면 아래 미리보기와 PPT 다운로드 자료가 같은 월로 즉시 바뀝니다.</small></div><div class="pra-month-input"><input id="praReportMonth" type="month" value="'+chosenMonth+'" onchange="prcAdminSetMonth(this.value)" aria-label="다운로드할 리캡 월"><span aria-live="polite">현재 선택 · '+esc(selectionLabel)+'</span></div></div>';
+  const controls=monthPicker+'<div class="pra-controls"><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\')">'+esc(selectionLabel)+' '+downloadLabel+' PPT 다운로드</button></div><details class="pra-advanced"'+(prcAdminPreset!=='month'?' open':'')+'><summary>여러 달·분기·반기·연도 자료 받기</summary><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div></details>';
   if(!data.rows.length){box.innerHTML=controls+'<div class="pra-empty">선택한 범위의 세일즈·주간 리캡 데이터가 아직 없어요.<br>세일즈 또는 금요일 리캡이 저장되면 같은 계산 기준으로 바로 반영됩니다.</div>';return;}
   box.innerHTML=controls+'<div class="pra-deck">'+prcCoverHTML(data,prcAdminFrom,prcAdminTo,scopeName)+prcSummaryHTML(data,rangeLabel)+prcProductivityHTML(data)+prcAdminDetailSlides(data,prcAdminScope,scopeName,rangeLabel)+'</div>';
 }
@@ -12270,7 +12292,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-09-02.daiso-contacts-51';
+const APP_VERSION='2026-09-02.recap-month-picker-52';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){

@@ -56,13 +56,16 @@ await page.evaluate(() => {
   DB.on = () => () => {};
   me = admin;
   continueLogin(admin);
-  prcAdminFrom = '2026-08';
-  prcAdminTo = '2026-08';
+  prcAdminFrom = '2026-09';
+  prcAdminTo = '2026-09';
   prcAdminPreset = 'month';
   prcAdminScope = 'team';
   document.querySelectorAll('.mpanel').forEach((panel) => panel.classList.remove('active'));
   document.getElementById('m-recap')?.classList.add('active');
   renderProfitRecapAdminView();
+  const monthPicker = document.getElementById('praReportMonth');
+  monthPicker.value = '2026-08';
+  monthPicker.dispatchEvent(new Event('change', { bubbles: true }));
   document.querySelectorAll('.modal.on').forEach((modal) => modal.classList.remove('on'));
   const loader = document.getElementById('presenceGameLoader');
   if (loader) { loader.classList.remove('show', 'complete'); loader.style.pointerEvents = 'none'; }
@@ -85,6 +88,10 @@ const desktop = await page.evaluate(() => {
     totals: d.totals,
     yoon: yoon && { weekly: yoon.weekly, sales: yoon.sales, income: yoon.income, bond: yoon.bond, rejects: yoon.rejects, resubmits: yoon.resubmits, rejectRate: Number(yoon.rejectRate.toFixed(1)), payLabel: yoon.payLabel },
     previewChecks: {
+      monthPicker: document.getElementById('praReportMonth')?.value === '2026-08' && prcAdminFrom === '2026-08' && prcAdminTo === '2026-08' && prcAdminPreset === 'month',
+      monthPickerLabel: (document.querySelector('.pra-month-picker')?.textContent || '').includes('다운로드할 리캡 월') && (document.querySelector('.pra-month-picker')?.textContent || '').includes('현재 선택 · 2026년 8월'),
+      monthDownloadLabel: (document.querySelector('.pra-download')?.textContent || '').includes('2026년 8월 팀 전체자료 PPT 다운로드'),
+      latestCompletedPayMonth: prcLatestPayMonth('2026-09-02') === '2026-08',
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
       formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
@@ -108,6 +115,7 @@ const desktop = await page.evaluate(() => {
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
   };
 });
+await page.screenshot({ path: '/tmp/presence-recap-month-desktop.png', fullPage: false });
 
 await page.setViewportSize({ width: 1024, height: 768 });
 await page.waitForTimeout(100);
@@ -116,12 +124,13 @@ const tablet = await page.evaluate(() => ({
   chartCount: document.querySelectorAll('#m-recap .pra-chart').length,
   chartsInsideViewport: [...document.querySelectorAll('#m-recap .pra-chart')].every((el) => { const r = el.getBoundingClientRect(); return r.left >= -1 && r.right <= innerWidth + 1; }),
 }));
+await page.screenshot({ path: '/tmp/presence-recap-month-tablet.png', fullPage: false });
 
 await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(100);
 const phone = await page.evaluate(() => {
   const tableWrap = document.querySelector('#m-recap .pra-table-wrap');
-  const controls = [...document.querySelectorAll('#m-recap .pra-controls button,#m-recap .pra-controls input,#m-recap .pra-controls select')].filter((el) => getComputedStyle(el).display !== 'none');
+  const controls = [...document.querySelectorAll('#m-recap .pra-month-picker input,#m-recap .pra-controls button,#m-recap .pra-controls input,#m-recap .pra-controls select')].filter((el) => getComputedStyle(el).display !== 'none');
   return {
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
     tableScrollable: !!tableWrap && tableWrap.scrollWidth > tableWrap.clientWidth,
@@ -129,6 +138,7 @@ const phone = await page.evaluate(() => {
     undersized: controls.map((el) => ({ label: el.textContent.trim() || el.getAttribute('aria-label'), h: Math.round(el.getBoundingClientRect().height) })).filter((x) => x.h < 44),
   };
 });
+await page.screenshot({ path: '/tmp/presence-recap-month-phone.png', fullPage: false });
 
 const leaderPhone = await page.evaluate(async () => {
   const leader = state.users['qa-a'];
@@ -230,12 +240,12 @@ const report = await page.evaluate(async bytes => {
   const paths=Object.keys(zip.files).filter(p=>/^ppt\/slides\/slide\d+\.xml$/.test(p)).sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));
   const slides=await Promise.all(paths.map(p=>zip.file(p).async('string')));
   const detail=slides.slice(3).join('');
-  return {slideCount:slides.length,weekly:slides[1]?.includes('주차별 세일즈·리젝·인컴'),reject:slides[2]?.includes('리젝 손실액'),detail:detail.includes('팀원별 세일즈 성과 상세')&&['W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t))};
+  return {slideCount:slides.length,month:slides[0]?.includes('26년 8월 Recap')&&slides[0]?.includes('2026.08'),weekly:slides[1]?.includes('주차별 세일즈·리젝·인컴'),reject:slides[2]?.includes('리젝 손실액'),detail:detail.includes('팀원별 세일즈 성과 상세')&&['W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t))};
 }, Array.from(await readFile(output)));
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
-if(report.slideCount!==4||!report.weekly||!report.reject||!report.detail)failures.push('Full report lost weekly charts or member detail slides');
+if(report.slideCount!==4||!report.month||!report.weekly||!report.reject||!report.detail)failures.push('Selected month, weekly charts, or member detail slides are missing from the full report');
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
 if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2 || Math.abs(desktop.productivity.modelPctTotal-100) > 0.000001) failures.push('Gross Sales, Reject Loss, Actual Income, or CL/SW one-ring breakdown is incorrect');
@@ -251,6 +261,7 @@ if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount
 if (leaderPhone.first.hourlyPressed !== 'true' || leaderPhone.first.performancePressed !== 'false' || !leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('급여 금액만') || !leaderPhone.first.label.includes('시급 급여') || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
 if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
+if (!download.suggestedFilename().startsWith('Presence_2026-08_2026-08_')) failures.push('Selected report month is not reflected in the PPT filename');
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
