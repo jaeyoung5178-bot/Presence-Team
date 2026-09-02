@@ -22,6 +22,7 @@ await page.evaluate(() => {
   state.removedMembers = [];
   state.memberInfo = { '목표테스터': { join: '2026-01-01', left: null } };
   state.sales = {
+    '2026-08-31|목표테스터': { date: '2026-08-31', name: '목표테스터', role: 'LR', count: 3, checked: true, t: 1 },
     '2026-09-01|목표테스터': { date: '2026-09-01', name: '목표테스터', role: 'LR', count: 2, checked: true, t: 1 },
     '2026-09-02|목표테스터': { date: '2026-09-02', name: '목표테스터', role: 'LR', count: 3, checked: true, t: 1 },
   };
@@ -33,7 +34,7 @@ await page.evaluate(() => {
   DB.on = () => () => {};
   me = meUser;
   continueLogin(meUser);
-  saleEditDate = TODAY;
+  saleEditDate = '2026-09-03';
   saleCalMonth = '2026-09';
   saleAdminTargetName = meUser.name;
   saleLoadDraft();
@@ -63,6 +64,10 @@ const desktop = await page.evaluate(() => {
     storedGoal: saleGoalValue('qa-goal', '2026-09'),
     plan: { goal: plan.goal, sales: plan.sales, days: plan.dates.length, targetSum: Object.values(plan.daily).reduce((a, b) => a + b, 0), weekTargetSum: plan.weeks.reduce((a, w) => a + w.target, 0) },
     weeklyText,
+    weeklyDays: [...document.querySelectorAll('#saleWeeklyPanel .sale-daily-card')].map((el) => ({
+      date: el.querySelector('span')?.textContent.trim(),
+      value: el.querySelector('b')?.textContent.trim(),
+    })),
     daily: {
       now: document.getElementById('saleDailyGoalNow')?.textContent,
       target: document.getElementById('saleDailyGoalTarget')?.textContent,
@@ -73,7 +78,17 @@ const desktop = await page.evaluate(() => {
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
   };
 });
-await page.screenshot({ path: '/tmp/presence-sales-goals-desktop.png', fullPage: false });
+await page.evaluate(() => setSaleView('weekly'));
+await page.screenshot({ path: '/tmp/presence-sales-week-boundary-desktop.png', fullPage: false });
+
+await page.setViewportSize({ width: 1024, height: 768 });
+await page.evaluate(() => setSaleView('weekly'));
+await page.waitForTimeout(100);
+const tablet = await page.evaluate(() => ({
+  horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+  dayCount: document.querySelectorAll('#saleWeeklyPanel .sale-daily-card').length,
+  text: document.getElementById('saleWeeklyPanel').textContent,
+}));
 
 await page.setViewportSize({ width: 390, height: 844 });
 await page.evaluate(() => setSaleView('monthly'));
@@ -84,18 +99,26 @@ const phone = await page.evaluate(() => ({
   monthVisible: !document.getElementById('saleMonthlyPanel').hidden,
 }));
 await page.screenshot({ path: '/tmp/presence-sales-goals-phone.png', fullPage: false });
+await page.evaluate(() => setSaleView('weekly'));
+await page.waitForTimeout(100);
+const phoneWeekly = await page.evaluate(() => ({
+  horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+  dayCount: document.querySelectorAll('#saleWeeklyPanel .sale-daily-card').length,
+  text: document.getElementById('saleWeeklyPanel').textContent,
+}));
+await page.screenshot({ path: '/tmp/presence-sales-week-boundary-phone.png', fullPage: false });
 
 const failures = [];
 const rules = JSON.parse(await readFile(new URL('../database.rules.json', import.meta.url), 'utf8')).rules;
 if (JSON.stringify(desktop.tabs) !== JSON.stringify(['데일리', '위클리', '먼슬리'])) failures.push('Sales mini tabs are missing');
 if (desktop.storedGoal !== 30 || desktop.plan.goal !== 30 || desktop.plan.sales !== 5 || desktop.plan.days !== 30 || desktop.plan.targetSum !== 30 || desktop.plan.weekTargetSum !== 30) failures.push('Monthly goal or automatic weekly/daily distribution is incorrect');
-if (!desktop.weeklyText.includes('위클리 목표') || !desktop.weeklyText.includes('월 목표에서 자동 배분')) failures.push('Weekly goal view is missing');
+if (!desktop.weeklyText.includes('위클리 목표') || !desktop.weeklyText.includes('월–일 7일 기준') || !desktop.weeklyText.includes('현재 세일즈8건') || desktop.weeklyDays.length !== 7 || desktop.weeklyDays[0].date !== '08.31' || desktop.weeklyDays[0].value !== '3 / 0') failures.push('Cross-month Monday sales are missing from the Monday-Sunday weekly total');
 if (desktop.daily.now !== '1' || desktop.daily.target !== '1' || desktop.daily.pct !== '100%' || desktop.daily.width !== '100%') failures.push('Live daily goal gauge did not update from the draft');
 if (!desktop.paths.includes('salesGoals/qa-goal/2026-09')) failures.push('Monthly goal was not saved to the expected scoped path');
 if (!rules.salesGoals?.$uid?.['.write']?.includes('managerAccess') || !rules.salesGoals?.$uid?.$month?.['.validate']?.includes("child('goal')")) failures.push('Sales goal database permissions or validation are missing');
-if (desktop.horizontalOverflow || phone.horizontalOverflow || !phone.monthVisible || phone.buttons.some((x) => x.height < 44)) failures.push('Sales goal responsive gate failed');
+if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.dayCount !== 7 || !tablet.text.includes('현재 세일즈8건') || phone.horizontalOverflow || !phone.monthVisible || phone.buttons.some((x) => x.height < 44) || phoneWeekly.horizontalOverflow || phoneWeekly.dayCount !== 7 || !phoneWeekly.text.includes('현재 세일즈8건')) failures.push('Sales goal responsive gate failed');
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, phone, errors, failures }, null, 2));
+console.log(JSON.stringify({ desktop, tablet, phone, phoneWeekly, errors, failures }, null, 2));
 if (failures.length) process.exit(1);
