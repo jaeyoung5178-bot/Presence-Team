@@ -18,7 +18,7 @@ const result=await page.evaluate(async()=>{
   assert(Math.abs(p.rejectPctOfSales-90/200*100)<1e-9,'Wrong percentage denominator');
   const previewHtml=prcProductivityHTML(data),ring=new DOMParser().parseFromString(previewHtml,'text/html').querySelector('svg');
   assert(ring.querySelector('[data-series="CL"]')?.textContent==='CL 40.0%'&&ring.querySelector('[data-series="SW"]')?.textContent==='SW 5.0%','Single-line CL/SW names and percentages missing on slices');
-  assert(ring.querySelector('[data-series="Net"]')?.textContent==='Net 세일즈 55.0%'&&previewHtml.includes('Net 세일즈 110건 · 55.0%'),'Grey slice and key must show the Net sales percentage');
+  assert(ring.querySelector('[data-series="Net"]')?.textContent==='Net 세일즈 55.0%'&&previewHtml.includes('Net 세일즈 55.0%'),'Net slice and key must show the Net sales percentage');
   assert(Math.abs(p.retainedPctOfSales+p.rejectPctOfSales-100)<1e-9,'Net and reject shares must sum to 100%');
   assert(!ring.textContent.includes('CL 리젝')&&!ring.textContent.includes('SW 리젝'),'Old centre-hole labels remain');
   assert(!/팀원이 입력|실제 입금액 합계/.test(previewHtml),'Unwanted input-source explanation');
@@ -28,13 +28,13 @@ const result=await page.evaluate(async()=>{
     assert(!/NaN|Infinity|undefined/.test(html),'Non-finite label');
     if(cl+sw>sales)assert(html.includes('원형 비중은 표시하지'),'Invalid composition needs warning');
     const netPercent=sales>0&&cl+sw<=sales?((sales-cl-sw)/sales*100).toFixed(1)+'%':'—';
-    assert(html.includes('Net 세일즈 '+Math.max(0,sales-cl-sw)+'건 · '+netPercent),'Net key must show a percentage, including zero/empty states');
+    assert(html.includes('Net 세일즈 '+netPercent),'Net key must show a percentage, including zero/empty states');
   }
   const Pptx=await prcPptLoad(),pptx=new Pptx();pptx.layout='LAYOUT_WIDE';pptx.title='Presence recap visual QA';
   prcPptSummary(pptx,data,2);prcPptProductivity(pptx,data,3);
   const raw=await pptx.write({outputType:'arraybuffer'}),zip=await JSZip.loadAsync(raw);
   const trendXml=await zip.file('ppt/charts/chart1.xml').async('string'),ringSlide=await zip.file('ppt/slides/slide2.xml').async('string');
-  assert(trendXml.includes('세일즈 추이')&&!trendXml.includes('세일즈 · 막대'),'Chart title is not presentation-ready');
+  assert(trendXml.includes('주차별 세일즈')&&!trendXml.includes('세일즈 · 막대'),'Chart title is not presentation-ready');
   assert(!ringSlide.includes('CL 리젝 40.0%')&&!ringSlide.includes('SW 리젝 5.0%')&&!ringSlide.includes('팀원이 입력'),'PPT centre-hole labels remain');
   const combo=await zip.file('ppt/charts/chart3.xml').async('string');
   const doc=new DOMParser().parseFromString(combo,'application/xml'),ns='http://schemas.openxmlformats.org/drawingml/2006/chart';

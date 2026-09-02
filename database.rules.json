@@ -356,6 +356,15 @@
       ".read": "auth != null && ((root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active') || (root.child('callbackSessions').child(auth.uid).child('userUid').val() != null && root.child('callbackSessions').child(auth.uid).child('accessKey').val() == root.child('callbackProfiles').child(root.child('callbackSessions').child(auth.uid).child('userUid').val()).child('accessKey').val() && root.child('callbackProfiles').child(root.child('callbackSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'))",
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
     },
+    "salesGoals": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      "$uid": {
+        ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
+        "$month": {
+          ".validate": "!newData.exists() || ($month.matches(/^\\d{4}-\\d{2}$/) && newData.child('goal').isNumber() && newData.child('goal').val() >= 0 && newData.child('goal').val() <= 10000 && newData.child('updatedAt').isNumber() && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+        }
+      }
+    },
     "salesMeta": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
       ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"

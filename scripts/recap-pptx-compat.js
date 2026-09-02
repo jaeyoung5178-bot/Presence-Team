@@ -42,7 +42,8 @@
           while(rotation< -90)rotation+=180;
           for(const body of Array.from(label.getElementsByTagNameNS(A,'bodyPr')))body.setAttribute('rot',String(Math.round(rotation*60000)));
           for (const style of Array.from(label.getElementsByTagNameNS(A,'defRPr'))) { style.setAttribute('sz','1200');style.setAttribute('b','1'); }
-          for (const color of Array.from(label.getElementsByTagNameNS(A,'srgbClr'))) color.setAttribute('val',idx === 0 ? 'FFFFFF' : idx===1 ? '432700' : '475569');
+          // The supplied reference uses white in-slice labels across the blue/purple palette.
+          for (const color of Array.from(label.getElementsByTagNameNS(A,'srgbClr'))) color.setAttribute('val','FFFFFF');
         }
       }
     }

@@ -95,20 +95,22 @@ const desktop = await page.evaluate(() => {
       cover: preview.includes('26년 8월 Recap'),
       weeks: ['W1', 'W2', 'W3', 'W4'].every((v) => preview.includes(v)),
       formula: preview.includes('리젝률은 성과제 주차만') && preview.includes('(리젝−리섭)÷세일즈'),
-      netSales: preview.includes('리젝 제외 세일즈'),
+      netSales: preview.includes('Net 세일즈'),
       remainingBond: preview.includes('잔여본드') && preview.includes('₩1,000'),
-      distinctTrend: preview.includes('주차별 세일즈·리젝·인컴'),
-      distinctTypes: ['세일즈 추이', '리젝 추이', '실제 인컴 추이'].every((v) => preview.includes(v)),
+      distinctTrend: preview.includes('주차별 현황'),
+      distinctTypes: ['주차별 세일즈', '주차별 리젝', '주차별 실제 인컴'].every((v) => preview.includes(v)),
       naturalTitles: !['세일즈 · 막대', '리젝 · 선', '꺾은선/영역', '지표별 독립 축'].some(v=>preview.includes(v)),
       incomeOneLine: [...document.querySelectorAll('.pra-mini-line text.income-value')].length > 0 && [...document.querySelectorAll('.pra-mini-line text.income-value')].every((el) => !/[\r\n]/.test(el.textContent) && el.getAttribute('style')?.includes('white-space:nowrap')),
       joinOrderLabel: preview.includes('입사일 순'),
       memberAvg: [...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === 'AVG') && preview.includes('AVG=세일즈÷필드일(NA 제외·0건 포함)') && [...document.querySelectorAll('#m-recap .pra-table td.avg')].some((el) => el.textContent.trim() === '3.50'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
-      productivitySlide: preview.includes('실제 인컴과 리젝을 한눈에') && preview.includes('ACTUAL INCOME · 실제 인컴') && preview.includes('CL REJECT') && preview.includes('SW REJECT'),
-      simplifiedProductivity: (() => { const slide=[...document.querySelectorAll('#m-recap .pra-slide')].find((el) => el.textContent.includes('팀 인컴·리젝 현황')); return !!slide && slide.textContent.includes('총 리젝') && slide.textContent.includes('리젝률') && !slide.textContent.includes('Gross Sales'); })(),
+      productivitySlide: preview.includes('실인컴과 리젝') && preview.includes('실제 인컴') && preview.includes('CL · 클라이언트') && preview.includes('SW · 세일즈웍스'),
+      simplifiedProductivity: (() => { const slide=document.querySelector('#m-recap .pra-income-reject-slide'); return !!slide && slide.textContent.includes('총 리젝률') && slide.textContent.includes('Net 세일즈') && !slide.textContent.includes('Gross Sales'); })(),
       bondRemovedFromRing: !document.querySelector('#m-recap .pra-story-donut svg')?.textContent.includes('본드'),
       lossWithoutBondCalculation: preview.includes('리젝 손실액') && preview.includes('(본드에서 우선차감)') && preview.includes('₩440,000') && preview.includes('순리젝 4건 × ₩110,000'),
       oneCompositeRing: document.querySelectorAll('#m-recap .pra-story-donut').length === 1 && document.querySelectorAll('#m-recap .pra-story-donut svg').length === 1,
+      referenceTheme: getComputedStyle(document.querySelector('#m-recap .pra-slide')).backgroundColor === 'rgb(239, 248, 255)' && getComputedStyle(document.querySelector('#m-recap .pra-title'),'::before').content.includes('['),
+      referenceDonutColors: ['#5aa4eb','#6d67c7','#3c439c'].every((color) => document.querySelector('#m-recap .pra-story-donut')?.innerHTML.toLowerCase().includes(color)),
       performanceOnlyRejects: preview.includes('리젝률은 성과제 주차만'),
       typoRemoved: !preview.includes('리실'),
     },
@@ -118,6 +120,7 @@ const desktop = await page.evaluate(() => {
 });
 await page.screenshot({ path: '/tmp/presence-recap-month-desktop.png', fullPage: false });
 await page.locator('#m-recap .pra-slide').last().screenshot({ path: '/tmp/presence-recap-member-avg-detail.png' });
+await page.locator('#m-recap .pra-income-reject-slide').screenshot({ path: '/tmp/presence-recap-reference-donut.png' });
 
 await page.setViewportSize({ width: 1024, height: 768 });
 await page.waitForTimeout(100);
@@ -242,12 +245,12 @@ const report = await page.evaluate(async bytes => {
   const paths=Object.keys(zip.files).filter(p=>/^ppt\/slides\/slide\d+\.xml$/.test(p)).sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));
   const slides=await Promise.all(paths.map(p=>zip.file(p).async('string')));
   const detail=slides.slice(3).join('');
-  return {slideCount:slides.length,month:slides[0]?.includes('26년 8월 Recap')&&slides[0]?.includes('2026.08'),brand:[...slides].every((slide)=>slide.includes('Presence')&&slide.includes('머물고 싶은 팀')),weekly:slides[1]?.includes('주차별 세일즈·리젝·인컴'),reject:slides[2]?.includes('리젝 손실액'),detail:detail.includes('팀원별 세일즈 성과 상세')&&['AVG','3.50','AVG=세일즈÷필드일(NA 제외·0건 포함)','W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t))};
+  return {slideCount:slides.length,month:slides[0]?.includes('26년 8월 Recap')&&slides[0]?.includes('2026.08'),brand:[...slides].every((slide)=>slide.includes('Presence')),weekly:slides[1]?.includes('주차별 현황'),reject:slides[2]?.includes('리젝 손실액')&&slides[2]?.includes('Net 세일즈'),detail:detail.includes('팀원별 상세 세일즈')&&['AVG','3.50','AVG=세일즈÷필드일(NA 제외·0건 포함)','W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t)),theme:[...slides].every((slide)=>slide.includes('EFF8FF'))};
 }, Array.from(await readFile(output)));
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
-if(report.slideCount!==4||!report.month||!report.brand||!report.weekly||!report.reject||!report.detail)failures.push('Selected month, visible brand, weekly charts, member AVG, or detail slides are missing from the full report');
+if(report.slideCount!==4||!report.month||!report.brand||!report.weekly||!report.reject||!report.detail||!report.theme)failures.push('Selected month, reference theme, visible brand, weekly charts, member AVG, or detail slides are missing from the full report');
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
 if (desktop.productivity.unit !== 110000 || desktop.productivity.fieldDays !== 9 || desktop.productivity.sales !== 24 || desktop.productivity.actualIncome !== 1260 || desktop.productivity.netCL !== 3 || desktop.productivity.netSW !== 1 || desktop.productivity.retained !== 20 || desktop.productivity.grossValue !== 2640000 || desktop.productivity.retainedValue !== 2200000 || desktop.productivity.rejectValue !== 440000 || Number(desktop.productivity.rejectPctOfSales.toFixed(1)) !== 16.7 || Number(desktop.productivity.clPctOfSales.toFixed(1)) !== 12.5 || Number(desktop.productivity.swPctOfSales.toFixed(1)) !== 4.2 || Math.abs(desktop.productivity.modelPctTotal-100) > 0.000001) failures.push('Gross Sales, Reject Loss, Actual Income, or CL/SW one-ring breakdown is incorrect');
