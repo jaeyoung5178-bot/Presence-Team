@@ -87,7 +87,7 @@
     },
     "daisoCompetition": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
-      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
+      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active'"
     },
     "daisoRecruitDaily": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
@@ -95,6 +95,13 @@
         "$uid": {
           ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')"
         }
+      }
+    },
+    "teamContacts": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
+      "$uid": {
+        ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
+        ".validate": "!newData.exists() || (root.child('users').child($uid).child('status').val() == 'active' && newData.child('uid').val() == $uid && newData.child('name').val() == root.child('users').child($uid).child('name').val() && newData.child('role').val() == root.child('users').child($uid).child('role').val() && newData.child('roleLabel').isString() && newData.child('phone').isString() && newData.child('phone').val().length >= 9 && newData.child('phone').val().length <= 13 && (!newData.child('photo').exists() || (newData.child('photo').isString() && newData.child('photo').val().length <= 2000000)) && newData.child('updatedAt').isNumber() && newData.child('updatedBy').isString() && newData.child('updatedByUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
       }
     },
     "customRooms": {
@@ -307,7 +314,7 @@
     },
     "popupAnnounce": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
-      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'"
+      ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active'"
     },
     "pr": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",

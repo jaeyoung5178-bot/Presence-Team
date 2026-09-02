@@ -407,6 +407,11 @@ body.can-mod .gcard .del{display:flex}
 .wadm-log-h{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:7px}
 .wadm-log-i{font-size:11.5px;color:var(--faint);line-height:1.8}
 .notif-item.gift{display:flex;gap:13px;align-items:center;background:linear-gradient(135deg,rgba(232,71,60,.12),rgba(92,188,46,.12));border:1px solid var(--line)}
+.notif-item.daiso-gift{display:grid;grid-template-columns:132px minmax(0,1fr);gap:14px;align-items:center;padding:14px 38px 14px 14px;background:linear-gradient(135deg,rgba(0,91,190,.15),rgba(239,55,63,.12));border-color:rgba(79,159,236,.45);overflow:hidden}
+.daiso-ticket{position:relative;isolation:isolate;min-height:82px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;border-radius:14px;padding:12px 13px;background:linear-gradient(145deg,#fff 0 58%,#f5f8fc 58%);border:2px solid #0b63b6;box-shadow:0 8px 18px rgba(0,75,155,.2);color:#15233a}
+.daiso-ticket::before,.daiso-ticket::after{content:"";position:absolute;z-index:2;right:-9px;width:18px;height:18px;border-radius:50%;background:var(--card)}.daiso-ticket::before{top:-9px}.daiso-ticket::after{bottom:-9px}
+.daiso-ticket-brand{font:950 16px/1 var(--disp);letter-spacing:-.03em;color:#e93242}.daiso-ticket-brand em{font-style:normal;color:#0768bc}.daiso-ticket strong{display:block;margin-top:7px;font:950 21px/1 var(--disp);letter-spacing:-.03em}.daiso-ticket small{margin-top:5px;font:800 7.5px/1 var(--mono);letter-spacing:.1em;color:#55708e}.daiso-ticket i{position:absolute;right:10px;top:9px;font-style:normal;font-size:17px}
+.daiso-gift-copy{min-width:0;display:flex;flex-direction:column;gap:4px}.daiso-gift-copy b{color:#8fd2ff;font-size:13.5px;line-height:1.4}.daiso-gift-copy span{color:var(--muted);font-size:11.5px;line-height:1.55}.daiso-gift-copy small{margin-top:2px;color:var(--faint);font:700 9.5px var(--mono)}
 .tg-acts{display:flex;gap:8px;margin-top:10px}
 .tg-give{flex:1;padding:10px;border-radius:10px;border:none;background:var(--grad);color:#fff;font-weight:800;font-size:13px;cursor:pointer}
 .tg-give:hover{filter:brightness(1.07)}
@@ -1003,6 +1008,7 @@ table.scores tr.top1 .big{color:var(--green)}
 .dc-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border-radius:18px;background:linear-gradient(135deg,#063783,#0878d8 62%,#37b9ed);color:#fff;border:1px solid rgba(255,215,96,.6);box-shadow:0 12px 28px rgba(0,73,155,.25)}
 .dc-kicker{font:800 9px var(--mono);letter-spacing:.12em;color:#bfe6ff}.dc-hero h3{font:900 25px var(--disp);margin:4px 0}.dc-hero p{font-size:12px;color:#e3f4ff;margin:0}.dc-prize{flex:none;background:#fff;color:#074a98;border:2px solid #ffd35c;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:900;text-align:center}
 .dc-rules{display:grid;grid-template-columns:auto repeat(3,1fr);gap:8px;align-items:center;margin:12px 0;padding:13px 15px;background:var(--card);border:1px solid var(--line);border-radius:14px}.dc-rules>b{font-size:13px}.dc-rules>span{font-size:12px;color:var(--muted);text-align:center}.dc-rules em{font-style:normal;color:#ffd35c;font-weight:900;margin-left:4px}.dc-rules small{grid-column:1/-1;color:var(--faint);font-size:10.5px}
+.dc-award{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin:12px 0 16px;padding:16px;border:1px solid rgba(255,211,92,.45);border-radius:16px;background:radial-gradient(circle at 4% 50%,rgba(255,211,92,.16),transparent 27%),linear-gradient(135deg,rgba(7,84,170,.18),var(--card))}.dc-award-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#ffe98b,#f2b72e);box-shadow:0 8px 18px rgba(242,183,46,.2);font-size:25px}.dc-award-copy{min-width:0}.dc-award-copy>span{display:block;color:#7fc4ff;font:800 9px var(--mono);letter-spacing:.1em}.dc-award-copy>b{display:block;margin-top:4px;color:var(--cream);font-size:15px}.dc-award-copy>small{display:block;margin-top:4px;color:var(--muted);font-size:10.5px;line-height:1.5}.dc-award-btn{min-width:220px;min-height:48px;border:0;border-radius:12px;padding:0 17px;background:linear-gradient(135deg,#ef3748,#0754aa);box-shadow:0 9px 22px rgba(6,76,157,.24);color:#fff;font:900 13px var(--font);cursor:pointer;transition:.15s}.dc-award-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.dc-award-btn:disabled{cursor:not-allowed;opacity:.62;transform:none}.dc-award.done{border-color:rgba(92,188,46,.42);background:linear-gradient(135deg,rgba(92,188,46,.13),rgba(7,84,170,.13))}.dc-award.done .dc-award-icon{background:linear-gradient(145deg,#9cf06e,#43b96f)}.dc-award-state{color:var(--green-soft);font-weight:900;font-size:12px;white-space:nowrap}.dc-award-state small{display:block;margin-top:4px;color:var(--faint);font:700 9px var(--mono);text-align:right}
 .dc-leaders{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.dc-lead{display:grid;grid-template-columns:1fr auto;gap:3px 10px;background:linear-gradient(135deg,rgba(8,100,203,.2),var(--card));border:1px solid rgba(57,151,255,.35);border-radius:13px;padding:12px 14px}.dc-lead span{grid-column:1/-1;color:#7fc4ff;font-size:10.5px;font-weight:800}.dc-lead b{font-size:15px}.dc-lead strong{color:#ffd35c;font:900 17px var(--disp)}
 .dc-podiums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.dc-podium{min-width:0;background:linear-gradient(145deg,rgba(8,100,203,.18),var(--card));border:1px solid rgba(57,151,255,.32);border-radius:15px;padding:13px}.dc-podium h4{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;color:#8ccaff;font-size:12px}.dc-podium h4 small{color:var(--faint);font-size:9px}.dc-top3{display:flex;flex-direction:column;gap:7px}.dc-place{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0;padding:9px 10px;border:1px solid var(--line-soft);border-radius:11px;background:rgba(10,15,24,.34)}.dc-place:first-child{border-color:rgba(255,211,92,.45);background:rgba(255,211,92,.06)}.dc-medal{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--card-2);font-size:16px}.dc-place-main{min-width:0}.dc-place-name{display:flex;align-items:center;gap:6px;min-width:0}.dc-place-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.dc-place-name span{flex:none;color:var(--faint);font:700 9px var(--mono)}.dc-breakdown{display:flex;flex-wrap:wrap;gap:4px 9px;margin-top:4px;color:var(--muted);font-size:9.5px;line-height:1.4}.dc-breakdown span{white-space:nowrap}.dc-total{color:#ffd35c;font:900 20px var(--disp);white-space:nowrap}.dc-total small{margin-left:2px;color:var(--muted);font:700 9px var(--font)}.dc-place-empty{padding:13px 8px;color:var(--faint);font-size:11px;text-align:center}
 .dc-subhead{display:flex;justify-content:space-between;gap:10px;align-items:end;margin:4px 2px 9px}.dc-subhead b{font-size:14px}.dc-subhead span{font-size:10.5px;color:var(--faint)}.dc-list{display:flex;flex-direction:column;gap:8px}.dc-person{display:grid;grid-template-columns:minmax(150px,1fr) minmax(280px,2.2fr) 70px;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px}.dc-who{display:flex;flex-direction:column;gap:2px;min-width:0}.dc-who b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dc-who small{font-size:10px;color:var(--faint);white-space:nowrap}.dc-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--card-2);color:#7fc4ff;font:800 10px var(--mono);margin-right:7px}.dc-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0}.dc-metric{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--muted);font-size:11.5px;line-height:1.25;white-space:nowrap}.dc-metric b{color:var(--cream);font-size:13px}.dc-metric.hit{border-color:rgba(255,211,92,.5);background:rgba(255,211,92,.08)}.dc-metric.hit b{color:#ffd35c}.dc-score{text-align:right;color:#ffd35c;font:900 25px var(--disp);white-space:nowrap}.dc-score small{font:700 10px var(--font);color:var(--muted);margin-left:2px}.dc-datebar{margin:12px 0;display:flex;align-items:center;gap:8px}.dc-datebar .pdr-date{flex:1}
@@ -1015,6 +1021,15 @@ table.scores tr.top1 .big{color:var(--green)}
 .pdr-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.7fr);gap:14px}.pdr-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px}.pdr-date{display:grid;grid-template-columns:44px minmax(150px,1fr) 44px auto;gap:7px;align-items:center}.pdr-date button,.pdr-step button,.pdr-today{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);font:800 15px var(--font);cursor:pointer}.pdr-date input,.pdr-user{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 11px;font:700 13px var(--font);color-scheme:dark}.pdr-today{padding:0 13px;font-size:12px;white-space:nowrap}.pdr-user{margin-top:10px}.pdr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.pdr-stat{min-width:0;background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:13px}.pdr-stat>span{display:block;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}.pdr-stat>small{display:block;color:var(--faint);font-size:9.5px;margin-top:2px}.pdr-step{display:grid;grid-template-columns:44px minmax(38px,1fr) 44px;gap:6px;align-items:center;margin-top:11px}.pdr-step strong{text-align:center;color:var(--cream);font:900 25px var(--disp)}.pdr-step button.plus{border-color:rgba(92,188,46,.55);background:rgba(92,188,46,.14);color:var(--green-soft)}.pdr-month-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.pdr-month-head b{font-size:14px}.pdr-month-head button{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);cursor:pointer}.pdr-week,.pdr-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.pdr-week span{text-align:center;color:var(--faint);font-size:10px;padding:4px 0}.pdr-days button{position:relative;aspect-ratio:1;min-width:0;min-height:38px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font:700 11px var(--font);cursor:pointer}.pdr-days button:hover{background:var(--card-2)}.pdr-days button.sel{background:var(--green);color:var(--green-ink);font-weight:900}.pdr-days button.today{border-color:var(--green)}.pdr-days button.has::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;border-radius:50%;background:#ffd35c;transform:translateX(-50%)}.pdr-days button.blank{visibility:hidden}.pdr-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.pdr-history h4{margin:0 0 7px;font-size:12px}.pdr-history button{width:100%;min-height:44px;display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;align-items:center;border:0;border-bottom:1px solid var(--line-soft);background:transparent;color:var(--muted);font:700 11px var(--font);text-align:left;cursor:pointer}.pdr-history b{color:var(--cream)}
 @media(max-width:760px){.perfseg{overflow-x:auto;scrollbar-width:none}.pseg-b{flex:0 0 calc(50% - 3px);white-space:nowrap}.dc-hero{align-items:flex-start;flex-direction:column;padding:17px}.dc-hero h3{font-size:21px}.dc-prize{width:100%}.dc-rules{grid-template-columns:1fr 1fr}.dc-rules>b{grid-column:1/-1}.dc-rules>span{text-align:left}.dc-podiums{grid-template-columns:1fr}.dc-person{grid-template-columns:minmax(0,1fr) auto;gap:9px;padding:12px}.dc-metrics{grid-column:1/-1;grid-row:2}.dc-score{grid-column:2;grid-row:1}.dc-subhead{align-items:flex-start;flex-direction:column;gap:3px}.dc-self-layout{grid-template-columns:1fr}.pdr-layout{grid-template-columns:1fr}.pdr-grid{grid-template-columns:1fr}.pdr-stat{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,1fr);align-items:center}.pdr-stat>small{grid-column:1}.pdr-step{grid-column:2;grid-row:1/3;margin:0}.pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.pdr-today{grid-column:1/-1}.dc-datebar .pdr-today{grid-column:auto}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px auto}}
 @media(max-width:420px){.dc-switch button{font-size:12px}.dc-switch small{display:block;margin-top:2px}.dc-leaders{grid-template-columns:1fr}.dc-metrics{grid-template-columns:1fr}.dc-score{font-size:22px}.dc-self{padding:12px}.dc-self-head{flex-direction:column}.dc-sale-step{grid-template-columns:48px minmax(56px,1fr) 48px 52px}.dc-sale-save{grid-column:1/-1;min-height:48px}.dc-sale-preview{align-items:flex-start;flex-direction:column;gap:2px}.pdr-stat{grid-template-columns:1fr minmax(158px,1fr);padding:11px}.pdr-card{padding:12px}.dc-datebar .pdr-date{grid-template-columns:44px minmax(0,1fr) 44px}.dc-datebar .pdr-today{grid-column:1/-1}.pdr-days button{min-height:40px}}
+@media(max-width:760px){.dc-award{grid-template-columns:auto minmax(0,1fr)}.dc-award-btn,.dc-award-state{grid-column:1/-1;width:100%;min-width:0}.dc-award-state{text-align:left}.dc-award-state small{text-align:left}}
+@media(max-width:420px){.notif-item.daiso-gift{grid-template-columns:1fr}.daiso-ticket{min-height:88px}.dc-award{grid-template-columns:1fr;text-align:center}.dc-award-icon{margin:auto}.dc-award-btn,.dc-award-state{grid-column:1}.dc-award-state,.dc-award-state small{text-align:center}}
+
+/* 관리자·매니저 전용 팀원 연락처 */
+.team-contacts-shell{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:16px;align-items:start}.team-contact-editor,.team-contact-book{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px}.team-contact-editor h3,.team-contact-book h3{margin:0;color:var(--cream);font-size:16px}.team-contact-help{margin:5px 0 15px;color:var(--muted);font-size:11.5px;line-height:1.55}.team-contact-field{display:block;margin-top:12px}.team-contact-field>span{display:block;margin-bottom:6px;color:var(--muted);font-size:11px;font-weight:800}.team-contact-field select,.team-contact-field input{width:100%;min-width:0;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--cream);padding:0 13px;font:750 14px var(--font);outline:none}.team-contact-field select:focus,.team-contact-field input:focus,.team-contact-search:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.12)}.team-contact-identity{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:13px;margin:14px 0;padding:13px;border:1px solid var(--line-soft);border-radius:14px;background:var(--card)}.team-contact-photo{width:64px;height:64px;border-radius:19px;overflow:hidden;display:grid;place-items:center;background:var(--card-2);color:#fff;font:900 23px var(--disp);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.team-contact-photo img{width:100%;height:100%;object-fit:cover}.team-contact-identity b{display:block;color:var(--cream);font-size:16px}.team-contact-identity small{display:block;margin-top:4px;color:var(--green-soft);font-size:11px;font-weight:850}.team-contact-photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.team-contact-photo-actions button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 12px;font:800 11.5px var(--font);cursor:pointer}.team-contact-save{width:100%;min-height:50px;margin-top:15px;border:0;border-radius:12px;background:linear-gradient(135deg,#4da526,#5cbc2e);color:#0b1a08;font:950 14px var(--font);cursor:pointer;box-shadow:0 9px 22px rgba(92,188,46,.18)}.team-contact-save:disabled{opacity:.58;cursor:wait}.team-contact-book-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}.team-contact-book-head small{display:block;margin-top:4px;color:var(--faint);font-size:10px}.team-contact-search{width:min(260px,48%);min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--cream);padding:0 12px;font:700 12px var(--font);outline:none}.team-contact-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.team-contact-card{min-width:0;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:11px;padding:12px;border:1px solid var(--line-soft);border-radius:15px;background:var(--card)}.team-contact-card .team-contact-photo{width:52px;height:52px;border-radius:15px;font-size:18px}.team-contact-card-main{min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.team-contact-card-main b{display:block;color:var(--cream);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-contact-card-main small{display:block;margin-top:2px;color:var(--green-soft);font-size:10px;font-weight:800}.team-contact-number{display:block;margin-top:5px;color:var(--muted);font:750 12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-contact-actions{display:flex;flex-direction:column;gap:6px}.team-contact-actions a,.team-contact-actions button{min-width:48px;min-height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 9px;font:850 10.5px var(--font);text-decoration:none;cursor:pointer}.team-contact-actions a{border-color:rgba(92,188,46,.35);color:var(--green-soft)}.team-contact-empty{grid-column:1/-1;padding:34px 18px;border:1px dashed var(--line);border-radius:14px;color:var(--faint);font-size:12px;text-align:center;line-height:1.65}.notif-item.daiso-gift{padding-right:54px}.notif-item.daiso-gift .notif-x{top:4px;right:4px;width:44px;height:44px}
+.team-contact-card-main{min-height:44px;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:1180px){.team-contacts-shell{grid-template-columns:1fr}}
+@media(max-width:900px){.team-contacts-shell{grid-template-columns:1fr}.team-contact-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.team-contact-editor,.team-contact-book{padding:14px}.team-contact-book-head{align-items:stretch;flex-direction:column}.team-contact-search{width:100%}.team-contact-list{grid-template-columns:1fr}.team-contact-card{grid-template-columns:52px minmax(0,1fr) 52px}.team-contact-actions a,.team-contact-actions button{min-width:52px}.team-contact-help{font-size:11px}}
 
 /* survey */
 .survey-wrap{max-width:560px;margin:0 auto}
@@ -3943,6 +3958,11 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
       <div id="orgEditorBody"></div>
     </section></div></div>
 
+    <div class="mpanel" id="m-contacts"><div class="wrap"><section class="sec">
+      <div class="sec-head"><h2>☎️ 팀원 연락처</h2><span class="ko">이름·직급·연락처·프로필 사진을 한 곳에서 관리</span><span class="meta">관리자·매니저 전용</span></div>
+      <div id="teamContactsBody"></div>
+    </section></div></div>
+
     <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">가입 승인 · 팀원 명단 · 직급·권한·계정 · 퇴사자</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
@@ -4436,7 +4456,7 @@ function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 const now=Date.now();
 let state={
   pr:0,
-  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},promotionSurveys:{},promotionSurveyResponses:{},training:[],recruit:{},daisoRecruitDaily:{},
+  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},promotionSurveys:{},promotionSurveyResponses:{},training:[],recruit:{},daisoRecruitDaily:{},daisoCompetition:{},teamContacts:{},
   waters:{},
   comp:{label:'노제로 챌린지',start:now,weeks:2},
   feeds:[],
@@ -6314,9 +6334,99 @@ function renderCallback(){const b=document.getElementById('callbackBody');if(b)b
 function renderTopics(){const b=document.getElementById('topicsBody');if(!b)return;const lead=me&&isLeader(me.role);const list=TOPICS_SEED.filter(t=>!t.lead||lead);const cats=[...new Set(list.map(t=>t.tag))];const CI={'\ub9c8\uc778\ub4dc':'\ud83d\udcad','\uba58\ud0c8':'\ud83d\udd25','\uc2a4\ud0ac':'\ud83c\udfaf','\ud300':'\ud83e\udd1d','\ub9ac\ub354\uc2ed':'\ud83e\udded','\uc131\uc7a5':'\ud83c\udf31','\ub3c4\uc804':'\ud83d\udea9'};let html=`<div class="topic-filter"><button class="tf-chip on" onclick="topicFilter('all',this)">\uc804\uccb4</button>${cats.map(c=>`<button class="tf-chip" onclick="topicFilter('${c}',this)">${esc(c)}</button>`).join('')}</div>`;let idx=0;html+=cats.map(c=>{const items=list.filter(t=>t.tag===c);const cards=items.map(d=>{const id='topics-'+(idx++);return `<div class="msec topic-card" id="${id}"><button class="msec-head" onclick="toggleMsecEl('${id}')"><span class="msec-ic">${d.ic||'\ud83d\udccc'}</span><span class="msec-tt"><b>${esc(d.title)}</b><i>${esc(d.tag||'')}</i></span><span class="msec-car">\u25be</span></button><div class="msec-body"><div class="msec-inner" style="white-space:normal;line-height:1.75;font-size:13.5px;color:var(--cream)">${fmtLinks(d.body)}</div></div></div>`;}).join('');return `<div class="topic-sec" data-cat="${esc(c)}"><div class="topic-sec-h">${CI[c]||'\ud83d\udcc2'} ${esc(c)} <span class="topic-sec-n">${items.length}</span></div><div class="lacc" style="margin-bottom:18px">${cards}</div></div>`;}).join('');b.innerHTML=html;}
 function topicFilter(cat,btn){document.querySelectorAll('#topicsBody .tf-chip').forEach(c=>c.classList.remove('on'));if(btn)btn.classList.add('on');document.querySelectorAll('#topicsBody .topic-sec').forEach(sec=>{sec.style.display=(cat==='all'||sec.dataset.cat===cat)?'':'none';});}
 
+/* ===== 팀원 연락처 · 관리자/매니저 전용 ===== */
+let teamContactTargetUid='',teamContactDraftPhoto=null,teamContactSearch='',teamContactSaving=false;
+function teamContactUsers(){
+  return Object.values(state.users||{}).filter(function(u){return u&&u.uid&&u.status==='active'&&!(typeof isTestBot==='function'&&isTestBot(u));}).sort(joinSort);
+}
+function safeTeamContactPhoto(src){
+  src=String(src||'').trim();
+  return /^(data:image\/(?:jpeg|jpg|png|webp);base64,|https:\/\/)/i.test(src)?src:'';
+}
+function teamContactAvatar(u,photo,small){
+  const src=safeTeamContactPhoto(photo),name=(u&&u.name)||'?';
+  return '<span class="team-contact-photo'+(small?' small':'')+'" style="background:'+esc(avColor(name))+'">'+(src?'<img src="'+esc(src)+'" alt="'+esc(name)+' 프로필 사진">':esc(name.charAt(0)))+'</span>';
+}
+function selectedTeamContactUser(){
+  const users=teamContactUsers();
+  let u=users.find(function(x){return x.uid===teamContactTargetUid;});
+  if(!u)u=users.find(function(x){return me&&x.uid===me.uid;})||users[0]||null;
+  teamContactTargetUid=u?u.uid:'';
+  return u;
+}
+function selectTeamContact(uid){
+  if(!canManageTeamRecords(me))return;
+  if(!teamContactUsers().some(function(u){return u.uid===uid;}))return;
+  teamContactTargetUid=uid;teamContactDraftPhoto=null;renderTeamContacts();
+}
+function editTeamContact(uid){selectTeamContact(uid);setTimeout(function(){const el=document.getElementById('teamContactPhone');if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'});}},40);}
+function chooseTeamContactPhoto(file){
+  if(!canManageTeamRecords(me)||!file)return;
+  if(!/^image\//.test(file.type||'')){toast('이미지 파일을 선택해 주세요');return;}
+  if(file.size>8*1024*1024){toast('사진은 8MB 이하로 선택해 주세요');return;}
+  const reader=new FileReader();
+  reader.onerror=function(){toast('사진을 읽지 못했어요. 다른 사진을 선택해 주세요');};
+  reader.onload=function(ev){
+    const img=new Image();
+    img.onerror=function(){toast('사진 형식을 확인해 주세요');};
+    img.onload=function(){
+      const max=480,scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      teamContactDraftPhoto=canvas.toDataURL('image/jpeg',.76);renderTeamContacts();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function resetTeamContactPhoto(){teamContactDraftPhoto='';renderTeamContacts();}
+function renderTeamContactCards(){
+  const box=document.getElementById('teamContactList');if(!box||!canManageTeamRecords(me))return;
+  const users=teamContactUsers(),byUid={};users.forEach(function(u){byUid[u.uid]=u;});
+  const query=nk(teamContactSearch||''),records=Object.values(state.teamContacts||{}).filter(function(r){
+    if(!r||!r.uid||!r.phone||!byUid[r.uid])return false;
+    if(!query)return true;
+    const u=byUid[r.uid],hay=nk([u.name,u.role,ROLE_LABEL[u.role]||'',r.phone].join(' '));return hay.indexOf(query)>=0;
+  }).sort(function(a,b){return joinSort(byUid[a.uid],byUid[b.uid]);});
+  const count=document.getElementById('teamContactCount');if(count)count.textContent=records.length+'명 저장됨';
+  if(!records.length){box.innerHTML='<div class="team-contact-empty">'+(query?'검색 결과가 없어요.':'아직 저장된 연락처가 없어요.<br>왼쪽에서 팀원을 선택해 첫 연락처를 저장해 주세요.')+'</div>';return;}
+  box.innerHTML=records.map(function(r){
+    const u=byUid[r.uid],role=ROLE_LABEL[u.role]||u.role||r.roleLabel||r.role||'',photo=safeTeamContactPhoto(r.photo)||safeTeamContactPhoto(u.photo),digits=String(r.phone||'').replace(/\D/g,'');
+    return '<article class="team-contact-card">'+teamContactAvatar(u,photo,true)+'<button type="button" class="team-contact-card-main" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)" aria-label="'+esc(u.name)+' 연락처 수정"><b>'+esc(u.name)+'</b><small>'+esc(role)+'</small><span class="team-contact-number">'+esc(r.phone)+'</span></button><div class="team-contact-actions"><a href="tel:'+esc(digits)+'" aria-label="'+esc(u.name)+'에게 전화">전화</a><button type="button" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)">수정</button></div></article>';
+  }).join('');
+}
+function renderTeamContacts(){
+  const root=document.getElementById('teamContactsBody');if(!root)return;
+  if(!me||!canManageTeamRecords(me)){root.innerHTML='<div class="team-contact-empty">관리자 또는 매니저만 연락처를 열 수 있어요.</div>';return;}
+  const users=teamContactUsers(),u=selectedTeamContactUser();
+  if(!u){root.innerHTML='<div class="team-contact-empty">등록할 재직 팀원이 없어요.</div>';return;}
+  const rec=(state.teamContacts||{})[u.uid]||{},photo=teamContactDraftPhoto===null?(safeTeamContactPhoto(rec.photo)||safeTeamContactPhoto(u.photo)):safeTeamContactPhoto(teamContactDraftPhoto),role=ROLE_LABEL[u.role]||u.role||'';
+  root.innerHTML='<div class="team-contacts-shell"><div class="team-contact-editor"><h3>연락처 저장·수정</h3><p class="team-contact-help">팀원 계정과 연결해 이름·직급을 자동 저장합니다. 연락처와 사진만 입력해 주세요.</p><label class="team-contact-field"><span>팀원 선택</span><select id="teamContactUser" onchange="selectTeamContact(this.value)" aria-label="연락처를 저장할 팀원">'+users.map(function(x){return '<option value="'+esc(x.uid)+'"'+(x.uid===u.uid?' selected':'')+'>'+esc(x.name)+' · '+esc(ROLE_LABEL[x.role]||x.role||'')+'</option>';}).join('')+'</select></label><div class="team-contact-identity">'+teamContactAvatar(u,photo,false)+'<div><b>'+esc(u.name)+'</b><small>'+esc(role)+'</small><div class="team-contact-photo-actions"><button type="button" onclick="document.getElementById(\'teamContactPhotoInput\').click()">사진 선택</button><button type="button" onclick="resetTeamContactPhoto()">기본 사진</button></div></div></div><input type="file" id="teamContactPhotoInput" accept="image/*" hidden onchange="chooseTeamContactPhoto(this.files[0])"><label class="team-contact-field"><span>연락처</span><input id="teamContactPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="13" placeholder="010-0000-0000" value="'+esc(rec.phone||'')+'" oninput="fmtPhone(this)"></label><button type="button" id="teamContactSave" class="team-contact-save" onclick="saveTeamContact()"'+(teamContactSaving?' disabled':'')+'>'+(teamContactSaving?'저장 중…':'연락처 저장')+'</button></div><div class="team-contact-book"><div class="team-contact-book-head"><div><h3>저장된 팀원 연락처</h3><small id="teamContactCount">0명 저장됨</small></div><input class="team-contact-search" type="search" placeholder="이름·직급·번호 검색" value="'+esc(teamContactSearch)+'" oninput="teamContactSearch=this.value;renderTeamContactCards()" aria-label="팀원 연락처 검색"></div><div class="team-contact-list" id="teamContactList"></div></div></div>';
+  renderTeamContactCards();
+}
+function subscribeTeamContacts(){
+  if(!LIVE||!me||!canManageTeamRecords(me)||window._teamContactsSub)return;
+  window._teamContactsSub=true;
+  DB.on('teamContacts',function(v){state.teamContacts=v||{};if(typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();});
+}
+async function saveTeamContact(){
+  if(!me||!canManageTeamRecords(me)){toast('관리자 또는 매니저만 저장할 수 있어요');return;}
+  const u=selectedTeamContactUser(),input=document.getElementById('teamContactPhone');if(!u||!input)return;
+  fmtPhone(input);const phone=input.value.trim(),digits=phone.replace(/\D/g,'');
+  if(digits.length<9||digits.length>11){toast('연락처 번호를 정확히 입력해 주세요');input.focus();return;}
+  const old=(state.teamContacts||{})[u.uid]||{},photo=teamContactDraftPhoto===null?(safeTeamContactPhoto(old.photo)||safeTeamContactPhoto(u.photo)):safeTeamContactPhoto(teamContactDraftPhoto);
+  const record={uid:u.uid,name:u.name,role:u.role||'',roleLabel:ROLE_LABEL[u.role]||u.role||'',phone:phone,photo:photo,updatedAt:Date.now(),updatedBy:me.name,updatedByUid:me.uid};
+  teamContactSaving=true;renderTeamContacts();
+  try{
+    if(LIVE)await DB.set('teamContacts/'+u.uid,record);
+    state.teamContacts=state.teamContacts||{};state.teamContacts[u.uid]=record;teamContactDraftPhoto=null;toast(u.name+'님의 연락처를 저장했어요');
+  }catch(e){console.warn('[team contacts]',e);toast('연락처를 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요');}
+  finally{teamContactSaving=false;renderTeamContacts();}
+}
+
 const NAV=[
   {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao']},
-  {k:'people',e:'◎',l:'People',tabs:['teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
+  {k:'people',e:'◎',l:'People',tabs:['contacts','teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
   {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod']},
   {k:'profit',e:'◆',l:'Profit',tabs:['sale','profitrecap','recruitdaily','comp','perf','cbjournal','rejectnote','daily']},
   {k:'my',e:'✦',l:'My',tabs:['petshop']},
@@ -6339,6 +6449,7 @@ const TABMETA={
   eventsurvey:{e:'🎟️',l:'참여조사',g:()=>isFounder(me)},
   gsheet:{e:'🛠️',l:'개발 연동',g:()=>isFounder(me)},
   salesmgr:{e:'💰',l:'팀 세일즈관리',g:()=>isFounder(me)},
+  contacts:{e:'☎️',l:'팀원 연락처',g:()=>canManageTeamRecords(me)},
   teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)||isLeader(me.role)},
   setupkit:{e:'🐑',l:'셋업 비서',g:()=>typeof canSetupKit==='function'&&canSetupKit(me)},
   rejectnote:{e:'🛡️',l:'리젝노트',g:()=>typeof canRejectNote==='function'&&canRejectNote(me)},
@@ -6380,7 +6491,7 @@ function buildRail(){
 var subRailExpanded=false; var SUBRAIL_MAX=4;
 var SUBRAIL_PRIMARY={
   today:['today','notice','kakao','events'],
-  people:['teamtree','oneonone','calling','leaderwish'],
+  people:['contacts','teamtree','oneonone','calling'],
   progress:['journey','leaderhit','training','petshop'],
   profit:['sale','profitrecap','cbjournal','daily'],
   my:['petshop'],
@@ -6388,7 +6499,7 @@ var SUBRAIL_PRIMARY={
 };
 var SUBRAIL_SECTIONS={
   today:[['오늘',['today','notice','kakao']],['일정·참여',['events','eventsurvey','survey']],['운영',['gsheet','admin']]],
-  people:[['팀',['teamtree','sites','setupkit']],['대화',['oneonone','calling','meeting']],['문화',['net','act','wins','hall','leaderwish']]],
+  people:[['팀',['contacts','teamtree','sites','setupkit']],['대화',['oneonone','calling','meeting']],['문화',['net','act','wins','hall','leaderwish']]],
   progress:[['성장',['journey','leaderhit','manual','obj']],['현장 학습',['callback','topics','training','cod']],['나의 공간',['petshop']]],
   profit:[['세일즈',['sale','profitrecap','perf','daily']],['후속 관리',['cbjournal','rejectnote']]],
   my:[['MY PRESENCE',['petshop']]],
@@ -6448,6 +6559,7 @@ function goTab(name){
   if(name==='survey'&&isFounder(me)){renderSurveyResponses();renderWeb2Conn();if(typeof renderExportPanel==='function')renderExportPanel();}
   if(name==='gsheet'&&isFounder(me)){renderSheetConn();renderWeb2Conn();renderDevLinks();}
   if(name==='salesmgr'&&isFounder(me)){renderSalesMgr();metaPullSheet(false);}
+  if(name==='contacts'){subscribeTeamContacts();renderTeamContacts();}
   if(name==='teamtree')renderOrgEditor();
   if(name==='setupkit'&&typeof renderSetupKit==='function')renderSetupKit();
   if(name==='eventsurvey'&&typeof renderEventSurveyAdmin==='function'&&me&&isFounder(me))renderEventSurveyAdmin();
@@ -7338,6 +7450,35 @@ function daisoOwnSaleHTML(){
 function daisoSupportPoints(name){let p=0;for(let d=DAISO_FROM;d<=DAISO_UNTIL;d=pdrAddDays(d,1))p+=daisoSalesPoint(name,d);return p;}
 function daisoLeaderHitDate(u){try{const survey=surveyMerged(u),d=survey&&survey.leaderHit;if(/^\d{4}-\d{2}-\d{2}$/.test(d||''))return d;const a=lhAnalyze(u.name);return a&&a.hitDate||'';}catch(e){return '';}}
 function daisoScore(u){const totals=pdrTotals(u.uid,DAISO_FROM,DAISO_UNTIL),lh=daisoLeaderHitDate(u);return daisoSupportPoints(u.name)+totals.starter*3+(lh>=DAISO_FROM&&lh<=DAISO_UNTIL?3:0);}
+const DAISO_AWARD_ID='daiso-competition-2026-08-sonyejin';
+const DAISO_AWARD_ANNOUNCEMENT='다이소 컴페티션 우승자는 바로~ 다이소를 가장 많이 이용했을거 같은 "손예진 리더"입니다. 많이 축하해주세요~';
+let daisoAwardBusy=false;
+function daisoAwardWinnerUser(){return Object.values(state.users||{}).find(function(u){return u&&u.status==='active'&&!isTestBot(u)&&String(u.name||'').replace(/\s/g,'')==='손예진';})||null;}
+function daisoAwardCardHTML(){
+  const award=(state.daisoCompetition||{}).award||null,winner=daisoAwardWinnerUser(),done=!!(award&&award.id===DAISO_AWARD_ID&&award.completedAt);
+  if(done){const dt=new Date(award.completedAt);return '<section class="dc-award done" aria-label="다이소 컴페티션 우승자"><span class="dc-award-icon">🏆</span><div class="dc-award-copy"><span>DAISO COMPETITION WINNER</span><b>손예진 리더 · 다이소 2만원 상품권</b><small>우승자 알림함에 쿠폰을 지급했고 전 팀원 로그인 공지를 시작했어요.</small></div><div class="dc-award-state">지급·발표 완료<small>'+dt.toLocaleDateString('ko-KR')+'</small></div></section>';}
+  if(!isFounder(me))return '';
+  return '<section class="dc-award" aria-label="다이소 컴페티션 상품 지급"><span class="dc-award-icon">🎫</span><div class="dc-award-copy"><span>ADMIN WINNER AWARD</span><b>손예진 리더에게 우승 쿠폰 증정</b><small>'+(winner?'버튼을 누르면 손예진 리더의 알림함에 2만원 쿠폰이 들어가고 전 팀원에게 우승 공지가 한 번씩 표시됩니다.':'활성 상태의 손예진 계정을 찾지 못했어요. 계정 상태를 확인한 뒤 다시 열어 주세요.')+'</small></div><button class="dc-award-btn" type="button" onclick="awardDaisoWinner()" '+(!winner||daisoAwardBusy?'disabled':'')+'>'+(daisoAwardBusy?'지급·발표 중…':'🎁 우승자에게 쿠폰 증정하기')+'</button></section>';
+}
+async function awardDaisoWinner(){
+  if(!me||!isFounder(me)){toast('우승 쿠폰은 관리자만 지급할 수 있어요');return;}
+  if(daisoAwardBusy)return;
+  const prior=(state.daisoCompetition||{}).award;
+  if(prior&&prior.id===DAISO_AWARD_ID&&prior.completedAt){toast('이미 손예진 리더에게 쿠폰을 지급하고 발표했어요');return;}
+  const winner=daisoAwardWinnerUser();if(!winner||!winner.uid){toast('활성 상태의 손예진 계정을 찾지 못했어요');return;}
+  if(!confirm('손예진 리더에게 다이소 2만원 상품권을 지급하고\n전 팀원에게 우승자 발표를 띄울까요?\n\n이 작업은 중복 지급되지 않습니다.'))return;
+  daisoAwardBusy=true;renderDaisoCompetition();
+  const t=Date.now(),award={id:DAISO_AWARD_ID,winnerUid:winner.uid,winnerName:'손예진',prize:'다이소 2만원 상품권',awardedBy:me.name,completedAt:t};
+  const announcement={id:DAISO_AWARD_ID,text:DAISO_AWARD_ANNOUNCEMENT,by:me.name,t:t,winner:true,kind:'daisoCompetition',accountScoped:true};
+  const current=Array.isArray(state.notifs[winner.uid])?state.notifs[winner.uid].slice():(state.notifs[winner.uid]?Object.values(state.notifs[winner.uid]):[]);
+  if(!current.some(function(n){return n&&n.type==='daisoGift'&&n.awardId===DAISO_AWARD_ID;}))current.push({type:'daisoGift',awardId:DAISO_AWARD_ID,title:'다이소 컴페티션 우승 상품권',msg:'손예진 리더님의 우승을 축하드립니다! 다이소 2만원 상품권이 도착했어요.',amount:20000,winner:true,t:t,read:false,target:{tab:'comp'}});
+  try{
+    if(LIVE){const updates={};updates['notifs/'+winner.uid]=current;updates['daisoCompetition/award']=award;updates.popupAnnounce=announcement;await DB.update('',updates);}
+    state.notifs[winner.uid]=current;state.daisoCompetition=state.daisoCompetition||{};state.daisoCompetition.award=award;state.popupAnnounce=announcement;
+    renderDaisoCompetition();renderBell();showAnnounceIfNew();toast('🏆 손예진 리더에게 쿠폰을 지급하고 전 팀원 발표를 시작했어요');
+  }catch(e){console.error('[daiso award]',e);toast('지급하지 못했어요. 연결을 확인한 뒤 다시 눌러 주세요');}
+  finally{daisoAwardBusy=false;renderDaisoCompetition();}
+}
 function renderDaisoCompetition(){
   const box=document.getElementById('daisoCompPanel');if(!box||!me)return;const roster=pdrUsers();
   const ranked=roster.map(function(u){const daily=pdrRecord(pdrDate,u.uid),sales=daisoSalesPoint(u.name,pdrDate),lh=daisoLeaderHitDate(u),dayLeader=lh===pdrDate,totals=pdrTotals(u.uid,DAISO_FROM,DAISO_UNTIL),cumSales=daisoSupportPoints(u.name),cumStarter=totals.starter,cumLeader=(lh>=DAISO_FROM&&lh<=DAISO_UNTIL?3:0),score=cumSales+cumStarter*3+cumLeader;return {u:u,score:score,sales:sales,starter:daily.starter,dayLeader:dayLeader,cumSales:cumSales,cumStarter:cumStarter,cumLeader:cumLeader};}).sort(function(a,b){return b.score-a.score||a.u.name.localeCompare(b.u.name,'ko');});
@@ -7345,6 +7486,7 @@ function renderDaisoCompetition(){
   function podium(role,label){const top=ranked.filter(function(x){return x.u.role===role;}).slice(0,3),medal=['🥇','🥈','🥉'];const list=top.map(function(x,i){return '<div class="dc-place"><span class="dc-medal">'+medal[i]+'</span><div class="dc-place-main"><div class="dc-place-name"><b>'+esc(x.u.name)+'</b><span>'+role+'</span></div><div class="dc-breakdown"><span>🔔 세일즈 '+x.cumSales+'점</span><span>🌱 스타터 '+x.cumStarter+'건 · '+(x.cumStarter*3)+'점</span><span>🏅 리더힛 '+x.cumLeader+'점</span></div></div><strong class="dc-total">'+x.score+'<small>점</small></strong></div>';}).join('');return '<section class="dc-podium"><h4>'+label+' 현재 TOP 3 <small>기간 누적</small></h4><div class="dc-top3">'+(list||'<div class="dc-place-empty">아직 참여자가 없어요</div>')+'</div></section>';}
   box.innerHTML='<div class="dc-hero"><div><span class="dc-kicker">PRESENCE NEW COMPETITION</span><h3>다이소 컴페티션</h3><p>8월 17일 - 8월 30일 · IC / LR 최다 득점자 각 1명</p></div><span class="dc-prize">🎁 다이소 2만원 상품권</span></div>'+
     '<div class="dc-rules"><b>🎯 점수 기준</b><span>세일즈 <em>1·2·3점</em></span><span>PR 스타터 <em>건당 +3점</em></span><span>리더힛 <em>+3점</em></span><small>세일즈는 하루 최종 단계 하나만 적용: 공은 1+2+3이 아니라 3점, 벨은 1+2가 아니라 2점 · 리쿠르팅/쇼업은 점수에 미포함</small></div>'+
+    daisoAwardCardHTML()+
     daisoOwnSaleHTML()+
     '<div class="dc-podiums">'+podium('IC','⭐ IC')+podium('LR','⭐ LR')+'</div>'+
     '<div class="dc-datebar">'+pdrDateHTML()+'</div><div class="dc-subhead"><b>📅 '+pdrDate+' 일자별 득점</b><span>세일즈 · PR 스타터 · 리더힛만 실시간 반영</span></div><div class="dc-list">'+(rows||'<div class="rank-empty">참여할 팀원이 없어요</div>')+'</div>';
@@ -8729,9 +8871,10 @@ function pullRoster(opts){
   document.body.appendChild(s);
   setTimeout(()=>{if(done)return;done=true;cleanup();},9000);
 }
+function announceAckKey(a){return a&&a.accountScoped&&me&&me.uid?'presence_ann_ack_'+me.uid:'presence_ann_ack';}
 function showAnnounceIfNew(){
   const a=state.popupAnnounce;if(!a||!a.text)return;
-  if(lsGet('presence_ann_ack')===a.id)return;
+  if(lsGet(announceAckKey(a))===a.id)return;
   const win=!!a.winner;
   const box=document.querySelector('#annModal .ann-box');if(box)box.classList.toggle('winner',win);
   const ic=document.querySelector('#annModal .ann-icon');if(ic)ic.textContent=win?'🏆':'📣';
@@ -8741,7 +8884,7 @@ function showAnnounceIfNew(){
   const cf=document.getElementById('annConfetti');if(cf)cf.innerHTML=win?Array.from({length:16}).map((_,i)=>`<span style="left:${(i*6+2)}%;animation-delay:${(i%6)*0.16}s;font-size:${13+(i%4)*5}px">${['🎉','🎆','✨','🎊','🏆','🎇'][i%6]}</span>`).join(''):'';
   openModal('annModal');
 }
-function ackAnnounce(){const a=state.popupAnnounce;if(a)lsSet('presence_ann_ack',a.id);closeModal('annModal');}
+function ackAnnounce(){const a=state.popupAnnounce;if(a)lsSet(announceAckKey(a),a.id);closeModal('annModal');}
 function postAnnounce(){
   if(!isFounder(me)){toast('관리자만 가능해요');return;}
   const ta=document.getElementById('annInput'),text=ta?ta.value.trim():'';
@@ -8936,10 +9079,11 @@ function notifInner(n){
   if(n.type==='newbie'){var _T=(typeof ONBOARD_TRAIN!=='undefined'&&ONBOARD_TRAIN[n.day])?ONBOARD_TRAIN[n.day]:null;return `<div class="notif-top">🌱 <b>${esc(n.name)}</b> 신입 · 첫필드 ${n.day}일차</div><div class="notif-prev">${n.day===1?'신입이 왔어요! 5일간 교육을 준비해주세요.<br>':''}${_T?`📚 ${n.day}일차 교육 · <b>${esc(_T.t)}</b>`:''}</div><div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='notice'){return `<div class="notif-top">📢 <b>${esc(n.title||'공지')}</b>${n.by?` · ${esc(n.by)}`:''}</div>${n.msg?`<div class="notif-prev">${esc(n.msg).replace(/\n/g,'<br>')}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;}
   if(n.type==='welcome'){return `<div class="notif-top"><b>🎉 환영합니다</b></div><div class="notif-prev">${n.msg?esc(n.msg).replace(/\n/g,'<br>'):''}</div><div class="notif-t">${ago(n.t)}</div>`;}
+  if(n.type==='daisoGift'){return `<div class="daiso-ticket" aria-label="다이소 2만원 상품권"><span class="daiso-ticket-brand">DAI<em>SO</em></span><strong>20,000원</strong><small>WINNER COUPON</small><i>🎫</i></div><div class="daiso-gift-copy"><b>🏆 다이소 컴페티션 우승 상품권</b><span>${esc(n.msg||'손예진 리더님의 우승을 축하드립니다!')}</span><small>${ago(n.t)} · 관리자 지급</small></div>`;}
   if(n.type==='gift'||n.type==='giftwin'){const valid=!n.expire||Date.now()<=n.expire;const exp=n.expire?new Date(n.expire):null;const expTxt=exp?(exp.getFullYear()+'.'+String(exp.getMonth()+1).padStart(2,'0')+'.'+String(exp.getDate()).padStart(2,'0')):'';return `<div class="gift-box">${n.winner?'🏆':'🎁'}<span class="gift-q">?</span></div><div class="gift-body"><b>${n.type==='giftwin'?'🎉 행운의 선물 당첨!':(n.winner?'🏆 먹이주기 우승 축하 · 쿠폰 도착!':'🎁 깜짝 선물 쿠폰이 도착했어요!')}</b><span class="gift-msg">${(n.msg?esc(n.msg).replace(/\n/g,'<br>'):'프레젠스 성장 나무에 물을 가장 많이 준 당신께 드리는 비밀 선물이에요 🤫')}</span><span>받을 선물은 비밀이에요 🤫</span><span class="gift-exp">🎄 ${valid?expTxt+'까지 유효':'유효기간이 지났어요'}</span></div>`;}
   return `<div class="notif-top"><b>${esc(n.by)}</b>님이 <span class="notif-ctx">${esc(n.ctx)}</span>에서 회원님을 언급했어요</div>${n.text?`<div class="notif-prev">${fmtMentions(n.text)}</div>`:''}<div class="notif-t">${ago(n.t)}</div>`;
 }
-function notifIsReward(n){return n&&(n.type==='gift'||n.type==='giftwin');}
+function notifIsReward(n){return n&&(n.type==='gift'||n.type==='giftwin'||n.type==='daisoGift');}
 function renderNotifList(){
   const box=document.getElementById('notifList');if(!box)return;
   const list=myNotifs().slice().sort((a,b)=>b.t-a.t);
@@ -8950,7 +9094,7 @@ function renderNotifList(){
   if(!list.length&&!pend.length&&!promos.length){ h+='<div class="rank-empty">받은 알림이 없어요</div>'; }
   if(list.length){
     h+=list.map(function(n){
-      var cls='notif-item'+(notifIsReward(n)?' gift':'')+(n.read?'':' unread');
+      var cls='notif-item'+(notifIsReward(n)?' gift':'')+(n.type==='daisoGift'?' daiso-gift':'')+(n.read?'':' unread');
       return '<div class="'+cls+'"'+(n.target?' style="cursor:pointer" onclick="notifOpen('+n.t+')"':'')+'>'+notifInner(n)+'<button class="notif-x" title="휴지통으로" onclick="event.stopPropagation();delNotif('+n.t+','+(notifIsReward(n)?'true':'false')+')">✕</button></div>';
     }).join('');
     h+='<button class="notif-clear" onclick="clearNotifs()">🗑️ 전체 휴지통으로 이동</button>';
@@ -8964,7 +9108,7 @@ function renderNotifList(){
     else{
       h+='<div class="ntrash-acts"><button onclick="trashRestoreAll()">↩️ 전체 복원</button><button class="danger" onclick="trashEmpty()">완전 비우기</button></div>';
       h+=tr.map(function(n){
-        return '<div class="notif-item trashed'+(notifIsReward(n)?' gift':'')+'">'+notifInner(n)+'<button class="notif-restore" title="복원" onclick="trashRestore('+n.t+')">↩️</button></div>';
+        return '<div class="notif-item trashed'+(notifIsReward(n)?' gift':'')+(n.type==='daisoGift'?' daiso-gift':'')+'">'+notifInner(n)+'<button class="notif-restore" title="복원" onclick="trashRestore('+n.t+')">↩️</button></div>';
       }).join('');
     }
   }
@@ -9561,6 +9705,7 @@ async function initFirebase(generation){
   DB.on('giftHunt',v=>{if(v)state.giftHunt={...(state.giftHunt||{}),...v};if(me){renderGiftHunt();maybeGiftStartPopup();}});
   DB.on('comp',v=>{if(v)state.comp=v;renderComp();if(typeof renderCoopRank==='function'){try{renderCoopRank();}catch(e){}}});
   DB.on('daisoCompetition',v=>{state.daisoCompetition=v||{};renderDaisoCompetition();});
+  subscribeTeamContacts();
   DB.on('daisoRecruitDaily',v=>{state.daisoRecruitDaily=v||{};if(me)renderRecruitDaily();renderDaisoCompetition();});
   DB.on('notices',v=>{state.notices=v?Object.values(v):[];renderNotices()});
   DB.on('gb',v=>{state.gb=v?Object.values(v):[];renderGb()});
@@ -9616,7 +9761,7 @@ async function initFirebase(generation){
   DB.on('users',v=>{
     state.users=v?{...v}:{};
     if(me)me=state.users[me.uid]||me;
-    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
+    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
   });
   if(generation&&generation!==firebaseInitGeneration)return false;
@@ -12125,7 +12270,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-08-31.recap-net-percentage-49';
+const APP_VERSION='2026-09-02.daiso-contacts-51';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -16564,7 +16709,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
        탭의 실제 접근 권한은 기존 TABMETA[].g를 그대로 사용해 역할별 보안을 보존한다. */
     var workspaces=[
       {k:'today',e:'◉',l:'Today',tabs:['today','notice','kakao','events','eventsurvey','survey','gsheet','admin']},
-      {k:'people',e:'◎',l:'People',tabs:['teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
+      {k:'people',e:'◎',l:'People',tabs:['contacts','teamtree','oneonone','calling','meeting','sites','setupkit','net','act','wins','hall','leaderwish']},
       {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod','petshop']},
       {k:'profit',e:'◆',l:'Profit',tabs:['sale','comp','perf','cbjournal','rejectnote','daily','salesmgr','field','recap']}
     ];
