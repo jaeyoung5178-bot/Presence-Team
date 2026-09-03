@@ -97,6 +97,27 @@
         }
       }
     },
+    "integrationSecrets": {
+      ".read": false,
+      ".write": false
+    },
+    "recruitingDeskBookings": {
+      "$uid": {
+        ".read": "$uid == 'admin' && auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active'",
+        ".write": "$uid == 'admin' && newData.hasChildren(['proof', 'syncedAt', 'candidates']) && newData.child('proof').isString() && newData.child('proof').val() == root.child('integrationSecrets').child('recruitingDeskSyncToken').val() && newData.child('syncedAt').isNumber()",
+        "proof": {
+          ".validate": "newData.isString() && newData.val().length == 64"
+        },
+        "syncedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "candidates": {
+          "$candidateId": {
+            ".validate": "newData.hasChildren(['id', 'name', 'recruiter', 'interviewAt', 'bookedAt', 'updatedAt', 'showedUp', 'booked', 'archived']) && newData.child('id').isNumber() && newData.child('name').isString() && newData.child('name').val().length <= 80 && newData.child('recruiter').isString() && newData.child('recruiter').val().length <= 80 && newData.child('interviewAt').isString() && newData.child('interviewAt').val().length <= 40 && newData.child('bookedAt').isString() && newData.child('bookedAt').val().length <= 40 && newData.child('updatedAt').isString() && newData.child('updatedAt').val().length <= 40 && newData.child('showedUp').isNumber() && newData.child('booked').isBoolean() && newData.child('archived').isBoolean()"
+          }
+        }
+      }
+    },
     "teamContacts": {
       ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
       "$uid": {

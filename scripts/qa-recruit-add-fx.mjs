@@ -32,6 +32,10 @@ try {
       const current = { uid: f.uid, name: f.user, id: `fx-${f.uid}`, role: f.role, status: 'active', surveys: { [f.role]: { answers: { firstField: '2026-01-01' }, t: Date.now() } } };
       state.users = { [current.uid]: current };
       state.extraMembers = []; state.removedMembers = []; state.memberInfo = {}; state.managers = []; state.daisoRecruitDaily = {};
+      state.recruitingDeskBookings = { admin: { syncedAt: Date.now(), candidates: {
+        701: { id: 701, name: '테스트 지원자', recruiter: '임재영', interviewAt: '2026-09-04T14:30', bookedAt: '2026-09-03 09:10:00', updatedAt: '2026-09-03 09:10:00', showedUp: 0, booked: true, archived: false },
+        702: { id: 702, name: '지난 지원자', recruiter: '임재영', interviewAt: '2026-09-01T10:00', bookedAt: '2026-09-01 08:10:00', updatedAt: '2026-09-01 08:10:00', showedUp: 1, booked: true, archived: false },
+      } } };
       DB.set = async () => {}; DB.update = async () => {}; DB.get = async () => null; DB.tx = async (_path, fn) => ({ committed: true, snapshot: fn(null) });
       me = current; pdrUid = current.uid; pdrDate = '2026-09-03'; pdrMonth = '2026-09';
       document.getElementById('authGate')?.classList.add('hidden');
@@ -67,6 +71,33 @@ try {
     assert.equal(first.pointerEvents, 'none');
     assert.ok(first.cardInside && !first.overflow);
     assert.ok(first.buttonSize.width >= 44 && first.buttonSize.height >= 44);
+    const desk = await page.evaluate(() => {
+      const link = document.querySelector('[data-pdr-recruit-desk]'), panel = document.querySelector('[data-pdr-desk-sync]'), rect = link?.getBoundingClientRect();
+      return {
+        linkCount: document.querySelectorAll('[data-pdr-recruit-desk]').length,
+        panelCount: document.querySelectorAll('[data-pdr-desk-sync]').length,
+        href: link?.getAttribute('href') || '',
+        target: link?.getAttribute('target') || '',
+        rel: link?.getAttribute('rel') || '',
+        linkSize: rect ? { width: Math.round(rect.width), height: Math.round(rect.height) } : null,
+        panelText: panel?.textContent || '',
+      };
+    });
+    if (fixture.uid === 'admin') {
+      assert.equal(desk.linkCount, 1);
+      assert.equal(desk.panelCount, 1);
+      assert.equal(desk.href, 'https://recruiting-desk-kr.jaeyoung5178.chatgpt.site/');
+      assert.equal(desk.target, '_blank');
+      assert.match(desk.rel, /noopener/);
+      assert.match(desk.rel, /noreferrer/);
+      assert.ok(desk.linkSize.width >= 44 && desk.linkSize.height >= 44);
+      assert.match(desk.panelText, /오늘 부킹1명/);
+      assert.match(desk.panelText, /진행 중 부킹2명/);
+      assert.match(desk.panelText, /9월 4일 14:30/);
+    } else {
+      assert.equal(desk.linkCount, 0);
+      assert.equal(desk.panelCount, 0);
+    }
     await page.screenshot({ path: `${output}/${fixture.name}.png`, fullPage: false });
 
     await page.evaluate(() => pdrAdjust('recruit', 1));
