@@ -44,6 +44,9 @@ const fixtures = {
   },
   teamCalendarEvents: {
     fuse_night: { date: '2026-09-10', title: 'FUSE 팀 나잇', time: '19:00', type: 'team', teamKey: 'fuse', teamName: 'FUSE', createdBy: 'umqn54ujf', leaderName: '고윤경', createdAt: 1, updatedAt: 1 },
+    fuse_strategy: { date: '2026-09-10', title: '월간 세일즈 전략 회의와 신규 팀원 온보딩 준비', time: '14:30', type: 'team', teamKey: 'fuse', teamName: 'FUSE', createdBy: 'umqn54ujf', leaderName: '고윤경', createdAt: 2, updatedAt: 2 },
+    wave_visit: { date: '2026-09-10', title: 'YOUNG WAVE 합동 트레이닝', time: '16:00', type: 'team', teamKey: 'youngwave', teamName: 'YOUNG WAVE', createdBy: 'umqna7jpj', leaderName: '윤채영', createdAt: 3, updatedAt: 3 },
+    presence_dinner: { date: '2026-09-10', title: '제임스 회장님과 OP급 디너 미팅', time: '18:00', type: 'business', teamKey: 'presence', teamName: 'Presence', createdBy: 'admin', leaderName: '임재영', createdAt: 4, updatedAt: 4 },
     wave_dinner: { date: '2026-09-12', title: 'OP 디너 미팅', time: '18:30', type: 'business', teamKey: 'youngwave', teamName: 'YOUNG WAVE', createdBy: 'umqna7jpj', leaderName: '윤채영', createdAt: 2, updatedAt: 2 },
     presence_meeting: { date: '2026-09-15', title: 'Presence 리더 회의', time: '10:00', type: 'team', teamKey: 'presence', teamName: 'Presence', createdBy: 'admin', leaderName: '임재영', createdAt: 3, updatedAt: 3 },
   },
@@ -110,6 +113,7 @@ const instant = await browserPage.evaluate(() => ({ tab: curTab, lobbyCalls: win
 if (instant.tab !== 'tlhome' || instant.lobbyCalls !== 0 || instant.loaderCalls !== 0 || !instant.panelActive) failures.push('TL 로그인 즉시 진입 또는 로더/로비 우회 실패');
 
 const viewports = [
+  { name: 'compact-phone', width: 360, height: 800 },
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 1024, height: 768 },
   { name: 'desktop', width: 1440, height: 900 },
@@ -130,6 +134,10 @@ for (const role of roles) {
     const result = await browserPage.evaluate((roleName) => {
       const visible = (el) => !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
       const touch = [...document.querySelectorAll('#m-tlhome.active button,#tlHomeEntryBtn.show')].map((el) => ({ text: el.textContent.trim(), h: Math.round(el.getBoundingClientRect().height), w: Math.round(el.getBoundingClientRect().width) }));
+      const lineCount = (el) => { const range = document.createRange(); range.selectNodeContents(el); return new Set([...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0).map((r) => Math.round(r.top))).size; };
+      const singleLineSelectors = '.tlh-cal-download,.tlh-cal-nav strong,.tlh-week-nav b,.tlh-card-head h3,.tlh-submit-meta strong,.tlh-plan-metric strong,.tlh-agenda-head h3';
+      const lineWrapIssues = [...document.querySelectorAll(singleLineSelectors)].filter(visible).filter((el) => lineCount(el) > 1).map((el) => el.textContent.trim());
+      const clippedControls = [...document.querySelectorAll('#m-tlhome.active input,#m-tlhome.active select,#m-tlhome.active button')].filter(visible).filter((el) => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map((el) => el.textContent.trim() || el.id || el.tagName);
       return {
         roleName,
         tab: curTab,
@@ -139,10 +147,17 @@ for (const role of roles) {
         touch,
         memberNames: [...document.querySelectorAll('.tlh-member b')].map((el) => el.textContent.trim()),
         inputValues: [document.getElementById('tlhTargetSales')?.value, document.getElementById('tlhTargetAvg')?.value],
+        lineWrapIssues,
+        clippedControls,
       };
     }, role.name);
     matrix.push({ role: role.name, viewport: viewport.name, ...result });
     if (role.name !== 'member') await browserPage.screenshot({ path: new URL(`${role.name}-${viewport.name}.png`, outputDir).pathname, fullPage: true });
+    if (role.name === 'leader' && viewport.name === 'phone') {
+      await browserPage.locator('.tlh-hero').screenshot({ path: new URL('phone-hero.png', outputDir).pathname });
+      await browserPage.locator('.tlh-calendar-layout').screenshot({ path: new URL('phone-team-calendar.png', outputDir).pathname });
+      await browserPage.locator('.tlh-grid').screenshot({ path: new URL('phone-field-plan.png', outputDir).pathname });
+    }
   }
 }
 
@@ -153,6 +168,8 @@ for (const row of matrix) {
   } else {
     if (!row.buttonVisible || row.tab !== 'tlhome' || !row.rootText.includes('지난주 팀 AVG') || !row.rootText.includes('타겟 세일즈')) failures.push(`${row.role}/${row.viewport}: TL Home 핵심 UI 누락`);
     if (row.viewport !== 'desktop' && row.touch.some((x) => x.h < 44 || x.w < 44)) failures.push(`${row.role}/${row.viewport}: 44px 터치 타깃 미달`);
+    if (row.lineWrapIssues.length) failures.push(`${row.role}/${row.viewport}: 단일행 핵심 정보 줄바꿈 ${row.lineWrapIssues.join(', ')}`);
+    if (row.clippedControls.length) failures.push(`${row.role}/${row.viewport}: 입력/버튼 내부 잘림 ${row.clippedControls.join(', ')}`);
   }
   if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
   if (row.role !== 'member' && (!row.rootText.includes('팀 일정') || !row.rootText.includes('FUSE 팀 나잇') || !row.rootText.includes('OP 디너 미팅') || !row.rootText.includes('Presence 리더 회의') || !row.rootText.includes('이미지 다운로드'))) failures.push(`${row.role}/${row.viewport}: TL 공용 월간 캘린더 누락`);
