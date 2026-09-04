@@ -37,6 +37,7 @@ const fixtures = {
     '2026-08-25|권영웅': { date: '2026-08-25', name: '권영웅', count: 3, checked: true },
     '2026-08-26|김하진': { date: '2026-08-26', name: '김하진', count: 0, checked: true },
     '2026-08-27|민병준': { date: '2026-08-27', name: '민병준', count: 4, checked: true },
+    '2026-08-28|손예진': { date: '2026-08-28', name: '손예진', count: 1, checked: true },
     '2026-08-31|고윤경': { date: '2026-08-31', name: '고윤경', count: 1, checked: true },
     '2026-09-01|권영웅': { date: '2026-09-01', name: '권영웅', count: 4, checked: true },
     '2026-09-02|김하진': { date: '2026-09-02', name: '김하진', count: 0, checked: true },
@@ -74,6 +75,7 @@ async function installFixture(uid, useEnterApp = false) {
     tlCalendarMonth = '2026-09-01';
     tlCalendarSelectedDate = '2026-09-10';
     tlCalendarEditId = '';
+    tlhResultDetailsOpen = {};
     window.__qaWrites = [];
     window.__qaLobbyCalls = 0;
     window.__qaLoaderCalls = 0;
@@ -131,13 +133,30 @@ for (const role of roles) {
     if (role.name === 'member') await browserPage.evaluate(() => goTab('tlhome'));
     await browserPage.waitForTimeout(60);
     await browserPage.evaluate(() => document.querySelectorAll('.modal.on').forEach((el) => el.classList.remove('on')));
+    if (role.name !== 'member') {
+      await browserPage.evaluate(() => {
+        const cfg = tlHomeConfig(me);
+        const keys = cfg.kind === 'aop' ? ['last-presence', 'last-youngwave', 'last-fuse'] : [`last-${cfg.teamKey}`];
+        keys.forEach((key) => { tlhResultDetailsOpen[key] = true; });
+        renderTLHome();
+      });
+    }
     const result = await browserPage.evaluate((roleName) => {
       const visible = (el) => !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
+      const overlappingChildren = (selector) => [...document.querySelectorAll(selector)].flatMap((parent) => {
+        const children = [...parent.children].filter(visible);
+        return children.flatMap((a, i) => children.slice(i + 1).filter((b) => {
+          const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+          return Math.min(ar.right, br.right) - Math.max(ar.left, br.left) > 1 && Math.min(ar.bottom, br.bottom) - Math.max(ar.top, br.top) > 1;
+        }).map((b) => `${selector}:${a.className || a.tagName}/${b.className || b.tagName}`));
+      });
       const touch = [...document.querySelectorAll('#m-tlhome.active button,#tlHomeEntryBtn.show')].map((el) => ({ text: el.textContent.trim(), h: Math.round(el.getBoundingClientRect().height), w: Math.round(el.getBoundingClientRect().width) }));
       const lineCount = (el) => { const range = document.createRange(); range.selectNodeContents(el); return new Set([...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0).map((r) => Math.round(r.top))).size; };
       const singleLineSelectors = '.tlh-cal-download,.tlh-cal-nav strong,.tlh-week-nav b,.tlh-card-head h3,.tlh-submit-meta strong,.tlh-plan-metric strong,.tlh-agenda-head h3';
       const lineWrapIssues = [...document.querySelectorAll(singleLineSelectors)].filter(visible).filter((el) => lineCount(el) > 1).map((el) => el.textContent.trim());
       const clippedControls = [...document.querySelectorAll('#m-tlhome.active input,#m-tlhome.active select,#m-tlhome.active button')].filter(visible).filter((el) => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map((el) => el.textContent.trim() || el.id || el.tagName);
+      const layoutOverlaps = ['.tlh-event-form-grid','.tlh-event-form-actions','.tlh-kpis','.tlh-submit-meta','.tlh-plan-metrics','.tlh-result-member'].flatMap(overlappingChildren);
+      const escapedControls = [...document.querySelectorAll('.tlh-event-field input,.tlh-event-field select')].filter(visible).filter((el) => { const r=el.getBoundingClientRect(), p=el.closest('.tlh-event-form').getBoundingClientRect(); return r.left<p.left-1||r.right>p.right+1; }).map((el) => el.id);
       return {
         roleName,
         tab: curTab,
@@ -149,6 +168,12 @@ for (const role of roles) {
         inputValues: [document.getElementById('tlhTargetSales')?.value, document.getElementById('tlhTargetAvg')?.value],
         lineWrapIssues,
         clippedControls,
+        layoutOverlaps,
+        escapedControls,
+        detailToggleCount: document.querySelectorAll('.tlh-result-toggle').length,
+        openDetailCount: [...document.querySelectorAll('.tlh-result-toggle')].filter((el) => el.getAttribute('aria-expanded') === 'true').length,
+        detailNames: [...document.querySelectorAll('.tlh-result-person b')].map((el) => el.textContent.trim()),
+        resultHeadings: [...document.querySelectorAll('.tlh-section-head h2,.tlh-submit-top>b')].map((el) => el.textContent.trim()),
       };
     }, role.name);
     matrix.push({ role: role.name, viewport: viewport.name, ...result });
@@ -156,6 +181,7 @@ for (const role of roles) {
     if (role.name === 'leader' && viewport.name === 'phone') {
       await browserPage.locator('.tlh-hero').screenshot({ path: new URL('phone-hero.png', outputDir).pathname });
       await browserPage.locator('.tlh-calendar-layout').screenshot({ path: new URL('phone-team-calendar.png', outputDir).pathname });
+      await browserPage.locator('.tlh-event-form').screenshot({ path: new URL('phone-event-form.png', outputDir).pathname });
       await browserPage.locator('.tlh-grid').screenshot({ path: new URL('phone-field-plan.png', outputDir).pathname });
     }
   }
@@ -170,11 +196,43 @@ for (const row of matrix) {
     if (row.viewport !== 'desktop' && row.touch.some((x) => x.h < 44 || x.w < 44)) failures.push(`${row.role}/${row.viewport}: 44px 터치 타깃 미달`);
     if (row.lineWrapIssues.length) failures.push(`${row.role}/${row.viewport}: 단일행 핵심 정보 줄바꿈 ${row.lineWrapIssues.join(', ')}`);
     if (row.clippedControls.length) failures.push(`${row.role}/${row.viewport}: 입력/버튼 내부 잘림 ${row.clippedControls.join(', ')}`);
+    if (row.layoutOverlaps.length) failures.push(`${row.role}/${row.viewport}: 레이아웃 요소 겹침 ${row.layoutOverlaps.join(', ')}`);
+    if (row.escapedControls.length) failures.push(`${row.role}/${row.viewport}: 폼 경계 이탈 ${row.escapedControls.join(', ')}`);
+    const expectedDetails = row.role === 'admin' ? 3 : 1;
+    if (row.detailToggleCount !== expectedDetails || row.openDetailCount !== expectedDetails) failures.push(`${row.role}/${row.viewport}: 팀원별 상세 토글 수 또는 펼침 상태 오류`);
   }
   if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
+  if (row.role === 'leader' && row.detailNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 상세 결과에 다른 팀 구성원 노출`);
   if (row.role !== 'member' && (!row.rootText.includes('팀 일정') || !row.rootText.includes('FUSE 팀 나잇') || !row.rootText.includes('OP 디너 미팅') || !row.rootText.includes('Presence 리더 회의') || !row.rootText.includes('이미지 다운로드'))) failures.push(`${row.role}/${row.viewport}: TL 공용 월간 캘린더 누락`);
-  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 필드 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 팀별 실적·차주 계획 UI 누락`);
+  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 필드 일정 불러오기') || row.resultHeadings.indexOf('Presence 전체 결과') > row.resultHeadings.indexOf('YOUNG WAVE 전체 결과') || row.resultHeadings.indexOf('YOUNG WAVE 전체 결과') > row.resultHeadings.indexOf('FUSE 전체 결과'))) failures.push(`${row.role}/${row.viewport}: Presence→YOUNG WAVE→FUSE 결과 계층 또는 팀별 계획 UI 누락`);
 }
+
+await browserPage.setViewportSize({ width: 390, height: 844 });
+await installFixture('umqn54ujf', false);
+const detailToggleQa = await browserPage.evaluate(() => {
+  const button = document.getElementById('tlhResultToggle-last-fuse');
+  const before = button?.getAttribute('aria-expanded');
+  button?.click();
+  const opened = document.getElementById('tlhResultToggle-last-fuse')?.getAttribute('aria-expanded');
+  const names = [...document.querySelectorAll('#tlhResultPanel-last-fuse .tlh-result-person b')].map((el) => el.textContent.trim());
+  document.getElementById('tlhResultToggle-last-fuse')?.click();
+  const closed = document.getElementById('tlhResultToggle-last-fuse')?.getAttribute('aria-expanded');
+  const hidden = document.getElementById('tlhResultPanel-last-fuse')?.hidden;
+  return { before, opened, closed, hidden, names };
+});
+if (detailToggleQa.before !== 'false' || detailToggleQa.opened !== 'true' || detailToggleQa.closed !== 'false' || !detailToggleQa.hidden || !detailToggleQa.names.includes('권영웅') || detailToggleQa.names.includes('민병준')) failures.push('팀원별 상세보기 열기/닫기 또는 팀 권한 필터 실패');
+
+await installFixture('umqna7jpj', false);
+const waveScopeQa = await browserPage.evaluate(() => {
+  document.getElementById('tlhResultToggle-last-youngwave')?.click();
+  return {
+    title: document.querySelector('.tlh-section-head h2')?.textContent.trim(),
+    detailNames: [...document.querySelectorAll('#tlhResultPanel-last-youngwave .tlh-result-person b')].map((el) => el.textContent.trim()),
+    scheduleNames: [...document.querySelectorAll('.tlh-member b')].map((el) => el.textContent.trim()),
+    toggleCount: document.querySelectorAll('.tlh-result-toggle').length,
+  };
+});
+if (waveScopeQa.title !== 'YOUNG WAVE 전체 결과' || waveScopeQa.toggleCount !== 1 || !waveScopeQa.detailNames.includes('민병준') || !waveScopeQa.detailNames.includes('손예진') || waveScopeQa.detailNames.some((name) => ['고윤경','권영웅','김하진'].includes(name)) || waveScopeQa.scheduleNames.some((name) => ['고윤경','권영웅','김하진'].includes(name))) failures.push('YOUNG WAVE 팀 결과·일정 권한 범위 실패');
 
 await browserPage.setViewportSize({ width: 1440, height: 900 });
 await installFixture('umqn54ujf', false);
@@ -217,6 +275,6 @@ if (!rules.teamLeaderAccess || !rules.teamWeeklyOps || !rules.teamWeeklyOps.$wee
 if (pageErrors.length) failures.push(`브라우저 pageerror: ${pageErrors.join(' | ')}`);
 if (consoleErrors.some((x) => !x.includes('Firebase') && !x.includes('ERR_'))) failures.push(`브라우저 console error: ${consoleErrors.join(' | ')}`);
 
-console.log(JSON.stringify({ instant, matrix: matrix.map(({ rootText, touch, memberNames, ...rest }) => ({ ...rest, touchMin: touch.length ? Math.min(...touch.map((x) => Math.min(x.h, x.w))) : null, members: memberNames })), calc, calendarQa, pageErrors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ instant, matrix: matrix.map(({ rootText, touch, memberNames, ...rest }) => ({ ...rest, touchMin: touch.length ? Math.min(...touch.map((x) => Math.min(x.h, x.w))) : null, members: memberNames })), detailToggleQa, waveScopeQa, calc, calendarQa, pageErrors, consoleErrors, failures }, null, 2));
 await browser.close();
 if (failures.length) process.exitCode = 1;
