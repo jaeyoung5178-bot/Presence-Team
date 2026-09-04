@@ -146,7 +146,7 @@ for (const row of matrix) {
     if (row.viewport !== 'desktop' && row.touch.some((x) => x.h < 44 || x.w < 44)) failures.push(`${row.role}/${row.viewport}: 44px 터치 타깃 미달`);
   }
   if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
-  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('팀 제출 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 취합 UI 누락`);
+  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 팀별 실적·차주 계획 UI 누락`);
 }
 
 await browserPage.setViewportSize({ width: 1440, height: 900 });
