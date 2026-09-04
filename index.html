@@ -2427,6 +2427,24 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 @media(min-width:980px){
   #m-sites .slist{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
 }
+
+/* ════════════════════════════════════════════════════
+   TL HOME · 팀장 주간 운영 콘솔
+   ════════════════════════════════════════════════════ */
+.tl-home-entry{display:none;align-items:center;gap:7px;min-width:44px;min-height:44px;padding:0 14px;border:1px solid rgba(130,103,255,.35);border-radius:12px;background:rgba(130,103,255,.1);color:#cfc5ff;font:800 12px/1 inherit;cursor:pointer;white-space:nowrap;transition:.18s ease}
+.tl-home-entry:hover,.tl-home-entry.active{background:linear-gradient(135deg,#7147ef,#2e9be9);border-color:transparent;color:#fff;box-shadow:0 9px 24px rgba(83,76,224,.25)}
+.tl-home-entry span{font-size:16px}.tl-home-entry.show{display:inline-flex}
+.tlh-page{--tlh-accent:#8062ff;--tlh-cyan:#38bdf8;--tlh-green:#76df46;--tlh-card:#171b25;--tlh-soft:#202532;--tlh-border:#303746;max-width:1460px;margin:0 auto;padding:28px 24px 80px;color:var(--cream)}
+.tlh-hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:24px;align-items:flex-end;padding:28px 30px;border:1px solid rgba(128,98,255,.32);border-radius:24px;background:radial-gradient(circle at 92% 16%,rgba(56,189,248,.17),transparent 34%),radial-gradient(circle at 7% 90%,rgba(128,98,255,.2),transparent 42%),linear-gradient(145deg,#191b2d,#151922);box-shadow:0 18px 45px rgba(0,0,0,.22)}
+.tlh-hero:after{content:'';position:absolute;right:-35px;top:-60px;width:230px;height:230px;border:1px solid rgba(255,255,255,.08);border-radius:50%;box-shadow:0 0 0 34px rgba(255,255,255,.025),0 0 0 68px rgba(255,255,255,.018)}
+.tlh-eyebrow{position:relative;z-index:1;color:#a99bff;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.tlh-hero h1{position:relative;z-index:1;margin:8px 0 7px;font-size:clamp(24px,3vw,38px);line-height:1.15;letter-spacing:-.035em}.tlh-hero p{position:relative;z-index:1;margin:0;color:#aeb6c7;font-size:14px;line-height:1.6}.tlh-hero p b{color:#fff}.tlh-hero-side{position:relative;z-index:1;min-width:235px;text-align:right}.tlh-team-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(8,11,18,.42);font-size:12px;font-weight:850}.tlh-live-dot{width:8px;height:8px;border-radius:50%;background:var(--tlh-green);box-shadow:0 0 0 5px rgba(118,223,70,.1)}.tlh-summary{margin-top:11px!important;color:#d9deea!important;font-size:13px!important;max-width:480px}
+.tlh-section{margin-top:24px}.tlh-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.tlh-section-head h2{margin:0;font-size:18px;letter-spacing:-.02em}.tlh-section-head p{margin:3px 0 0;color:#858ea2;font-size:12px}.tlh-week-nav{display:flex;align-items:center;gap:8px}.tlh-week-nav button,.tlh-action,.tlh-import{min-height:44px;border:1px solid var(--tlh-border);border-radius:11px;background:#202531;color:#e7e9ef;font:800 12px/1 inherit;cursor:pointer}.tlh-week-nav button{width:44px;font-size:18px}.tlh-week-nav b{min-width:174px;text-align:center;font-size:13px}.tlh-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.tlh-kpi{min-height:124px;padding:18px;border:1px solid var(--tlh-border);border-radius:18px;background:linear-gradient(145deg,#1b202b,#151922);box-shadow:0 10px 26px rgba(0,0,0,.14)}.tlh-kpi .label{display:flex;justify-content:space-between;color:#929bac;font-size:11px;font-weight:800}.tlh-kpi .label i{font-style:normal;color:#6c7485}.tlh-kpi strong{display:block;margin-top:17px;font-size:28px;line-height:1;color:#fff;letter-spacing:-.04em}.tlh-kpi strong em{font-style:normal;color:var(--tlh-green)}.tlh-kpi small{display:block;margin-top:9px;color:#7f899c;font-size:11px}.tlh-kpi .tlh-progress{height:5px;margin-top:12px;border-radius:9px;background:#2a303d;overflow:hidden}.tlh-kpi .tlh-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--tlh-accent),var(--tlh-cyan))}
+.tlh-team-submissions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tlh-submit-card{padding:16px 18px;border:1px solid var(--tlh-border);border-radius:16px;background:#181d27}.tlh-submit-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.tlh-submit-top b{font-size:14px}.tlh-status{padding:5px 8px;border-radius:999px;background:rgba(118,223,70,.1);color:var(--tlh-green);font-size:10px;font-weight:900}.tlh-status.wait{background:rgba(255,184,76,.1);color:#ffbd5b}.tlh-submit-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}.tlh-submit-meta div{padding:10px;border-radius:10px;background:#212632;color:#8f98aa;font-size:10px}.tlh-submit-meta strong{display:block;margin-top:4px;color:#fff;font-size:15px}.tlh-submit-time{margin-top:9px;color:#6f788b;font-size:10px}
+.tlh-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:16px;align-items:start}.tlh-card{border:1px solid var(--tlh-border);border-radius:20px;background:linear-gradient(145deg,#191e28,#151922);box-shadow:0 12px 30px rgba(0,0,0,.14)}.tlh-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--tlh-border)}.tlh-card-head h3{margin:0;font-size:16px}.tlh-card-head span{color:#8992a4;font-size:11px}.tlh-schedule{padding:10px 14px 16px}.tlh-srow{display:grid;grid-template-columns:minmax(108px,1.15fr) repeat(7,minmax(48px,.7fr));gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(48,55,70,.62)}.tlh-srow:last-child{border-bottom:0}.tlh-srow.head{padding-top:2px;color:#707a8e;font-size:10px;font-weight:850}.tlh-member{min-width:0;padding-left:5px}.tlh-member b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.tlh-member small{display:block;margin-top:3px;color:#777f91;font-size:9px}.tlh-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px;padding:4px 2px;border:1px solid #333a49;border-radius:10px;background:#202531;color:#8c95a6;font:700 10px/1.2 inherit;cursor:pointer;transition:.16s ease}.tlh-day b{color:#d8dce5;font-size:12px}.tlh-day.on{border-color:#8165ff;background:linear-gradient(145deg,rgba(128,98,255,.34),rgba(56,189,248,.2));color:#dcd5ff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}.tlh-day.on b{color:#fff}.tlh-day:focus-visible,.tlh-week-nav button:focus-visible,.tlh-action:focus-visible,.tlh-import:focus-visible,.tl-home-entry:focus-visible{outline:2px solid #a895ff;outline-offset:2px}
+.tlh-empty{padding:36px 20px;text-align:center;color:#838da0;font-size:13px}.tlh-plan{padding:19px}.tlh-plan-metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.tlh-plan-metric{padding:13px;border-radius:12px;background:#212632}.tlh-plan-metric span{display:block;color:#8f98a9;font-size:10px}.tlh-plan-metric strong{display:block;margin-top:6px;color:#fff;font-size:19px}.tlh-field{margin-top:13px}.tlh-field label{display:flex;justify-content:space-between;margin-bottom:7px;color:#aeb5c4;font-size:11px;font-weight:800}.tlh-field label small{color:#6f788b;font-weight:650}.tlh-field input{width:100%;height:52px;box-sizing:border-box;padding:0 14px;border:1px solid #363e4f;border-radius:12px;background:#11151d;color:#fff;font:850 20px/1 inherit;text-align:right}.tlh-field input:focus{outline:none;border-color:#8468ff;box-shadow:0 0 0 3px rgba(132,104,255,.13)}.tlh-action{width:100%;margin-top:18px;border:0;background:linear-gradient(135deg,#7954f6,#258fd9);color:#fff;box-shadow:0 10px 24px rgba(72,82,224,.24)}.tlh-action:disabled{opacity:.48;cursor:not-allowed}.tlh-import{width:100%;margin-top:9px}.tlh-plan-note{margin:13px 2px 0;color:#7e8798;font-size:10px;line-height:1.55}.tlh-sentence{margin-top:14px;padding:14px;border:1px solid rgba(118,223,70,.18);border-radius:13px;background:rgba(118,223,70,.055);color:#aeb7c7;font-size:12px;line-height:1.65}.tlh-sentence b{color:#fff}.tlh-sentence em{color:var(--tlh-green);font-style:normal;font-weight:900}.tlh-live-table{margin-top:16px;padding-top:15px;border-top:1px solid var(--tlh-border)}.tlh-live-table h4{margin:0 0 8px;font-size:12px}.tlh-live-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:7px 0;color:#8d96a8;font-size:10px}.tlh-live-row b{color:#e8eaf0;font-size:11px}.tlh-live-row .avg{color:var(--tlh-green)}
+@media(max-width:1100px){.tlh-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tlh-grid{grid-template-columns:1fr}.tlh-srow{grid-template-columns:minmax(120px,1.2fr) repeat(7,minmax(56px,.7fr))}}
+@media(max-width:760px){.tlh-page{padding:18px 14px 72px}.tlh-hero{display:block;padding:22px 19px;border-radius:19px}.tlh-hero-side{min-width:0;margin-top:18px;text-align:left}.tlh-summary{max-width:none}.tlh-section-head{align-items:flex-start;flex-direction:column}.tlh-week-nav{width:100%;justify-content:space-between}.tlh-week-nav b{flex:1;min-width:0}.tlh-kpis,.tlh-team-submissions{grid-template-columns:1fr 1fr}.tlh-kpi{min-height:112px;padding:15px}.tlh-kpi strong{font-size:24px}.tlh-card{border-radius:17px}.tlh-card-head{align-items:flex-start;flex-direction:column;padding:16px}.tlh-schedule{padding:7px 12px 13px}.tlh-srow.head{display:none}.tlh-srow{grid-template-columns:repeat(7,minmax(44px,1fr));gap:5px;padding:12px 0}.tlh-member{grid-column:1/-1;display:flex;align-items:center;gap:7px;padding:0 2px 2px}.tlh-member b{font-size:13px}.tlh-member small{margin:0}.tlh-day{min-width:44px;min-height:48px;border-radius:9px}.tlh-plan{padding:16px}.tlh-week-nav button,.tlh-action,.tlh-import,.tlh-day{min-height:44px}}
+@media(max-width:520px){.tlh-kpis,.tlh-team-submissions{grid-template-columns:1fr}.tlh-hero h1{font-size:25px}.tlh-hero-side{margin-top:15px}.tlh-team-chip{font-size:11px}.tlh-kpi{min-height:102px}.tlh-submit-meta{gap:5px}.tlh-plan-metrics{grid-template-columns:1fr 1fr}.tlh-srow{gap:4px}.tlh-day{padding:3px 0;font-size:9px}.tlh-day b{font-size:11px}.tl-home-entry{gap:4px;padding:0 8px;font-size:10px}.tl-home-entry span{font-size:13px}}
 </style>
 <script>
 /* 카카오톡 인앱 브라우저 탈출 — 외부 브라우저(크롬/사파리)로 열어 '카톡 갇힘' 방지 */
@@ -2632,6 +2650,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         <span><span class="nm">Presence<b>.</b></span><span class="tag">머물고 싶은 팀</span></span>
       </div>
       <button class="home-entry-btn active" id="homeEntryBtn" onclick="goTab('home')" aria-label="Home으로 이동"><span>⌂</span><b>Home</b></button>
+      <button class="tl-home-entry" id="tlHomeEntryBtn" onclick="goTab(curTab==='tlhome'?'home':'tlhome')" aria-label="TL Home과 일반 Home 전환" aria-pressed="false"><span>▣</span><b>TL Home</b></button>
       <span class="spacer"></span>
       <button class="conn-dot off" id="connDot" onclick="showConnInfo()" aria-label="연결 상태"></button>
       <button class="adm-toggle" id="admToggle" onclick="toggleAdminMode()" style="display:none" aria-label="관리자 모드 ON/OFF" title="관리자 모드 ON/OFF — 끄면 일반 AOP 화면">🛡️</button>
@@ -4124,6 +4143,9 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         </div>
       </div>
     </section></div></div>
+
+    <!-- TL+ LEADER HOME -->
+    <div class="mpanel" id="m-tlhome"><div class="tlh-page" id="tlHomeRoot" aria-live="polite"></div></div>
   </main>
 
   <footer>
@@ -4491,6 +4513,14 @@ function isManager(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===m
 function canManageTeamRecords(u){return !!u&&(isFounder(u)||(!isOwnerAccount(u)&&isManager(u)));}
 function isSectorLeader(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name))return window.__previewRole==='SECTOR';if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
 function canDaily(u){return isFounder(u)||isManager(u);}   // 일일 결과 입력·수정 권한 (관리자 + 매니저)
+const TL_HOME_CONFIGS={
+  admin:{teamKey:'presence',teamName:'Presence',leaderName:'임재영',kind:'aop'},
+  umqn54ujf:{teamKey:'fuse',teamName:'FUSE',leaderName:'고윤경',kind:'team'},
+  umqna7jpj:{teamKey:'youngwave',teamName:'YOUNG WAVE',leaderName:'윤채영',kind:'team'}
+};
+const TL_HOME_BY_NAME={임재영:TL_HOME_CONFIGS.admin,고윤경:TL_HOME_CONFIGS.umqn54ujf,윤채영:TL_HOME_CONFIGS.umqna7jpj};
+function tlHomeConfig(u){if(!u)return null;const c=TL_HOME_CONFIGS[u.uid]||TL_HOME_BY_NAME[String(u.name||'').replace(/\s/g,'')];return c&&u.status==='active'&&ri(u.role)>=ri('TL')?{...c,uid:u.uid,leaderName:u.name||c.leaderName}:null;}
+function isTlHomeUser(u){return !!tlHomeConfig(u);}
 let SURVEY_EXEMPT=[];
 function isSurveyExempt(name){return SURVEY_EXEMPT.map(s=>s.replace(/\s/g,'')).includes((name||'').replace(/\s/g,''))}
 const reqSurvey=(r,name)=>{if(name&&isSurveyExempt(name))return null;if(r==='IC')return 'IC';if(r==='LR')return 'LR';if(['TL','AOP','OP','O'].includes(r))return 'TL';return null;};
@@ -4574,7 +4604,7 @@ function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 const now=Date.now();
 let state={
   pr:0,
-  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},promotionSurveys:{},promotionSurveyResponses:{},training:[],recruit:{},daisoRecruitDaily:{},daisoCompetition:{},teamContacts:{},recruitingDeskBookings:{},
+  links:{},devLinks:{},recaps:{},weeklyProfitRecaps:{},profitMonthlyBep:{},promotionSurveys:{},promotionSurveyResponses:{},training:[],recruit:{},daisoRecruitDaily:{},daisoCompetition:{},teamContacts:{},recruitingDeskBookings:{},teamWeeklyOps:{},teamLeaderAccess:{},
   waters:{},
   comp:{label:'노제로 챌린지',start:now,weeks:2},
   feeds:[],
@@ -4935,7 +4965,7 @@ function continueLogin(u,isAutoRestore){
   /* 승진 설문은 더 이상 로그인 게이트가 아니다. 초대 생성도 로그인 성공을 기다리게 하지 않는다. */
   u.lastLogin=Date.now();if(LIVE)DB.set('users/'+u.uid+'/lastLogin',u.lastLogin);
   const gate=document.getElementById('authGate');if(gate){gate.classList.add('hidden');gate.setAttribute('aria-hidden','true');}
-  try{window.showPresenceLoader&&window.showPresenceLoader('로그인 완료 · 나의 공간으로 이동하는 중…');}catch(e){}
+  try{if(isTlHomeUser(u)){window.hidePresenceLoader&&window.hidePresenceLoader();}else window.showPresenceLoader&&window.showPresenceLoader('로그인 완료 · 나의 공간으로 이동하는 중…');}catch(e){}
   armPostAuthGuard(u);
   enterApp();
   ensurePromotionInvite(u).catch(e=>console.warn('[promotion invite]',e&&e.code||e));
@@ -4970,6 +5000,82 @@ function saleRecordsFromSnapshot(v){
   const records={};
   for(const date in (v||{})){for(const kk in (v[date]||{})){const e=v[date][kk];if(!e)continue;const name=e.name||kk;records[`${date}|${name}`]={...e,name,date,na:!!e.na,rally:!!e.rally,checked:e.checked===true,cleared:e.cleared===true};}}
   return records;
+}
+
+/* ════════════════════════════════════════════════════
+   TL HOME · 팀별 일정 / 목표 / 실적
+   ════════════════════════════════════════════════════ */
+let tlHomeWeekStart='';
+let tlHomeDrafts={};
+let tlHomeSubscribed=false;
+function tlhParse(s){const p=String(s||'').split('-').map(Number);return new Date(p[0],(p[1]||1)-1,p[2]||1,12,0,0,0);}
+function tlhAdd(s,n){const d=tlhParse(s);d.setDate(d.getDate()+n);return ymd(d);}
+function tlhMonday(date){const d=date?tlhParse(date):new Date(),day=d.getDay(),diff=day===0?-6:1-day;d.setHours(12,0,0,0);d.setDate(d.getDate()+diff);return ymd(d);}
+function tlhDefaultPlanWeek(){const d=new Date(),m=tlhMonday(ymd(d));return d.getDay()>=4?tlhAdd(m,7):m;}
+function tlhWeekLabel(sd){const ed=tlhAdd(sd,6),a=tlhParse(sd),b=tlhParse(ed);return `${String(a.getFullYear()).slice(2)}.${String(a.getMonth()+1).padStart(2,'0')}.${String(a.getDate()).padStart(2,'0')} ~ ${String(b.getMonth()+1).padStart(2,'0')}.${String(b.getDate()).padStart(2,'0')}`;}
+function tlhDates(sd){return Array.from({length:7},(_,i)=>tlhAdd(sd,i));}
+function tlhNum(v,d){v=Number(v);return Number.isFinite(v)?v:(d||0);}
+function tlhPct(n,d){return d>0?Math.round(n/d*100):0;}
+function tlhAncestorIs(name,leader){let cur=name,seen={};for(let i=0;i<12&&cur&&!seen[nk(cur)];i++){seen[nk(cur)]=1;if(nk(cur)===nk(leader))return true;const d=dossierOf(cur);cur=d&&d.upline||'';}return false;}
+function tlhMembers(cfg){
+  const all=rosterMembers().filter(x=>x&&x.name&&!isDeparted(x.name));
+  if(!cfg||cfg.teamKey==='presence')return all;
+  const teamNeed=cfg.teamKey==='fuse'?'fuse':'youngwave';
+  return all.filter(x=>{if(tlhAncestorIs(x.name,cfg.leaderName))return true;const team=String((dossierOf(x.name)||{}).teamName||'').toLowerCase().replace(/[\s_-]/g,'');return teamNeed==='fuse'?team==='fuse':team.indexOf('youngwave')>=0;});
+}
+function tlhStats(cfg,sd,ed){
+  const members=tlhMembers(cfg),names=new Set(members.map(x=>x.name)),days=new Set(),by={};let sales=0;
+  for(const k in (state.sales||{})){const e=state.sales[k];if(!e||!names.has(e.name)||e.date<sd||e.date>ed||!saleEntryCountsAsWork(e))continue;const count=tlhNum(e.count);sales+=count;days.add(e.name+'|'+e.date);by[e.name]=by[e.name]||{sales:0,days:0,_d:{}};by[e.name].sales+=count;if(!by[e.name]._d[e.date]){by[e.name]._d[e.date]=1;by[e.name].days++;}}
+  Object.keys(by).forEach(n=>{by[n].avg=by[n].days?by[n].sales/by[n].days:0;delete by[n]._d;});
+  return {sales,days:days.size,avg:days.size?sales/days.size:0,by,members};
+}
+function tlhSaved(sd,key){return (((state.teamWeeklyOps||{})[sd]||{})[key])||null;}
+function tlhScheduleFrom(rec){const out={};Object.values((rec&&rec.schedule)||{}).forEach(r=>{if(r&&r.name)out[r.name]={...(r.dates||{})};});return out;}
+function tlhDraft(cfg,sd){
+  const id=sd+'|'+cfg.teamKey,saved=tlhSaved(sd,cfg.teamKey);
+  if(!tlHomeDrafts[id])tlHomeDrafts[id]={schedule:tlhScheduleFrom(saved),targetSales:tlhNum(saved&&saved.targetSales),targetAvg:tlhNum(saved&&saved.targetAvg),dirty:false,sourceUpdatedAt:tlhNum(saved&&saved.updatedAt)};
+  else if(saved&&tlHomeDrafts[id].sourceUpdatedAt!==tlhNum(saved.updatedAt)&&!tlHomeDrafts[id].dirty)tlHomeDrafts[id]={schedule:tlhScheduleFrom(saved),targetSales:tlhNum(saved.targetSales),targetAvg:tlhNum(saved.targetAvg),dirty:false,sourceUpdatedAt:tlhNum(saved.updatedAt)};
+  return tlHomeDrafts[id];
+}
+function tlhPlanCounts(draft){let fieldDays=0,hc=0;Object.keys(draft.schedule||{}).forEach(n=>{const c=Object.values(draft.schedule[n]||{}).filter(Boolean).length;if(c){hc++;fieldDays+=c;}});return {hc,fieldDays};}
+function tlhTeamName(key){return key==='fuse'?'FUSE':key==='youngwave'?'YOUNG WAVE':'Presence';}
+function tlhEscAttr(s){return esc(String(s||'')).replace(/'/g,'&#39;');}
+function tlhSetWeek(offset){if(!tlHomeWeekStart)tlHomeWeekStart=tlhDefaultPlanWeek();tlHomeWeekStart=tlhAdd(tlHomeWeekStart,(offset||0)*7);renderTLHome();}
+function tlhToggle(name,date){const cfg=tlHomeConfig(me);if(!cfg)return;const d=tlhDraft(cfg,tlHomeWeekStart||tlhDefaultPlanWeek());d.schedule[name]=d.schedule[name]||{};d.schedule[name][date]=!d.schedule[name][date];if(!d.schedule[name][date])delete d.schedule[name][date];d.dirty=true;const pc=tlhPlanCounts(d);if(d.targetAvg>0)d.targetSales=Math.round(d.targetAvg*pc.fieldDays);else if(d.targetSales>0&&pc.fieldDays)d.targetAvg=d.targetSales/pc.fieldDays;renderTLHome();}
+function tlhTargetInput(kind,value){const cfg=tlHomeConfig(me);if(!cfg)return;const d=tlhDraft(cfg,tlHomeWeekStart||tlhDefaultPlanWeek()),pc=tlhPlanCounts(d),v=Math.max(0,tlhNum(value));if(kind==='sales'){d.targetSales=Math.round(v);d.targetAvg=pc.fieldDays?d.targetSales/pc.fieldDays:0;}else{d.targetAvg=v;d.targetSales=Math.round(v*pc.fieldDays);}d.dirty=true;renderTLHome();const input=document.getElementById(kind==='sales'?'tlhTargetSales':'tlhTargetAvg');if(input)input.focus();}
+function tlhImportTeams(){
+  const cfg=tlHomeConfig(me);if(!cfg||cfg.teamKey!=='presence')return;const d=tlhDraft(cfg,tlHomeWeekStart||tlhDefaultPlanWeek());let found=0,sales=0;
+  ['fuse','youngwave'].forEach(key=>{const rec=tlhSaved(tlHomeWeekStart,key);if(!rec)return;found++;sales+=tlhNum(rec.targetSales);Object.assign(d.schedule,tlhScheduleFrom(rec));});
+  if(!found){toast('아직 제출된 팀 일정이 없어요');return;}d.targetSales=sales;const pc=tlhPlanCounts(d);d.targetAvg=pc.fieldDays?sales/pc.fieldDays:0;d.dirty=true;renderTLHome();toast('두 팀의 최신 제출 일정을 불러왔어요');
+}
+async function tlhSave(){
+  const cfg=tlHomeConfig(me),sd=tlHomeWeekStart||tlhDefaultPlanWeek();if(!cfg)return;const d=tlhDraft(cfg,sd),pc=tlhPlanCounts(d);if(!pc.fieldDays){toast('필드 예정 인원과 날짜를 먼저 체크해 주세요');return;}
+  const schedule={};Object.keys(d.schedule).forEach(name=>{const dates=d.schedule[name]||{};if(Object.values(dates).some(Boolean))schedule[nk(name)]={name,dates};});
+  const rec={weekStart:sd,weekEnd:tlhAdd(sd,6),teamKey:cfg.teamKey,teamName:cfg.teamName,leaderUid:me.uid,leaderName:me.name,targetSales:Math.max(0,Math.round(d.targetSales||0)),targetAvg:Math.max(0,Number((d.targetAvg||0).toFixed(2))),hc:pc.hc,fieldDays:pc.fieldDays,schedule,updatedAt:Date.now()};
+  const btn=document.getElementById('tlhSaveBtn');if(btn){btn.disabled=true;btn.textContent='저장 중…';}
+  try{if(LIVE)await DB.set('teamWeeklyOps/'+sd+'/'+cfg.teamKey,rec);state.teamWeeklyOps=state.teamWeeklyOps||{};state.teamWeeklyOps[sd]=state.teamWeeklyOps[sd]||{};state.teamWeeklyOps[sd][cfg.teamKey]=rec;d.dirty=false;d.sourceUpdatedAt=rec.updatedAt;toast(cfg.teamName+' 주간 계획을 저장했어요 ✓');}
+  catch(e){console.warn('[TL Home save]',e);toast('저장하지 못했어요. 연결을 확인해 주세요');}
+  renderTLHome();
+}
+function tlhSubscribe(){if(!LIVE||tlHomeSubscribed||!isTlHomeUser(me))return;tlHomeSubscribed=true;DB.on('teamWeeklyOps',v=>{state.teamWeeklyOps=v||{};if(curTab==='tlhome')renderTLHome();});DB.on('teamLeaderAccess',v=>{state.teamLeaderAccess=v||{};});}
+function tlhSubmissionCards(sd){
+  return ['fuse','youngwave'].map(key=>{const r=tlhSaved(sd,key),name=tlhTeamName(key);return `<article class="tlh-submit-card"><div class="tlh-submit-top"><b>${name}</b><span class="tlh-status${r?'':' wait'}">${r?'제출 완료':'제출 대기'}</span></div>${r?`<div class="tlh-submit-meta"><div>HC<strong>${tlhNum(r.hc)}명</strong></div><div>필드일<strong>${tlhNum(r.fieldDays)}일</strong></div><div>목표<strong>${tlhNum(r.targetSales)}건</strong></div></div><div class="tlh-submit-time">${esc(r.leaderName||'팀장')} · ${new Date(r.updatedAt||0).toLocaleString('ko-KR')}</div>`:`<div class="tlh-submit-time">${key==='fuse'?'고윤경 TL':'윤채영 TL'}의 일정 등록을 기다리고 있어요.</div>`}</article>`;}).join('');
+}
+function tlhScheduleHTML(cfg,sd,draft){
+  const dates=tlhDates(sd),wd=['월','화','수','목','금','토','일'],members=tlhMembers(cfg);if(!members.length)return '<div class="tlh-empty">조직도에 연결된 팀원이 없어요.<br>조직도에서 팀장-팀원 연결을 먼저 확인해 주세요.</div>';
+  const head=`<div class="tlh-srow head"><div>팀원</div>${dates.map((x,i)=>`<div>${wd[i]} ${tlhParse(x).getDate()}</div>`).join('')}</div>`;
+  return head+members.map(m=>`<div class="tlh-srow"><div class="tlh-member"><b>${esc(m.name)}</b><small>${esc(ROLE_LABEL[m.role]||m.role||'IC')}</small></div>${dates.map((date,i)=>{const on=!!(draft.schedule[m.name]&&draft.schedule[m.name][date]);return `<button type="button" class="tlh-day${on?' on':''}" aria-pressed="${on}" aria-label="${esc(m.name)} ${date} ${on?'필드 예정 해제':'필드 예정 등록'}" onclick="tlhToggle('${tlhEscAttr(m.name)}','${date}')"><b>${tlhParse(date).getDate()}</b>${wd[i]}</button>`;}).join('')}</div>`).join('');
+}
+function tlhLiveRows(stats){const rows=Object.entries(stats.by||{}).sort((a,b)=>b[1].sales-a[1].sales);return rows.length?rows.slice(0,8).map(([name,v])=>`<div class="tlh-live-row"><b>${esc(name)}</b><span>${v.sales}건 · ${v.days}일</span><span class="avg">AVG ${v.avg.toFixed(2)}</span></div>`).join(''):'<div class="tlh-empty" style="padding:18px 4px">이번 주 입력된 세일즈가 아직 없어요.</div>';}
+function renderTLHome(){
+  const root=document.getElementById('tlHomeRoot'),cfg=tlHomeConfig(me),btn=document.getElementById('tlHomeEntryBtn');if(btn){btn.classList.toggle('show',!!cfg);btn.setAttribute('aria-pressed',curTab==='tlhome'?'true':'false');}if(!root)return;if(!cfg){root.innerHTML='';if(curTab==='tlhome')goTab('home');return;}
+  if(!tlHomeWeekStart)tlHomeWeekStart=tlhDefaultPlanWeek();const planSd=tlHomeWeekStart,draft=tlhDraft(cfg,planSd),pc=tlhPlanCounts(draft);
+  const currentSd=tlhMonday(ymd(new Date())),currentEd=tlhAdd(currentSd,6),lastSd=tlhAdd(currentSd,-7),lastEd=tlhAdd(currentSd,-1),last=tlhStats(cfg,lastSd,lastEd),live=tlhStats(cfg,currentSd,currentEd),currentPlan=tlhSaved(currentSd,cfg.teamKey),goal=tlhNum(currentPlan&&currentPlan.targetSales),ach=tlhPct(live.sales,goal);
+  const summary=`${cfg.teamName} 팀 ${tlhWeekLabel(planSd)} 주간 HC는 <em>${pc.hc}명</em>입니다. 세일즈 목표는 <em>${Math.round(draft.targetSales||0)}개</em>, <em>${(draft.targetAvg||0).toFixed(2)} AVG</em>로 운영합니다.`;
+  root.innerHTML=`<section class="tlh-hero"><div><div class="tlh-eyebrow">TL HOME · WEEKLY OPERATIONS</div><h1>${esc(me.name)} ${cfg.kind==='aop'?'AOP':'팀 리더'}님,<br>이번 주 팀 스케줄을 확인해 주세요.</h1><p>조직도와 세일즈 기록이 연결된 <b>${esc(cfg.teamName)} 운영 홈</b>입니다.</p></div><div class="tlh-hero-side"><span class="tlh-team-chip"><i class="tlh-live-dot"></i>${esc(cfg.teamName)} LIVE</span><p class="tlh-summary">${summary}</p></div></section>
+  <section class="tlh-section"><div class="tlh-section-head"><div><h2>팀 성과</h2><p>지난주 확정 실적과 이번 주 입력 현황을 실시간으로 비교합니다.</p></div></div><div class="tlh-kpis"><article class="tlh-kpi"><div class="label"><span>지난주 세일즈</span><i>${tlhWeekLabel(lastSd)}</i></div><strong>${last.sales}<em>건</em></strong><small>${last.members.length}명 팀 기준</small></article><article class="tlh-kpi"><div class="label"><span>지난주 필드일</span><i>0건 포함 · NA 제외</i></div><strong>${last.days}<em>일</em></strong><small>팀원별 활동일 합계</small></article><article class="tlh-kpi"><div class="label"><span>지난주 팀 AVG</span><i>Sales ÷ Field Days</i></div><strong>${last.avg.toFixed(2)}</strong><small>${last.sales}건 ÷ ${last.days}일</small></article><article class="tlh-kpi"><div class="label"><span>이번 주 진행</span><i>${goal?`목표 ${goal}건`:'목표 미등록'}</i></div><strong>${live.sales}<em>건</em></strong><small>${live.days} 필드일 · AVG ${live.avg.toFixed(2)}${goal?` · ${ach}% 달성`:''}</small>${goal?`<div class="tlh-progress"><span style="width:${Math.min(100,ach)}%"></span></div>`:''}</article></div></section>
+  ${cfg.kind==='aop'?`<section class="tlh-section"><div class="tlh-section-head"><div><h2>팀별 제출 현황</h2><p>FUSE와 YOUNG WAVE의 계획을 Presence 일정으로 취합합니다.</p></div></div><div class="tlh-team-submissions">${tlhSubmissionCards(planSd)}</div></section>`:''}
+  <section class="tlh-section"><div class="tlh-section-head"><div><h2>${cfg.kind==='aop'?'Presence 스케줄':'팀 스케줄'} 등록</h2><p>차주 필드 인원을 먼저 체크하면 HC와 목표 AVG가 자동 계산됩니다.</p></div><div class="tlh-week-nav"><button type="button" onclick="tlhSetWeek(-1)" aria-label="이전 주">‹</button><b>${tlhWeekLabel(planSd)}</b><button type="button" onclick="tlhSetWeek(1)" aria-label="다음 주">›</button></div></div><div class="tlh-grid"><article class="tlh-card"><div class="tlh-card-head"><h3>필드 인원 · 날짜</h3><span>${pc.hc}명 · 총 ${pc.fieldDays} 필드일</span></div><div class="tlh-schedule">${tlhScheduleHTML(cfg,planSd,draft)}</div></article><aside class="tlh-card"><div class="tlh-card-head"><h3>다음 주 운영 목표</h3><span>양방향 자동 계산</span></div><div class="tlh-plan"><div class="tlh-plan-metrics"><div class="tlh-plan-metric"><span>주간 HC</span><strong>${pc.hc}명</strong></div><div class="tlh-plan-metric"><span>예정 필드일</span><strong>${pc.fieldDays}일</strong></div></div><div class="tlh-field"><label for="tlhTargetSales"><span>타겟 세일즈</span><small>정수</small></label><input id="tlhTargetSales" type="number" min="0" step="1" value="${Math.round(draft.targetSales||0)}" oninput="tlhTargetInput('sales',this.value)" inputmode="numeric"></div><div class="tlh-field"><label for="tlhTargetAvg"><span>타겟 AVG</span><small>세일즈 ÷ 필드일</small></label><input id="tlhTargetAvg" type="number" min="0" step="0.01" value="${(draft.targetAvg||0).toFixed(2)}" oninput="tlhTargetInput('avg',this.value)" inputmode="decimal"></div><div class="tlh-sentence">${summary}</div><button class="tlh-action" id="tlhSaveBtn" type="button" onclick="tlhSave()" ${pc.fieldDays?'':'disabled'}>${cfg.kind==='aop'?'Presence 일정 확정':'팀 계획 저장'}</button>${cfg.kind==='aop'?'<button class="tlh-import" type="button" onclick="tlhImportTeams()">팀 제출 일정 불러오기</button>':''}<p class="tlh-plan-note">저장 즉시 팀장 화면과 Presence 취합 화면에 반영됩니다. 팀원별 0건 기록도 필드일에 포함하고 NA는 제외합니다.</p><div class="tlh-live-table"><h4>이번 주 팀원별 LIVE</h4>${tlhLiveRows(live)}</div></div></aside></div></section>`;
 }
 function needsFirstField(u){if(!u)return false;if(typeof isAdminName==='function'&&isAdminName(u.name))return false;if(typeof isTestBot==='function'&&isTestBot(u))return false;if(u.status&&u.status!=='active')return false;return !firstFieldOf(u);}
 var _ffCont=null;
@@ -5126,7 +5232,9 @@ function sendSurveyToSheet(user,key,rec){
 
 /* enter / leave */
 function enterApp(){
-  if(me&&!window.__presenceEntryPass){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
+  const tlFast=isTlHomeUser(me);
+  if(me&&!window.__presenceEntryPass&&!tlFast){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
+  if(tlFast){const lobby=document.getElementById('presenceEntryLobby');if(lobby){lobby.classList.remove('show');lobby.setAttribute('aria-hidden','true');}try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}}
   window.__presenceEntryPass=false;
   clearTimeout(postAuthGuardTimer);setLoginBusy(false);
   if(rememberPref())lsSet('presence_sess',{uid:me.uid,t:Date.now()});else lsDel('presence_sess');
@@ -5143,9 +5251,15 @@ function enterApp(){
   document.getElementById('greet').innerHTML=`안녕하세요, <b>${esc(me.name)}</b>님 👋`;
   // prefill name fields
   
-  window.__booting=true; try{loadBarStart();}catch(e){}
-  buildRail();renderAll();goTab('home');startAutoPull();subCbjournal();
-  setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
+  if(tlFast){
+    window.__booting=false;buildRail();tlhSubscribe();goTab('tlhome');renderTLHome();startAutoPull();subCbjournal();
+    try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
+    setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();}catch(e){console.warn('[deferred app render]',e);}},80);
+  }else{
+    window.__booting=true; try{loadBarStart();}catch(e){}
+    buildRail();renderAll();goTab('home');startAutoPull();subCbjournal();
+    setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
+  }
   try{logLogin();}catch(e){}
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
@@ -6544,6 +6658,7 @@ const NAV=[
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
+  tlhome:{e:'▣',l:'TL Home',g:()=>isTlHomeUser(me)},
   today:{e:'✓',l:'오늘 실행'},
   sale:{e:'🔔',l:'세일즈'},profitrecap:{e:'📒',l:'주간 리캡',g:()=>canProfitRecap(me)},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},hall:{e:'🏅',l:'명예의 전당'},
@@ -6568,7 +6683,7 @@ const TABMETA={
 let curGroup='home',curTab='home';
 function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' Admin';return g&&g.l||'';}
 function tabVisible(k){const t=TABMETA[k];return !!t&&(!t.g||t.g());}
-function groupFor(tab){if(tab==='home')return 'home';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
+function groupFor(tab){if(tab==='home'||tab==='tlhome')return 'home';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
 function syncTopOffset(){
   const h=document.querySelector('header.top'),n=document.querySelector('nav.rail'),m=document.querySelector('#app main');
   if(!h||!n||!m)return;
@@ -6653,6 +6768,7 @@ function goTab(name){
   if(!tabVisible(name))name='home';
   curTab=name;subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
   var _homeEntry=document.getElementById('homeEntryBtn');if(_homeEntry)_homeEntry.classList.toggle('active',name==='home');
+  var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
   if(gk!==curGroup){curGroup=gk;subRailExpanded=false;buildRail();}else buildSubRail();
   document.querySelectorAll('#rail .gtab').forEach(t=>t.classList.toggle('active',t.dataset.group===curGroup));
   document.querySelectorAll('#subRail .stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
@@ -6662,6 +6778,7 @@ function goTab(name){
   if(name==='sale'||name==='profitrecap'||name==='recruitdaily'||name==='comp'||name==='perf'){try{renderPerfSeg(name);}catch(e){}}
   if(name==='hall'){try{renderHall();}catch(e){}}
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
+  if(name==='tlhome'){tlhSubscribe();renderTLHome();}
   if(name==='recruitdaily')renderRecruitDaily();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{fetchTreeWeather(renderTreeBg);}catch(e){}try{renderCoopRank();}catch(e){}try{renderToday();}catch(e){}try{renderHomeDash();}catch(e){}try{renderMvp();}catch(e){}try{renderPraise();}catch(e){}try{renderAttend();}catch(e){}try{homeCollapseInit();}catch(e){}try{['treeSecHome','coopSec'].forEach(function(id){var s=document.getElementById(id);if(s){s.classList.remove('collapsed');var c=s.querySelector('.sec-caret');if(c)c.remove();}});}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}}
   if(name==='today'){try{renderToday();renderCelebrations();renderMvp();renderPraise();renderAttend();homeCollapseInit();}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}}
@@ -9907,7 +10024,7 @@ async function initFirebase(generation){
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
-  DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();}});
+  DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();}});
   DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
@@ -9918,11 +10035,12 @@ async function initFirebase(generation){
     state.sales=saleRecordsFromSnapshot(v);
     if(me){renderSales();renderPerfGauge();}
     renderScores();renderComp();renderDaisoCompetition();
+    if(me&&curTab==='tlhome')renderTLHome();
   });
   DB.on('users',v=>{
     state.users=v?{...v}:{};
     if(me)me=state.users[me.uid]||me;
-    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
+    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
   });
   if(generation&&generation!==firebaseInitGeneration)return false;
@@ -12431,7 +12549,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-09-03.recruiting-desk-sync-58';
+const APP_VERSION='2026-09-05.tl-home-59';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){

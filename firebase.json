@@ -3,7 +3,7 @@
     "public": ".",
     "ignore": [
       "firebase.json", ".firebaserc", "database.rules.json", "**/.*", "**/node_modules/**",
-      "index.html.bak-pj", "index (30).html", "audio/index.html", "presence-studio.js"
+      "index.html.bak-pj", "index (30).html", "audio/index.html", "presence-studio.js", "output/qa-tl-home/**"
     ],
     "headers": [
       {

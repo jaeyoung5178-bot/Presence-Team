@@ -1,0 +1,178 @@
+import { createRequire } from 'node:module';
+import { mkdir, readFile } from 'node:fs/promises';
+
+const require = createRequire(import.meta.url);
+const { chromium } = require('/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const baseUrl = process.env.PRESENCE_QA_URL || 'http://127.0.0.1:4173';
+const nodeUrl = baseUrl.includes('?') ? `${baseUrl}&qa=tl-home` : `${baseUrl}/?qa=tl-home`;
+const outputDir = new URL('../output/qa-tl-home/', import.meta.url);
+await mkdir(outputDir, { recursive: true });
+
+const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+const pageErrors = [];
+const consoleErrors = [];
+const browserPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+browserPage.on('pageerror', (error) => pageErrors.push(error.message));
+browserPage.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+await browserPage.goto(nodeUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+await browserPage.waitForFunction(() => typeof window.renderTLHome === 'function' && document.getElementById('tlHomeRoot'), null, { timeout: 30000 });
+
+const fixtures = {
+  users: {
+    admin: { uid: 'admin', name: '임재영', id: 'aop', role: 'AOP', status: 'active', surveys: {} },
+    umqn54ujf: { uid: 'umqn54ujf', name: '고윤경', id: 'fuse', role: 'TL', status: 'active', surveys: {} },
+    umqna7jpj: { uid: 'umqna7jpj', name: '윤채영', id: 'wave', role: 'TL', status: 'active', surveys: {} },
+    fuse1: { uid: 'fuse1', name: '권영웅', id: 'fuse1', role: 'LR', status: 'active', surveys: {} },
+    fuse2: { uid: 'fuse2', name: '김하진', id: 'fuse2', role: 'IC', status: 'active', surveys: {} },
+    wave1: { uid: 'wave1', name: '민병준', id: 'wave1', role: 'LR', status: 'active', surveys: {} },
+    wave2: { uid: 'wave2', name: '손예진', id: 'wave2', role: 'LR', status: 'active', surveys: {} },
+    ic: { uid: 'ic', name: '일반팀원', id: 'ic', role: 'IC', status: 'active', surveys: {} },
+  },
+  dossier: {
+    고윤경: { teamName: 'Fuse', upline: '임재영' }, 권영웅: { teamName: 'Fuse', upline: '고윤경' }, 김하진: { teamName: 'Fuse', upline: '고윤경' },
+    윤채영: { teamName: 'Young wave', upline: '임재영' }, 민병준: { teamName: 'Young wave', upline: '윤채영' }, 손예진: { teamName: 'Blin', upline: '윤채영' }, 일반팀원: { teamName: 'Presence', upline: '임재영' },
+  },
+  sales: {
+    '2026-08-24|고윤경': { date: '2026-08-24', name: '고윤경', count: 2, checked: true },
+    '2026-08-25|권영웅': { date: '2026-08-25', name: '권영웅', count: 3, checked: true },
+    '2026-08-26|김하진': { date: '2026-08-26', name: '김하진', count: 0, checked: true },
+    '2026-08-27|민병준': { date: '2026-08-27', name: '민병준', count: 4, checked: true },
+    '2026-08-31|고윤경': { date: '2026-08-31', name: '고윤경', count: 1, checked: true },
+    '2026-09-01|권영웅': { date: '2026-09-01', name: '권영웅', count: 4, checked: true },
+    '2026-09-02|김하진': { date: '2026-09-02', name: '김하진', count: 0, checked: true },
+    '2026-09-01|민병준': { date: '2026-09-01', name: '민병준', count: 2, checked: true },
+  },
+};
+
+async function installFixture(uid, useEnterApp = false) {
+  await browserPage.evaluate(({ fixtures, uid, useEnterApp }) => {
+    state.users = structuredClone(fixtures.users);
+    state.dossier = structuredClone(fixtures.dossier);
+    state.sales = structuredClone(fixtures.sales);
+    state.extraMembers = [];
+    state.removedMembers = [];
+    state.memberInfo = {};
+    state.teamWeeklyOps = {
+      '2026-09-07': {
+        fuse: { weekStart: '2026-09-07', weekEnd: '2026-09-13', teamKey: 'fuse', teamName: 'FUSE', leaderUid: 'umqn54ujf', leaderName: '고윤경', targetSales: 20, targetAvg: 2, hc: 2, fieldDays: 10, schedule: {}, updatedAt: 10 },
+        youngwave: { weekStart: '2026-09-07', weekEnd: '2026-09-13', teamKey: 'youngwave', teamName: 'YOUNG WAVE', leaderUid: 'umqna7jpj', leaderName: '윤채영', targetSales: 18, targetAvg: 2, hc: 2, fieldDays: 9, schedule: {}, updatedAt: 11 },
+      },
+    };
+    state.teamLeaderAccess = {};
+    tlHomeDrafts = {};
+    tlHomeWeekStart = '2026-09-07';
+    tlHomeSubscribed = false;
+    window.__qaWrites = [];
+    window.__qaLobbyCalls = 0;
+    window.__qaLoaderCalls = 0;
+    DB.set = async (path, value) => { window.__qaWrites.push({ path, value }); };
+    DB.update = async () => {};
+    DB.get = async () => null;
+    DB.on = () => () => {};
+    window.showPresenceEntryLobby = () => { window.__qaLobbyCalls++; return true; };
+    window.showPresenceLoader = () => { window.__qaLoaderCalls++; };
+    window.hidePresenceLoader = () => {};
+    window.maybeAskFirstField = () => {};
+    me = state.users[uid];
+    document.getElementById('authGate')?.classList.add('hidden');
+    document.getElementById('presenceGameLoader')?.classList.remove('show', 'complete');
+    document.getElementById('presenceEntryLobby')?.classList.remove('show');
+    document.getElementById('app')?.classList.remove('hidden');
+    document.body.classList.add('app-on');
+    if (useEnterApp) {
+      window.__presenceEntryPass = false;
+      window.__qaOldRenderAll = renderAll;
+      renderAll = () => {};
+      startAutoPull = () => {};
+      subCbjournal = () => {};
+      enterApp();
+    } else {
+      buildRail();
+      if (isTlHomeUser(me)) goTab('tlhome'); else goTab('home');
+      renderTLHome();
+    }
+  }, { fixtures, uid, useEnterApp });
+  if (useEnterApp) await browserPage.waitForTimeout(130);
+}
+
+const failures = [];
+await installFixture('umqn54ujf', true);
+const instant = await browserPage.evaluate(() => ({ tab: curTab, lobbyCalls: window.__qaLobbyCalls, loaderCalls: window.__qaLoaderCalls, panelActive: document.getElementById('m-tlhome').classList.contains('active') }));
+if (instant.tab !== 'tlhome' || instant.lobbyCalls !== 0 || instant.loaderCalls !== 0 || !instant.panelActive) failures.push('TL 로그인 즉시 진입 또는 로더/로비 우회 실패');
+
+const viewports = [
+  { name: 'phone', width: 390, height: 844 },
+  { name: 'tablet', width: 1024, height: 768 },
+  { name: 'desktop', width: 1440, height: 900 },
+];
+const roles = [
+  { name: 'member', uid: 'ic' },
+  { name: 'leader', uid: 'umqn54ujf' },
+  { name: 'admin', uid: 'admin' },
+];
+const matrix = [];
+for (const role of roles) {
+  for (const viewport of viewports) {
+    await browserPage.setViewportSize({ width: viewport.width, height: viewport.height });
+    await installFixture(role.uid, false);
+    if (role.name === 'member') await browserPage.evaluate(() => goTab('tlhome'));
+    await browserPage.waitForTimeout(60);
+    await browserPage.evaluate(() => document.querySelectorAll('.modal.on').forEach((el) => el.classList.remove('on')));
+    const result = await browserPage.evaluate((roleName) => {
+      const visible = (el) => !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
+      const touch = [...document.querySelectorAll('#m-tlhome.active button,#tlHomeEntryBtn.show')].map((el) => ({ text: el.textContent.trim(), h: Math.round(el.getBoundingClientRect().height), w: Math.round(el.getBoundingClientRect().width) }));
+      return {
+        roleName,
+        tab: curTab,
+        buttonVisible: visible(document.getElementById('tlHomeEntryBtn')),
+        rootText: document.getElementById('tlHomeRoot').textContent,
+        overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        touch,
+        memberNames: [...document.querySelectorAll('.tlh-member b')].map((el) => el.textContent.trim()),
+        inputValues: [document.getElementById('tlhTargetSales')?.value, document.getElementById('tlhTargetAvg')?.value],
+      };
+    }, role.name);
+    matrix.push({ role: role.name, viewport: viewport.name, ...result });
+    if (role.name !== 'member') await browserPage.screenshot({ path: new URL(`${role.name}-${viewport.name}.png`, outputDir).pathname, fullPage: true });
+  }
+}
+
+for (const row of matrix) {
+  if (row.overflow) failures.push(`${row.role}/${row.viewport}: 가로 오버플로`);
+  if (row.role === 'member') {
+    if (row.buttonVisible || row.tab === 'tlhome' || row.rootText.trim()) failures.push(`${row.role}/${row.viewport}: 일반 팀원 권한 가드 실패`);
+  } else {
+    if (!row.buttonVisible || row.tab !== 'tlhome' || !row.rootText.includes('지난주 팀 AVG') || !row.rootText.includes('타겟 세일즈')) failures.push(`${row.role}/${row.viewport}: TL Home 핵심 UI 누락`);
+    if (row.viewport !== 'desktop' && row.touch.some((x) => x.h < 44 || x.w < 44)) failures.push(`${row.role}/${row.viewport}: 44px 터치 타깃 미달`);
+  }
+  if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
+  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('팀 제출 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 취합 UI 누락`);
+}
+
+await browserPage.setViewportSize({ width: 1440, height: 900 });
+await installFixture('umqn54ujf', false);
+await browserPage.evaluate(() => {
+  const buttons = document.querySelectorAll('.tlh-day');
+  buttons[0].click();
+  buttons[1].click();
+  tlhTargetInput('sales', 10);
+});
+const calc = await browserPage.evaluate(async () => {
+  const cfg = tlHomeConfig(me), draft = tlhDraft(cfg, '2026-09-07'), counts = tlhPlanCounts(draft);
+  const targetSales = draft.targetSales, targetAvg = draft.targetAvg;
+  await tlhSave();
+  tlhTargetInput('avg', 3);
+  const reverse = tlhDraft(cfg, '2026-09-07');
+  return { counts, targetSales, targetAvg, reverseSales: reverse.targetSales, writes: window.__qaWrites };
+});
+if (calc.counts.hc !== 1 || calc.counts.fieldDays !== 2 || calc.targetSales !== 10 || calc.targetAvg !== 5 || calc.reverseSales !== 6) failures.push('HC/필드일/세일즈↔AVG 계산 실패');
+if (!calc.writes.some((x) => x.path === 'teamWeeklyOps/2026-09-07/fuse' && x.value.hc === 1 && x.value.fieldDays === 2)) failures.push('FUSE 저장 경로 또는 payload 실패');
+
+const rules = JSON.parse(await readFile(new URL('../database.rules.json', import.meta.url), 'utf8')).rules;
+if (!rules.teamLeaderAccess || !rules.teamWeeklyOps || !rules.teamWeeklyOps.$weekStart?.$teamKey?.['.write']?.includes('teamLeaderAccess')) failures.push('TL Home Firebase 권한 규칙 누락');
+if (pageErrors.length) failures.push(`브라우저 pageerror: ${pageErrors.join(' | ')}`);
+if (consoleErrors.some((x) => !x.includes('Firebase') && !x.includes('ERR_'))) failures.push(`브라우저 console error: ${consoleErrors.join(' | ')}`);
+
+console.log(JSON.stringify({ instant, matrix: matrix.map(({ rootText, touch, memberNames, ...rest }) => ({ ...rest, touchMin: touch.length ? Math.min(...touch.map((x) => Math.min(x.h, x.w))) : null, members: memberNames })), calc, pageErrors, consoleErrors, failures }, null, 2));
+await browser.close();
+if (failures.length) process.exitCode = 1;
