@@ -42,6 +42,11 @@ const fixtures = {
     '2026-09-02|김하진': { date: '2026-09-02', name: '김하진', count: 0, checked: true },
     '2026-09-01|민병준': { date: '2026-09-01', name: '민병준', count: 2, checked: true },
   },
+  teamCalendarEvents: {
+    fuse_night: { date: '2026-09-10', title: 'FUSE 팀 나잇', time: '19:00', type: 'team', teamKey: 'fuse', teamName: 'FUSE', createdBy: 'umqn54ujf', leaderName: '고윤경', createdAt: 1, updatedAt: 1 },
+    wave_dinner: { date: '2026-09-12', title: 'OP 디너 미팅', time: '18:30', type: 'business', teamKey: 'youngwave', teamName: 'YOUNG WAVE', createdBy: 'umqna7jpj', leaderName: '윤채영', createdAt: 2, updatedAt: 2 },
+    presence_meeting: { date: '2026-09-15', title: 'Presence 리더 회의', time: '10:00', type: 'team', teamKey: 'presence', teamName: 'Presence', createdBy: 'admin', leaderName: '임재영', createdAt: 3, updatedAt: 3 },
+  },
 };
 
 async function installFixture(uid, useEnterApp = false) {
@@ -58,10 +63,14 @@ async function installFixture(uid, useEnterApp = false) {
         youngwave: { weekStart: '2026-09-07', weekEnd: '2026-09-13', teamKey: 'youngwave', teamName: 'YOUNG WAVE', leaderUid: 'umqna7jpj', leaderName: '윤채영', targetSales: 18, targetAvg: 2, hc: 2, fieldDays: 9, schedule: {}, updatedAt: 11 },
       },
     };
+    state.teamCalendarEvents = structuredClone(fixtures.teamCalendarEvents);
     state.teamLeaderAccess = {};
     tlHomeDrafts = {};
     tlHomeWeekStart = '2026-09-07';
     tlHomeSubscribed = false;
+    tlCalendarMonth = '2026-09-01';
+    tlCalendarSelectedDate = '2026-09-10';
+    tlCalendarEditId = '';
     window.__qaWrites = [];
     window.__qaLobbyCalls = 0;
     window.__qaLoaderCalls = 0;
@@ -146,7 +155,8 @@ for (const row of matrix) {
     if (row.viewport !== 'desktop' && row.touch.some((x) => x.h < 44 || x.w < 44)) failures.push(`${row.role}/${row.viewport}: 44px 터치 타깃 미달`);
   }
   if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
-  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 팀별 실적·차주 계획 UI 누락`);
+  if (row.role !== 'member' && (!row.rootText.includes('팀 일정') || !row.rootText.includes('FUSE 팀 나잇') || !row.rootText.includes('OP 디너 미팅') || !row.rootText.includes('Presence 리더 회의') || !row.rootText.includes('이미지 다운로드'))) failures.push(`${row.role}/${row.viewport}: TL 공용 월간 캘린더 누락`);
+  if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 필드 일정 불러오기'))) failures.push(`${row.role}/${row.viewport}: Presence 팀별 실적·차주 계획 UI 누락`);
 }
 
 await browserPage.setViewportSize({ width: 1440, height: 900 });
@@ -168,11 +178,28 @@ const calc = await browserPage.evaluate(async () => {
 if (calc.counts.hc !== 1 || calc.counts.fieldDays !== 2 || calc.targetSales !== 10 || calc.targetAvg !== 5 || calc.reverseSales !== 6) failures.push('HC/필드일/세일즈↔AVG 계산 실패');
 if (!calc.writes.some((x) => x.path === 'teamWeeklyOps/2026-09-07/fuse' && x.value.hc === 1 && x.value.fieldDays === 2)) failures.push('FUSE 저장 경로 또는 payload 실패');
 
+await browserPage.evaluate(async () => {
+  tlCalendarMonth = '2026-09-01';
+  tlhSelectCalendarDate('2026-09-18');
+  document.getElementById('tlhEventTitle').value = '신규 팀 미팅';
+  document.getElementById('tlhEventTime').value = '20:00';
+  document.getElementById('tlhEventType').value = 'business';
+  await tlhSaveCalendarEvent();
+});
+const downloadPromise = browserPage.waitForEvent('download');
+await browserPage.evaluate(() => tlhDownloadCalendar());
+const calendarDownload = await downloadPromise;
+await calendarDownload.saveAs(new URL('calendar-2026-09.png', outputDir).pathname);
+const calendarQa = await browserPage.evaluate(() => ({ writes: window.__qaWrites.filter((x) => x.path.startsWith('teamCalendarEvents/')) }));
+calendarQa.download = { download: calendarDownload.suggestedFilename(), href: 'blob:download' };
+if (!calendarQa.writes.some((x) => x.value?.date === '2026-09-18' && x.value?.title === '신규 팀 미팅' && x.value?.teamKey === 'fuse' && x.value?.type === 'business')) failures.push('TL 공용 일정 저장 경로 또는 payload 실패');
+if (!calendarQa.download?.download?.includes('Presence_Calendar_2026-09.png') || !String(calendarQa.download?.href || '').startsWith('blob:')) failures.push('월간 캘린더 PNG 다운로드 실패');
+
 const rules = JSON.parse(await readFile(new URL('../database.rules.json', import.meta.url), 'utf8')).rules;
-if (!rules.teamLeaderAccess || !rules.teamWeeklyOps || !rules.teamWeeklyOps.$weekStart?.$teamKey?.['.write']?.includes('teamLeaderAccess')) failures.push('TL Home Firebase 권한 규칙 누락');
+if (!rules.teamLeaderAccess || !rules.teamWeeklyOps || !rules.teamWeeklyOps.$weekStart?.$teamKey?.['.write']?.includes('teamLeaderAccess') || !rules.teamCalendarEvents?.$eventId?.['.write']?.includes('createdBy')) failures.push('TL Home Firebase 권한 규칙 누락');
 if (pageErrors.length) failures.push(`브라우저 pageerror: ${pageErrors.join(' | ')}`);
 if (consoleErrors.some((x) => !x.includes('Firebase') && !x.includes('ERR_'))) failures.push(`브라우저 console error: ${consoleErrors.join(' | ')}`);
 
-console.log(JSON.stringify({ instant, matrix: matrix.map(({ rootText, touch, memberNames, ...rest }) => ({ ...rest, touchMin: touch.length ? Math.min(...touch.map((x) => Math.min(x.h, x.w))) : null, members: memberNames })), calc, pageErrors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ instant, matrix: matrix.map(({ rootText, touch, memberNames, ...rest }) => ({ ...rest, touchMin: touch.length ? Math.min(...touch.map((x) => Math.min(x.h, x.w))) : null, members: memberNames })), calc, calendarQa, pageErrors, consoleErrors, failures }, null, 2));
 await browser.close();
 if (failures.length) process.exitCode = 1;
