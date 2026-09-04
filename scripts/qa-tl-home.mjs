@@ -136,7 +136,7 @@ for (const role of roles) {
     if (role.name !== 'member') {
       await browserPage.evaluate(() => {
         const cfg = tlHomeConfig(me);
-        const keys = cfg.kind === 'aop' ? ['last-presence', 'live-presence', 'last-youngwave', 'last-fuse'] : [`last-${cfg.teamKey}`, `live-${cfg.teamKey}`];
+        const keys = [`last-${cfg.teamKey}`, `live-${cfg.teamKey}`];
         keys.forEach((key) => { tlhResultDetailsOpen[key] = true; });
         renderTLHome();
       });
@@ -155,7 +155,7 @@ for (const role of roles) {
       const singleLineSelectors = '.tlh-cal-download,.tlh-cal-nav strong,.tlh-week-nav b,.tlh-card-head h3,.tlh-submit-meta strong,.tlh-plan-metric strong,.tlh-agenda-head h3,.tlh-performance-top small';
       const lineWrapIssues = [...document.querySelectorAll(singleLineSelectors)].filter(visible).filter((el) => lineCount(el) > 1).map((el) => el.textContent.trim());
       const clippedControls = [...document.querySelectorAll('#m-tlhome.active input,#m-tlhome.active select,#m-tlhome.active button')].filter(visible).filter((el) => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map((el) => el.textContent.trim() || el.id || el.tagName);
-      const layoutOverlaps = ['.tlh-event-form-grid','.tlh-event-form-actions','.tlh-submit-meta','.tlh-plan-metrics','.tlh-result-member','.tlh-performance-kpis','.tlh-performance-metrics','.tlh-performance-foot','.tlh-live-total-values'].flatMap(overlappingChildren);
+      const layoutOverlaps = ['.tlh-event-form-grid','.tlh-event-form-actions','.tlh-submit-meta','.tlh-plan-metrics','.tlh-result-member','.tlh-performance-kpis','.tlh-performance-metrics','.tlh-performance-foot','.tlh-live-total-values','.tlh-team-result-row'].flatMap(overlappingChildren);
       const escapedControls = [...document.querySelectorAll('.tlh-event-field input,.tlh-event-field select')].filter(visible).filter((el) => { const r=el.getBoundingClientRect(), p=el.closest('.tlh-event-form').getBoundingClientRect(); return r.left<p.left-1||r.right>p.right+1; }).map((el) => el.id);
       return {
         roleName,
@@ -175,6 +175,8 @@ for (const role of roles) {
         detailNames: [...document.querySelectorAll('.tlh-result-person b')].map((el) => el.textContent.trim()),
         presenceLastFirst: document.querySelector('#tlhResultPanel-last-presence .tlh-result-person b')?.textContent.trim() || '',
         presenceLiveFirst: document.querySelector('#tlhResultPanel-live-presence .tlh-result-person b')?.textContent.trim() || '',
+        teamBreakdownRows: [...document.querySelectorAll('#tlhResultPanel-last-presence .tlh-team-result-row')].map((el) => el.textContent.replace(/\s+/g, ' ').trim()),
+        adminTeamCardDetailCount: document.querySelectorAll('.tlh-submit-card [data-tlh-result-toggle]').length,
         liveTotalText: document.querySelector('#tlhResultPanel-live-presence .tlh-live-total')?.textContent.trim() || document.querySelector('[id^="tlhResultPanel-live-"] .tlh-live-total')?.textContent.trim() || '',
         combinedLastMetricCount: document.querySelectorAll('.tlh-performance-card:first-child .tlh-performance-metrics>div').length,
         legacyLiveVisible: !!document.querySelector('.tlh-live-table'),
@@ -190,6 +192,7 @@ for (const role of roles) {
       await browserPage.locator('.tlh-event-form').screenshot({ path: new URL('phone-event-form.png', outputDir).pathname });
       await browserPage.locator('.tlh-grid').screenshot({ path: new URL('phone-field-plan.png', outputDir).pathname });
     }
+    if (role.name === 'admin' && viewport.name === 'phone') await browserPage.locator('#tlhResultPanel-last-presence').screenshot({ path: new URL('phone-team-breakdown.png', outputDir).pathname });
   }
 }
 
@@ -204,13 +207,18 @@ for (const row of matrix) {
     if (row.clippedControls.length) failures.push(`${row.role}/${row.viewport}: 입력/버튼 내부 잘림 ${row.clippedControls.join(', ')}`);
     if (row.layoutOverlaps.length) failures.push(`${row.role}/${row.viewport}: 레이아웃 요소 겹침 ${row.layoutOverlaps.join(', ')}`);
     if (row.escapedControls.length) failures.push(`${row.role}/${row.viewport}: 폼 경계 이탈 ${row.escapedControls.join(', ')}`);
-    const expectedDetails = row.role === 'admin' ? 4 : 2;
+    const expectedDetails = 2;
     if (row.detailToggleCount !== expectedDetails || row.openDetailCount !== expectedDetails) failures.push(`${row.role}/${row.viewport}: 팀원별 상세 토글 수 또는 펼침 상태 오류`);
     if (row.combinedLastMetricCount !== 3 || row.legacyLiveVisible || !row.liveTotalText.includes('현재 팀 합계') || !row.liveTotalText.includes('현재 AVG')) failures.push(`${row.role}/${row.viewport}: 지난주 통합 카드 또는 이번 주 LIVE 합계 누락`);
   }
   if (row.role === 'leader' && row.memberNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 다른 팀 구성원 노출`);
   if (row.role === 'leader' && row.detailNames.some((name) => ['윤채영', '민병준', '손예진', '일반팀원'].includes(name))) failures.push(`${row.role}/${row.viewport}: 상세 결과에 다른 팀 구성원 노출`);
   if (row.role === 'admin' && (row.presenceLastFirst !== '임재영' || row.presenceLiveFirst !== '임재영')) failures.push(`${row.role}/${row.viewport}: Presence 상세 명단에서 임재영 AOP가 맨 위가 아님`);
+  if (row.role === 'admin') {
+    const expectedBreakdown = ['Presence 전체세일즈10건필드일5일AVG2.00', 'YOUNG WAVE세일즈5건필드일2일AVG2.50', 'FUSE세일즈5건필드일3일AVG1.67'];
+    if (row.teamBreakdownRows.length !== 3 || row.teamBreakdownRows.some((text, i) => text !== expectedBreakdown[i])) failures.push(`${row.role}/${row.viewport}: Presence·YOUNG WAVE·FUSE 지난주 요약 값 또는 순서 오류`);
+    if (row.adminTeamCardDetailCount !== 0) failures.push(`${row.role}/${row.viewport}: 팀 카드에 중복 개인 상세 토글 노출`);
+  } else if (row.teamBreakdownRows.length) failures.push(`${row.role}/${row.viewport}: 팀장 화면에 다른 팀 요약 노출`);
   if (row.role !== 'member' && (!row.rootText.includes('팀 일정') || !row.rootText.includes('FUSE 팀 나잇') || !row.rootText.includes('OP 디너 미팅') || !row.rootText.includes('Presence 리더 회의') || !row.rootText.includes('이미지 다운로드'))) failures.push(`${row.role}/${row.viewport}: TL 공용 월간 캘린더 누락`);
   if (row.role === 'admin' && (!row.rootText.includes('FUSE') || !row.rootText.includes('YOUNG WAVE') || !row.rootText.includes('지난주 확정 실적') || !row.rootText.includes('차주 운영 계획') || !row.rootText.includes('팀 AVG1.67') || !row.rootText.includes('목표 AVG2.00') || !row.rootText.includes('팀 제출 필드 일정 불러오기') || row.resultHeadings.indexOf('Presence 전체 결과') > row.resultHeadings.indexOf('YOUNG WAVE 전체 결과') || row.resultHeadings.indexOf('YOUNG WAVE 전체 결과') > row.resultHeadings.indexOf('FUSE 전체 결과'))) failures.push(`${row.role}/${row.viewport}: Presence→YOUNG WAVE→FUSE 결과 계층 또는 팀별 계획 UI 누락`);
 }
