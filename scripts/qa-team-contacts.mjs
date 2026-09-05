@@ -11,7 +11,13 @@ await mkdir(output, { recursive: true });
 
 const fixtures = [
   { name: 'phone-manager', width: 390, height: 844, uid: 'qa-manager', user: '검수매니저', role: 'TL', manager: true, save: true },
+  { name: 'tablet-manager', width: 1024, height: 768, uid: 'qa-manager', user: '검수매니저', role: 'TL', manager: true },
+  { name: 'desktop-manager', width: 1440, height: 900, uid: 'qa-manager', user: '검수매니저', role: 'TL', manager: true },
+  { name: 'phone-admin', width: 390, height: 844, uid: 'admin', user: '임재영', role: 'AOP', admin: true },
   { name: 'tablet-admin', width: 1024, height: 768, uid: 'admin', user: '임재영', role: 'AOP', admin: true },
+  { name: 'desktop-admin', width: 1440, height: 900, uid: 'admin', user: '임재영', role: 'AOP', admin: true },
+  { name: 'phone-member', width: 390, height: 844, uid: 'qa-member-view', user: '일반팀원', role: 'IC' },
+  { name: 'tablet-member', width: 1024, height: 768, uid: 'qa-member-view', user: '일반팀원', role: 'IC' },
   { name: 'desktop-member', width: 1440, height: 900, uid: 'qa-member-view', user: '일반팀원', role: 'IC' },
 ];
 
@@ -33,9 +39,9 @@ try {
       window.__previewRole = f.manager ? 'MANAGER' : null;
       ['maybeShowGiftPopup', 'maybeGiftStartPopup', 'maybeShowWelcome', 'schedulePromotionSurveyPopup', 'maybeDemoFarmGift', 'showRewardReminder', 'recallOnboardNotifs', 'onboardNudge', 'leaderOnboardNudge'].forEach(name => { window[name] = () => {}; });
       const current = { uid: f.uid, name: f.user, id: `qa-${f.name}`, role: f.role, status: 'active', surveys: { [f.role]: { answers: { firstField: '2026-08-01' }, t: Date.now() } } };
-      const target = { uid: 'qa-contact-target', name: '김프레젠스', id: 'qa-contact-target', role: 'LR', status: 'active', surveys: { LR: { answers: { firstField: '2026-08-01' }, t: Date.now() } } };
+      const target = { uid: 'qa-contact-target', name: '김프레젠스', id: 'qa-contact-target', role: 'LR', status: 'active', surveys: { IC: { answers: { firstField: '2026-08-01', phone: '01098765432' }, t: Date.now() }, LR: { answers: { leaderHit: '2026-08-20' }, t: Date.now() } } };
       state.users = { [current.uid]: current, [target.uid]: target };
-      state.teamContacts = f.admin ? { [target.uid]: { uid: target.uid, name: target.name, role: target.role, roleLabel: '리더', phone: '010-9876-5432', photo: '', updatedAt: Date.now(), updatedBy: '검수', updatedByUid: 'admin' } } : {};
+      state.teamContacts = {};
       state.extraMembers = []; state.removedMembers = []; state.managers = f.manager ? [current.name] : []; state.promotionSurveys = {}; state.settings = {}; state.sales = {}; state.notifs = {};
       window.__contactWrites = [];
       DB.set = async (path, value) => { window.__contactWrites.push({ path, value }); };
@@ -66,8 +72,14 @@ try {
     } else {
       assert.equal(navState.curTab, 'contacts', JSON.stringify(navState));
       await page.locator('#m-contacts.active #teamContactsBody').waitFor();
+      const surveyLinked = await page.evaluate(() => ({ card: document.getElementById('teamContactList')?.textContent || '', count: document.getElementById('teamContactCount')?.textContent || '', resolved: resolvedTeamContact(state.users['qa-contact-target']) }));
+      assert.equal(surveyLinked.resolved.phone, '010-9876-5432');
+      assert.equal(surveyLinked.resolved.source, 'survey');
+      assert.ok(surveyLinked.card.includes('김프레젠스') && surveyLinked.card.includes('010-9876-5432') && surveyLinked.card.includes('설문 연동'));
+      assert.ok(surveyLinked.count.includes('1명') && surveyLinked.count.includes('설문 자동 연동'));
       if (fixture.save) {
         await page.selectOption('#teamContactUser', 'qa-contact-target');
+        assert.equal(await page.inputValue('#teamContactPhone'), '010-9876-5432');
         await page.locator('#teamContactPhotoInput').setInputFiles({ name: 'profile.png', mimeType: 'image/png', buffer: photoPng });
         await page.waitForFunction(() => typeof teamContactDraftPhoto === 'string' && teamContactDraftPhoto.startsWith('data:image/jpeg'));
         await page.fill('#teamContactPhone', '01012345678');
@@ -91,7 +103,7 @@ try {
       assert.equal(geometry.overflow, false);
       assert.ok(geometry.minAction >= 44, `minimum action height ${geometry.minAction}: ${JSON.stringify(geometry.actionHeights)}`);
       assert.ok(geometry.heading.includes('팀원 연락처'));
-      if (fixture.admin) assert.equal(geometry.cards, 1);
+      assert.equal(geometry.cards, 1);
       await page.screenshot({ path: `${output}/${fixture.name}.png`, fullPage: true });
     }
     assert.deepEqual(errors, [], `${fixture.name}: page errors`);

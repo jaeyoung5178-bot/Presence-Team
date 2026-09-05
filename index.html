@@ -1049,9 +1049,10 @@ table.scores tr.top1 .big{color:var(--green)}
 /* 관리자·매니저 전용 팀원 연락처 */
 .team-contacts-shell{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:16px;align-items:start}.team-contact-editor,.team-contact-book{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px}.team-contact-editor h3,.team-contact-book h3{margin:0;color:var(--cream);font-size:16px}.team-contact-help{margin:5px 0 15px;color:var(--muted);font-size:11.5px;line-height:1.55}.team-contact-field{display:block;margin-top:12px}.team-contact-field>span{display:block;margin-bottom:6px;color:var(--muted);font-size:11px;font-weight:800}.team-contact-field select,.team-contact-field input{width:100%;min-width:0;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--cream);padding:0 13px;font:750 14px var(--font);outline:none}.team-contact-field select:focus,.team-contact-field input:focus,.team-contact-search:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(92,188,46,.12)}.team-contact-identity{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:13px;margin:14px 0;padding:13px;border:1px solid var(--line-soft);border-radius:14px;background:var(--card)}.team-contact-photo{width:64px;height:64px;border-radius:19px;overflow:hidden;display:grid;place-items:center;background:var(--card-2);color:#fff;font:900 23px var(--disp);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.team-contact-photo img{width:100%;height:100%;object-fit:cover}.team-contact-identity b{display:block;color:var(--cream);font-size:16px}.team-contact-identity small{display:block;margin-top:4px;color:var(--green-soft);font-size:11px;font-weight:850}.team-contact-photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.team-contact-photo-actions button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 12px;font:800 11.5px var(--font);cursor:pointer}.team-contact-save{width:100%;min-height:50px;margin-top:15px;border:0;border-radius:12px;background:linear-gradient(135deg,#4da526,#5cbc2e);color:#0b1a08;font:950 14px var(--font);cursor:pointer;box-shadow:0 9px 22px rgba(92,188,46,.18)}.team-contact-save:disabled{opacity:.58;cursor:wait}.team-contact-book-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}.team-contact-book-head small{display:block;margin-top:4px;color:var(--faint);font-size:10px}.team-contact-search{width:min(260px,48%);min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--cream);padding:0 12px;font:700 12px var(--font);outline:none}.team-contact-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.team-contact-card{min-width:0;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:11px;padding:12px;border:1px solid var(--line-soft);border-radius:15px;background:var(--card)}.team-contact-card .team-contact-photo{width:52px;height:52px;border-radius:15px;font-size:18px}.team-contact-card-main{min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.team-contact-card-main b{display:block;color:var(--cream);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-contact-card-main small{display:block;margin-top:2px;color:var(--green-soft);font-size:10px;font-weight:800}.team-contact-number{display:block;margin-top:5px;color:var(--muted);font:750 12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-contact-actions{display:flex;flex-direction:column;gap:6px}.team-contact-actions a,.team-contact-actions button{min-width:48px;min-height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--card-2);color:var(--cream);padding:0 9px;font:850 10.5px var(--font);text-decoration:none;cursor:pointer}.team-contact-actions a{border-color:rgba(92,188,46,.35);color:var(--green-soft)}.team-contact-empty{grid-column:1/-1;padding:34px 18px;border:1px dashed var(--line);border-radius:14px;color:var(--faint);font-size:12px;text-align:center;line-height:1.65}.notif-item.daiso-gift{padding-right:54px}.notif-item.daiso-gift .notif-x{top:4px;right:4px;width:44px;height:44px}
 .team-contact-card-main{min-height:44px;display:flex;flex-direction:column;justify-content:center}
+.team-contact-source{margin-left:4px;color:#78d8f6;font-style:normal}
 @media(max-width:1180px){.team-contacts-shell{grid-template-columns:1fr}}
 @media(max-width:900px){.team-contacts-shell{grid-template-columns:1fr}.team-contact-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){.team-contact-editor,.team-contact-book{padding:14px}.team-contact-book-head{align-items:stretch;flex-direction:column}.team-contact-search{width:100%}.team-contact-list{grid-template-columns:1fr}.team-contact-card{grid-template-columns:52px minmax(0,1fr) 52px}.team-contact-actions a,.team-contact-actions button{min-width:52px}.team-contact-help{font-size:11px}}
+@media(max-width:620px){.team-contact-editor,.team-contact-book{padding:14px}.team-contact-book-head{align-items:stretch;flex-direction:column}.team-contact-search{width:100%}.team-contact-list{grid-template-columns:1fr}.team-contact-card{grid-template-columns:52px minmax(0,1fr) 52px}.team-contact-actions a,.team-contact-actions button{min-width:52px}.team-contact-help{font-size:12px}}
 
 /* survey */
 .survey-wrap{max-width:560px;margin:0 auto}
@@ -6638,6 +6639,24 @@ function safeTeamContactPhoto(src){
   src=String(src||'').trim();
   return /^(data:image\/(?:jpeg|jpg|png|webp);base64,|https:\/\/)/i.test(src)?src:'';
 }
+function formatTeamContactPhone(value){
+  const raw=String(value||'').trim(),digits=raw.replace(/\D/g,'').slice(0,11);
+  if(!digits)return '';
+  if(digits.indexOf('02')===0){if(digits.length===9)return digits.slice(0,2)+'-'+digits.slice(2,5)+'-'+digits.slice(5);if(digits.length===10)return digits.slice(0,2)+'-'+digits.slice(2,6)+'-'+digits.slice(6);}
+  if(digits.length===10)return digits.slice(0,3)+'-'+digits.slice(3,6)+'-'+digits.slice(6);
+  if(digits.length===11)return digits.slice(0,3)+'-'+digits.slice(3,7)+'-'+digits.slice(7);
+  return raw;
+}
+function teamContactSurveyPhone(u){
+  if(!u)return '';
+  const records=[u.surveys&&u.surveys.IC,u.surveys&&u.surveys.ic];
+  for(const rec of records){const answers=rec&&(rec.answers||rec),phone=answers&&(answers.phone||answers.phoneNumber||answers.mobile||answers.tel);if(phone)return formatTeamContactPhone(phone);}
+  return '';
+}
+function resolvedTeamContact(u){
+  const saved=(u&&state.teamContacts&&state.teamContacts[u.uid])||{},surveyPhone=teamContactSurveyPhone(u),savedPhone=formatTeamContactPhone(saved.phone);
+  return Object.assign({},saved,{uid:u&&u.uid,name:u&&u.name,phone:savedPhone||surveyPhone,source:savedPhone?'saved':surveyPhone?'survey':''});
+}
 function teamContactAvatar(u,photo,small){
   const src=safeTeamContactPhoto(photo),name=(u&&u.name)||'?';
   return '<span class="team-contact-photo'+(small?' small':'')+'" style="background:'+esc(avColor(name))+'">'+(src?'<img src="'+esc(src)+'" alt="'+esc(name)+' 프로필 사진">':esc(name.charAt(0)))+'</span>';
@@ -6678,16 +6697,16 @@ function resetTeamContactPhoto(){teamContactDraftPhoto='';renderTeamContacts();}
 function renderTeamContactCards(){
   const box=document.getElementById('teamContactList');if(!box||!canManageTeamRecords(me))return;
   const users=teamContactUsers(),byUid={};users.forEach(function(u){byUid[u.uid]=u;});
-  const query=nk(teamContactSearch||''),records=Object.values(state.teamContacts||{}).filter(function(r){
+  const query=nk(teamContactSearch||''),records=users.map(resolvedTeamContact).filter(function(r){
     if(!r||!r.uid||!r.phone||!byUid[r.uid])return false;
     if(!query)return true;
     const u=byUid[r.uid],hay=nk([u.name,u.role,ROLE_LABEL[u.role]||'',r.phone].join(' '));return hay.indexOf(query)>=0;
   }).sort(function(a,b){return joinSort(byUid[a.uid],byUid[b.uid]);});
-  const count=document.getElementById('teamContactCount');if(count)count.textContent=records.length+'명 저장됨';
-  if(!records.length){box.innerHTML='<div class="team-contact-empty">'+(query?'검색 결과가 없어요.':'아직 저장된 연락처가 없어요.<br>왼쪽에서 팀원을 선택해 첫 연락처를 저장해 주세요.')+'</div>';return;}
+  const count=document.getElementById('teamContactCount');if(count)count.textContent=records.length+'명 · IC 설문 자동 연동';
+  if(!records.length){box.innerHTML='<div class="team-contact-empty">'+(query?'검색 결과가 없어요.':'IC 설문에 등록된 연락처가 아직 없어요.<br>관리자가 직접 번호를 추가할 수도 있습니다.')+'</div>';return;}
   box.innerHTML=records.map(function(r){
     const u=byUid[r.uid],role=ROLE_LABEL[u.role]||u.role||r.roleLabel||r.role||'',photo=safeTeamContactPhoto(r.photo)||safeTeamContactPhoto(u.photo),digits=String(r.phone||'').replace(/\D/g,'');
-    return '<article class="team-contact-card">'+teamContactAvatar(u,photo,true)+'<button type="button" class="team-contact-card-main" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)" aria-label="'+esc(u.name)+' 연락처 수정"><b>'+esc(u.name)+'</b><small>'+esc(role)+'</small><span class="team-contact-number">'+esc(r.phone)+'</span></button><div class="team-contact-actions"><a href="tel:'+esc(digits)+'" aria-label="'+esc(u.name)+'에게 전화">전화</a><button type="button" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)">수정</button></div></article>';
+    return '<article class="team-contact-card">'+teamContactAvatar(u,photo,true)+'<button type="button" class="team-contact-card-main" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)" aria-label="'+esc(u.name)+' 연락처 수정"><b>'+esc(u.name)+'</b><small>'+esc(role)+(r.source==='survey'?'<em class="team-contact-source">· 설문 연동</em>':'')+'</small><span class="team-contact-number">'+esc(r.phone)+'</span></button><div class="team-contact-actions"><a href="tel:'+esc(digits)+'" aria-label="'+esc(u.name)+'에게 전화">전화</a><button type="button" data-uid="'+esc(u.uid)+'" onclick="editTeamContact(this.dataset.uid)">수정</button></div></article>';
   }).join('');
 }
 function renderTeamContacts(){
@@ -6695,8 +6714,8 @@ function renderTeamContacts(){
   if(!me||!canManageTeamRecords(me)){root.innerHTML='<div class="team-contact-empty">관리자 또는 매니저만 연락처를 열 수 있어요.</div>';return;}
   const users=teamContactUsers(),u=selectedTeamContactUser();
   if(!u){root.innerHTML='<div class="team-contact-empty">등록할 재직 팀원이 없어요.</div>';return;}
-  const rec=(state.teamContacts||{})[u.uid]||{},photo=teamContactDraftPhoto===null?(safeTeamContactPhoto(rec.photo)||safeTeamContactPhoto(u.photo)):safeTeamContactPhoto(teamContactDraftPhoto),role=ROLE_LABEL[u.role]||u.role||'';
-  root.innerHTML='<div class="team-contacts-shell"><div class="team-contact-editor"><h3>연락처 저장·수정</h3><p class="team-contact-help">팀원 계정과 연결해 이름·직급을 자동 저장합니다. 연락처와 사진만 입력해 주세요.</p><label class="team-contact-field"><span>팀원 선택</span><select id="teamContactUser" onchange="selectTeamContact(this.value)" aria-label="연락처를 저장할 팀원">'+users.map(function(x){return '<option value="'+esc(x.uid)+'"'+(x.uid===u.uid?' selected':'')+'>'+esc(x.name)+' · '+esc(ROLE_LABEL[x.role]||x.role||'')+'</option>';}).join('')+'</select></label><div class="team-contact-identity">'+teamContactAvatar(u,photo,false)+'<div><b>'+esc(u.name)+'</b><small>'+esc(role)+'</small><div class="team-contact-photo-actions"><button type="button" onclick="document.getElementById(\'teamContactPhotoInput\').click()">사진 선택</button><button type="button" onclick="resetTeamContactPhoto()">기본 사진</button></div></div></div><input type="file" id="teamContactPhotoInput" accept="image/*" hidden onchange="chooseTeamContactPhoto(this.files[0])"><label class="team-contact-field"><span>연락처</span><input id="teamContactPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="13" placeholder="010-0000-0000" value="'+esc(rec.phone||'')+'" oninput="fmtPhone(this)"></label><button type="button" id="teamContactSave" class="team-contact-save" onclick="saveTeamContact()"'+(teamContactSaving?' disabled':'')+'>'+(teamContactSaving?'저장 중…':'연락처 저장')+'</button></div><div class="team-contact-book"><div class="team-contact-book-head"><div><h3>저장된 팀원 연락처</h3><small id="teamContactCount">0명 저장됨</small></div><input class="team-contact-search" type="search" placeholder="이름·직급·번호 검색" value="'+esc(teamContactSearch)+'" oninput="teamContactSearch=this.value;renderTeamContactCards()" aria-label="팀원 연락처 검색"></div><div class="team-contact-list" id="teamContactList"></div></div></div>';
+  const rec=resolvedTeamContact(u),photo=teamContactDraftPhoto===null?(safeTeamContactPhoto(rec.photo)||safeTeamContactPhoto(u.photo)):safeTeamContactPhoto(teamContactDraftPhoto),role=ROLE_LABEL[u.role]||u.role||'';
+  root.innerHTML='<div class="team-contacts-shell"><div class="team-contact-editor"><h3>연락처 저장·수정</h3><p class="team-contact-help">신입 IC 설문에 입력한 연락처를 자동으로 불러옵니다. 필요한 경우 관리자가 번호와 프로필 사진을 수정해 저장할 수 있어요.</p><label class="team-contact-field"><span>팀원 선택</span><select id="teamContactUser" onchange="selectTeamContact(this.value)" aria-label="연락처를 저장할 팀원">'+users.map(function(x){return '<option value="'+esc(x.uid)+'"'+(x.uid===u.uid?' selected':'')+'>'+esc(x.name)+' · '+esc(ROLE_LABEL[x.role]||x.role||'')+'</option>';}).join('')+'</select></label><div class="team-contact-identity">'+teamContactAvatar(u,photo,false)+'<div><b>'+esc(u.name)+'</b><small>'+esc(role)+(rec.source==='survey'?' · IC 설문 연동':'')+'</small><div class="team-contact-photo-actions"><button type="button" onclick="document.getElementById(\'teamContactPhotoInput\').click()">사진 선택</button><button type="button" onclick="resetTeamContactPhoto()">기본 사진</button></div></div></div><input type="file" id="teamContactPhotoInput" accept="image/*" hidden onchange="chooseTeamContactPhoto(this.files[0])"><label class="team-contact-field"><span>연락처</span><input id="teamContactPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="13" placeholder="010-0000-0000" value="'+esc(rec.phone||'')+'" oninput="fmtPhone(this)"></label><button type="button" id="teamContactSave" class="team-contact-save" onclick="saveTeamContact()"'+(teamContactSaving?' disabled':'')+'>'+(teamContactSaving?'저장 중…':'연락처 저장')+'</button></div><div class="team-contact-book"><div class="team-contact-book-head"><div><h3>팀원 연락처</h3><small id="teamContactCount">IC 설문 자동 연동</small></div><input class="team-contact-search" type="search" placeholder="이름·직급·번호 검색" value="'+esc(teamContactSearch)+'" oninput="teamContactSearch=this.value;renderTeamContactCards()" aria-label="팀원 연락처 검색"></div><div class="team-contact-list" id="teamContactList"></div></div></div>';
   renderTeamContactCards();
 }
 function subscribeTeamContacts(){
@@ -12620,7 +12639,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-09-05.tl-home-65';
+const APP_VERSION='2026-09-05.contacts-survey-66';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
