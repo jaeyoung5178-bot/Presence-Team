@@ -53,6 +53,37 @@ for (const viewport of viewports) {
   await page.locator('#skWeekdayGrid .sk-weekday-card').first().waitFor({ state: 'visible', timeout: 10000 });
   await page.locator('#skWeekdayGrid .sk-weekday-card').first().locator('[data-plan-copy]').click();
   await page.waitForTimeout(150);
+  await page.locator('#skWeekdayEdit').click();
+  await page.locator('#skWeekdayEditor.on [data-weekday-date="2026-09-07"]').waitFor({ state: 'visible', timeout: 10000 });
+  const editGeometry = await page.evaluate(() => {
+    const inputs = [...document.querySelectorAll('#skWeekdayEditor.on .sk-weekday-edit-input')];
+    const save = document.getElementById('skWeekdaySave');
+    return {
+      inputCount: inputs.length,
+      clippedInputs: inputs.filter((el) => { const r = el.getBoundingClientRect(); return r.left < -1 || r.right > innerWidth + 1; }).length,
+      inputFontSizes: [...new Set(inputs.map((el) => parseFloat(getComputedStyle(el).fontSize)))],
+      saveHeight: Math.round(save?.getBoundingClientRect().height || 0),
+      horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+    };
+  });
+  await page.screenshot({ path: `/tmp/presence-setup-weekday-edit-${viewport.name}.png`, fullPage: true });
+  await page.locator('[data-weekday-date="2026-09-07"]').fill('임재영 고윤경 박인선 유승민 윤채영 김종훈 손예진 권영웅 민병준');
+  await page.locator('#skWeekdaySave').click();
+  await page.locator('#skWeekdayGrid .sk-weekday-card').first().waitFor({ state: 'visible', timeout: 10000 });
+  const persistedEdit = await page.evaluate(() => {
+    const schedule = JSON.parse(localStorage.getItem('pd_setup_schedule') || '{}');
+    const daily = (JSON.parse(localStorage.getItem('pd_daily_by_date') || '{}'))['2026-09-07'] || [];
+    return {
+      scheduleCount: (schedule['2026-09-07'] || []).length,
+      dailyOnCount: daily.filter((item) => item.on !== false).length,
+      copyText: document.querySelector('#skWeekdayGrid .sk-weekday-copy')?.textContent || '',
+      editorClosed: !document.getElementById('skWeekdayEditor')?.classList.contains('on'),
+    };
+  });
+  await page.locator('#skWeekdayEdit').click();
+  await page.locator('[data-weekday-date="2026-09-07"]').fill(expectedMonday.join(' '));
+  await page.locator('#skWeekdaySave').click();
+  await page.locator('#skWeekdayGrid .sk-weekday-card').first().waitFor({ state: 'visible', timeout: 10000 });
   const report = await page.evaluate(({ expectedCounts, expectedMonday, expectedMondayCopy }) => {
     const schedule = JSON.parse(localStorage.getItem('pd_setup_schedule') || '{}');
     const allDaily = JSON.parse(localStorage.getItem('pd_daily_by_date') || '{}');
@@ -91,10 +122,13 @@ for (const viewport of viewports) {
       expectedMondayCopy,
     };
   }, { expectedCounts, expectedMonday, expectedMondayCopy });
+  report.editGeometry = editGeometry;
+  report.persistedEdit = persistedEdit;
   report.errors = errors;
   reports.push({ viewport, ...report });
   await page.screenshot({ path: `/tmp/presence-setup-weekday-${viewport.name}.png`, fullPage: true });
-  const bad = !report.tabExists || !report.tabActive || report.cardCount !== 7 || JSON.stringify(report.counts) !== JSON.stringify(expectedCounts) || JSON.stringify(report.mondayNames) !== JSON.stringify(expectedMonday) || report.mondayAllRows !== 21 || report.mondayCardText !== expectedMondayCopy || report.copiedText !== expectedMondayCopy || report.weeklyCount !== 21 || report.duplicateSumin !== 1 || report.maxNamesPerLine > 5 || report.horizontalOverflow || report.clippedCards || report.undersizedButtons.length || report.roleAccess.member || report.roleAccess.leaderWithoutPermission || !report.roleAccess.leaderWithPermission || !report.roleAccess.founder || errors.length;
+  const editFailed = editGeometry.inputCount !== 7 || editGeometry.clippedInputs || editGeometry.horizontalOverflow || editGeometry.saveHeight < 44 || (viewport.width <= 767 && editGeometry.inputFontSizes.some((size) => size < 16)) || persistedEdit.scheduleCount !== 9 || persistedEdit.dailyOnCount !== 9 || !persistedEdit.copyText.includes('(9명)') || !persistedEdit.editorClosed;
+  const bad = !report.tabExists || !report.tabActive || report.cardCount !== 7 || JSON.stringify(report.counts) !== JSON.stringify(expectedCounts) || JSON.stringify(report.mondayNames) !== JSON.stringify(expectedMonday) || report.mondayAllRows !== 21 || report.mondayCardText !== expectedMondayCopy || report.copiedText !== expectedMondayCopy || report.weeklyCount !== 21 || report.duplicateSumin !== 1 || report.maxNamesPerLine > 5 || report.horizontalOverflow || report.clippedCards || report.undersizedButtons.length || report.roleAccess.member || report.roleAccess.leaderWithoutPermission || !report.roleAccess.leaderWithPermission || !report.roleAccess.founder || editFailed || errors.length;
   if (bad) failures.push({ viewport, ...report });
   await page.close();
 }
