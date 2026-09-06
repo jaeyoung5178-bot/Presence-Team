@@ -12639,7 +12639,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-09-05.contacts-survey-66';
+const APP_VERSION='2026-09-06.setup-weekday-67';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13362,7 +13362,7 @@ function spawnKernel(layer,cx,cy){
     if(document.getElementById('pmsr-style'))return;
     const s=document.createElement('style');s.id='pmsr-style';
     s.textContent=`
-    .sk-sub{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:14px}
+    .sk-sub{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:14px}
     .sk-sub button{flex:1;padding:9px 4px;border-radius:9px;font-size:13px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer}
     .sk-sub button.on{background:var(--grad);color:#fff}
     .sk-page{display:none}.sk-page.on{display:block}
@@ -13403,8 +13403,19 @@ function spawnKernel(layer,cx,cy){
     .sk-plan-empty{color:var(--muted);font-weight:700}
     .sk-plan-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     .sk-plan-actions .pmsr-btn{min-width:0}
+    .sk-weekday-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:13px 14px;border:1px solid rgba(92,188,46,.25);border-radius:14px;background:linear-gradient(135deg,rgba(92,188,46,.13),rgba(45,156,219,.08))}
+    .sk-weekday-head h3{margin:0 0 4px;color:var(--cream);font:800 16px/1.3 var(--disp)}
+    .sk-weekday-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+    .sk-weekday-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .sk-weekday-card{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:15px;background:var(--card)}
+    .sk-weekday-card.today{border-color:var(--green);box-shadow:0 0 0 2px rgba(92,188,46,.13)}
+    .sk-weekday-card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-bottom:1px solid var(--line-soft);background:var(--surface)}
+    .sk-weekday-card-h b{color:var(--cream);font-size:14px;white-space:nowrap}.sk-weekday-card-h span{color:var(--green-soft);font-size:12px;font-weight:900;white-space:nowrap}
+    .sk-weekday-copy{margin:0;padding:14px 14px 10px;color:var(--cream);font:800 14px/1.9 var(--font);white-space:pre-wrap;word-break:keep-all;overflow-wrap:normal}
+    .sk-weekday-card-actions{padding:0 12px 12px}.sk-weekday-card-actions .pmsr-btn{min-height:44px}
+    .sk-weekday-empty .sk-weekday-copy{color:var(--muted)}
     @media(max-width:1024px){.sk-plan-grid{grid-template-columns:1fr}.sk-sub button,.pmsr-btn.sm,.sk-person-del{min-height:44px}.sk-person-del{width:44px}.sk-switch{width:54px;height:44px;flex-basis:54px}.sk-switch:after{top:8px;left:5px;width:28px;height:28px}.sk-switch[aria-checked="true"]:after{transform:translateX(16px)}}
-    @media(max-width:767px){.sk-sub{grid-template-columns:repeat(2,minmax(0,1fr))}.sk-roster{grid-template-columns:1fr}.sk-person{min-height:64px}.sk-ta{font-size:16px}.sk-f{font-size:16px}.sk-plan-head{align-items:stretch;flex-direction:column}.sk-plan-head .pmsr-btn{width:100%;min-height:44px}.sk-plan-day{padding:12px}.sk-plan-names{font-size:13px;line-height:1.9}.sk-plan-actions .pmsr-btn{min-height:44px}}
+    @media(max-width:767px){.sk-sub{grid-template-columns:repeat(3,minmax(0,1fr))}.sk-sub button{font-size:12px;line-height:1.25}.sk-roster{grid-template-columns:1fr}.sk-person{min-height:64px}.sk-ta{font-size:16px}.sk-f{font-size:16px}.sk-plan-head,.sk-weekday-head{align-items:stretch;flex-direction:column}.sk-plan-head .pmsr-btn,.sk-weekday-head .pmsr-btn{width:100%;min-height:44px}.sk-plan-day{padding:12px}.sk-plan-names{font-size:13px;line-height:1.9}.sk-plan-actions .pmsr-btn{min-height:44px}.sk-weekday-grid{grid-template-columns:1fr}.sk-weekday-copy{font-size:14px;padding-inline:13px}}
     .slip{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:12px}
     .slip-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border-bottom:1px dashed var(--line);background:var(--surface)}
     .slip-h h4{margin:0;font-size:14px;font-weight:800;font-family:var(--disp)}
@@ -13431,8 +13442,8 @@ function spawnKernel(layer,cx,cy){
   }
 
   /* ════════════════════ 셋업비서 ════════════════════ */
-  const SETUP_ROSTER_VERSION='2026-08-31.image-v1';
-  const SETUP_ROSTER_ORDER=['이예승','유영진','임재영','장재윤','김한별','김주아','고윤경','박인선','김하진','유승민','윤채영','김종훈','손예진','이예지','문승현','권영웅','홍서현','민병준','이수민','황혜진','김남경'];
+  const SETUP_ROSTER_VERSION='2026-09-06.weekday-v2';
+  const SETUP_ROSTER_ORDER=['이예승','유영진','임재영','장재원','김한별','김주아','고윤경','박인선','김하진','유승민','윤채영','김종훈','손예진','이예지','문승현','권영웅','홍서현','민병준','이수민','황혜진','이현지'];
   const SETUP_SCHEDULE_SEED={
     '2026-08-31':['유승민','손예진','문승현','권영웅','민병준','이수민','김남경'],
     '2026-09-01':['유영진','임재영','김한별','김주아','윤채영','김종훈','문승현','권영웅','민병준','이수민','황혜진','김남경'],
@@ -13440,10 +13451,17 @@ function spawnKernel(layer,cx,cy){
     '2026-09-03':['유영진','임재영','김한별','김주아','고윤경','박인선','유승민','윤채영','김종훈','손예진','문승현','권영웅','민병준','이수민','황혜진','김남경'],
     '2026-09-04':['유영진','임재영','장재윤','김한별','고윤경','박인선','유승민','윤채영','김종훈','손예진','권영웅','민병준','이수민','황혜진','김남경'],
     '2026-09-05':['김한별','고윤경','김하진','윤채영','황혜진'],
-    '2026-09-06':['윤채영','민병준','황혜진']
+    '2026-09-06':['윤채영','민병준','황혜진'],
+    '2026-09-07':['임재영','고윤경','박인선','유승민','윤채영','김종훈','손예진','권영웅','민병준','이수민'],
+    '2026-09-08':['유영진','김한별','김주아','고윤경','박인선','유승민','김종훈','문승현','권영웅','민병준','이수민','황혜진'],
+    '2026-09-09':['유영진','임재영','김한별','김주아','고윤경','박인선','유승민','김종훈','손예진','문승현','권영웅','민병준','이수민','황혜진'],
+    '2026-09-10':['임재영','김한별','김주아','박인선','유승민','윤채영','김종훈','손예진','문승현','권영웅','민병준','이수민','황혜진'],
+    '2026-09-11':['유영진','임재영','장재원','김한별','김주아','박인선','유승민','윤채영','김종훈','손예진','문승현','권영웅','민병준','이수민','황혜진'],
+    '2026-09-12':['유영진','김한별','고윤경','윤채영','이수민'],
+    '2026-09-13':['김하진','윤채영','황혜진']
   };
   const setupSeedCopy=()=>Object.fromEntries(Object.keys(SETUP_SCHEDULE_SEED).map(k=>[k,SETUP_SCHEDULE_SEED[k].slice()]));
-  if(LS.get('pd_setup_roster_version','')!==SETUP_ROSTER_VERSION){const seed=setupSeedCopy(),all=LS.get('pd_daily_by_date',{});Object.keys(seed).forEach(function(ds){const on=new Set(seed[ds]);all[ds]=SETUP_ROSTER_ORDER.map(function(name){return{name:name,tag:'',road:false,header:'1. City',on:on.has(name)};});});LS.set('pd_weekly',SETUP_ROSTER_ORDER);LS.set('pd_setup_schedule',seed);LS.set('pd_daily_by_date',all);LS.set('pd_setup_roster_version',SETUP_ROSTER_VERSION);}
+  if(LS.get('pd_setup_roster_version','')!==SETUP_ROSTER_VERSION){const seed=setupSeedCopy(),prev=LS.get('pd_setup_schedule',{}),merged=Object.assign({},seed,prev),all=LS.get('pd_daily_by_date',{});Object.keys(seed).forEach(function(ds){if(all[ds])return;const on=new Set(seed[ds]);all[ds]=SETUP_ROSTER_ORDER.map(function(name){return{name:name,tag:'',road:false,header:'1. City',on:on.has(name)};});});LS.set('pd_weekly',SETUP_ROSTER_ORDER);LS.set('pd_setup_schedule',merged);LS.set('pd_daily_by_date',all);LS.set('pd_setup_roster_version',SETUP_ROSTER_VERSION);}
   let DEFAULT_WEEKLY=SETUP_ROSTER_ORDER.slice();
   let SHEMA=[];
   let weekly=LS.get('pd_weekly',null)||DEFAULT_WEEKLY.slice();
@@ -13475,17 +13493,20 @@ function spawnKernel(layer,cx,cy){
 
   const DOWF=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],DOW=['일','월','화','수','목','금','토'];
   function tomorrow(){const d=new Date();d.setDate(d.getDate()+1);return d;}
-  function toInput(d){return d.toISOString().slice(0,10);}
+  function toInput(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function skDateEl(){return document.getElementById('skDate');}
   function curDate(){const v=skDateEl()&&skDateEl().value;return v?new Date(v+'T00:00:00'):tomorrow();}
   function dParts(){const d=curDate();return{YY:String(d.getFullYear()).slice(2),MM:String(d.getMonth()+1).padStart(2,'0'),DD:String(d.getDate()).padStart(2,'0'),M:d.getMonth()+1,D:d.getDate(),dow:DOW[d.getDay()]};}
   function weekRange(){const d=curDate();const day=d.getDay();const off=(day===0?-6:1-day);const mon=new Date(d);mon.setDate(d.getDate()+off);const sun=new Date(mon);sun.setDate(mon.getDate()+6);const f=x=>String(x.getFullYear()).slice(2)+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+String(x.getDate()).padStart(2,'0');return{start:f(mon),end:f(sun)};}
+  function setupWeekDates(){const d=curDate(),day=d.getDay(),off=(day===0?-6:1-day),mon=new Date(d);mon.setDate(d.getDate()+off);return Array.from({length:7},function(_,i){const x=new Date(mon);x.setDate(mon.getDate()+i);return toInput(x);});}
+  function setupWeekTitle(){const ds=setupWeekDates(),a=new Date(ds[0]+'T00:00:00'),b=new Date(ds[6]+'T00:00:00'),f=x=>x.getFullYear()+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+String(x.getDate()).padStart(2,'0');return f(a)+' - '+f(b);}
   function setupPlanNames(ds){const on=new Set(setupSchedule[ds]||[]);return SETUP_ROSTER_ORDER.filter(n=>on.has(n));}
   function setupPlanDaily(ds){const on=new Set(setupPlanNames(ds));return SETUP_ROSTER_ORDER.map(n=>({name:n,tag:'',road:false,header:'1. City',on:on.has(n)}));}
-  function setupPlanLines(ds){const names=setupPlanNames(ds),lines=[];for(let i=0;i<names.length;i+=3)lines.push(names.slice(i,i+3).join('  '));return lines.join('\n');}
+  function setupPlanLines(ds){const names=setupPlanNames(ds).map(given),lines=[];for(let i=0;i<names.length;i+=5)lines.push(names.slice(i,i+5).join(' '));return lines.join('\n');}
   function setupPlanLabel(ds){const d=new Date(ds+'T00:00:00');return (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+DOW[d.getDay()]+')';}
-  function setupPlanText(ds){const names=setupPlanNames(ds);return setupPlanLabel(ds)+' 필드 명단 · '+names.length+'명\n'+(setupPlanLines(ds)||'필드 인원 없음');}
-  function setupPlanWeekText(){return Object.keys(setupSchedule).sort().map(setupPlanText).join('\n\n');}
+  function setupKakaoLabel(ds){const d=new Date(ds+'T00:00:00');return (d.getMonth()+1)+'/'+d.getDate()+' 필드인원';}
+  function setupPlanText(ds){const names=setupPlanNames(ds);return setupKakaoLabel(ds)+'\n\n'+(setupPlanLines(ds)||'필드 인원 없음')+'\n\n('+names.length+'명)';}
+  function setupPlanWeekText(){return setupWeekDates().map(setupPlanText).join('\n\n');}
 
   const OPEN=['오늘도 새벽 공기 가르며 모인 우리 양떼들 🐑','한 걸음 먼저 움직이는 사람들, 좋은 아침! ☀️','오늘의 필드를 채울 주인공들 모여라 🕊️','기분 좋은 시작, 오늘의 셋업 떴어 🌿'];
   const MID=['어제보다 딱 한 걸음만 더. 그거면 충분해.','why가 명확하면 KPI는 내려간다. 진실된 why 장전!','한 명의 마음을 정성껏. 결과는 따라온다.','컨디션보다 태도. 오늘도 끝까지 가보자.'];
@@ -13519,7 +13540,7 @@ function spawnKernel(layer,cx,cy){
     el.innerHTML='<div class="wrap"><section class="sec">'
       +'<div class="sec-head"><h2>🐑 셋업 비서</h2><span class="ko">데일리·위클리 글 자동 생성</span></div>'
       +'<div class="pmsr-row" style="align-items:flex-end;margin-bottom:12px"><div class="pmsr-col" style="max-width:170px"><label class="sk-lab">필드 기준일</label><input type="date" id="skDate" class="sk-f"></div><button class="pmsr-btn ghost sm" id="skTomorrow">내일로</button><span id="skDow" class="pmsr-chip" style="margin-left:auto"></span></div>'
-      +'<div class="sk-sub"><button data-sk="daily" class="on">🌅 데일리</button><button data-sk="roster">👥 셋업명단편성</button><button data-sk="weekly">📅 위클리</button><button data-sk="set">⚙️ 명단·방</button></div>'
+      +'<div class="sk-sub"><button data-sk="daily" class="on">🌅 데일리</button><button data-sk="byday">📋 요일별 셋업</button><button data-sk="roster">👥 셋업명단편성</button><button data-sk="weekly">📅 위클리</button><button data-sk="set">⚙️ 명단·방</button></div>'
       // daily
       +'<div class="sk-page on" id="skp-daily">'
         +'<label class="sk-lab">셋업 인원 붙여넣기 (이름만 또는 장소+이름)</label>'
@@ -13533,8 +13554,10 @@ function spawnKernel(layer,cx,cy){
         +'<div id="skDailyRoster" style="display:none;margin-top:14px"><label class="sk-lab">필드 ON/OFF <span id="skDcnt" style="color:var(--green-soft)"></span> · 이름을 눌러 바로 수정</label><div class="sk-roster" id="skChips"></div>'
           +'<div class="pmsr-row" style="margin-top:8px"><div class="pmsr-col" style="flex:2"><input class="sk-f" id="skAdd" placeholder="신입·누락 인원 성명"></div><button class="pmsr-btn ghost sm" id="skAddRoad">+Road</button><button class="pmsr-btn green sm" id="skAddCity">+City</button></div></div>'
         +'<div id="skSlips"></div></div>'
+      // weekday setup copy
+      +'<div class="sk-page" id="skp-byday"><div class="sk-weekday-head"><div><h3>요일별 셋업</h3><p><b id="skWeekdayRange" style="color:var(--green-soft)"></b><br>필드표에서 <b style="color:var(--cream)">1로 체크된 인원</b>만 입사순으로 정리합니다.</p></div><button class="pmsr-btn green sm" id="skWeekdayCopyAll">이번 주 전체 복사</button></div><div id="skWeekdayGrid" class="sk-weekday-grid"></div></div>'
       // setup roster plan
-      +'<div class="sk-page" id="skp-roster"><div class="sk-plan-head"><p><b style="color:var(--cream)">사진의 숫자 1만 필드 ON으로 반영</b><br>날짜마다 입사일 순으로 정렬하고, 카톡용 명단은 한 줄에 3명씩 배치합니다.</p><button class="pmsr-btn green sm" id="skPlanCopyAll">주간 전체 복사</button></div><div id="skPlanGrid" class="sk-plan-grid"></div></div>'
+      +'<div class="sk-page" id="skp-roster"><div class="sk-plan-head"><p><b style="color:var(--cream)">사진의 숫자 1만 필드 ON으로 반영</b><br>날짜마다 입사일 순으로 정렬하고, 카톡용 명단은 한 줄에 5명씩 배치합니다.</p><button class="pmsr-btn green sm" id="skPlanCopyAll">주간 전체 복사</button></div><div id="skPlanGrid" class="sk-plan-grid"></div></div>'
       // weekly
       +'<div class="sk-page" id="skp-weekly">'
         +'<div class="pmsr-chip" id="skRange" style="width:100%;justify-content:center;margin-bottom:10px">—</div>'
@@ -13553,11 +13576,12 @@ function spawnKernel(layer,cx,cy){
     loadDailyForDate(true);
     skDateEl().addEventListener('change',()=>refreshDailyDate(false));
     document.getElementById('skTomorrow').onclick=()=>{skDateEl().value=toInput(tomorrow());refreshDailyDate(false);};
-    el.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{skTab=b.dataset.sk;el.querySelectorAll('[data-sk]').forEach(x=>x.classList.toggle('on',x===b));el.querySelectorAll('.sk-page').forEach(p=>p.classList.remove('on'));document.getElementById('skp-'+skTab).classList.add('on');if(skTab==='roster')renderSetupPlan();});
+    el.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{skTab=b.dataset.sk;el.querySelectorAll('[data-sk]').forEach(x=>x.classList.toggle('on',x===b));el.querySelectorAll('.sk-page').forEach(p=>p.classList.remove('on'));document.getElementById('skp-'+skTab).classList.add('on');if(skTab==='roster')renderSetupPlan();if(skTab==='byday')renderWeekdaySetup();});
     document.getElementById('skGen').onclick=()=>{if(buildDaily())renderSk();};
     document.getElementById('skAddCity').onclick=()=>addDailyPerson(false);
     document.getElementById('skAddRoad').onclick=()=>addDailyPerson(true);
     document.getElementById('skPlanCopyAll').onclick=()=>copyText(setupPlanWeekText());
+    document.getElementById('skWeekdayCopyAll').onclick=()=>copyText(setupPlanWeekText());
     document.getElementById('skWgen').onclick=renderWeeklySlip;
     document.getElementById('skAddW').onclick=()=>{const i=document.getElementById('skNewW');const v=i.value.trim();if(!v)return;weekly.push(v);i.value='';sW();renderWlist();skCounts();};
     document.getElementById('skResetW').onclick=()=>{if(confirm('기본 위클리 명단으로 복원할까요?')){weekly=DEFAULT_WEEKLY.slice();sW();renderWlist();skCounts();}};
@@ -13568,14 +13592,15 @@ function spawnKernel(layer,cx,cy){
       if(c){const ta=document.getElementById(c.dataset.copy);if(ta)copyText(ta.value);}
       if(s){const ta=document.getElementById(s.dataset.send);if(ta)skSend(ta.value,s.dataset.send);}});
     el.addEventListener('input',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('slip-ta')){t.style.height='auto';t.style.height=(t.scrollHeight+4)+'px';}});
-    renderWlist();renderRooms();renderSetupPlan();skOnDate();
+    renderWlist();renderRooms();renderSetupPlan();renderWeekdaySetup();skOnDate();
     if(daily.length)renderSk();
   }
   function loadDailyForDate(migrateLegacy){const all=LS.get('pd_daily_by_date',{}),ds=toInput(curDate()),saved=all[ds];if(saved)daily=saved.map(d=>Object.assign({on:true,header:'1. City',tag:''},d));else if(setupSchedule[ds]){daily=setupPlanDaily(ds);sD();}else if(migrateLegacy&&daily.length&&!Object.keys(all).length)sD();else daily=[];}
   function refreshDailyDate(migrateLegacy){loadDailyForDate(migrateLegacy);skOnDate();if(daily.length)renderSk();else{const roster=document.getElementById('skDailyRoster'),slips=document.getElementById('skSlips');if(roster)roster.style.display='none';if(slips)slips.innerHTML='';}}
-  function skOnDate(){const el=document.getElementById('skDow');if(el)el.textContent=DOWF[curDate().getDay()];const r=weekRange();const rg=document.getElementById('skRange');if(rg)rg.textContent='🐑 '+r.start+'  ~  '+r.end;skCounts();renderSetupPlan();}
+  function skOnDate(){const el=document.getElementById('skDow');if(el)el.textContent=DOWF[curDate().getDay()];const r=weekRange();const rg=document.getElementById('skRange');if(rg)rg.textContent='🐑 '+r.start+'  ~  '+r.end;skCounts();renderSetupPlan();renderWeekdaySetup();}
   function skCounts(){const wc=weekly.length,dc=daily.filter(d=>d.on!==false).length;['skWcnt','skWcnt2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='('+wc+'명)';});const a=document.getElementById('skDcnt2');if(a)a.textContent=dc;const t=document.getElementById('skTotal');if(t)t.placeholder='자동 '+Math.round(wc*1.3);const k=document.getElementById('skToday');if(k)k.placeholder='자동 '+Math.round(dc*1.5);}
-  function renderSetupPlan(){const box=document.getElementById('skPlanGrid');if(!box)return;const selected=skDateEl()&&skDateEl().value;box.innerHTML=Object.keys(setupSchedule).sort().map(function(ds){const names=setupPlanNames(ds),lines=setupPlanLines(ds);return '<article class="sk-plan-day'+(selected===ds?' today':'')+'"><div class="sk-plan-day-h"><b>'+setupPlanLabel(ds)+'</b><span>'+names.length+'명</span></div><pre class="sk-plan-names'+(names.length?'':' sk-plan-empty')+'">'+esc(lines||'필드 인원 없음')+'</pre><div class="sk-plan-actions"><button class="pmsr-btn ghost sm" type="button" data-plan-copy="'+ds+'">복사</button><button class="pmsr-btn green sm" type="button" data-plan-use="'+ds+'">데일리 적용</button></div></article>';}).join('');}
+  function renderSetupPlan(){const box=document.getElementById('skPlanGrid');if(!box)return;const selected=skDateEl()&&skDateEl().value;box.innerHTML=setupWeekDates().map(function(ds){const names=setupPlanNames(ds),lines=setupPlanLines(ds);return '<article class="sk-plan-day'+(selected===ds?' today':'')+'"><div class="sk-plan-day-h"><b>'+setupPlanLabel(ds)+'</b><span>'+names.length+'명</span></div><pre class="sk-plan-names'+(names.length?'':' sk-plan-empty')+'">'+esc(lines||'필드 인원 없음')+'</pre><div class="sk-plan-actions"><button class="pmsr-btn ghost sm" type="button" data-plan-copy="'+ds+'">복사</button><button class="pmsr-btn green sm" type="button" data-plan-use="'+ds+'">데일리 적용</button></div></article>';}).join('');}
+  function renderWeekdaySetup(){const box=document.getElementById('skWeekdayGrid'),range=document.getElementById('skWeekdayRange');if(range)range.textContent=setupWeekTitle();if(!box)return;const selected=skDateEl()&&skDateEl().value;box.innerHTML=setupWeekDates().map(function(ds){const names=setupPlanNames(ds),text=setupPlanText(ds);return '<article class="sk-weekday-card'+(selected===ds?' today':'')+(names.length?'':' sk-weekday-empty')+'"><div class="sk-weekday-card-h"><b>'+setupPlanLabel(ds)+'</b><span>'+names.length+'명</span></div><pre class="sk-weekday-copy">'+esc(text)+'</pre><div class="sk-weekday-card-actions"><button class="pmsr-btn green sm" type="button" data-plan-copy="'+ds+'" aria-label="'+setupPlanLabel(ds)+' 카카오톡용 명단 복사">카카오톡용 복사</button></div></article>';}).join('');}
   function applySetupPlanDate(ds){if(!setupSchedule[ds])return;skDateEl().value=ds;daily=setupPlanDaily(ds);sD();skOnDate();renderSk();const tab=document.querySelector('#m-setupkit [data-sk="daily"]');if(tab)tab.click();toast&&toast('✅ '+setupPlanLabel(ds)+' 명단을 데일리에 적용했어요');}
   function buildDaily(){const text=document.getElementById('skIn').value.trim();if(!text){toast&&toast('셋업 인원을 붙여넣어줘');return false;}const g=parseGroups(text);if(!g.length){toast&&toast('이름을 찾지 못했어');return false;}groupsSaved=g.map(x=>({header:x.header,raw:x.raw.slice()}));daily=[];g.forEach(x=>{const c=classify(x.header);if(c==='wepair')return;x.raw.forEach(tok=>{const p=splitTag(tok);daily.push({name:fullName(p.name),tag:p.tag||'',road:c==='road',header:x.header,on:true});});});sG();sD();const cu=document.getElementById('skEnc').value.trim();curEnc=cu||genEnc();return true;}
   function renderSk(){const hi=document.getElementById('skHi').value.trim();
