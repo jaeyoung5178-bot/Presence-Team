@@ -5021,6 +5021,8 @@ let tlCalendarMonth='';
 let tlCalendarSelectedDate='';
 let tlCalendarEditId='';
 let tlhResultDetailsOpen={};
+let tlhSubmissionDate='';
+const tlhPendingChecks=new Set();
 function tlhParse(s){const p=String(s||'').split('-').map(Number);return new Date(p[0],(p[1]||1)-1,p[2]||1,12,0,0,0);}
 function tlhAdd(s,n){const d=tlhParse(s);d.setDate(d.getDate()+n);return ymd(d);}
 function tlhMonday(date){const d=date?tlhParse(date):new Date(),day=d.getDay(),diff=day===0?-6:1-day;d.setHours(12,0,0,0);d.setDate(d.getDate()+diff);return ymd(d);}
@@ -5105,8 +5107,16 @@ function tlhResultPanel(stats,key,teamName,rangeSd,opts){
 function tlhResultDetails(stats,key,teamName,lastSd){
   return `<div class="tlh-result-drill">${tlhResultToggleButton(key,teamName+' 팀원별 결과',false,false)}${tlhResultPanel(stats,key,teamName,lastSd)}</div>`;
 }
+function tlhSetSubmissionDate(date){const today=window.PresenceWorkspaceCore.dateKey();if(!isValidDate(date)||date>today)return;tlhSubmissionDate=date;renderTLHome();}
+function tlhCheckPending(input){const key=me.uid+'|'+(tlhSubmissionDate||window.PresenceWorkspaceCore.dateKey())+'|'+input.dataset.name;if(input.checked)tlhPendingChecks.add(key);else tlhPendingChecks.delete(key);input.closest('label').classList.toggle('is-checked',input.checked);}
+function tlhPendingHTML(cfg){
+  const c=window.PresenceWorkspaceCore;if(!c)return '';
+  const today=c.dateKey(),date=tlhSubmissionDate||today,members=tlhMembers(cfg).filter(m=>!saleBeforeFirstField(m.name,date)),pending=c.pendingSubmissions(members,state.sales,date,saleEntryIsRecorded,saleBeforeFirstField);
+  const pendingNames=new Set(pending.map(m=>m.name));for(const m of members)if(!pendingNames.has(m.name))tlhPendingChecks.delete(me.uid+'|'+date+'|'+m.name);
+  return `<section class="tlh-section pw-page" id="tlhPendingSection"><div class="pw-head"><div><div class="pw-kicker">PROFIT · DAILY CHECK</div><h2>제출대기 <span class="pw-tag" id="tlhPendingCount">${pending.length}명</span></h2><p class="pw-sub">${esc(cfg.teamName)} · 세일즈 또는 NA 입력 여부를 확인해 주세요.</p></div><div class="tlh-pending-date"><label for="tlhSubmissionDate">확인 날짜</label><input id="tlhSubmissionDate" type="date" value="${date}" max="${today}" onchange="tlhSetSubmissionDate(this.value)"></div></div><div class="pw-panel"><div class="pw-row"><strong>${date.replace(/-/g,'.')} 제출 현황</strong><span class="pw-sub">${members.length-pending.length} / ${members.length}명 제출 완료</span></div><div class="tlh-pending-list">${pending.map(m=>{const key=me.uid+'|'+date+'|'+m.name,checked=tlhPendingChecks.has(key);return `<label class="tlh-pending-person${checked?' is-checked':''}"><input type="checkbox" data-name="${tlhEscAttr(m.name)}" onchange="tlhCheckPending(this)" ${checked?'checked':''} aria-label="${tlhEscAttr(m.name)} 미제출 확인 표시"><span>미제출(${esc(m.name)})</span><small>${esc(ROLE_LABEL[m.role]||m.role||'IC')}</small></label>`;}).join('')||'<p class="tlh-pending-complete">모든 팀원이 입력을 마쳤어요.</p>'}</div><p class="pw-note">0건 저장·NA·랠리는 제출 완료로 처리합니다. 체크는 팀장 확인용이며, 실제 입력이 저장되면 명단에서 자동으로 빠집니다.</p></div></section>`;
+}
 function tlhSubmissionCards(sd,lastSd,lastEd){
-  return ['youngwave','fuse'].map(key=>{const r=tlhSaved(sd,key),name=tlhTeamName(key),leader=key==='fuse'?'고윤경':'윤채영',stats=tlhStats({teamKey:key,teamName:name,leaderName:leader,kind:'team'},lastSd,lastEd);return `<article class="tlh-submit-card"><div class="tlh-submit-top"><b>${name} 전체 결과</b><span class="tlh-status${r?'':' wait'}">${r?'차주 계획 제출':'제출 대기'}</span></div><div class="tlh-submit-block"><div class="tlh-submit-block-head"><b>지난주 확정 실적</b><span>${tlhWeekLabel(lastSd)}</span></div><div class="tlh-submit-meta"><div>세일즈<strong>${stats.sales}건</strong></div><div>필드일<strong>${stats.days}일</strong></div><div class="accent">팀 AVG<strong>${stats.avg.toFixed(2)}</strong></div></div></div><div class="tlh-submit-divider"></div><div class="tlh-submit-block"><div class="tlh-submit-block-head"><b>차주 운영 계획</b><span>${tlhWeekLabel(sd)}</span></div>${r?`<div class="tlh-submit-meta plan"><div>HC<strong>${tlhNum(r.hc)}명</strong></div><div>필드일<strong>${tlhNum(r.fieldDays)}일</strong></div><div>목표 세일즈<strong>${tlhNum(r.targetSales)}건</strong></div><div class="accent">목표 AVG<strong>${tlhNum(r.targetAvg).toFixed(2)}</strong></div></div><div class="tlh-submit-time">${esc(r.leaderName||'팀장')} TL · ${new Date(r.updatedAt||0).toLocaleString('ko-KR')} 저장 · 자동 반영</div>`:`<div class="tlh-submit-time">${leader} TL이 저장하면 HC·필드일·목표 세일즈·목표 AVG가 이곳에 자동으로 표시됩니다.</div>`}</div></article>`;}).join('');
+  return ['youngwave','fuse'].map(key=>{const r=tlhSaved(sd,key),name=tlhTeamName(key),leader=key==='fuse'?'고윤경':'윤채영',stats=tlhStats({teamKey:key,teamName:name,leaderName:leader,kind:'team'},lastSd,lastEd);return `<article class="tlh-submit-card"><div class="tlh-submit-top"><b>${name} 전체 결과</b><span class="tlh-status${r?'':' wait'}">${r?'차주 계획 제출':'차주 계획 대기'}</span></div><div class="tlh-submit-block"><div class="tlh-submit-block-head"><b>지난주 확정 실적</b><span>${tlhWeekLabel(lastSd)}</span></div><div class="tlh-submit-meta"><div>세일즈<strong>${stats.sales}건</strong></div><div>필드일<strong>${stats.days}일</strong></div><div class="accent">팀 AVG<strong>${stats.avg.toFixed(2)}</strong></div></div></div><div class="tlh-submit-divider"></div><div class="tlh-submit-block"><div class="tlh-submit-block-head"><b>차주 운영 계획</b><span>${tlhWeekLabel(sd)}</span></div>${r?`<div class="tlh-submit-meta plan"><div>HC<strong>${tlhNum(r.hc)}명</strong></div><div>필드일<strong>${tlhNum(r.fieldDays)}일</strong></div><div>목표 세일즈<strong>${tlhNum(r.targetSales)}건</strong></div><div class="accent">목표 AVG<strong>${tlhNum(r.targetAvg).toFixed(2)}</strong></div></div><div class="tlh-submit-time">${esc(r.leaderName||'팀장')} TL · ${new Date(r.updatedAt||0).toLocaleString('ko-KR')} 저장 · 자동 반영</div>`:`<div class="tlh-submit-time">${leader} TL이 저장하면 HC·필드일·목표 세일즈·목표 AVG가 이곳에 자동으로 표시됩니다.</div>`}</div></article>`;}).join('');
 }
 function tlhCalendarHTML(){
   if(!tlCalendarMonth)tlCalendarMonth=tlhMonthStart();if(!tlCalendarSelectedDate||tlCalendarSelectedDate.slice(0,7)!==tlCalendarMonth.slice(0,7))tlCalendarSelectedDate=tlCalendarMonth;
@@ -5141,6 +5151,7 @@ function renderTLHome(){
   const summary=`${cfg.teamName} 팀 ${tlhWeekLabel(planSd)} 주간 HC는 <em>${pc.hc}명</em>입니다. 세일즈 목표는 <em>${Math.round(draft.targetSales||0)}개</em>, <em>${(draft.targetAvg||0).toFixed(2)} AVG</em>로 운영합니다.`;
   root.innerHTML=`<section class="tlh-hero"><div><div class="tlh-eyebrow">TL HOME · WEEKLY OPERATIONS</div><h1>${esc(me.name)} ${cfg.kind==='aop'?'AOP':'팀 리더'}님,<br>이번 주 팀 스케줄을 확인해 주세요.</h1><p>조직도와 세일즈 기록이 연결된 <b>${esc(cfg.teamName)} 운영 홈</b>입니다.</p></div><div class="tlh-hero-side"><span class="tlh-team-chip"><i class="tlh-live-dot"></i>${esc(cfg.teamName)} LIVE</span><p class="tlh-summary">${summary}</p></div></section>
   <section class="tlh-section"><div class="tlh-section-head"><div><h2>${cfg.kind==='aop'?'Presence 전체 결과':`${esc(cfg.teamName)} 전체 결과`}</h2><p>지난주 확정 실적과 이번 주 입력 현황을 실시간으로 비교합니다.</p></div></div><div class="tlh-performance-kpis"><article class="tlh-performance-card"><div class="tlh-performance-top"><div><span>지난주 결과</span><small>${tlhWeekLabel(lastSd)}</small></div><i>확정</i></div><div class="tlh-performance-metrics"><div><span>세일즈</span><strong>${last.sales}<em>건</em></strong></div><div><span>필드일</span><strong>${last.days}<em>일</em></strong></div><div class="avg"><span>팀 AVG</span><strong>${last.avg.toFixed(2)}</strong></div></div><div class="tlh-performance-foot"><small>0건 포함 · NA 제외 · ${last.members.length}명</small>${tlhResultToggleButton('last-'+cfg.teamKey,'',false,true)}</div></article><article class="tlh-performance-card live"><div class="tlh-performance-top"><div><span>이번 주 진행</span><small>${tlhWeekLabel(currentSd)}</small></div><i>실시간</i></div><div class="tlh-current-row"><strong>${live.sales}<em>건</em></strong><span>${live.days} 필드일 · 현재 AVG ${live.avg.toFixed(2)}${goal?` · 목표 ${goal}건`:''}</span></div>${goal?`<div class="tlh-progress"><span style="width:${Math.min(100,ach)}%"></span></div>`:''}<div class="tlh-performance-foot"><small>${goal?`${ach}% 달성 · 팀원 입력 즉시 반영`:'팀원 입력 즉시 자동 반영'}</small>${tlhResultToggleButton('live-'+cfg.teamKey,'',true,true)}</div></article></div><div class="tlh-performance-panels">${tlhResultPanel(last,'last-'+cfg.teamKey,cfg.kind==='aop'?'Presence':cfg.teamName,lastSd,{standalone:true,presenceFirst:cfg.kind==='aop',breakdown:lastBreakdown})}${tlhResultPanel(live,'live-'+cfg.teamKey,cfg.kind==='aop'?'Presence':cfg.teamName,currentSd,{standalone:true,live:true,goal,presenceFirst:cfg.kind==='aop'})}</div></section>
+  ${tlhPendingHTML(cfg)}
   ${cfg.kind==='aop'?`<section class="tlh-section"><div class="tlh-section-head"><div><h2>팀별 실적 · 차주 계획</h2><p>FUSE와 YOUNG WAVE의 지난주 성과와 팀장이 저장한 차주 목표가 실시간으로 반영됩니다.</p></div></div><div class="tlh-team-submissions">${tlhSubmissionCards(planSd,lastSd,lastEd)}</div></section>`:''}
   <section class="tlh-section"><div class="tlh-section-head"><div><h2>팀 일정</h2><p>TL 이상이 함께 보는 Presence 월간 캘린더입니다. 날짜를 눌러 팀·개인 비즈니스 일정을 등록하세요.</p></div></div>${tlhCalendarHTML()}</section>
   <section class="tlh-section"><div class="tlh-section-head"><div><h2>${cfg.kind==='aop'?'Presence 필드 일정':'팀 필드 일정'}</h2><p>차주 필드 인원을 먼저 체크하면 HC와 목표 AVG가 자동 계산됩니다.</p></div><div class="tlh-week-nav"><button type="button" onclick="tlhSetWeek(-1)" aria-label="이전 주">‹</button><b>${tlhWeekLabel(planSd)}</b><button type="button" onclick="tlhSetWeek(1)" aria-label="다음 주">›</button></div></div><div class="tlh-grid"><article class="tlh-card"><div class="tlh-card-head"><h3>필드 인원 · 날짜</h3><span>${pc.hc}명 · 총 ${pc.fieldDays} 필드일</span></div><div class="tlh-schedule">${tlhScheduleHTML(cfg,planSd,draft)}</div></article><aside class="tlh-card"><div class="tlh-card-head"><h3>다음 주 운영 목표</h3><span>양방향 자동 계산</span></div><div class="tlh-plan"><div class="tlh-plan-metrics"><div class="tlh-plan-metric"><span>주간 HC</span><strong>${pc.hc}명</strong></div><div class="tlh-plan-metric"><span>예정 필드일</span><strong>${pc.fieldDays}일</strong></div></div><div class="tlh-field"><label for="tlhTargetSales"><span>타겟 세일즈</span><small>정수</small></label><input id="tlhTargetSales" type="number" min="0" step="1" value="${Math.round(draft.targetSales||0)}" oninput="tlhTargetInput('sales',this.value)" inputmode="numeric"></div><div class="tlh-field"><label for="tlhTargetAvg"><span>타겟 AVG</span><small>세일즈 ÷ 필드일</small></label><input id="tlhTargetAvg" type="number" min="0" step="0.01" value="${(draft.targetAvg||0).toFixed(2)}" oninput="tlhTargetInput('avg',this.value)" inputmode="decimal"></div><div class="tlh-sentence">${summary}</div><button class="tlh-action" id="tlhSaveBtn" type="button" onclick="tlhSave()" ${pc.fieldDays?'':'disabled'}>${cfg.kind==='aop'?'Presence 필드 일정 확정':'팀 필드 계획 저장'}</button>${cfg.kind==='aop'?'<button class="tlh-import" type="button" onclick="tlhImportTeams()">팀 제출 필드 일정 불러오기</button>':''}<p class="tlh-plan-note">저장 즉시 팀장 화면과 Presence 취합 화면에 반영됩니다. 팀원별 0건 기록도 필드일에 포함하고 NA는 제외합니다.</p></div></aside></div></section>`;
@@ -5551,7 +5562,7 @@ function backupAllToWeb(){
 function sameEntry(e,o){if(!e&&!o)return true;if(!e||!o)return false;return (+e.count||0)===(+o.count||0)&&!!e.na===!!o.na&&!!e.rally===!!o.rally;}
 function refreshSalesViews(){
   var t=(typeof curTab!=='undefined')?curTab:'';
-  var map={daily:['renderDaily'],sales:['renderScores','renderPerfGauge'],salesmgr:['renderSalesMgr'],recap:['renderRecap'],field:['renderField'],leaderhit:['renderLeaderHit'],home:['renderComp']};
+  var map={daily:['renderDaily'],sales:['renderScores','renderPerfGauge'],salesmgr:['renderSalesMgr'],recap:['renderRecap'],field:['renderField'],leaderhit:['renderLeaderHit'],home:['renderComp'],tlhome:['renderTLHome']};
   (map[t]||[]).forEach(function(fn){try{var fx=window[fn];if(typeof fx==='function')fx();}catch(e){}});
   try{if(typeof updateCounts==='function')updateCounts();}catch(e){}
 }
@@ -7302,7 +7313,7 @@ function waterToTree(pour){
   if(pour!==false){var tm=document.getElementById('treeMain');if(tm){tm.style.animation='none';void tm.offsetWidth;tm.style.animation='treeDrink 1.4s ease-in-out';setTimeout(function(){if(tm&&tm.style.animation.indexOf('treeDrink')>=0)tm.style.animation='';},1460);}}
 }
 function waterTree(){
-  if(window.PresenceWorkspace){window.PresenceWorkspace.water().catch(e=>toast(e.message||'물주기를 저장하지 못했습니다.'));return;}
+  if(window.PresenceWorkspace){return window.PresenceWorkspace.water().catch(e=>toast(e.message||'물주기를 저장하지 못했습니다.'));}
   if(!me){toast('로그인이 필요해요');return}
   if(Date.now()>=GIFT_HUNT_START){toast('🎄 물주기는 12월 24일에 마감됐어요 · 이제 홈에서 선물 열기를 즐겨주세요!');return}
   if(treePreviewStep!==null){treePreviewStep=null;}   // 물 주면 미리보기 종료
@@ -17406,11 +17417,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20260718-2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20260809-6"></script>
+<script src="assets/presence-home-tree-v2.js?v=20260914-garden-4"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
-<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260914-2">
-<script src="assets/presence-workspace-core.js?v=20260914-1"></script>
-<script src="assets/presence-workspace-v2.js?v=20260914-1"></script>
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260914-garden-4">
+<script src="assets/presence-workspace-core.js?v=20260914-garden-4"></script>
+<script src="assets/presence-workspace-v2.js?v=20260914-garden-4"></script>
 </body>
 </html>

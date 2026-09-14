@@ -24,9 +24,22 @@
     let sales=0,days=0;const members={};by.forEach(e=>{const valid=isWork?isWork(e):!e.na&&!e.rally&&!e.cleared&&(e.checked===true||Number(e.count)>0);if(!valid)return;days++;const value=Math.max(0,Number(e.count)||0);sales+=value;members[e.name]=members[e.name]||{sales:0,days:0};members[e.name].sales+=value;members[e.name].days++;});
     return {sales,days,avg:days?sales/days:null,members};
   }
+  function pendingSubmissions(members,records,date,isRecorded,isBeforeStart) {
+    const latest=new Map();Object.values(records||{}).forEach(e=>{if(!e||e.date!==date)return;const old=latest.get(e.name);if(!old||Number(e.t||0)>=Number(old.t||0))latest.set(e.name,e);});
+    return (members||[]).filter(m=>m&&m.name&&!(isBeforeStart&&isBeforeStart(m.name,date))&&!isRecorded(latest.get(m.name)));
+  }
+  function waterCount(record) { const count=Number(record?.count);return Number.isFinite(count)?Math.max(0,Math.floor(count)):0; }
+  function gardenTotal(legacyTotal,legacy,current) { return Math.max(Number(legacyTotal)||0,Object.values(legacy||{}).reduce((n,r)=>n+waterCount(r),0))+Object.values(current||{}).reduce((n,r)=>n+waterCount(r),0); }
+  function waterLeaders(users,legacy,current) {
+    return Object.values(users||{}).filter(u=>u&&u.uid&&u.status==='active').map(u=>{
+      const old=(legacy||{})[u.uid]||{},now=(current||{})[u.uid]||{};
+      const time=Math.max(Number(old.t)||0,Number(now.lastWateredAt)||0);
+      return {uid:u.uid,name:u.name,count:waterCount(old)+waterCount(now),reachedAt:time>0?time:Infinity};
+    }).filter(r=>r.count>0).sort((a,b)=>b.count-a.count||a.reachedAt-b.reachedAt||a.uid.localeCompare(b.uid)).slice(0,3).map((r,i)=>({...r,rank:i+1}));
+  }
   function season(today) { const m=Number((today||dateKey()).slice(5,7)); return m>=3&&m<=5?'spring':m>=6&&m<=8?'summer':m>=9&&m<=11?'autumn':'winter'; }
   function canCoach(actor,target,access) { return !!(actor&&actor.status==='active'&&target&&(actor.uid==='admin'||((access||{})[target.uid]||{}).leaderUid===actor.uid)); }
   function allowedUids(actor,users,access) { return Object.values(users||{}).filter(u=>u&&u.status==='active'&&(u.uid===actor.uid||canCoach(actor,u,access))).map(u=>u.uid); }
   function safeText(value,max) { return String(value==null?'':value).trim().slice(0,max||1000); }
-  return {dateKey,parse,add,monday,period,aggregate,season,canCoach,allowedUids,safeText};
+  return {dateKey,parse,add,monday,period,aggregate,pendingSubmissions,waterCount,gardenTotal,waterLeaders,season,canCoach,allowedUids,safeText};
 });

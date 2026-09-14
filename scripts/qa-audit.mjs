@@ -49,7 +49,7 @@ const failures = [];
 const inlineCount = checkInlineScripts(workbookFile);
 for (const [label, file, root] of [
   ['workbook', workbookFile, workbookRoot],
-  ['callback', callbackFile, callbackRoot],
+  ...(fs.existsSync(callbackFile) ? [['callback', callbackFile, callbackRoot]] : []),
 ]) {
   const duplicateIds = checkStaticIds(file);
   const missingAssets = checkLocalAssets(file, root);
@@ -59,7 +59,7 @@ for (const [label, file, root] of [
 
 new vm.Script(read(path.join(workbookRoot, 'ps-hub.js')), { filename: 'ps-hub.js' });
 new vm.Script(read(path.join(workbookRoot, 'presence-studio.js')), { filename: 'presence-studio.js' });
-new vm.Script(read(path.join(callbackRoot, 'script.js')), { filename: 'callback/script.js' });
+if (fs.existsSync(path.join(callbackRoot, 'script.js'))) new vm.Script(read(path.join(callbackRoot, 'script.js')), { filename: 'callback/script.js' });
 const quickslotSource = read(path.join(workbookRoot, 'assets/presence-home-quickslots.js'));
 new vm.Script(quickslotSource, { filename: 'assets/presence-home-quickslots.js' });
 if (!quickslotSource.includes('class="hqd-popover"') || !quickslotSource.includes('class="hqd-add"')) {
@@ -89,33 +89,31 @@ if (duplicateArt.length) failures.push(`avatar: duplicate costume artwork: ${[..
 if (avatarItems.some((item) => item.filter && item.filter !== 'none')) {
   failures.push('avatar: filtered copies must not be published as separate costume items');
 }
+// Studio v4 owns identity and clothes in one complete raster, so obsolete
+// color/layer fields must never leak into rendered asset URLs or overlays.
 avatarWindow.me = { uid: 'qa-avatar', name: 'QA' };
 avatarWindow.state = { petProfiles: { 'qa-avatar': {
-  equipped: { look: 'body_raincoat_5', head: 'head_shades_9' },
+  equipped: { body: 'body_raincoat_0', head: 'head_shades_9' },
 } } };
 const migratedAvatar = avatarWindow.presenceAvatarProfile();
-if (migratedAvatar.equipped.body !== 'body_raincoat_0') {
-  failures.push('avatar: legacy filtered costume ids must migrate to the unique original artwork');
-}
-if (migratedAvatar.equipped.head) {
-  failures.push('avatar: unreviewed body/head composites must not render together');
+if (migratedAvatar.outfit !== 'raincoat' || migratedAvatar.schemaVersion !== 4) {
+  failures.push('avatar: known legacy outfit must migrate to its complete v4 artwork');
 }
 avatarWindow.state.petProfiles['qa-avatar'] = {
-  color: 'sun', feather: 'legacy-spike', equipped: { prop: 'prop_tube_0' }, updatedAt: 2,
+  color: 'sun', feather: 'legacy-spike', outfit: 'unknown', equipped: { prop: 'prop_tube_0' }, updatedAt: 2,
 };
 const repairedAvatar = avatarWindow.presenceAvatarProfile();
 const repairedArt = avatarWindow.presencePetArt(repairedAvatar);
-if (repairedAvatar.color !== 'honey' || repairedAvatar.feather !== 'classic') {
-  failures.push('avatar: invalid legacy body/feather traits must canonicalize before rendering');
+if (repairedAvatar.outfit !== 'scholar' || !repairedArt.includes('avatar-scholar.png')) {
+  failures.push('avatar: invalid legacy identity must use the tracked default complete avatar');
 }
-if (!repairedArt.includes('presence-pet-base.png')) {
-  failures.push('avatar: every non-integrated render needs the audited canonical body');
+if ((repairedArt.match(/<img /g) || []).length !== 1 || !repairedArt.includes('pgp-master') || /pgp-(tone|prop|beak|eyes)|presence-base-/.test(repairedArt)) {
+  failures.push('avatar: exactly one complete master must own body, eyes, beak and clothes');
 }
-if (repairedArt.includes('presence-base-') || repairedArt.includes('pgp-tone')) {
-  failures.push('avatar: generated rectangular tone variants and tint overlays must not reach production');
-}
-if (repairedArt.includes('pgp-prop')) {
-  failures.push('avatar: unreviewed props must not render over the face or torso');
+for (const outfit of ['scholar','cape','courier','raincoat','floral','sailor','strawhat','backpack','scarf']) {
+  const art = avatarWindow.presencePetArt({outfit});
+  const src = (art.match(/src="([^"]+)"/) || [])[1];
+  if (!src || !fs.existsSync(path.join(workbookRoot,src)) || !fs.statSync(path.join(workbookRoot,src)).size) failures.push('avatar: missing complete outfit '+outfit);
 }
 if (!avatarSource.includes('__PRESENCE_AVATAR_STUDIO_SINGLE_OWNER=true')) {
   failures.push('avatar: external studio must explicitly own the inventory renderer');

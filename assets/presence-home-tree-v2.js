@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260809-6';
+  var VERSION = '20260914-garden-4';
   var ROOT = 'assets/tree-scene/';
   var CONTRACT = Object.freeze({
     scene: Object.freeze({width: 1672, height: 941}),
@@ -46,7 +46,7 @@
     stage3: ROOT + 'trees/stage-03-seedling-rpg-v2.png',
     stage4: ROOT + 'trees/stage-04-sapling-rpg-v2.png',
     stage5: ROOT + 'trees/stage-05-young-tree-rpg-v2.png',
-    spring: ROOT + 'trees/mature-green-cute-v3.png',
+    spring: ROOT + 'trees/mature-spring-cherry-rpg-v2.png',
     summer: ROOT + 'trees/mature-green-cute-v3.png',
     autumn: ROOT + 'trees/mature-autumn-maple-rpg-v2.png',
     winter: ROOT + 'trees/mature-winter-christmas-rpg-v2.png'
@@ -87,6 +87,7 @@
   }
 
   function seasonNow() {
+    if (window.PresenceWorkspace) return window.PresenceWorkspace.currentSeason();
     try {
       if (typeof treeSeason === 'function') return treeSeason();
     } catch (error) {}
@@ -180,6 +181,7 @@
   }
 
   function treeKeyFor(context, season) {
+    if (window.PresenceWorkspace && !context.preview) return season;
     if (context.ended) return 'winter';
     if (!context.preview) return season;
     if (context.frac >= 0.72) return season;
@@ -520,6 +522,7 @@
     ensureWaterFx(stage);
     stage.querySelectorAll('.tree-chick').forEach(function (node) { node.remove(); });
     if (context.ended || context.frac >= 0.6 || giftVisible) renderGiftLayer(true);
+    if (window.PresenceWorkspace) window.PresenceWorkspace.syncGardenScene();
   }
 
   function teamProfiles() {
@@ -742,7 +745,7 @@
       original.waterTree = window.waterTree;
       window.waterTree = function () {
         var result = original.waterTree.apply(this, arguments);
-        playWaterer();
+        if (!window.PresenceWorkspace) playWaterer();
         return result;
       };
       window.waterTree.__presenceTreeV2 = true;
@@ -787,6 +790,7 @@
     version: VERSION,
     contract: CONTRACT,
     render: function () { upgradeScene(); },
+    playWaterer: playWaterer,
     previewGiftOpen: function (won) { playOpenSceneV2(!!won); },
     debugAnchors: function (enabled) {
       document.documentElement.classList.toggle('tree-v2-debug', enabled !== false);
