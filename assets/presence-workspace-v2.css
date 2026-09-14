@@ -162,3 +162,13 @@ body.presence-workspace-v2 #m-garden #treeSecHome{margin:0;padding:0;overflow:hi
 @media(max-width:1199px){.pw-period-controls{gap:16px}.pw-period-navigation{flex-basis:100%}.pw-period-jump{width:100%;justify-content:space-between}}
 @media(max-width:600px){.pw-period-picker{padding:16px}.pw-period-toolbar{gap:12px}.pw-page .pw-period-toolbar select{width:100%}.pw-period-navigation{min-width:0;width:100%;grid-template-columns:44px minmax(0,1fr) 44px}.pw-period-title strong{font-size:16px}.pw-period-title .pw-sub{font-size:12px}.pw-period-jump{gap:8px}.pw-page .pw-period-jump input{width:170px}.pw-period-picker>.pw-note{line-height:1.6}}
 @media(min-width:380px) and (max-width:600px){.pw-period-toolbar{flex-wrap:nowrap;gap:12px}.pw-page .pw-period-toolbar select{width:112px;min-width:0;padding-left:8px;padding-right:6px;flex-shrink:0}}
+
+/* Administrator member drill-down retains the selected reporting period. */
+.pw-profit-person-picker{display:flex;align-items:center;gap:20px;padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.pw-profit-person-picker>label{flex:0 1 340px;min-width:0;font-size:13px;color:var(--muted)}
+.pw-page .pw-profit-person-picker select{width:100%;margin:6px 0 0}
+.pw-profit-person-picker>.pw-note{flex:1;margin:0}
+.pw-profit-viewing{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:0 0 20px}
+.pw-page .pw-profit-name{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-width:112px;color:var(--green);background:transparent}
+.pw-profit-name>span{font-size:16px}
+@media(max-width:600px){.pw-profit-person-picker{display:block}.pw-profit-person-picker>.pw-note{margin-top:10px}.pw-profit-viewing{gap:8px}}

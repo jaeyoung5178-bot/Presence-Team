@@ -81,6 +81,51 @@ try{
     await page.locator('[data-action=period][data-value=year]').click();assert.equal(await page.locator('#pwProfitRange').getAttribute('data-end'),'2024-12-31');assert.equal(await page.locator('#pwProfitSales').textContent(),'22 건');
     await page.locator('[data-action=period][data-value=day]').click();await page.locator('#pwProfitPrevious').click();assert.equal(await page.locator('#pwProfitDate').inputValue(),'2024-02-29');assert.equal(await page.locator('#pwProfitSales').textContent(),'6 건');
     await page.locator('[data-action=period][data-value=month]').click();await page.locator('#pwProfitScope').selectOption('team');assert.equal(await page.locator('#pwProfitRange').getAttribute('data-start'),'2024-02-01');assert.equal(await page.locator('#pwProfitSales').textContent(),role==='admin'?'40 건':'30 건');
+    if(role==='admin'){
+     // Deliberately different records prove every section follows the selected UID.
+     await page.evaluate(()=>{
+      state.sales['2024-02-28|이하루'].count=14;state.salesGoals.member['2024-02'].goal=40;
+      state.weeklyProfitRecaps['2024-02-29'].member.netPayment=17500;
+      PresenceWorkspace.data.weeks.member['2024-02-26']={entry:{target:40}};
+      PresenceWorkspace.data.promotions.member={targetRole:'LR',criteria:'이하루 전용 승진 기준',status:'ready'};
+      PresenceWorkspace.render();
+     });
+     await page.locator('[data-action=profit-member][data-value=member]').click();
+     assert.equal(await page.locator('#pwProfitViewing').getAttribute('data-uid'),'member');
+     assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');
+     assert.equal(await page.locator('#pwProfitDate').inputValue(),'2024-02-29');
+     assert.equal(await page.locator('#pwProfitSales').textContent(),'20 건');assert.equal(await page.locator('#pwProfitDays').textContent(),'2');assert.equal(await page.locator('#pwProfitAvg').textContent(),'10');assert.equal(await page.locator('#pwProfitAchievement').textContent(),'50%');assert.equal(await page.locator('#pwProfitIncome').textContent(),'17,500 원');
+     assert.equal(await page.locator('#workspaceProfit h1').textContent(),'이하루님의 성과');assert.equal(await page.locator('#workspaceProfit h1').evaluate(e=>e===document.activeElement),true);
+     assert.match(await page.locator('#workspaceProfit').textContent(),/이하루 전용 승진 기준/);
+     assert.equal(await page.locator('#workspaceProfit [data-action=goto-home-pledge],#workspaceProfit [data-value=sale],#workspaceProfit [data-value=profitrecap],#workspaceProfit [data-value=journey]').count(),0);
+     await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:output+'/admin-'+view.width+'-profit-member.png',fullPage:true});
+     const personLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,targets:[...document.querySelectorAll('#pwProfitPerson,.pw-profit-name')].map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})).filter(r=>r.w<43.5||r.h<43.5)}));assert.equal(personLayout.overflow,false);assert.deepEqual(personLayout.targets,[]);
+     await page.locator('#pwProfitPerson').selectOption('leader');assert.equal(await page.locator('#pwProfitSales').textContent(),'10 건');assert.equal(await page.locator('#pwProfitIncome').textContent(),'5,000 원');assert.doesNotMatch(await page.locator('#workspaceProfit').textContent(),/이하루 전용 승진 기준/);assert.equal(await page.evaluate(()=>document.activeElement.id),'pwProfitPerson');
+     await page.locator('#pwProfitPerson').selectOption('member');await page.evaluate(()=>PresenceWorkspace.render());assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');
+     await page.evaluate(()=>goTab('home'));await page.goBack();await page.waitForTimeout(120);assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');assert.equal(await page.locator('#pwProfitDate').inputValue(),'2024-02-29');
+     await page.locator('[data-action=period][data-value=week]').click();assert.equal(await page.locator('#pwProfitAchievement').textContent(),'80%');assert.equal(await page.locator('#pwProfitSales').textContent(),'32 건');
+     await page.locator('[data-action=period][data-value=month]').click();await page.locator('#pwProfitNext').click();assert.equal(await page.locator('#pwProfitSales').textContent(),'12 건');assert.equal(await page.locator('#pwProfitIncome').textContent(),'9,000 원');await page.locator('#pwProfitPrevious').click();
+     await page.locator('[data-action=profit-self]').click();assert.equal(await page.locator('#pwProfitPerson').inputValue(),'admin');assert.equal(await page.locator('#pwProfitSales').textContent(),'10 건');assert.equal(await page.locator('#pwProfitIncome').textContent(),'5,000 원');
+     await page.locator('#pwProfitScope').selectOption('team');await page.locator('[data-action=profit-member][data-value=member]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');
+     await page.locator('[data-action=profit-support]').click();assert.equal(await page.evaluate(()=>curTab),'supporthub');assert.equal(await page.locator('#pwSupportUid').inputValue(),'member');await page.goBack();await page.waitForTimeout(120);assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');
+     await page.evaluate(()=>{state.users.member.status='inactive';PresenceWorkspace.render();});assert.equal(await page.locator('#pwProfitPerson').inputValue(),'admin');assert.equal(await page.locator('#pwProfitPerson option[value=member]').count(),0);assert.equal(await page.locator('#pwProfitViewing').count(),0);
+     await page.evaluate(()=>{state.users.member.status='active';PresenceWorkspace.render();});await page.waitForTimeout(100);
+     for(const flag of ['__adminOff','__previewRole']){
+      await page.locator('#pwProfitPerson').selectOption('member');
+      await page.evaluate(flag=>{goTab('home');window[flag]=flag==='__previewRole'?'IC':true;PresenceWorkspace.render();},flag);
+      assert.equal(await page.locator('#pwProfitPerson,#pwProfitViewing').count(),0,'privileged hidden DOM cleared after permission change');
+      await page.evaluate(()=>goTab('profithub'));assert.equal(await page.locator('#pwProfitPerson,#pwProfitViewing,[data-action=profit-member]').count(),0);assert.equal(await page.locator('#pwProfitIncome').textContent(),'5,000 원');
+      await page.evaluate(flag=>{window[flag]=false;PresenceWorkspace.render();},flag);await page.waitForTimeout(100);assert.equal(await page.locator('#pwProfitPerson').inputValue(),'admin');
+     }
+     await page.locator('#pwProfitPerson').selectOption('member');
+     await page.evaluate(()=>{const e=document.createElement('select');e.id='pwProfitPerson';e.innerHTML='<option value="missing">missing</option>';document.body.append(e);e.dispatchEvent(new Event('change',{bubbles:true}));e.remove();});assert.equal(await page.locator('#pwProfitPerson').inputValue(),'member');
+     await page.evaluate(()=>{me=state.users.other;PresenceWorkspace.render();});await page.waitForTimeout(120);assert.equal(await page.locator('#pwProfitPerson,#pwProfitViewing').count(),0);assert.equal(await page.locator('#pwProfitDate').inputValue(),await page.evaluate(()=>PresenceWorkspace.core.dateKey()));
+     await page.evaluate(()=>{me=state.users.admin;PresenceWorkspace.render();});await page.waitForTimeout(120);assert.equal(await page.locator('#pwProfitPerson').inputValue(),'admin');
+    }else{
+     assert.equal(await page.locator('#pwProfitPerson,[data-action=profit-member]').count(),0);
+     await page.evaluate(()=>{const e=document.createElement('select');e.id='pwProfitPerson';e.innerHTML='<option value="admin">admin</option>';document.body.append(e);e.dispatchEvent(new Event('change',{bubbles:true}));e.remove();const b=document.createElement('button');b.dataset.action='profit-member';b.dataset.value='admin';document.getElementById('workspaceProfit').append(b);b.click();b.remove();});
+     assert.equal(await page.locator('#pwProfitViewing').count(),0);assert.equal(await page.locator('#pwProfitSales').textContent(),'30 건');
+    }
     await page.locator('#pwProfitScope').selectOption('self');await page.locator('#pwProfitDate').fill('2023-01-15');await page.locator('#pwProfitDate').dispatchEvent('change');assert.equal(await page.locator('#pwProfitSales').textContent(),'0 건');assert.equal(await page.locator('#pwProfitAvg').textContent(),'—');
     await page.locator('[data-action=profit-current]').click();assert.equal(await page.locator('#pwProfitNext').isDisabled(),true);await page.locator('[data-action=period][data-value=week]').click();
     const writes=await page.evaluate(()=>__qaWrites.filter(w=>/^(sales\/|salesGoals\/|workspaceWeeks\/|workspaceTeamGoals\/|weeklyProfitRecaps\/)/.test(w.path)));assert.deepEqual(writes,[],'viewing historical performance never writes performance records');
