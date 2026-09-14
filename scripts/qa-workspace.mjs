@@ -25,6 +25,12 @@ try{
    const c=PresenceWorkspace.core,t=c.dateKey(),w=c.monday(t);
    for(let i=0;i<14;i++){const d=c.add(w,i-7);if(d>t)continue;for(const u of Object.values(state.users))state.sales[d+'|'+u.name]={date:d,name:u.name,count:i%5,checked:true};}
    window.__qaStore={workspaceGarden:{member:{count:4,lastWateredAt:c.parse(c.add(t,-1)).getTime()}},workspaceAccess:{member:{leaderUid:'leader',teamName:'Presence'},other:{leaderUid:'leader',teamName:'Presence'}},workspaceWeeks:{member:{[w]:{entry:{target:20,action:'하루에 한 번 피드백 받기',pledge:'이번 주에는 배운 내용을 바로 실천하겠습니다.',help:'첫 미팅을 함께 준비하고 싶어요.',updatedAt:Date.now(),authorUid:'member'}}}},workspaceProfiles:{leader:{intro:'함께 배우는 김리더입니다.',strength:'현장 피드백',learning:'코칭'},member:{intro:'매일 조금씩 배우고 있어요.',strength:'고객과 대화',learning:'현장 기본기'}},workspaceChannels:{team:{hello:{authorUid:'leader',authorName:'김리더',text:'이번 주도 함께 시작해요. 도움이 필요한 점을 편하게 남겨주세요.',createdAt:Date.now()}}}};
+   for(const u of Object.values(state.users)){
+    for(const [date,count] of [['2024-02-28',4],['2024-02-29',6],['2024-03-01',12]])state.sales[date+'|'+u.name]={date,name:u.name,count,checked:true};
+    __qaStore.workspaceWeeks[u.uid]=__qaStore.workspaceWeeks[u.uid]||{};__qaStore.workspaceWeeks[u.uid][c.add(w,-7)]={entry:{target:10,pledge:'지난주 목표',authorUid:u.uid}};
+    state.salesGoals[u.uid]={'2024-02':{goal:20},[t.slice(0,7)]:{goal:100}};
+   }
+   state.weeklyProfitRecaps={'2024-02-29':{member:{netPayment:5000},leader:{netPayment:5000},admin:{netPayment:5000}},'2024-03-01':{member:{netPayment:9000}}};
    window.__qaWatch=new Map();window.__qaWrites=[];window.__qaFail=false;
    const get=p=>p.split('/').reduce((v,k)=>v?.[k],window.__qaStore);
    DB.on=(p,cb)=>{window.__qaWatch.set(p,cb);queueMicrotask(()=>{if(window.__qaWatch.get(p)===cb)cb(get(p)||null);});return()=>window.__qaWatch.delete(p);};
@@ -40,7 +46,7 @@ try{
  const views=[{width:390,height:844},{width:1024,height:768},{width:1440,height:900}];
  for(const role of (process.env.QA_QUICK?['member']:['member','leader','admin']))for(const view of views){
   await page.setViewportSize(view);await fixture(role);
-  for(const tab of (process.env.QA_QUICK?['home','garden']:['home','garden','today','peoplehub','learnhub','profithub',...(role==='member'?[]:['supporthub','tlhome'])])){
+  for(const tab of (process.env.QA_PROFIT_ONLY?['profithub']:process.env.QA_QUICK?['home','garden']:['home','garden','today','peoplehub','learnhub','profithub',...(role==='member'?[]:['supporthub','tlhome'])])){
    await page.evaluate(tab=>goTab(tab),tab);await page.waitForTimeout(160);
    await page.waitForFunction(()=>[...document.querySelectorAll('.mpanel.active img')].every(img=>img.complete),null,{timeout:20000});
    const geom=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,tab:curTab,nav:[...document.querySelectorAll('#rail .gtab')].map(x=>x.textContent.trim()),broken:[...document.querySelectorAll('.mpanel.active img')].filter(x=>!x.complete||!x.naturalWidth).map(x=>x.getAttribute('src')),root:[...document.querySelectorAll('.mpanel.active .pw-page')].map(e=>({w:e.clientWidth,h:e.clientHeight,text:e.textContent.slice(0,100)}))}));
@@ -61,9 +67,28 @@ try{
     await page.locator('#workspaceGardenLeaders').scrollIntoViewIfNeeded();await page.screenshot({path:output+'/'+role+'-'+view.width+'-garden-leaders.png'});await page.evaluate(()=>window.scrollTo(0,0));
    }
    await page.screenshot({path:output+'/'+role+'-'+view.width+'-'+tab+'.png',fullPage:false});
+   if(tab==='profithub'){
+    await page.locator('#pwProfitPrevious').click();
+    assert.equal(await page.locator('#pwProfitSales').textContent(),'11 건');assert.equal(await page.locator('#pwProfitDays').textContent(),'7');assert.equal(await page.locator('#pwProfitAvg').textContent(),'1.57');assert.equal(await page.locator('#pwProfitAchievement').textContent(),'110%');
+    await page.locator('#pwProfitNext').click();assert.equal(await page.locator('#pwProfitNext').isDisabled(),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'pwProfitCurrent');
+    await page.locator('[data-action=period][data-value=month]').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'pwProfitUnit-month');await page.locator('#pwProfitDate').fill('2024-02-09');await page.locator('#pwProfitDate').dispatchEvent('change');
+    assert.equal(await page.locator('#pwProfitRange').getAttribute('data-start'),'2024-02-01');assert.equal(await page.locator('#pwProfitRange').getAttribute('data-end'),'2024-02-29');assert.equal(await page.locator('#pwProfitSales').textContent(),'10 건');assert.equal(await page.locator('#pwProfitDays').textContent(),'2');assert.equal(await page.locator('#pwProfitAvg').textContent(),'5');assert.equal(await page.locator('#pwProfitAchievement').textContent(),'50%');assert.equal(await page.locator('#pwProfitIncome').textContent(),'5,000 원');
+    await page.evaluate(()=>PresenceWorkspace.render());assert.equal(await page.locator('#pwProfitDate').inputValue(),'2024-02-09');
+    await page.evaluate(()=>goTab('home'));await page.goBack();await page.waitForTimeout(120);assert.equal(await page.evaluate(()=>curTab),'profithub');assert.equal(await page.locator('#pwProfitRange').getAttribute('data-start'),'2024-02-01');
+    await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:output+'/'+role+'-'+view.width+'-profit-historical.png'});
+    const historicalLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,targets:[...document.querySelectorAll('.pw-period-picker button,.pw-period-picker input,.pw-period-picker select')].map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})).filter(r=>r.w<43.5||r.h<43.5)}));assert.equal(historicalLayout.overflow,false);assert.deepEqual(historicalLayout.targets,[]);
+    await page.locator('#pwProfitNext').click();assert.equal(await page.locator('#pwProfitRange').getAttribute('data-start'),'2024-03-01');assert.equal(await page.locator('#pwProfitSales').textContent(),'12 건');
+    await page.locator('[data-action=period][data-value=year]').click();assert.equal(await page.locator('#pwProfitRange').getAttribute('data-end'),'2024-12-31');assert.equal(await page.locator('#pwProfitSales').textContent(),'22 건');
+    await page.locator('[data-action=period][data-value=day]').click();await page.locator('#pwProfitPrevious').click();assert.equal(await page.locator('#pwProfitDate').inputValue(),'2024-02-29');assert.equal(await page.locator('#pwProfitSales').textContent(),'6 건');
+    await page.locator('[data-action=period][data-value=month]').click();await page.locator('#pwProfitScope').selectOption('team');assert.equal(await page.locator('#pwProfitRange').getAttribute('data-start'),'2024-02-01');assert.equal(await page.locator('#pwProfitSales').textContent(),role==='admin'?'40 건':'30 건');
+    await page.locator('#pwProfitScope').selectOption('self');await page.locator('#pwProfitDate').fill('2023-01-15');await page.locator('#pwProfitDate').dispatchEvent('change');assert.equal(await page.locator('#pwProfitSales').textContent(),'0 건');assert.equal(await page.locator('#pwProfitAvg').textContent(),'—');
+    await page.locator('[data-action=profit-current]').click();assert.equal(await page.locator('#pwProfitNext').isDisabled(),true);await page.locator('[data-action=period][data-value=week]').click();
+    const writes=await page.evaluate(()=>__qaWrites.filter(w=>/^(sales\/|salesGoals\/|workspaceWeeks\/|workspaceTeamGoals\/|weeklyProfitRecaps\/)/.test(w.path)));assert.deepEqual(writes,[],'viewing historical performance never writes performance records');
+   }
+
   }
  }
- if(!process.env.QA_QUICK){
+ if(!process.env.QA_QUICK&&!process.env.QA_PROFIT_ONLY){
   await page.setViewportSize({width:390,height:844});await fixture('member');
   await page.locator('[data-form=pledge] textarea').first().fill('이번 주에는 먼저 질문하고 배운 것을 실천합니다.');
   await page.locator('[data-form=pledge] button[type=submit]').click();

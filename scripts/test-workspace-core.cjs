@@ -40,3 +40,19 @@ test('submission check includes missing/cleared entries, accepts saved zero and 
  const recorded=e=>!!(e&&!e.cleared&&(e.na||e.rally||e.checked||e.count>0));
  assert.deepEqual(c.pendingSubmissions(members,records,'2026-09-14',recorded,n=>n==='future').map(m=>m.name),['missing','cleared','unconfirmed']);
 });
+test('historical reports cover the whole selected period; current reports stop today',()=>{
+ const prior=c.reportPeriod('week','2026-09-09','2026-09-14');assert.equal(prior.start,'2026-09-07');assert.equal(prior.cutoff,'2026-09-13');assert.equal(prior.previousCutoff,'2026-09-06');assert.equal(prior.isCurrent,false);
+ const current=c.reportPeriod('week','2026-09-14','2026-09-16');assert.equal(current.cutoff,'2026-09-16');assert.equal(current.previousCutoff,'2026-09-09');assert.equal(current.isCurrent,true);
+ const feb=c.reportPeriod('month','2024-02-09','2026-09-14');assert.equal(feb.cutoff,'2024-02-29');assert.equal(feb.previousCutoff,'2024-01-31');
+ const year=c.reportPeriod('year','2025-02-01','2026-09-14');assert.equal(year.cutoff,'2025-12-31');assert.equal(year.previousCutoff,'2024-12-31');
+ assert.equal(c.reportPeriod('month','2026-09-01','2026-09-14').cutoff,'2026-09-14');
+ assert.equal(c.reportPeriod('month','2027-01-01','2026-09-14').start,'2026-09-01');
+});
+test('calendar shifts do not overflow shorter months or cross-year weeks',()=>{
+ assert.equal(c.shiftPeriod('month','2026-03-31',-1,'2026-09-14'),'2026-02-01');
+ assert.equal(c.shiftPeriod('month','2026-01-31',-1,'2026-09-14'),'2025-12-01');
+ assert.equal(c.shiftPeriod('week','2026-01-01',-1,'2026-09-14'),'2025-12-22');
+ assert.equal(c.shiftPeriod('year','2024-02-29',-1,'2026-09-14'),'2023-01-01');
+ assert.equal(c.shiftPeriod('day','2024-03-01',-1,'2026-09-14'),'2024-02-29');
+ assert.equal(c.validDate('2024-02-29'),true);assert.equal(c.validDate('2025-02-29'),false);assert.equal(c.validDate('2026-13-01'),false);assert.equal(c.validDate(''),false);
+});

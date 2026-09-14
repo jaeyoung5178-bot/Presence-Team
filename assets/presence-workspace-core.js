@@ -16,6 +16,18 @@
     const elapsed=Math.round((parse(today)-parse(start))/86400000);
     return {kind,start,end,cutoff:today<end?today:end,previousStart,previousEnd,previousCutoff:[add(previousStart,elapsed),previousEnd].sort()[0]};
   }
+  function validDate(value) { if(!/^(?!0000)\d{4}-\d{2}-\d{2}$/.test(value||''))return false;try{return dateKey(parse(value))===value;}catch(e){return false;} }
+  function reportPeriod(kind,selected,today) {
+    today=today||dateKey();selected=validDate(selected)?selected:today;if(selected>today)selected=today;
+    const range=period(kind,selected),current=period(kind,today),isCurrent=range.start===current.start;
+    return {...range,cutoff:range.end<today?range.end:today,previousCutoff:isCurrent?current.previousCutoff:range.previousEnd,isCurrent};
+  }
+  function shiftPeriod(kind,selected,offset,today) {
+    const range=reportPeriod(kind,selected,today),start=range.start;
+    if(kind==='day'||kind==='week')return add(start,offset*(kind==='week'?7:1));
+    const d=parse(start);if(kind==='month')d.setUTCMonth(d.getUTCMonth()+offset);else d.setUTCFullYear(d.getUTCFullYear()+offset);
+    return dateKey(d);
+  }
   function aggregate(records,names,start,end,isWork) {
     const wanted=new Set(names),by=new Map();
     Object.values(records||{}).forEach(e=>{if(!e||!wanted.has(e.name)||e.date<start||e.date>end)return;
@@ -41,5 +53,5 @@
   function canCoach(actor,target,access) { return !!(actor&&actor.status==='active'&&target&&(actor.uid==='admin'||((access||{})[target.uid]||{}).leaderUid===actor.uid)); }
   function allowedUids(actor,users,access) { return Object.values(users||{}).filter(u=>u&&u.status==='active'&&(u.uid===actor.uid||canCoach(actor,u,access))).map(u=>u.uid); }
   function safeText(value,max) { return String(value==null?'':value).trim().slice(0,max||1000); }
-  return {dateKey,parse,add,monday,period,aggregate,pendingSubmissions,waterCount,gardenTotal,waterLeaders,season,canCoach,allowedUids,safeText};
+  return {dateKey,parse,add,monday,period,validDate,reportPeriod,shiftPeriod,aggregate,pendingSubmissions,waterCount,gardenTotal,waterLeaders,season,canCoach,allowedUids,safeText};
 });
