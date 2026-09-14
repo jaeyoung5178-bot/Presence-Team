@@ -246,7 +246,7 @@
       ".read": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
       "$payDate": {
         "$uid": {
-          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O'))) ",
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
           ".validate": "!newData.exists() || (newData.child('uid').val() == $uid && newData.child('payDate').val() == $payDate && newData.child('weekEnding').isString() && newData.child('netPayment').isNumber() && newData.child('netPayment').val() >= 0 && newData.child('rejectCLCount').isNumber() && newData.child('rejectCLCount').val() >= 0 && newData.child('rejectSWCount').isNumber() && newData.child('rejectSWCount').val() >= 0 && newData.child('updatedAt').isNumber())"
         }
       }
@@ -256,7 +256,7 @@
       "$uid": {
         ".read": "auth != null && ((root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active') || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
         "$payDate": {
-          ".write": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O')))",
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
           ".validate": "!newData.exists() || (newData.child('uid').val() == $uid && newData.child('payDate').val() == $payDate && newData.child('weekEnding').isString() && newData.child('netPayment').isNumber() && newData.child('netPayment').val() >= 0 && newData.child('rejectCLCount').isNumber() && newData.child('rejectCLCount').val() >= 0 && newData.child('rejectSWCount').isNumber() && newData.child('rejectSWCount').val() >= 0 && newData.child('updatedAt').isNumber())"
         }
       }
@@ -265,7 +265,7 @@
       ".read": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
       "$month": {
         "$uid": {
-          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O'))) ",
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
           ".validate": "newData.isNumber() && newData.val() >= 0"
         }
       }
@@ -275,7 +275,7 @@
       "$uid": {
         ".read": "auth != null && ((root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active') || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
         "$month": {
-          ".write": "auth != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && (root.child('users').child($uid).child('role').val() == 'LR' || root.child('users').child($uid).child('role').val() == 'TL' || root.child('users').child($uid).child('role').val() == 'AOP' || root.child('users').child($uid).child('role').val() == 'OP' || root.child('users').child($uid).child('role').val() == 'O')))",
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('managerAccess').child(root.child('authSessions').child(auth.uid).child('userUid').val()).val() == true)",
           ".validate": "newData.isNumber() && newData.val() >= 0"
         }
       }
@@ -554,6 +554,286 @@
       "$uid": {
         ".read": "auth != null && ((root.child('authSessions').child(auth.uid).child('userUid').val() != null && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || (root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin'))) || (root.child('callbackSessions').child(auth.uid).child('userUid').val() == $uid && root.child('callbackSessions').child(auth.uid).child('accessKey').val() == root.child('callbackProfiles').child($uid).child('accessKey').val()))",
         ".write": "auth != null && ((!data.exists() && auth.uid == $uid && newData.child('uid').val() == $uid && newData.child('status').val() == 'pending' && newData.child('role').val() == 'IC' && newData.child('loginKey').isString() && newData.child('id').isString() && newData.child('name').isString()) || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && newData.child('uid').val() == data.child('uid').val() && newData.child('id').val() == data.child('id').val() && newData.child('name').val() == data.child('name').val() && newData.child('role').val() == data.child('role').val() && newData.child('status').val() == data.child('status').val()))"
+      }
+    },
+    "workspaceAccess": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      "$uid": {
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+        ".validate": "newData.hasChildren([\"leaderUid\", \"teamName\", \"updatedBy\", \"updatedAt\"])",
+        "leaderUid": {
+          ".validate": "newData.isString() && (newData.val() == '' || (newData.val() != $uid && root.child('users').child(newData.val()).child('status').val() == 'active' && (newData.val() == 'admin' || root.child('users').child(newData.val()).child('role').val().matches(/^(LR|TL|AOP|OP|O)$/))))"
+        },
+        "teamName": {
+          ".validate": "newData.isString() && newData.val().length <= 60 && newData.val().length > 0"
+        },
+        "updatedBy": {
+          ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "workspaceWeeks": {
+      "$uid": {
+        ".read": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid) || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())))",
+        "$week": {
+          ".validate": "$week.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+          "entry": {
+            ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid)",
+            ".validate": "newData.hasChildren([\"target\", \"action\", \"pledge\", \"help\", \"authorUid\", \"updatedAt\"])",
+            "target": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0"
+            },
+            "action": {
+              ".validate": "newData.isString() && newData.val().length <= 160"
+            },
+            "pledge": {
+              ".validate": "newData.isString() && newData.val().length <= 800"
+            },
+            "help": {
+              ".validate": "newData.isString() && newData.val().length <= 800"
+            },
+            "authorUid": {
+              ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "coach": {
+            ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            ".validate": "newData.hasChildren([\"reply\", \"due\", \"status\", \"byUid\", \"byName\", \"updatedAt\"])",
+            "reply": {
+              ".validate": "newData.isString() && newData.val().length <= 1200 && newData.val().length > 0"
+            },
+            "due": {
+              ".validate": "newData.isString() && newData.val().length <= 10 && (newData.val() == '' || newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/))"
+            },
+            "status": {
+              ".validate": "newData.isString() && (newData.val() == 'planned' || newData.val() == 'done')"
+            },
+            "byUid": {
+              ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+            },
+            "byName": {
+              ".validate": "newData.isString() && newData.val().length <= 100"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "workspaceLearning": {
+      "$uid": {
+        ".read": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid) || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())))",
+        "$lesson": {
+          ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid)",
+          ".validate": "newData.hasChildren([\"status\", \"note\", \"updatedAt\"])",
+          "status": {
+            ".validate": "newData.isString() && (newData.val() == 'learning' || newData.val() == 'done')"
+          },
+          "note": {
+            ".validate": "newData.isString() && newData.val().length <= 1200"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "workspacePromotions": {
+      "$uid": {
+        ".read": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid) || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())))",
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+        ".validate": "newData.hasChildren([\"targetRole\", \"criteria\", \"due\", \"status\", \"updatedBy\", \"updatedAt\"])",
+        "targetRole": {
+          ".validate": "newData.isString() && newData.val().length <= 60 && newData.val().length > 0"
+        },
+        "criteria": {
+          ".validate": "newData.isString() && newData.val().length <= 1600 && newData.val().length > 0"
+        },
+        "due": {
+          ".validate": "newData.isString() && newData.val().length <= 10 && (newData.val() == '' || newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/))"
+        },
+        "status": {
+          ".validate": "newData.isString() && (newData.val() == 'preparing' || newData.val() == 'ready' || newData.val() == 'done')"
+        },
+        "updatedBy": {
+          ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "workspaceProfiles": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      "$uid": {
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid)",
+        ".validate": "newData.hasChildren([\"intro\", \"strength\", \"learning\", \"communication\", \"updatedAt\"])",
+        "intro": {
+          ".validate": "newData.isString() && newData.val().length <= 240"
+        },
+        "strength": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "learning": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "communication": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "workspaceChannels": {
+      "$channel": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && $channel.matches(/^(team|cod|learning|praise|network)$/)",
+        ".validate": "$channel.matches(/^(team|cod|learning|praise|network)$/)",
+        ".indexOn": [
+          "createdAt"
+        ],
+        "$message": {
+          ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active') && ((!data.exists() && newData.child('authorUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val()) || (data.exists() && (data.child('authorUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() || (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && !newData.exists()))))",
+          ".validate": "newData.hasChildren([\"authorUid\", \"authorName\", \"text\", \"createdAt\"])",
+          "authorUid": {
+            ".validate": "newData.isString() && (!data.exists() || newData.val() == data.val())"
+          },
+          "authorName": {
+            ".validate": "newData.isString() && newData.val().length <= 100"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length <= 2000 && newData.val().length > 0"
+          },
+          "createdAt": {
+            ".validate": "newData.isNumber() && ((!data.exists() && newData.val() <= now + 10000 && newData.val() >= now - 300000) || (data.exists() && newData.val() == data.val()))"
+          },
+          "parentId": {
+            ".validate": "newData.isString() && newData.val().length <= 100"
+          },
+          "reactions": {
+            "$reactor": {
+              ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $reactor && data.parent().parent().exists()",
+              ".validate": "newData.val() == true && (root.child('authSessions').child(auth.uid).child('userUid').val() == $reactor || data.val() == newData.val())"
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "workspaceDM": {
+      "$uidA": {
+        "$uidB": {
+          ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uidA || root.child('authSessions').child(auth.uid).child('userUid').val() == $uidB)",
+          ".indexOn": [
+            "createdAt"
+          ],
+          "$message": {
+            ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uidA || root.child('authSessions').child(auth.uid).child('userUid').val() == $uidB)) && ((!data.exists() && newData.child('authorUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val()) || (data.exists() && (data.child('authorUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())))",
+            ".validate": "newData.hasChildren([\"authorUid\", \"authorName\", \"text\", \"createdAt\"])",
+            "authorUid": {
+              ".validate": "newData.isString() && (!data.exists() || newData.val() == data.val())"
+            },
+            "authorName": {
+              ".validate": "newData.isString() && newData.val().length <= 100"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length <= 2000 && newData.val().length > 0"
+            },
+            "createdAt": {
+              ".validate": "newData.isNumber() && ((!data.exists() && newData.val() <= now + 10000 && newData.val() >= now - 300000) || (data.exists() && newData.val() == data.val()))"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "workspaceGarden": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      "$uid": {
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid) && newData.exists() && (!data.exists() || data.child('lastWateredAt').val() < (now + 32400000 - ((now + 32400000) % 86400000) - 32400000))",
+        ".validate": "newData.hasChildren([\"count\", \"lastWateredAt\"])",
+        "count": {
+          ".validate": "newData.isNumber() && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+        },
+        "lastWateredAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "workspaceSettings": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+      ".validate": "newData.hasChildren([\"season\", \"updatedAt\", \"updatedBy\"])",
+      "season": {
+        ".validate": "newData.isString() && (newData.val() == 'auto' || newData.val() == 'spring' || newData.val() == 'summer' || newData.val() == 'autumn' || newData.val() == 'winter')"
+      },
+      "updatedAt": {
+        ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+      },
+      "updatedBy": {
+        ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "workspaceTeamGoals": {
+      ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+      "$uid": {
+        "$period": {
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('role').val().matches(/^(LR|TL|AOP|OP|O)$/)))",
+          ".validate": "$period.matches(/^(week|month)_[0-9]{4}-[0-9]{2}-[0-9]{2}$/) && newData.hasChildren(['salesTarget','avgTarget','updatedAt','updatedBy'])",
+          "salesTarget": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0"
+          },
+          "avgTarget": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000"
+          },
+          "updatedBy": {
+            ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
       }
     }
   }

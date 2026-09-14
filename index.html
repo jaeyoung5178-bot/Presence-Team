@@ -4516,12 +4516,8 @@ const isFounder=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===
 /* 소유자 계정 여부 — '관리자 모드 OFF'(미리보기 토글)와 무관하게 항상 true.
    콜백싯 전체 열람처럼 '진짜 소유자만' 접근하는 데이터에는 이 판정을 쓴다. */
 const isOwnerAccount=u=>!!u && (u.uid===FOUNDER.uid || u.id===FOUNDER.id || u.name===FOUNDER.name);
-function canProfitRecap(u){
-  if(!u)return false;
-  const raw=String(u.role||'').trim().toUpperCase();
-  const code=['LR','TL','AOP','OP','O'].find(function(r){return raw===r||raw.indexOf('('+r+')')>=0;})||raw;
-  return ['LR','TL','AOP','OP','O'].indexOf(code)>=0||isOwnerAccount(u)||isManager(u);
-}
+function canProfitRecap(u){return !!u&&u.status==='active';}
+
 function isManager(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name))return window.__previewRole==='MANAGER';if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;if(window.__managerAccessUid&&u.uid===window.__managerAccessUid)return true;const mg=(typeof state!=='undefined'&&Array.isArray(state.managers))?state.managers:[];const nm=(u.name||'').replace(/\s/g,'');return mg.some(n=>String(n||'').replace(/\s/g,'')===nm);}
 function canManageTeamRecords(u){return !!u&&(isFounder(u)||(!isOwnerAccount(u)&&isManager(u)));}
 function isSectorLeader(u){if(!u)return false;if(window.__previewRole&&me&&(u.uid===me.uid||u.name===me.name))return window.__previewRole==='SECTOR';if(u.uid===FOUNDER.uid||u.id===FOUNDER.id||u.name===FOUNDER.name)return true;var sl=(typeof state!=='undefined'&&Array.isArray(state.sectorLeaders))?state.sectorLeaders:[];var nm=(u.name||'').replace(/\s/g,'');return sl.some(function(n){return String(n||'').replace(/\s/g,'')===nm;});}
@@ -5324,7 +5320,7 @@ function enterApp(){
   // prefill name fields
   
   if(tlFast){
-    window.__booting=false;buildRail();tlhSubscribe();goTab('tlhome');renderTLHome();startAutoPull();subCbjournal();
+    window.__booting=false;buildRail();tlhSubscribe();goTab(window.PresenceWorkspace?'home':'tlhome');renderTLHome();startAutoPull();subCbjournal();
     try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
     setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();}catch(e){console.warn('[deferred app render]',e);}},80);
   }else{
@@ -5352,6 +5348,7 @@ async function reconcileAuthProfiles(){
   else window.__authProfileRetryCount=0;
 }
 async function logout(){
+  window.PresenceWorkspace?.dispose();
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
   clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
@@ -6050,7 +6047,7 @@ function renderProfitRecap(){
 function prcSetPayDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;const f=prcFriday(ds);if(f>TODAY){toast('아직 오지 않은 급여일은 작성할 수 없어요');return;}if(f!==ds)toast('급여일인 금요일로 맞췄어요');profitRecapPayDate=f;renderProfitRecap();}
 function prcMove(n){const next=prcAddDays(profitRecapPayDate||prcFriday(TODAY),n);if(next>TODAY){toast('다음 급여일 이후에는 이동할 수 없어요');return;}profitRecapPayDate=next;renderProfitRecap();}
 async function saveProfitRecap(){
-  if(!canProfitRecap(me)){toast('리더 이상만 작성할 수 있어요');return;}
+  if(!canProfitRecap(me)){toast('활동 중인 계정으로 로그인해 주세요');return;}
   const target=prcTargetUser();if(!target)return;if(target.uid!==me.uid&&!canManageTeamRecords(me)){toast('다른 팀원의 리캡은 관리자 또는 매니저만 수정할 수 있어요');return;}
   const info=prcWeekInfo(profitRecapPayDate||TODAY);if(info.pay>TODAY){toast('급여일 이후에 작성해 주세요');return;}
   const val=id=>((document.getElementById(id)||{}).value||'');
@@ -6856,6 +6853,7 @@ function goTab(name){
   /* 권한 가드 단일 출처 — TABMETA[].g 만 보면 됨 (기존 12줄 하드코딩 제거).
      보이지 않아야 할 탭이면 홈으로. 정의 안 된 탭 이름도 안전하게 홈 처리. */
   if(!tabVisible(name))name='home';
+  window.PresenceWorkspace?.beforeNavigate(name);
   curTab=name;subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
   var _homeEntry=document.getElementById('homeEntryBtn');if(_homeEntry)_homeEntry.classList.toggle('active',name==='home');
   var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
@@ -6900,6 +6898,7 @@ function goTab(name){
   if(name==='sites')renderSites();
   if(name==='daily'){const dd=document.getElementById('dailyDate');if(dd&&!dd.value)dd.value=TODAY;renderDaily();startAutoPull();}
   if(name==='events'){renderEvents();renderGnAdmin();renderAnnounceAdmin();}
+  window.PresenceWorkspace?.render(name);
   updateCounts();
   syncTopOffset();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -7303,6 +7302,7 @@ function waterToTree(pour){
   if(pour!==false){var tm=document.getElementById('treeMain');if(tm){tm.style.animation='none';void tm.offsetWidth;tm.style.animation='treeDrink 1.4s ease-in-out';setTimeout(function(){if(tm&&tm.style.animation.indexOf('treeDrink')>=0)tm.style.animation='';},1460);}}
 }
 function waterTree(){
+  if(window.PresenceWorkspace){window.PresenceWorkspace.water().catch(e=>toast(e.message||'물주기를 저장하지 못했습니다.'));return;}
   if(!me){toast('로그인이 필요해요');return}
   if(Date.now()>=GIFT_HUNT_START){toast('🎄 물주기는 12월 24일에 마감됐어요 · 이제 홈에서 선물 열기를 즐겨주세요!');return}
   if(treePreviewStep!==null){treePreviewStep=null;}   // 물 주면 미리보기 종료
@@ -9687,7 +9687,7 @@ function openMe(){if(!me)return;document.getElementById('meName').textContent=me
 function openModal(id){const el=document.getElementById(id);if(el)el.classList.add('on')}
 function closeModal(id){const el=document.getElementById(id);if(el)el.classList.remove('on')}
 
-function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderRecruitDaily();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(canProfitRecap(me))renderProfitRecap();if(me&&isFounder(me))renderAdmin();renderCelebrations();updateCounts()}
+function renderAll(){renderTree();renderWaterFeed();renderGb();renderScores();renderSales();renderRecruitDaily();renderPerfGauge();renderComp();renderNotices();renderGallery('net');renderGallery('act');renderWins();renderManual();renderObj();renderBell();if(canProfitRecap(me))renderProfitRecap();if(me&&isFounder(me))renderAdmin();renderCelebrations();updateCounts();window.PresenceWorkspace?.schedule()}
 
 /* ============================================================
    HOME MOOD FX — 관리자 토글 · 전팀 실시간 동기화
@@ -10004,7 +10004,7 @@ async function initFirebase(generation){
   const db=fb.getDatabase(app),auth=authMod.getAuth(app),queued=[];let unlocked=false;
   const rawGet=p=>fb.get(fb.ref(db,p)).then(s=>s.val());
   const rawSet=(p,v)=>fb.set(fb.ref(db,p),v);
-  const rawOn=(p,cb)=>fb.onValue(fb.ref(db,p),s=>cb(s.val()));
+  const rawOn=(p,cb,onError)=>fb.onValue(fb.ref(db,p),s=>{try{cb(s.val());}finally{window.PresenceWorkspace?.schedule();}},onError);
   const within=(promise,ms,stage)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>{const e=new Error(stage+' timeout');e.code='network/timeout';reject(e);},ms))]);
   const profitRecapOff=[];
   const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};state.promotionSurveys={};state.promotionSurveyResponses={};};
@@ -10013,7 +10013,7 @@ async function initFirebase(generation){
     /* 웹훅·운영 설정은 로그인 판정에 필요하지 않다. 이를 먼저 기다리면 느린 연결에서
        정상 계정도 로그인 중처럼 오래 보이므로 프로필과 병렬로 받고 도착 즉시 적용한다. */
     cfgRequest.then(v=>applyPrivateConfig(v||{})).catch(e=>console.warn('[login] private config will retry with the next session',e&&e.code?e.code:'failed'));
-    unlocked=true;while(queued.length){const q=queued.shift();rawOn(q[0],q[1]);}
+    unlocked=true;while(queued.length){const q=queued.shift();if(!q.cancelled)q.off=rawOn(q.path,q.callback,q.error);}
     clearProfitRecapSession();
     const owner=uid===FOUNDER.uid;
     const teamManager=owner||!!(await within(managerRequest,3000,'manager access').catch(()=>false));
@@ -10034,7 +10034,7 @@ async function initFirebase(generation){
     return within(profileRequest,8000,'user profile');};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(p?fb.ref(db,p):fb.ref(db),v);DB.remove=p=>fb.remove(fb.ref(db,p));
   DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));DB.clearProfitRecapSession=clearProfitRecapSession;
-  DB.on=(p,cb)=>p==='.info/connected'||unlocked?rawOn(p,cb):queued.push([p,cb]);
+  DB.on=(p,cb,onError)=>{if(p==='.info/connected'||unlocked)return rawOn(p,cb,onError);const q={path:p,callback:cb,error:onError,cancelled:false,off:null};queued.push(q);return ()=>{q.cancelled=true;if(q.off)q.off();};};
   /* 기존 세션 삭제→재생성의 두 단계 사이에서 연결이 끊기면 정상 비밀번호도 실패했다.
      검증된 새 세션으로 한 번에 교체해 로그인 작업을 원자적으로 만든다. */
   let loginGeneration=0;
@@ -17114,6 +17114,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
     if(document.getElementById('m-leaderwish'))return;var main=document.querySelector('#app main')||document.querySelector('main');if(!main)return;var d=document.createElement('div');d.className='mpanel';d.id='m-leaderwish';d.innerHTML='<div class="wrap lw-wrap"><section class="lw-hero"><div class="lw-player"><div class="lw-disc-wrap"><div class="lw-disc"></div><div class="lw-arm"></div></div><div><div class="lw-kicker">TEAM PRESENCE · WISH RADIO</div><div class="lw-title">난 이런 리더가<br>좋더라</div><div class="lw-sub">아프지 않게 듣고, 가볍게 넘기지 않기.<br>우리 팀이 바라는 리더의 모습을 한 줄씩 노래해요.</div><div class="lw-eq">'+Array(15).fill('<i></i>').join('')+'</div><div class="lw-lyric" id="lwActiveLine">결과보다 사람을 먼저 봐주는 리더가 좋아요.</div><div class="lw-now">NOW PLAYING · 팀원들의 희망사항</div></div></div></section><section class="lw-comments"><div class="lw-comments-head"><h3>💬 Team Presence - 희망사항</h3><span>댓글을 남기면 위 플레이어의 가사가 됩니다</span></div><div class="lw-compose"><div class="lw-me" id="lwMe">P</div><textarea id="lwInput" maxlength="240" placeholder="리더라면 이런 사람이 되려고 노력해줬으면 좋겠어요…"></textarea><button class="lw-send" onclick="postLeaderWish()">가사 남기기</button></div><div class="lw-list" id="lwList"></div></section></div>';main.appendChild(d);
   }
   function rebalanceNav(){
+    if(window.PresenceWorkspace){ensurePanel();window.PresenceWorkspace.nav();return;}
     if(typeof TABMETA==='undefined'||typeof NAV==='undefined')return;ensurePanel();TABMETA.leaderwish=TABMETA.leaderwish||{e:'🎧',l:'난 이런 리더가 좋더라',g:function(){return !!me&&me.status==='active';}};
     /* Presence의 모든 기능은 네 개의 질문으로 찾는다.
        오늘 무엇을 할까 / 누구와 일할까 / 어떻게 성장할까 / 어떤 성과를 만들까.
@@ -17383,7 +17384,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 (function(){
   function ensureTodayWorkspace(){
     var main=document.querySelector('#app main');if(!main)return;var panel=document.getElementById('m-today');
-    if(!panel){panel=document.createElement('div');panel.className='mpanel';panel.id='m-today';panel.innerHTML='<div class="wrap"><section class="sec today-workspace-intro"><div class="tw-kicker">TODAY · DAILY EXECUTION</div><div class="tw-title">오늘 필요한 일에만 집중해요</div><p class="tw-sub">Home은 팀 전체의 흐름을 보는 로비로, Today는 오늘 처리할 업무와 사람을 놓치지 않는 실행 공간으로 분리했습니다.</p><div class="tw-jumps"><button onclick="openTodayWorkspace(\'todaySec\')">✓ 오늘 할 일</button><button onclick="openTodayWorkspace(\'attendSec\')">☀ 출근</button><button onclick="openTodayWorkspace(\'celebSec\')">✦ 기념일·굳뉴스</button><button onclick="openTodayWorkspace(\'praiseSec\')">♡ 칭찬</button><button class="tw-daiso" onclick="openDaisoCompetition()">🏆 다이소</button></div></section><div id="todayWorkspaceBody"></div></div>';var home=document.getElementById('m-home');if(home&&home.nextSibling)main.insertBefore(panel,home.nextSibling);else main.appendChild(panel);}
+    if(!panel){panel=document.createElement('div');panel.className='mpanel';panel.id='m-today';panel.innerHTML='<div class="wrap"><section class="sec today-workspace-intro"><div class="tw-kicker">TODAY · DAILY EXECUTION</div><div class="tw-title">오늘 필요한 일에만 집중해요</div><p class="tw-sub">할 일을 정하고 출근을 기록하세요. 동료의 좋은 소식에도 마음을 나눠보세요.</p><div class="tw-jumps"><button onclick="openTodayWorkspace(\'todaySec\')">✓ 오늘 할 일</button><button onclick="openTodayWorkspace(\'attendSec\')">☀ 출근</button><button onclick="openTodayWorkspace(\'celebSec\')">✦ 기념일·굳뉴스</button><button onclick="openTodayWorkspace(\'praiseSec\')">♡ 칭찬</button><button class="tw-daiso" onclick="openDaisoCompetition()">🏆 다이소</button></div></section><div id="todayWorkspaceBody"></div></div>';var home=document.getElementById('m-home');if(home&&home.nextSibling)main.insertBefore(panel,home.nextSibling);else main.appendChild(panel);}
     var body=document.getElementById('todayWorkspaceBody');['todaySec','attendSec','celebSec','praiseSec'].forEach(function(id){var el=document.getElementById(id);if(body&&el&&el.parentNode!==body)body.appendChild(el);});
   }
   window.openTodayWorkspace=function(id){if(typeof goTab==='function')goTab('today');setTimeout(function(){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);};
@@ -17408,5 +17409,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-home-tree-v2.js?v=20260809-6"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260914-1">
+<script src="assets/presence-workspace-core.js?v=20260914-1"></script>
+<script src="assets/presence-workspace-v2.js?v=20260914-1"></script>
 </body>
 </html>

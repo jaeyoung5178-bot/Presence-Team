@@ -1,0 +1,27 @@
+const {readFileSync}=require('node:fs');
+const deps=process.env.PRESENCE_QA_DEPS||'/tmp/presence-workspace-tooling/runtime/node_modules';
+const {initializeTestEnvironment,assertSucceeds,assertFails}=require(deps+'/@firebase/rules-unit-testing');
+const {ref,set,get,update}=require(deps+'/firebase/database');
+(async()=>{
+const env=await initializeTestEnvironment({projectId:'demo-presence-workspace',database:{host:'127.0.0.1',port:9000,rules:readFileSync(new URL('../database.rules.json','file://'+__filename),'utf8')}});
+let count=0;const ok=async p=>{await assertSucceeds(p);count++;},no=async p=>{await assertFails(p);count++;};
+try{
+ await env.clearDatabase();
+ await env.withSecurityRulesDisabled(async c=>set(ref(c.database()),{authSessions:{a:{userUid:'admin'},m:{userUid:'member'},l:{userUid:'leader'},s:{userUid:'stranger'},x:{userUid:'inactive'}},users:{admin:{uid:'admin',status:'active',role:'AOP'},member:{uid:'member',status:'active',role:'IC'},leader:{uid:'leader',status:'active',role:'TL'},stranger:{uid:'stranger',status:'active',role:'TL'},inactive:{uid:'inactive',status:'inactive'}},workspaceAccess:{member:{leaderUid:'leader',teamName:'Presence'}}}));
+ const db=id=>env.authenticatedContext(id).database(),admin=db('a'),member=db('m'),leader=db('l'),stranger=db('s'),inactive=db('x'),anon=env.unauthenticatedContext().database();
+ const p='workspaceWeeks/member/2026-09-14',entry={target:20,action:'피드백',pledge:'실천해요',help:'동행 요청',authorUid:'member',updatedAt:Date.now()},coach={reply:'화요일에 함께 준비해요',due:'2026-09-15',status:'planned',byUid:'leader',byName:'김리더',updatedAt:Date.now()};
+ await ok(set(ref(member,p+'/entry'),entry));await ok(get(ref(member,p)));await ok(get(ref(leader,p)));await ok(get(ref(admin,p)));await no(get(ref(stranger,p)));await no(get(ref(inactive,p)));await no(get(ref(anon,p)));await no(get(ref(member,'workspaceWeeks')));
+ await no(set(ref(leader,p+'/entry'),entry));await no(set(ref(member,p+'/coach'),coach));await ok(set(ref(leader,p+'/coach'),coach));await no(set(ref(stranger,p+'/coach'),{...coach,byUid:'stranger'}));
+ await no(update(ref(member,p+'/entry'),{target:-1}));await no(update(ref(member,p+'/entry'),{help:'x'.repeat(801)}));await no(update(ref(member,p+'/entry'),{secret:'unapproved field'}));
+ const access={leaderUid:'leader',teamName:'Presence',updatedBy:'admin',updatedAt:Date.now()};await no(set(ref(member,'workspaceAccess/member'),access));await ok(set(ref(admin,'workspaceAccess/member'),access));await no(set(ref(admin,'workspaceAccess/member'),{...access,leaderUid:'member'}));
+ const msg={authorUid:'member',authorName:'하루',text:'안녕하세요',createdAt:Date.now()};await ok(set(ref(member,'workspaceChannels/team/m1'),msg));await ok(set(ref(leader,'workspaceChannels/team/m1/reactions/leader'),true));await no(set(ref(stranger,'workspaceChannels/team/m1/reactions/leader'),null));await no(update(ref(leader,'workspaceChannels/team/m1'),{text:'남의 글 수정'}));await no(set(ref(member,'workspaceChannels/unknown/m1'),msg));await no(set(ref(member,'workspaceChannels/team/forged'),{...msg,authorUid:'admin'}));
+ await ok(set(ref(member,'workspaceDM/leader/member/m1'),msg));await ok(get(ref(leader,'workspaceDM/leader/member')));await no(get(ref(stranger,'workspaceDM/leader/member')));await no(get(ref(admin,'workspaceDM/leader/member')));await no(set(ref(leader,'workspaceDM/leader/member/m1'),null));
+ const lesson={status:'done',note:'직접 시도했어요',updatedAt:Date.now()};await ok(set(ref(member,'workspaceLearning/member/callback'),lesson));await ok(get(ref(leader,'workspaceLearning/member')));await no(set(ref(leader,'workspaceLearning/member/callback'),lesson));
+ const promotion={targetRole:'LR',criteria:'실천 기록과 현장 피드백',due:'2026-10-01',status:'preparing',updatedBy:'leader',updatedAt:Date.now()};await ok(set(ref(leader,'workspacePromotions/member'),promotion));await no(set(ref(member,'workspacePromotions/member'),{...promotion,updatedBy:'member'}));
+ const watering={count:1,lastWateredAt:Date.now()};await ok(set(ref(member,'workspaceGarden/member'),watering));await no(set(ref(member,'workspaceGarden/member'),{...watering,count:2}));await no(set(ref(stranger,'workspaceGarden/member'),{...watering,count:2}));await no(set(ref(member,'workspaceGarden/member'),null));
+ const goal={salesTarget:100,avgTarget:2.5,updatedBy:'leader',updatedAt:Date.now()};await ok(set(ref(leader,'workspaceTeamGoals/leader/week_2026-09-14'),goal));await ok(get(ref(member,'workspaceTeamGoals/leader')));await no(set(ref(member,'workspaceTeamGoals/leader/week_2026-09-14'),{...goal,updatedBy:'member'}));
+ const recap={uid:'member',payDate:'2026-09-11',weekEnding:'2026-09-06',netPayment:200000,rejectCLCount:0,rejectSWCount:0,updatedAt:Date.now()};await ok(set(ref(member,'weeklyProfitRecaps/2026-09-11/member'),recap));await ok(set(ref(member,'weeklyProfitRecapsPrivate/member/2026-09-11'),recap));await ok(get(ref(member,'weeklyProfitRecapsPrivate/member')));await no(get(ref(stranger,'weeklyProfitRecapsPrivate/member')));await no(set(ref(stranger,'weeklyProfitRecapsPrivate/member/2026-09-11'),recap));
+ await ok(set(ref(admin,'workspaceAccess/member'),{...access,leaderUid:''}));await no(get(ref(leader,p)));await no(set(ref(leader,p+'/coach'),coach));await ok(get(ref(member,p)));
+ console.log('PASS '+count+' database authorization and validation checks');
+}finally{await env.cleanup();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
