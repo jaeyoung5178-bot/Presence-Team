@@ -19,6 +19,7 @@ try{
  async function fixture(uid){
   await page.evaluate(uid=>{
    window.PresenceWorkspace.dispose();
+   localStorage.removeItem('presence_home_quickslots_'+uid);localStorage.removeItem('presence_home_quickslots_'+uid+'_updated_at');
    state.users={admin:{uid:'admin',name:'운영관리자',id:'aop',role:'AOP',status:'active'},leader:{uid:'leader',name:'고윤경',id:'qa-leader',role:'TL',status:'active'},member:{uid:'member',name:'이하루',id:'qa-member',role:'IC',status:'active'},other:{uid:'other',name:'박동료',id:'qa-other',role:'LR',status:'active'}};
    state.dossier={'이하루':{teamName:'Fuse',upline:'고윤경'},'박동료':{teamName:'Fuse',upline:'고윤경'}};
    state.extraMembers=[];state.removedMembers=[];state.memberInfo={};state.sales={};state.pr=20;state.waters={leader:{count:7,t:100},other:{count:9,t:200},member:{count:4,t:300}};state.weeklyProfitRecaps={};state.salesGoals={};
@@ -35,7 +36,7 @@ try{
    const get=p=>p.split('/').reduce((v,k)=>v?.[k],window.__qaStore);
    DB.on=(p,cb)=>{window.__qaWatch.set(p,cb);queueMicrotask(()=>{if(window.__qaWatch.get(p)===cb)cb(get(p)||null);});return()=>window.__qaWatch.delete(p);};
    DB.set=async(p,v)=>{if(p.startsWith('workspaceGarden/')&&window.__qaWaterDelay)await new Promise(r=>setTimeout(r,window.__qaWaterDelay));if(window.__qaFail)throw new Error('연결이 끊겼습니다. 다시 시도해 주세요.');window.__qaWrites.push({path:p,value:v});const parts=p.split('/'),last=parts.pop();let dst=window.__qaStore;for(const k of parts)dst=dst[k]||(dst[k]={});if(v===null)delete dst[last];else dst[last]=structuredClone(v);for(const [path,cb]of window.__qaWatch)if(p===path||p.startsWith(path+'/'))cb(get(path));};
-   DB.get=async p=>get(p);DB.update=async()=>{};DB.tx=async()=>({committed:false});DB.push=async()=>{};
+   DB.get=async p=>get(p);DB.update=async(p,v)=>{await DB.set(p,{...(get(p)||{}),...v});};DB.tx=async()=>({committed:false});DB.push=async()=>{};
    window.__firebaseReady=true;window.__booting=false;window.__previewRole='';window.__adminOff=false;
    me=state.users[uid];document.getElementById('authGate')?.classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.body.classList.add('app-on');
    document.querySelectorAll('#presenceGameLoader,#presenceEntryLobby,#presenceLoader').forEach(el=>el.remove());
@@ -46,7 +47,7 @@ try{
  const views=[{width:390,height:844},{width:1024,height:768},{width:1440,height:900}];
  for(const role of (process.env.QA_QUICK?['member']:['member','leader','admin']))for(const view of views){
   await page.setViewportSize(view);await fixture(role);
-  for(const tab of (process.env.QA_PROFIT_ONLY?['profithub']:process.env.QA_QUICK?['home','garden']:['home','garden','today','peoplehub','learnhub','profithub',...(role==='member'?[]:['supporthub','tlhome'])])){
+  for(const tab of (process.env.QA_ACCESS_ONLY?['home']:process.env.QA_PROFIT_ONLY?['profithub']:process.env.QA_QUICK?['home','garden']:['home','garden','today','peoplehub','learnhub','profithub',...(role==='member'?[]:['supporthub','tlhome'])])){
    await page.evaluate(tab=>goTab(tab),tab);await page.waitForTimeout(160);
    await page.waitForFunction(()=>[...document.querySelectorAll('.mpanel.active img')].every(img=>img.complete),null,{timeout:20000});
    const geom=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,tab:curTab,nav:[...document.querySelectorAll('#rail .gtab')].map(x=>x.textContent.trim()),broken:[...document.querySelectorAll('.mpanel.active img')].filter(x=>!x.complete||!x.naturalWidth).map(x=>x.getAttribute('src')),root:[...document.querySelectorAll('.mpanel.active .pw-page')].map(e=>({w:e.clientWidth,h:e.clientHeight,text:e.textContent.slice(0,100)}))}));
@@ -59,6 +60,46 @@ try{
     assert.equal(await page.locator('[data-week-summary=last] [data-stat=avg]').textContent(),'1.57');
     await page.locator('.pw-week-comparison').scrollIntoViewIfNeeded();await page.screenshot({path:output+'/'+role+'-'+view.width+'-home-comparison.png'});await page.evaluate(()=>window.scrollTo(0,0));
     const logo=await page.locator('#app .logo-chip').evaluate(e=>({bg:getComputedStyle(e).backgroundColor,width:e.getBoundingClientRect().width,img:e.querySelector('img').naturalWidth}));assert.notEqual(logo.bg,'rgb(255, 255, 255)');assert.ok(logo.width>0&&logo.img===144);
+   }
+   if(tab==='home'&&!process.env.QA_QUICK){
+    const accessLayout=await page.evaluate(()=>({search:document.getElementById('hqdSearch').getBoundingClientRect().y,home:document.getElementById('workspaceHome').getBoundingClientRect().y,display:getComputedStyle(document.getElementById('hqdSearch')).opacity}));assert.ok(accessLayout.search<accessLayout.home);assert.equal(accessLayout.display,'1');
+    assert.equal(await page.locator('#hqdAdd').isVisible(),true);assert.equal(await page.locator('.pw-floral-corner').count(),4);assert.match(await page.locator('.pw-garden-image').getAttribute('src'),/workspace\/gardens\/(spring|summer|autumn|winter)\.jpg/);
+    await page.locator('.pw-garden').screenshot({path:output+'/'+role+'-'+view.width+'-little-garden.png'});
+    if(role==='member')for(const season of ['spring','summer','autumn','winter']){
+     await page.evaluate(season=>{PresenceWorkspace.data.settings.season=season;PresenceWorkspace.render();},season);await page.locator('.pw-garden-image').evaluate(img=>img.decode());
+     await page.locator('.pw-garden').screenshot({path:output+'/'+role+'-'+view.width+'-garden-'+season+'.png'});
+     const flower=await page.locator('.pw-floral-corner').first().evaluate(e=>({events:getComputedStyle(e).pointerEvents,url:getComputedStyle(e).backgroundImage}));assert.equal(flower.events,'none');assert.match(flower.url,/floral-corner\.png/);
+    }
+    await page.evaluate(()=>{delete PresenceWorkspace.data.settings.season;PresenceWorkspace.render();window.scrollTo(0,0);});
+    await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#hqdResults [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
+    await page.evaluate(()=>goTab('home'));await page.locator('#hqdAdd').click();await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#quickslotOptions [data-add=profithub]').click();
+    await page.waitForFunction(()=>__qaWrites.some(w=>w.path.startsWith('userPreferences/')&&w.value.quickSlots?.includes('profithub')));
+    assert.equal(await page.locator('#homeQuickSlots [data-open=profithub]').count(),1);assert.equal(await page.locator('#quickslotOptions [data-add=profithub]').isDisabled(),true);
+    await page.evaluate(()=>{PresenceQuickAccess.dispose();PresenceQuickAccess.refresh();});await page.waitForTimeout(100);assert.equal(await page.locator('#homeQuickSlots [data-open=profithub]').count(),1);
+    await page.locator('#homeQuickSlots [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
+    await page.locator('#hqdSearch').fill('정원');await page.locator('#hqdResults [data-add=garden]').click();assert.equal(await page.locator('#homeQuickSlots [data-open=garden]').count(),1);
+    await page.locator('#hqdSearch').fill('팀 지원');assert.equal(await page.locator('#hqdResults [data-open=supporthub]').count(),role==='member'?0:1);
+    await page.locator('#hqdSearch').fill('없는메뉴테스트999');assert.match(await page.locator('#hqdResults').textContent(),/찾는 기능이 없어요/);await page.keyboard.press('Escape');assert.equal(await page.locator('#hqdPopover').isVisible(),false);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdLaunch');
+    await page.evaluate(()=>goTab('home'));await page.locator('#hqdSearch').fill('성과');await page.screenshot({path:output+'/'+role+'-'+view.width+'-search-open.png'});
+    const searchLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,targets:[...document.querySelectorAll('#homeQuickDock button,#homeQuickDock input')].filter(e=>e.getClientRects().length).map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})).filter(e=>e.w<43.5||e.h<43.5)}));assert.equal(searchLayout.overflow,false);assert.deepEqual(searchLayout.targets,[]);
+    await page.keyboard.press('Escape');await page.locator('#hqdEdit').click();await page.locator('[data-move=garden][data-direction="-1"]').click();
+    assert.deepEqual(await page.locator('#homeQuickSlots .hqd-slot').evaluateAll(es=>es.map(e=>e.dataset.open)),['garden','profithub']);
+    await page.locator('[data-remove=garden]').click();assert.equal(await page.locator('#homeQuickSlots [data-open=garden]').count(),0);await page.locator('#hqdEdit').click();
+    if(role==='member'&&view.width===390){
+     await page.evaluate(()=>{window.__qaFail=true;addHomeQuickslot('learnhub');});await page.waitForFunction(()=>document.getElementById('hqdStatus').textContent.includes('다시 동기화'));
+     assert.ok(await page.evaluate(()=>JSON.parse(localStorage.getItem('presence_home_quickslots_member')).includes('learnhub')));
+     await page.evaluate(()=>{window.__qaFail=false;PresenceQuickAccess.refresh();});await page.waitForFunction(()=>__qaStore.userPreferences?.member?.quickSlots?.includes('learnhub'));
+     await page.evaluate(()=>{localStorage.removeItem('presence_home_quickslots_other');localStorage.removeItem('presence_home_quickslots_other_updated_at');me=state.users.other;PresenceWorkspace.render();PresenceQuickAccess.refresh();});await page.waitForTimeout(120);assert.equal(await page.locator('#homeQuickSlots .hqd-slot').count(),0);
+     await page.evaluate(()=>{me=state.users.member;PresenceWorkspace.render();PresenceQuickAccess.refresh();});await page.waitForTimeout(120);assert.equal(await page.locator('#homeQuickSlots [data-open=learnhub]').count(),1);
+     await page.evaluate(()=>{for(const k of Object.keys(TABMETA))if(tabVisible(k))addHomeQuickslot(k);});assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('presence_home_quickslots_member')).length),8);
+     await page.locator('#hqdAdd').click();await page.locator('#hqdSearch').fill('정원');assert.equal(await page.locator('#quickslotOptions [data-add=garden]').isDisabled(),true);await page.keyboard.press('Escape');
+     await page.locator('#hqdEdit').click();// Remove only this account's shortcuts through their controls.
+     while(await page.locator('[data-remove]').count()){await page.locator('[data-remove]').first().click();}
+     await page.evaluate(()=>addHomeQuickslot('profithub'));await page.waitForTimeout(100);if(await page.locator('#hqdEdit').textContent()==='완료')await page.locator('#hqdEdit').click();
+     assert.ok(await page.evaluate(()=>__qaWrites.filter(w=>w.path.startsWith('userPreferences/')).every(w=>w.path==='userPreferences/member')));
+    }
+    await page.keyboard.press('Meta+k');assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');await page.keyboard.press('Escape');
+    await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:output+'/'+role+'-'+view.width+'-quick-access-saved.png'});
    }
    if(tab==='garden'){
     assert.equal(await page.locator('#treeSecHome').count(),1);assert.equal(await page.locator('#m-garden #treeSecHome .tree-v2-waterer').count(),1);
@@ -133,7 +174,7 @@ try{
 
   }
  }
- if(!process.env.QA_QUICK&&!process.env.QA_PROFIT_ONLY){
+ if(!process.env.QA_QUICK&&!process.env.QA_PROFIT_ONLY&&!process.env.QA_ACCESS_ONLY){
   await page.setViewportSize({width:390,height:844});await fixture('member');
   await page.locator('[data-form=pledge] textarea').first().fill('이번 주에는 먼저 질문하고 배운 것을 실천합니다.');
   await page.locator('[data-form=pledge] button[type=submit]').click();

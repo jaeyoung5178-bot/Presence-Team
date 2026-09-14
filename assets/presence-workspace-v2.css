@@ -172,3 +172,52 @@ body.presence-workspace-v2 #m-garden #treeSecHome{margin:0;padding:0;overflow:hi
 .pw-page .pw-profit-name{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-width:112px;color:var(--green);background:transparent}
 .pw-profit-name>span{font-size:16px}
 @media(max-width:600px){.pw-profit-person-picker{display:block}.pw-profit-person-picker>.pw-note{margin-top:10px}.pw-profit-viewing{gap:8px}}
+
+/* A small landscaped garden, with a floral frame that never intercepts a tap. */
+#workspaceHome .pw-grid{grid-template-columns:1fr 1.15fr;align-items:start}
+#workspaceHome .pw-garden{position:relative;isolation:isolate;display:flex;align-self:start;justify-content:flex-start;min-height:0;padding:34px 28px 32px;border:1px solid #667353;border-radius:22px;overflow:visible}
+#workspaceHome .pw-garden::before{content:"";position:absolute;inset:7px;border:1px solid #8a9a6c3d;border-radius:16px;pointer-events:none}
+#workspaceHome .pw-garden>.pw-row:first-of-type{max-width:none;display:block;border:0;padding:0 8px;margin:0}
+#workspaceHome .pw-garden-image{position:relative;display:block;right:auto;top:auto;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;margin:22px 0 6px;border-radius:14px}
+#workspaceHome .pw-garden-caption{font-size:12px;line-height:1.6;color:#b9c3ad;text-align:center;margin:0 0 24px}
+#workspaceHome .pw-garden>.pw-actions{position:relative;z-index:2;justify-content:space-between;gap:12px;margin:0 8px}
+.pw-floral-corner{position:absolute;z-index:3;width:112px;height:112px;background:url('workspace/gardens/floral-corner.png') center/contain no-repeat;pointer-events:none}
+.pw-floral-tl{top:-14px;left:-14px}.pw-floral-tr{top:-14px;right:-14px;transform:scaleX(-1)}.pw-floral-bl{bottom:-14px;left:-14px;transform:scaleY(-1)}.pw-floral-br{bottom:-14px;right:-14px;transform:scale(-1)}
+@media(max-width:1199px){#workspaceHome .pw-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){#workspaceHome .pw-grid{grid-template-columns:1fr;gap:22px}#workspaceHome .pw-garden{padding:32px 22px 30px;border-radius:20px}#workspaceHome .pw-garden-image{margin-top:18px}#workspaceHome .pw-garden>.pw-actions{margin:0;gap:8px}#workspaceHome .pw-garden>.pw-actions .pw-sub{font-size:12px}.pw-floral-corner{width:100px;height:100px}}
+
+/* Search and saved shortcuts stay above every workspace, including Home. */
+body.presence-workspace-v2 #homeQuickDock{display:block;order:-20;position:relative;z-index:5;flex:none;min-width:0;width:100%;margin:0 0 24px!important;pointer-events:auto}
+body.presence-workspace-v2 #homeQuickDock [hidden],body.presence-workspace-v2 #homeQuickDock[hidden]{display:none!important}
+body.presence-workspace-v2 #homeQuickDock *{box-sizing:border-box}
+body.presence-workspace-v2 #homeQuickDock button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:10px 12px;font-size:14px;font-weight:500;line-height:1.45;letter-spacing:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--cream);box-shadow:none;cursor:pointer;transform:none}
+body.presence-workspace-v2 #homeQuickDock button:disabled{opacity:.55;cursor:default}
+body.presence-workspace-v2 #homeQuickDock .hqd-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;position:relative;z-index:auto}
+body.presence-workspace-v2 #homeQuickDock .hqd-search{display:flex;gap:8px;min-width:0;width:100%!important;height:48px;border:0;background:none;box-shadow:none;opacity:1;pointer-events:auto;transform:none;overflow:visible}
+body.presence-workspace-v2 #homeQuickDock #hqdSearch{width:100%;min-width:0;flex:1;height:48px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:16px;font-weight:400;padding:10px 14px;color:var(--cream)}
+body.presence-workspace-v2 #homeQuickDock #hqdSearch::placeholder{color:var(--muted)}
+body.presence-workspace-v2 #homeQuickDock #hqdLaunch{width:auto!important;min-width:84px!important;height:48px!important;flex:0 0 auto;background:var(--card)!important;box-shadow:none!important;border-radius:8px!important;transform:none}
+body.presence-workspace-v2 #homeQuickDock #hqdLaunch svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+body.presence-workspace-v2 #homeQuickDock #hqdAdd{min-height:48px;color:var(--green);white-space:nowrap;background:var(--card-2)}
+body.presence-workspace-v2 #homeQuickDock #hqdSaved{margin-top:12px}
+body.presence-workspace-v2 #homeQuickDock .hqd-saved-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;color:var(--muted);font-size:12px}
+body.presence-workspace-v2 #homeQuickDock .hqd-slots{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 8px;scroll-padding:4px;overscroll-behavior-x:contain}
+body.presence-workspace-v2 #homeQuickDock .hqd-slot-card{flex:0 0 auto;min-width:0}
+body.presence-workspace-v2 #homeQuickDock .hqd-slot{width:100%;min-height:44px;white-space:nowrap;text-align:left}
+body.presence-workspace-v2 #homeQuickDock .hqd-slot b{font-weight:500;max-width:220px;text-overflow:ellipsis;overflow:hidden}
+body.presence-workspace-v2 #homeQuickDock .hqd-slot>span{flex:none;font-size:16px}
+body.presence-workspace-v2 #homeQuickDock .hqd-actions{display:flex;position:static;gap:8px;margin-top:8px;background:none}
+body.presence-workspace-v2 #homeQuickDock .hqd-popover{display:block;position:relative;inset:auto;z-index:auto;width:100%;max-width:none;max-height:none;margin:12px 0 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:none;opacity:1;visibility:visible;pointer-events:auto;transform:none}
+body.presence-workspace-v2 #homeQuickDock .hqd-pop-head{margin-bottom:12px;align-items:center;gap:12px}
+body.presence-workspace-v2 #homeQuickDock .hqd-pop-head>div{display:block;min-width:0}
+body.presence-workspace-v2 #homeQuickDock .hqd-pop-head b{display:block;color:var(--cream);font-size:16px;font-weight:600;line-height:1.5;letter-spacing:0}
+body.presence-workspace-v2 #homeQuickDock .hqd-pop-head span{display:block;font-size:12px;line-height:1.5;margin-top:4px;color:var(--muted)}
+body.presence-workspace-v2 #homeQuickDock .hqd-results,body.presence-workspace-v2 #homeQuickDock .qsm-grid{display:grid;grid-template-columns:1fr;gap:8px;max-height:360px;overflow:auto;padding:4px;margin:0;border:0;scroll-padding:4px}
+body.presence-workspace-v2 #homeQuickDock .hqd-result-row{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px}
+body.presence-workspace-v2 #homeQuickDock .hqd-result-open{display:flex;justify-content:flex-start;min-width:0;gap:10px;text-align:left}
+body.presence-workspace-v2 #homeQuickDock .hqd-result-open i{font-style:normal;flex:none}
+body.presence-workspace-v2 #homeQuickDock .hqd-result-open span{font-size:14px;font-weight:500;overflow-wrap:anywhere}
+body.presence-workspace-v2 #homeQuickDock .hqd-pin{width:76px;justify-self:stretch;font-size:13px!important;color:var(--green);white-space:nowrap}
+body.presence-workspace-v2 #homeQuickDock .hqd-no-result{font-size:14px;line-height:1.6;color:var(--muted);padding:18px 10px}
+body.presence-workspace-v2 #homeQuickDock #hqdStatus{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+@media(max-width:600px){body.presence-workspace-v2 #homeQuickDock .hqd-bar{grid-template-columns:minmax(0,1fr);gap:8px}body.presence-workspace-v2 #homeQuickDock #hqdAdd{justify-self:start;min-height:44px}body.presence-workspace-v2 #homeQuickDock .hqd-popover{padding:12px}body.presence-workspace-v2 #homeQuickDock .hqd-results,body.presence-workspace-v2 #homeQuickDock .qsm-grid{max-height:320px}body.presence-workspace-v2 #homeQuickDock .hqd-result-open span{font-size:16px}}

@@ -1,38 +1,88 @@
 (function(){
   'use strict';
-  var slots=[],loadedUid='',editing=false,dockOpen=false,pickerOpen=false,maxSlots=8,outsideBound=false,loadSeq=0;
-  function e(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
-  /* TABMETA·me는 index.html에서 const/let으로 선언되어 window에 붙지 않으므로 렉시컬 전역으로 안전하게 조회 */
-  function TM(){try{if(typeof TABMETA!=='undefined'&&TABMETA)return TABMETA;}catch(x){}return window.TABMETA||null;}
-  function ME(){try{if(typeof me!=='undefined'&&me)return me;}catch(x){}return window.me||null;}
-  function uid(){var m=ME();return m&&m.uid||'';}
-  function localKey(){return 'presence_home_quickslots_'+uid();}
-  function localMetaKey(){return localKey()+'_updated_at';}
-  function ready(){var t=TM();return !!(t&&Object.keys(t).length);}
-  function visible(k){try{var t=TM();return k!=='home'&&t&&t[k]&&(!window.tabVisible||tabVisible(k));}catch(x){return false;}}
-  function clean(list){var seen={};return (Array.isArray(list)?list:[]).filter(function(k){if(!visible(k)||seen[k])return false;seen[k]=1;return true;}).slice(0,maxSlots);}
-  function save(){var u=uid(),stamp=Date.now();if(!u||!ready())return;slots=clean(slots);try{localStorage.setItem(localKey(),JSON.stringify(slots));localStorage.setItem(localMetaKey(),String(stamp));}catch(x){}try{if(window.state){state.userPreferences=state.userPreferences||{};state.userPreferences[u]=Object.assign({},state.userPreferences[u]||{},{quickSlots:slots.slice(),updatedAt:stamp});}if(window.LIVE&&window.DB&&DB.set){DB.set('userPreferences/'+u+'/quickSlots',slots.slice());DB.set('userPreferences/'+u+'/quickSlotsUpdatedAt',stamp);}}catch(x){}render();}
-  function load(){var u=uid();if(!u){loadedUid='';slots=[];return;}if(!ready()||u===loadedUid)return;loadedUid=u;var seq=++loadSeq,localStamp=0;slots=[];try{slots=clean(JSON.parse(localStorage.getItem(localKey())||'[]'));localStamp=Number(localStorage.getItem(localMetaKey())||0)||0;}catch(x){}render();try{if(window.LIVE&&window.DB&&DB.get)Promise.all([DB.get('userPreferences/'+u+'/quickSlots'),DB.get('userPreferences/'+u+'/quickSlotsUpdatedAt')]).then(function(values){if(seq!==loadSeq||u!==uid())return;var remote=values[0],remoteStamp=Number(values[1]||0)||0,remoteWins=Array.isArray(remote)&&(!localStamp||remoteStamp>=localStamp);if(remoteWins){slots=clean(remote);try{localStorage.setItem(localKey(),JSON.stringify(slots));if(remoteStamp)localStorage.setItem(localMetaKey(),String(remoteStamp));}catch(x){}render();}});}catch(x){}}
-  function bindOutside(){if(outsideBound)return;outsideBound=true;document.addEventListener('click',function(ev){if(ev.target&&!document.documentElement.contains(ev.target))return;var dock=document.getElementById('homeQuickDock');if(dockOpen&&dock&&!dock.contains(ev.target)){dockOpen=false;pickerOpen=false;render();}});document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&dockOpen){dockOpen=false;pickerOpen=false;render();}});}
-  function ensure(){var host=document.querySelector('.mpanel.active .wrap')||document.querySelector('#m-home .wrap');if(!host)return null;var dock=document.getElementById('homeQuickDock');if(!dock){dock=document.createElement('section');dock.id='homeQuickDock';dock.className='home-quick-dock';dock.innerHTML='<div class="hqd-bar"><div class="hqd-search" id="hqdSearchWrap"><input id="hqdSearch" placeholder="기능 검색" autocomplete="off" oninput="renderHomeQuickSearch()" onkeydown="homeQuickSearchKey(event)"><button onclick="runHomeQuickSearch()" aria-label="첫 검색 결과 열기">→</button></div><button class="hqd-launch" id="hqdLaunch" onclick="toggleHomeQuickDock(event)" aria-label="검색과 바로가기 열기" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7"></circle><path d="m16 16 5 5"></path></svg></button></div><div class="hqd-popover" id="hqdPopover"><div class="hqd-pop-head"><div><b>QUICK ACCESS</b><span>내가 자주 쓰는 기능</span></div><button class="hqd-edit" id="hqdEdit" onclick="toggleQuickslotEdit()">편집</button></div><div class="hqd-results" id="hqdResults"></div><div class="hqd-slots" id="homeQuickSlots"></div><div class="qsm-inline" id="quickslotPicker"><div class="qsm-inline-head"><b>바로가기 추가</b><button onclick="closeQuickslotPicker()" aria-label="닫기">×</button></div><div class="qsm-grid" id="quickslotOptions"></div></div></div>';}if(dock.parentNode!==host||host.firstChild!==dock)host.insertBefore(dock,host.firstChild);var old=document.getElementById('quickslotModal');if(old)old.remove();bindOutside();return dock;}
-  function searchList(){var input=document.getElementById('hqdSearch'),q=(input&&input.value||'').trim(),list=[];if(!q)return list;try{if(typeof hsSearch==='function')list=hsSearch(q).filter(function(r){return r&&r.k&&visible(r.k);});}catch(x){}if(!list.length){var t=TM()||{},nq=q.toLowerCase().replace(/\s/g,'');Object.keys(t).filter(visible).forEach(function(k){var label=String((t[k]||{}).l||k),nl=label.toLowerCase().replace(/\s/g,'');if(nl.indexOf(nq)>=0)list.push({k:k,score:nl===nq?100:50});});}return list.slice(0,6);}
-  function renderSearch(){var box=document.getElementById('hqdResults');if(!box)return;var t=TM()||{},q=(document.getElementById('hqdSearch')||{}).value||'',list=searchList();box.classList.toggle('show',!!q);box.innerHTML=!q?'':(list.length?list.map(function(r){var m=t[r.k]||{},on=slots.indexOf(r.k)>=0,full=slots.length>=maxSlots,tag=on?'<small class="hqd-pin done">추가됨</small>':(full?'<small class="hqd-pin off">가득참</small>':'<small class="hqd-pin" onclick="event.stopPropagation();addHomeQuickslot(\''+r.k+'\')">＋ 바로가기</small>');return '<button onclick="openHomeQuickslot(\''+r.k+'\')"><i>'+(m.e||'◆')+'</i><span>'+e(m.l||r.k)+'</span>'+tag+'</button>';}).join(''):'<div class="hqd-no-result">찾는 기능이 없어요.</div>');}
-  function renderPicker(){var picker=document.getElementById('quickslotPicker'),box=document.getElementById('quickslotOptions');if(!picker||!box)return;picker.classList.toggle('show',pickerOpen);if(!pickerOpen)return;var t=TM()||{},keys=Object.keys(t).filter(visible);box.innerHTML=keys.length?keys.map(function(k){var m=t[k]||{},on=slots.indexOf(k)>=0;return '<button class="qsm-option '+(on?'added':'')+'" '+(on?'disabled':'')+' onclick="addHomeQuickslot(\''+k+'\')"><i>'+(m.e||'◆')+'</i><span>'+e(m.l||k)+'</span><small>'+(on?'추가됨':'+')+'</small></button>';}).join(''):'<div class="hqd-no-result">추가할 수 있는 기능이 아직 없어요.</div>';}
-  function render(){var dock=ensure(),u=uid();if(!dock)return;dock.hidden=!u;if(!u||!ready())return;dock.classList.toggle('open',dockOpen);var launch=document.getElementById('hqdLaunch'),box=document.getElementById('homeQuickSlots'),btn=document.getElementById('hqdEdit');if(launch)launch.setAttribute('aria-expanded',dockOpen?'true':'false');if(!box)return;box.classList.toggle('editing',editing);if(btn){btn.textContent=editing?'완료':'편집';btn.style.visibility=slots.length?'visible':'hidden';}var html=slots.map(function(k,i){var m=TABMETA[k];return '<button class="hqd-slot" onclick="openHomeQuickslot(\''+k+'\')"><span>'+(m.e||'◆')+'</span><b>'+e(m.l||k)+'</b><span class="hqd-actions"><i onclick="event.stopPropagation();moveHomeQuickslot('+i+',-1)">←</i><i onclick="event.stopPropagation();moveHomeQuickslot('+i+',1)">→</i><i onclick="event.stopPropagation();removeHomeQuickslot('+i+')">×</i></span></button>';}).join('');if(slots.length<maxSlots)html+='<button class="hqd-add" onclick="openQuickslotPicker()"><span>＋</span><b>바로가기 추가</b></button>';box.innerHTML=html;renderSearch();renderPicker();}
-  window.toggleHomeQuickDock=function(ev){if(ev)ev.stopPropagation();dockOpen=!dockOpen;if(!dockOpen){pickerOpen=false;editing=false;}render();if(dockOpen)setTimeout(function(){var input=document.getElementById('hqdSearch');if(input)input.focus();},30);};
-  window.openHomeQuickslot=function(k){if(editing)return;if(visible(k)&&window.goTab){dockOpen=false;pickerOpen=false;goTab(k);render();}};
-  window.toggleQuickslotEdit=function(){editing=!editing;render();};
-  window.moveHomeQuickslot=function(i,d){var j=i+d;if(j<0||j>=slots.length)return;var t=slots[i];slots[i]=slots[j];slots[j]=t;save();};
-  window.removeHomeQuickslot=function(i){slots.splice(i,1);save();};
-  window.openQuickslotPicker=function(){dockOpen=true;pickerOpen=true;editing=false;render();};
-  window.closeQuickslotPicker=function(){pickerOpen=false;render();};
-  window.addHomeQuickslot=function(k){var t=TM()||{};if(!visible(k)||slots.indexOf(k)>=0)return;if(slots.length>=maxSlots){if(window.toast)toast('바로가기는 최대 '+maxSlots+'개까지 추가할 수 있어요');return;}slots.push(k);save();if(window.toast)toast('＋ '+((t[k]||{}).l||k)+' 바로가기를 추가했어요');};
-  window.renderHomeQuickSearch=renderSearch;
-  window.runHomeQuickSearch=function(){var first=searchList()[0];if(first)openHomeQuickslot(first.k);};
-  window.homeQuickSearchKey=function(ev){if(ev.key==='Enter'){ev.preventDefault();runHomeQuickSearch();}else if(ev.key==='Escape'){dockOpen=false;pickerOpen=false;render();}};
-  function homeButton(){var b=document.getElementById('homeEntryBtn');if(!b)return;b.innerHTML='<span aria-hidden="true">⌂</span><b>Home</b>';b.setAttribute('aria-label','Home으로 이동');b.title='Home';}
-  function hideLegacySearch(){var b=document.getElementById('homeSearchBtn');if(b)b.style.setProperty('display','none','important');}
-  function hookNav(){try{if(typeof window.goTab==='function'&&!window.goTab.__qs){var g=window.goTab;window.goTab=function(){var r=g.apply(this,arguments);try{dockOpen=false;pickerOpen=false;editing=false;render();}catch(x){}return r;};window.goTab.__qs=1;}}catch(x){}}
-  function boot(){homeButton();ensure();load();render();hideLegacySearch();hookNav();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,420);});else setTimeout(boot,420);setInterval(boot,4000);
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const maxSlots=8;
+  let slots=[],loadedUid='',editing=false,dockOpen=false,pickerOpen=false,bound=false,loadSeq=0,remoteLoaded=false,remotePending=false,status='',saveQueue=Promise.resolve();
+  const actor=()=>typeof me!=='undefined'?me:null;
+  const uid=()=>actor()?.uid||'';
+  const meta=()=>typeof TABMETA!=='undefined'?TABMETA:{};
+  const localKey=u=>'presence_home_quickslots_'+u;
+  const stampKey=u=>localKey(u)+'_updated_at';
+  const visible=k=>!!(actor()?.status==='active'&&k!=='home'&&meta()[k]&&typeof tabVisible==='function'&&tabVisible(k));
+  const clean=list=>[...new Set(Array.isArray(list)?list:[])].filter(k=>typeof k==='string'&&k!=='home'&&(meta()[k]||['garden','peoplehub','learnhub','profithub','supporthub'].includes(k))).slice(0,maxSlots);
+  const online=()=>typeof LIVE!=='undefined'&&LIVE&&window.__firebaseReady&&typeof DB!=='undefined'&&!!DB.update;
+  function readLocal(u){try{return {list:clean(JSON.parse(localStorage.getItem(localKey(u))||'[]')),stamp:Number(localStorage.getItem(stampKey(u))||0)||0};}catch(e){return {list:[],stamp:0};}}
+  function writeLocal(u,list,stamp){try{localStorage.setItem(localKey(u),JSON.stringify(list));localStorage.setItem(stampKey(u),String(stamp));return true;}catch(e){return false;}}
+  function persist(u,list,stamp){
+    saveQueue=saveQueue.catch(()=>{}).then(async()=>{
+      if(uid()!==u||!online())return;
+      try{await DB.update('userPreferences/'+u,{quickSlots:list,quickSlotsUpdatedAt:stamp});if(uid()===u){status='계정에 저장했어요.';render();}}
+      catch(e){if(uid()===u){status='이 기기에 저장했어요. 연결 후 다시 동기화합니다.';remoteLoaded=false;render();}}
+    });
+    return saveQueue;
+  }
+  function save(){const u=uid();if(!u||actor().status!=='active')return;slots=clean(slots);const stamp=Date.now(),cached=writeLocal(u,slots,stamp);status=cached?'이 기기에 저장했어요.':'기기에 저장하지 못했어요.';if(online()){status='저장 중…';persist(u,slots.slice(),stamp);}else if(cached)status='이 기기에 저장했어요. 연결되면 계정에 동기화합니다.';render();}
+  function load(){
+    const u=uid();if(!u||actor().status!=='active'){dispose();return;}
+    if(loadedUid!==u){loadedUid=u;loadSeq++;slots=readLocal(u).list;editing=false;dockOpen=false;pickerOpen=false;remoteLoaded=false;remotePending=false;status='';if($('hqdSearch'))$('hqdSearch').value='';}
+    if(!online()||remoteLoaded||remotePending)return;
+    const seq=loadSeq;remotePending=true;
+    Promise.all([DB.get('userPreferences/'+u+'/quickSlots'),DB.get('userPreferences/'+u+'/quickSlotsUpdatedAt')]).then(values=>{
+      if(seq!==loadSeq||u!==uid())return;
+      remoteLoaded=true;const local=readLocal(u),remoteStamp=Number(values[1]||0)||0,remote=Array.isArray(values[0])?values[0]:Object.values(values[0]||{});
+      if(values[0]!=null&&remoteStamp>=local.stamp){slots=clean(remote);writeLocal(u,slots,remoteStamp);}
+      else if(local.stamp>remoteStamp){slots=local.list;persist(u,slots.slice(),local.stamp);}
+      render();
+    }).catch(()=>{if(seq===loadSeq&&u===uid()){remoteLoaded=false;status='저장된 바로가기를 이 기기에서 불러왔어요.';render();}}).finally(()=>{if(seq===loadSeq)remotePending=false;});
+  }
+  function ensure(){
+    const host=document.querySelector('.mpanel.active>.wrap');if(!host)return null;
+    let dock=$('homeQuickDock');
+    if(!dock){
+      dock=document.createElement('section');dock.id='homeQuickDock';dock.className='home-quick-dock';dock.setAttribute('aria-label','기능 검색과 내 바로가기');
+      dock.innerHTML='<div class="hqd-bar"><div class="hqd-search" role="search"><input type="search" id="hqdSearch" aria-label="메뉴와 기능 검색" placeholder="메뉴·기능 검색" autocomplete="off" aria-controls="hqdPopover"><button type="button" id="hqdLaunch" aria-label="기능 검색" aria-expanded="false" aria-controls="hqdPopover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7"></circle><path d="m16 16 5 5"></path></svg><span>검색</span></button></div><button type="button" class="hqd-add" id="hqdAdd">＋ 바로가기 추가</button></div><div id="hqdSaved"><div class="hqd-saved-head"><span>내 바로가기</span><button type="button" id="hqdEdit">편집</button></div><div id="homeQuickSlots" class="hqd-slots" role="region" aria-label="저장한 바로가기"></div></div><div id="hqdPopover" class="hqd-popover" hidden><div class="hqd-pop-head"><div><b id="hqdTitle">기능 검색</b><span id="hqdHint">메뉴를 검색해서 바로 열어보세요.</span></div><button type="button" id="hqdClose" aria-label="검색과 바로가기 닫기">닫기</button></div><div class="hqd-results" id="hqdResults"></div><div id="quickslotPicker" hidden><div id="quickslotOptions" class="qsm-grid"></div></div></div><p id="hqdStatus" role="status"></p>';
+      dock.addEventListener('click',event=>{
+        const b=event.target.closest('button');if(!b)return;
+        if(b.id==='hqdLaunch')open(false);else if(b.id==='hqdAdd')open(true);else if(b.id==='hqdClose')close(true);else if(b.id==='hqdEdit'){editing=!editing;render();$('hqdEdit')?.focus({preventScroll:true});}
+        else if(b.dataset.open)window.openHomeQuickslot(b.dataset.open);
+        else if(b.dataset.add){window.addHomeQuickslot(b.dataset.add);const next=[...dock.querySelectorAll('[data-add]')].find(el=>el.dataset.add===b.dataset.add);if(next&&!next.disabled)next.focus({preventScroll:true});else $('hqdSearch')?.focus({preventScroll:true});}
+        else if(b.dataset.remove){slots=slots.filter(k=>k!==b.dataset.remove);save();$('hqdEdit')?.focus({preventScroll:true});}
+        else if(b.dataset.move){const i=slots.indexOf(b.dataset.move),j=i+Number(b.dataset.direction);if(i>=0&&j>=0&&j<slots.length){[slots[i],slots[j]]=[slots[j],slots[i]];save();[...dock.querySelectorAll('[data-move]')].find(el=>el.dataset.move===b.dataset.move&&el.dataset.direction===b.dataset.direction)?.focus({preventScroll:true});}}
+      });
+      dock.addEventListener('input',event=>{if(event.target.id==='hqdSearch'){dockOpen=true;render();}});
+      dock.addEventListener('focusin',event=>{if(event.target.id==='hqdSearch'&&!dockOpen){dockOpen=true;render();}});
+      dock.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close(true);}else if(event.key==='Enter'&&event.target.id==='hqdSearch'){event.preventDefault();if(!pickerOpen){const first=searchList()[0];if(first)window.openHomeQuickslot(first.k);}}});
+    }
+    if(dock.parentNode!==host||host.firstChild!==dock)host.prepend(dock);
+    if(!bound){bound=true;document.addEventListener('click',event=>{if(dockOpen&&document.documentElement.contains(event.target)&&!$('homeQuickDock')?.contains(event.target))close(false);});document.addEventListener('keydown',event=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'&&uid()){event.preventDefault();open(false);$('homeQuickDock')?.scrollIntoView({block:'start',behavior:'instant'});}});}
+    return dock;
+  }
+  function searchList(){const q=($('hqdSearch')?.value||'').trim();let list=[];if(typeof hsSearch==='function')list=hsSearch(q).filter(r=>r?.k&&visible(r.k));const found=new Set(list.map(r=>r.k));for(const k of Object.keys(meta()).filter(visible)){if(!found.has(k)&&(!q||(meta()[k].l||k).replace(/\s/g,'').toLowerCase().includes(q.replace(/\s/g,'').toLowerCase())))list.push({k});}return list.slice(0,pickerOpen?200:6);}
+  function resultRow(k,picker){const m=meta()[k],on=slots.includes(k),full=slots.length>=maxSlots;return '<div class="hqd-result-row"><button type="button" class="hqd-result-open" data-open="'+esc(k)+'"><i aria-hidden="true">'+esc(m.e||'◆')+'</i><span>'+esc(m.l||k)+'</span></button><button type="button" class="hqd-pin" data-add="'+esc(k)+'" aria-label="'+esc(m.l||k)+' 바로가기 '+(on?'추가됨':'추가')+'" '+(on||full?'disabled':'')+'>'+(on?'추가됨':full?'가득 참':'+ 추가')+'</button></div>';}
+  function render(){
+    const dock=ensure();if(!dock)return;dock.hidden=!uid()||actor()?.status!=='active';if(dock.hidden)return;
+    const visibleSlots=slots.filter(visible),focus=dock.contains(document.activeElement)?document.activeElement.id:'';
+    dock.classList.toggle('open',dockOpen);$('hqdLaunch').setAttribute('aria-expanded',String(dockOpen));$('hqdSearch').setAttribute('aria-expanded',String(dockOpen));$('hqdPopover').hidden=!dockOpen;
+    $('hqdSaved').hidden=!visibleSlots.length;$('hqdEdit').textContent=editing?'완료':'편집';$('homeQuickSlots').classList.toggle('editing',editing);
+    $('homeQuickSlots').innerHTML=visibleSlots.map(k=>{const m=meta()[k],i=slots.indexOf(k);return '<div class="hqd-slot-card"><button type="button" class="hqd-slot" data-open="'+esc(k)+'"><span aria-hidden="true">'+esc(m.e||'◆')+'</span><b>'+esc(m.l||k)+'</b></button>'+(editing?'<div class="hqd-actions"><button type="button" data-move="'+esc(k)+'" data-direction="-1" aria-label="'+esc(m.l)+' 앞으로" '+(i===0?'disabled':'')+'>←</button><button type="button" data-move="'+esc(k)+'" data-direction="1" aria-label="'+esc(m.l)+' 뒤로" '+(i===slots.length-1?'disabled':'')+'>→</button><button type="button" data-remove="'+esc(k)+'" aria-label="'+esc(m.l)+' 바로가기 삭제">×</button></div>':'')+'</div>';}).join('');
+    $('hqdTitle').textContent=pickerOpen?'바로가기 추가':'기능 검색';$('hqdHint').textContent=pickerOpen?'자주 쓰는 메뉴를 최대 8개까지 저장하세요.':'메뉴 열기 또는 바로가기 추가를 선택하세요.';
+    const list=searchList(),html=list.length?list.map(r=>resultRow(r.k,pickerOpen)).join(''):'<p class="hqd-no-result">찾는 기능이 없어요. 다른 단어로 검색해 주세요.</p>';
+    $('hqdResults').hidden=pickerOpen;$('hqdResults').innerHTML=pickerOpen?'':html;$('quickslotPicker').hidden=!pickerOpen;$('quickslotOptions').innerHTML=pickerOpen?html:'';
+    $('hqdStatus').textContent=status;$('hqdStatus').hidden=!status;
+    if(focus&&$(focus)&&document.activeElement.id!==focus)$(focus).focus({preventScroll:true});
+  }
+  function open(picker){ensure();load();dockOpen=true;pickerOpen=picker;editing=false;render();$('hqdSearch')?.focus({preventScroll:true});}
+  function close(focus){dockOpen=false;pickerOpen=false;render();if(focus)$('hqdLaunch')?.focus({preventScroll:true});}
+  function dispose(){loadSeq++;loadedUid='';slots=[];remoteLoaded=false;remotePending=false;dockOpen=false;editing=false;pickerOpen=false;status='';$('homeQuickDock')?.remove();}
+  function boot(){ensure();load();render();const old=$('homeSearchBtn');if(old)old.style.setProperty('display','none','important');hookNav();}
+  function hookNav(){if(typeof window.goTab!=='function'||window.goTab.__qs)return;const original=window.goTab;window.goTab=function(){const r=original.apply(this,arguments);close(false);boot();return r;};window.goTab.__qs=1;}
+  window.toggleHomeQuickDock=()=>open(false);
+  window.openHomeQuickslot=k=>{if(!visible(k))return;dockOpen=false;pickerOpen=false;$('hqdSearch').value='';goTab(k);render();};
+  window.openQuickslotPicker=()=>open(true);window.closeQuickslotPicker=()=>close(true);
+  window.addHomeQuickslot=k=>{if(!visible(k)||slots.includes(k)||slots.length>=maxSlots)return;slots.push(k);save();};
+  window.renderHomeQuickSearch=()=>{dockOpen=true;render();};window.runHomeQuickSearch=()=>{const first=searchList()[0];if(first)window.openHomeQuickslot(first.k);};
+  window.PresenceQuickAccess={refresh:boot,dispose};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.addEventListener('presence:firebase-ready',boot);setInterval(boot,4000);
 })();
