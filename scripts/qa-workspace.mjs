@@ -62,8 +62,9 @@ try{
     const logo=await page.locator('#app .logo-chip').evaluate(e=>({bg:getComputedStyle(e).backgroundColor,width:e.getBoundingClientRect().width,img:e.querySelector('img').naturalWidth}));assert.notEqual(logo.bg,'rgb(255, 255, 255)');assert.ok(logo.width>0&&logo.img===144);
    }
    if(tab==='home'&&!process.env.QA_QUICK){
-    const accessLayout=await page.evaluate(()=>({search:document.getElementById('hqdSearch').getBoundingClientRect().y,home:document.getElementById('workspaceHome').getBoundingClientRect().y,display:getComputedStyle(document.getElementById('hqdSearch')).opacity}));assert.ok(accessLayout.search<accessLayout.home);assert.equal(accessLayout.display,'1');
-    assert.equal(await page.locator('#hqdAdd').isVisible(),true);assert.equal(await page.locator('.pw-floral-corner').count(),4);assert.match(await page.locator('.pw-garden-image').getAttribute('src'),/workspace\/gardens\/(spring|summer|autumn|winter)\.jpg/);
+    const accessLayout=await page.evaluate(()=>({header:document.getElementById('hqdLaunch').getBoundingClientRect(),home:document.getElementById('pwHomeQuickAccess').getBoundingClientRect(),garden:document.querySelector('.pw-home-garden').getBoundingClientRect()}));assert.ok(accessLayout.header.y<accessLayout.home.y&&accessLayout.home.y<accessLayout.garden.y);
+    const headerControls=await page.evaluate(()=>[...document.querySelectorAll('#app .top .bar button')].filter(e=>{const s=getComputedStyle(e);return s.display!=='none'&&s.visibility!=='hidden';}).map(e=>{const r=e.getBoundingClientRect();return {id:e.id,className:e.className,x:r.x,right:r.right,width:r.width};}));assert.ok(headerControls.every(c=>c.x>=0&&c.right<=view.width+1),'header controls clipped: '+JSON.stringify(headerControls));
+    assert.equal(await page.locator('#hqdLaunch').isVisible(),true);assert.equal(await page.locator('#pwHomeQuickAccess [data-all]').isVisible(),true);assert.equal(await page.locator('.pw-floral-corner').count(),2);assert.match(await page.locator('.pw-garden-image').getAttribute('src'),/workspace\/gardens\/(spring|summer|winter)\.jpg|workspace\/gardens\/autumn-home-20260928\.webp/);
     await page.locator('.pw-garden').screenshot({path:output+'/'+role+'-'+view.width+'-little-garden.png'});
     if(role==='member')for(const season of ['spring','summer','autumn','winter']){
      await page.evaluate(season=>{PresenceWorkspace.data.settings.season=season;PresenceWorkspace.render();},season);await page.locator('.pw-garden-image').evaluate(img=>img.decode());
@@ -71,18 +72,21 @@ try{
      const flower=await page.locator('.pw-floral-corner').first().evaluate(e=>({events:getComputedStyle(e).pointerEvents,url:getComputedStyle(e).backgroundImage}));assert.equal(flower.events,'none');assert.match(flower.url,/floral-corner\.png/);
     }
     await page.evaluate(()=>{delete PresenceWorkspace.data.settings.season;PresenceWorkspace.render();window.scrollTo(0,0);});
-    await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#hqdResults [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
-    await page.evaluate(()=>goTab('home'));await page.locator('#hqdAdd').click();await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#quickslotOptions [data-add=profithub]').click();
+    await page.locator('#hqdLaunch').click();assert.equal(await page.locator('#hqdDialog').isVisible(),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');
+    await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#hqdResults [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');assert.equal(await page.locator('#hqdDialog').isVisible(),false);
+    await page.evaluate(()=>goTab('home'));await page.locator('#pwHomeQuickAccess [data-all]').click();await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#quickslotOptions [data-add=profithub]').click();
     await page.waitForFunction(()=>__qaWrites.some(w=>w.path.startsWith('userPreferences/')&&w.value.quickSlots?.includes('profithub')));
     assert.equal(await page.locator('#homeQuickSlots [data-open=profithub]').count(),1);assert.equal(await page.locator('#quickslotOptions [data-add=profithub]').isDisabled(),true);
-    await page.evaluate(()=>{PresenceQuickAccess.dispose();PresenceQuickAccess.refresh();});await page.waitForTimeout(100);assert.equal(await page.locator('#homeQuickSlots [data-open=profithub]').count(),1);
-    await page.locator('#homeQuickSlots [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
+    assert.equal(await page.locator('#pwHomeQuickAccess [data-open=profithub]').count(),1);
+    await page.evaluate(()=>{PresenceQuickAccess.dispose();PresenceQuickAccess.refresh();});await page.waitForTimeout(100);assert.equal(await page.locator('#pwHomeQuickAccess [data-open=profithub]').count(),1);
+    await page.locator('#pwHomeQuickAccess [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
+    await page.locator('#hqdLaunch').click();
     await page.locator('#hqdSearch').fill('정원');await page.locator('#hqdResults [data-add=garden]').click();assert.equal(await page.locator('#homeQuickSlots [data-open=garden]').count(),1);
     await page.locator('#hqdSearch').fill('팀 지원');assert.equal(await page.locator('#hqdResults [data-open=supporthub]').count(),role==='member'?0:1);
-    await page.locator('#hqdSearch').fill('없는메뉴테스트999');assert.match(await page.locator('#hqdResults').textContent(),/찾는 기능이 없어요/);await page.keyboard.press('Escape');assert.equal(await page.locator('#hqdPopover').isVisible(),false);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdLaunch');
-    await page.evaluate(()=>goTab('home'));await page.locator('#hqdSearch').fill('성과');await page.screenshot({path:output+'/'+role+'-'+view.width+'-search-open.png'});
-    const searchLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,targets:[...document.querySelectorAll('#homeQuickDock button,#homeQuickDock input')].filter(e=>e.getClientRects().length).map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})).filter(e=>e.w<43.5||e.h<43.5)}));assert.equal(searchLayout.overflow,false);assert.deepEqual(searchLayout.targets,[]);
-    await page.keyboard.press('Escape');await page.locator('#hqdEdit').click();await page.locator('[data-move=garden][data-direction="-1"]').click();
+    await page.locator('#hqdSearch').fill('없는메뉴테스트999');assert.match(await page.locator('#hqdResults').textContent(),/찾는 기능이 없어요/);await page.keyboard.press('Escape');assert.equal(await page.locator('#hqdDialog').isVisible(),false);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdLaunch');
+    await page.evaluate(()=>goTab('home'));await page.locator('#hqdLaunch').click();await page.locator('#hqdSearch').fill('성과');await page.screenshot({path:output+'/'+role+'-'+view.width+'-search-open.png'});
+    const searchLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,targets:[...document.querySelectorAll('#hqdDialog button,#hqdDialog input')].filter(e=>e.getClientRects().length&&!e.closest('[hidden]')).map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})).filter(e=>e.w<43.5||e.h<43.5)}));assert.equal(searchLayout.overflow,false);assert.deepEqual(searchLayout.targets,[]);
+    await page.locator('#hqdEdit').click();await page.locator('[data-move=garden][data-direction="-1"]').click();
     assert.deepEqual(await page.locator('#homeQuickSlots .hqd-slot').evaluateAll(es=>es.map(e=>e.dataset.open)),['garden','profithub']);
     await page.locator('[data-remove=garden]').click();assert.equal(await page.locator('#homeQuickSlots [data-open=garden]').count(),0);await page.locator('#hqdEdit').click();
     if(role==='member'&&view.width===390){
@@ -90,15 +94,17 @@ try{
      assert.ok(await page.evaluate(()=>JSON.parse(localStorage.getItem('presence_home_quickslots_member')).includes('learnhub')));
      await page.evaluate(()=>{window.__qaFail=false;PresenceQuickAccess.refresh();});await page.waitForFunction(()=>__qaStore.userPreferences?.member?.quickSlots?.includes('learnhub'));
      await page.evaluate(()=>{localStorage.removeItem('presence_home_quickslots_other');localStorage.removeItem('presence_home_quickslots_other_updated_at');me=state.users.other;PresenceWorkspace.render();PresenceQuickAccess.refresh();});await page.waitForTimeout(120);assert.equal(await page.locator('#homeQuickSlots .hqd-slot').count(),0);
-     await page.evaluate(()=>{me=state.users.member;PresenceWorkspace.render();PresenceQuickAccess.refresh();});await page.waitForTimeout(120);assert.equal(await page.locator('#homeQuickSlots [data-open=learnhub]').count(),1);
+     await page.evaluate(()=>{me=state.users.member;PresenceWorkspace.render();PresenceQuickAccess.refresh();});await page.waitForTimeout(120);assert.equal(await page.locator('#pwHomeQuickAccess [data-open=learnhub]').count(),1);
      await page.evaluate(()=>{for(const k of Object.keys(TABMETA))if(tabVisible(k))addHomeQuickslot(k);});assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('presence_home_quickslots_member')).length),8);
-     await page.locator('#hqdAdd').click();await page.locator('#hqdSearch').fill('정원');assert.equal(await page.locator('#quickslotOptions [data-add=garden]').isDisabled(),true);await page.keyboard.press('Escape');
+     assert.ok(await page.locator('#pwHomeQuickAccess [data-open]').count()<=3);
+     await page.locator('#hqdLaunch').click();
+     await page.locator('#hqdPickerMode').click();await page.locator('#hqdSearch').fill('정원');assert.equal(await page.locator('#quickslotOptions [data-add=garden]').isDisabled(),true);
      await page.locator('#hqdEdit').click();// Remove only this account's shortcuts through their controls.
      while(await page.locator('[data-remove]').count()){await page.locator('[data-remove]').first().click();}
      await page.evaluate(()=>addHomeQuickslot('profithub'));await page.waitForTimeout(100);if(await page.locator('#hqdEdit').textContent()==='완료')await page.locator('#hqdEdit').click();
      assert.ok(await page.evaluate(()=>__qaWrites.filter(w=>w.path.startsWith('userPreferences/')).every(w=>w.path==='userPreferences/member')));
     }
-    await page.keyboard.press('Meta+k');assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');await page.keyboard.press('Meta+k');assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');await page.keyboard.press('Escape');
     await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:output+'/'+role+'-'+view.width+'-quick-access-saved.png'});
    }
    if(tab==='garden'){
@@ -176,12 +182,15 @@ try{
  }
  if(!process.env.QA_QUICK&&!process.env.QA_PROFIT_ONLY&&!process.env.QA_ACCESS_ONLY){
   await page.setViewportSize({width:390,height:844});await fixture('member');
+  assert.equal(await page.locator('#pwPledgeDetails').getAttribute('open'),null);
+  await page.locator('#pwPledgeDetails summary').click();assert.equal(await page.locator('#pwPledgeDetails').getAttribute('open'),'');
   await page.locator('[data-form=pledge] textarea').first().fill('이번 주에는 먼저 질문하고 배운 것을 실천합니다.');
   await page.locator('[data-form=pledge] button[type=submit]').click();
   await page.waitForFunction(()=>__qaWrites.some(w=>w.path.includes('/entry')));
   assert.match(await page.locator('[data-form=pledge] textarea').first().inputValue(),/먼저 질문/);
   await page.evaluate(()=>{PresenceWorkspace.dispose();PresenceWorkspace.render();});await page.waitForTimeout(150);
   assert.match(await page.locator('[data-form=pledge] textarea').first().inputValue(),/먼저 질문/);
+  if(await page.locator('#pwPledgeDetails').getAttribute('open')===null)await page.locator('#pwPledgeDetails summary').click();
   await page.evaluate(()=>window.__qaFail=true);
   await page.locator('[data-form=pledge] textarea').first().fill('실패해도 지워지지 않는 초안');
   await page.locator('[data-form=pledge] button[type=submit]').click();
@@ -226,7 +235,9 @@ try{
   await page.locator('[data-action=promotion]').click();await page.locator('#pwPromotionRole').fill('LR');await page.locator('#pwPromotionCriteria').fill('현장 기본기를 설명하고 실천 기록을 남기기');await page.locator('[data-form=promotion] button[type=submit]').click();await page.waitForFunction(()=>__qaWrites.some(w=>w.path.startsWith('workspacePromotions/')));await page.keyboard.press('Escape');
   await page.evaluate(()=>{__qaStore.workspaceAccess={};__qaWatch.get('workspaceAccess')({});});await page.waitForTimeout(160);assert.equal(await page.locator('#workspaceSupport').textContent(),'');assert.equal(await page.evaluate(()=>PresenceWorkspace.data.weeks.member),undefined);
   await fixture('admin');await page.evaluate(()=>goTab('supporthub'));await page.locator('[data-action=access]').click();await page.locator('#pwAccessUser').selectOption('member');await page.locator('#pwAccessLeader').selectOption('leader');await page.locator('[data-form=access] button[type=submit]').click();await page.waitForFunction(()=>__qaWrites.some(w=>w.path==='workspaceAccess/member'));await page.keyboard.press('Escape');
-  await page.evaluate(()=>goTab('home'));await page.locator('[data-action=preferences]').click();await page.locator('#pwSeason').selectOption('winter');await page.locator('[data-form=season] button[type=submit]').click();await page.waitForFunction(()=>__qaWrites.some(w=>w.path==='workspaceSettings'));await page.keyboard.press('Escape');assert.match(await page.locator('.pw-garden-image').getAttribute('src'),/winter/);await page.locator('[data-action=garden]').click();await page.waitForFunction(()=>document.getElementById('treeMain').src.includes('winter')&&document.getElementById('treeMain').naturalWidth>0);
+  await page.evaluate(()=>goTab('home'));await page.locator('[data-action=preferences]').click();await page.locator('#pwSeason').selectOption('winter');await page.locator('[data-form=season] button[type=submit]').click();await page.waitForFunction(()=>__qaWrites.some(w=>w.path==='workspaceSettings'));await page.keyboard.press('Escape');assert.match(await page.locator('.pw-garden-image').getAttribute('src'),/winter/);await page.locator('[data-action=garden]').click();
+  try{await page.waitForFunction(()=>{const t=document.getElementById('treeMain');return t?.dataset.treeV2Key==='winter'&&/assets\/tree-scene\/trees\/mature-winter-christmas-rpg-v2\.png/.test(t.currentSrc||t.src)&&t.naturalWidth>0&&document.querySelector('#treeSecHome .tree-stage')?.dataset.treeSeason==='winter';},null,{timeout:8000});}
+  catch(e){const scene=await page.evaluate(()=>{const t=document.getElementById('treeMain'),s=document.querySelector('#treeSecHome .tree-stage');return {src:t?.src,currentSrc:t?.currentSrc,naturalWidth:t?.naturalWidth,dataset:{...t?.dataset},stage:{...s?.dataset},settings:PresenceWorkspace.data.settings};});throw new Error('winter garden scene did not load: '+JSON.stringify(scene),{cause:e});}
   await page.evaluate(()=>goTab('peoplehub'));const more=page.locator('#subRail .subrail-more');if(await more.count()){await more.click();await page.screenshot({path:output+'/admin-390-menu-open.png'});const box=await page.locator('.subrail-panel').boundingBox();assert.ok(box.x>=0&&box.x+box.width<=391&&box.y>=0&&box.y+box.height<=844,'menu remains inside viewport');}
   const controls=await page.evaluate(()=>[...document.querySelectorAll('.mpanel.active button')].filter(e=>e.getBoundingClientRect().width>0).slice(0,10).map(e=>({id:e.id,cls:e.className,text:e.textContent.slice(0,50)})));
   console.log('Controls',JSON.stringify(controls));

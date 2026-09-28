@@ -3272,7 +3272,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
 
         <!-- 🗺️ 사이트 관리 (섹터리더) -->
     <div class="mpanel" id="m-sites"><div class="wrap"><section class="sec">
-      <div class="sec-head"><h2>🗺️ 사이트 관리</h2><span class="ko">주요·신규·신청</span><span class="meta">섹터리더</span></div>
+      <div class="sec-head"><h2>🗺️ 사이트 관리</h2><span class="ko">2024 스트릿 기준</span><span class="meta">리더+</span></div>
       <style>
         #m-sites .ft-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 18px}
         #m-sites .ft-sb{background:var(--card-2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--mono)}
@@ -3388,13 +3388,13 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
       </style>
 
       <div class="ft-subnav">
-        <button class="ft-sb active" data-sp="main" onclick="siteTab('main')">📍 주요 사이트</button>
+        <button class="ft-sb active" data-sp="find" onclick="siteTab('find')">🔎 테리코드 찾기</button>
+        <button class="ft-sb" data-sp="main" onclick="siteTab('main')">📍 주요 사이트</button>
         <button class="ft-sb" data-sp="new" onclick="siteTab('new')">➕ 신규 추가</button>
         <button class="ft-sb" data-sp="apply" onclick="siteTab('apply')">🚀 사이트 신청</button>
-        <button class="ft-sb" data-sp="find" onclick="siteTab('find')">🔎 테리코드 찾기</button>
       </div>
 
-      <div class="sp active" id="sp-main">
+      <div class="sp" id="sp-main">
         <div class="ft-card" style="margin-bottom:14px;padding:0;overflow:hidden">
           <button class="map-toggle" onclick="toggleSiteMap()"><span>🗺️ 사이트 지도</span><span id="siteMapCaret">▾</span></button>
           <div id="siteMap" class="ms-map" style="border:none;border-radius:0;margin:0"></div>
@@ -3471,18 +3471,19 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         </div>
       </div>
 
-      <div class="sp" id="sp-find">
-        <div class="ft-card">
-          <div class="ft-h">🔎 테리토리 코드 찾기 <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">· 2024 스트릿 기준</span></div>
+      <div class="sp active" id="sp-find">
+        <div class="ft-card tf-finder-card">
+          <div class="tf-intro"><div class="tf-intro-copy"><p class="tf-eyebrow">SITES · TERRITORY FINDER</p><h3>테리코드 찾기</h3><p>사이트명, 역, 지역으로 2024 스트릿 기입코드를 찾아보세요.</p></div><img class="tf-intro-art" src="assets/workspace/territory-finder-20260928.webp" alt="" width="96" height="96" loading="eager" decoding="async"></div>
           <div class="ft-f" style="margin-bottom:4px">
-            <label>사이트명·역·지역을 검색하면 <b style="color:var(--green-soft)">기입코드</b>가 떠요 — 없으면 가장 가까운 곳으로 안내</label>
+            <label for="tfQuery">사이트명 · 역 · 지역 검색</label>
             <div class="ms-searchbar">
               <span class="ms-sicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16.5" y2="16.5"/></svg></span>
-              <input class="ms-sinput" id="tfQuery" placeholder="예: 주안역 · 부평역 1번출구 · 다이소 구월점" oninput="tfSearchLazy()" onkeydown="if(event.key==='Enter')tfSearch()">
+              <input class="ms-sinput" id="tfQuery" type="search" autocomplete="off" placeholder="예: 부평역, 다이소 구월점" aria-describedby="tfSource" oninput="tfSearchLazy()" onkeydown="if(event.key==='Enter')tfSearch()">
               <button class="ms-sbtn" onclick="tfSearch()">검색</button>
             </div>
           </div>
-          <div id="tfHint" class="tf-hint">🔍 검색어를 입력하면 결과가 여기에 떠요. 코드칩을 탭하면 복사됩니다.</div>
+          <div id="tfHint" class="tf-hint" role="status" aria-live="polite">검색어를 입력하면 코드와 위치가 여기에 표시됩니다.</div>
+          <div id="tfCount" class="tf-count" role="status" aria-live="polite"></div>
           <div id="tfResults" class="tf-list"></div>
           <div id="tfMapCard" class="tf-mapcard" style="display:none">
             <div class="tf-maphead">
@@ -3495,7 +3496,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
             </div>
             <div id="tfMap" class="tf-map"></div>
           </div>
-          <div class="ft-note" style="margin-top:12px">코드가 안 뜨면 검색어를 <b>더 짧게</b>(예: “부평역”)·<b>정식 상호명</b>으로 바꿔보세요. 이 목록은 2024 스트릿 기준이라, 없는 신규 테리는 테리토리 링크/매뉴얼로 확인해 주세요.</div>
+          <div class="ft-note" id="tfSource" style="margin-top:12px">2024 스트릿 기준 자료입니다. 없는 신규 테리는 테리토리 링크나 매뉴얼에서 확인하세요.</div>
         </div>
       </div>
 
@@ -11259,15 +11260,14 @@ function renderSites(){
   var fb=document.querySelector('#m-sites .ft-sb[data-sp="find"]');if(fb)fb.style.display='';
   var koEl=document.querySelector('#m-sites .sec-head .ko'), metaEl=document.querySelector('#m-sites .sec-head .meta');
   if(!full){
-    if(koEl)koEl.textContent='테리코드 찾기';
+    if(koEl)koEl.textContent='2024 스트릿 기준';
     if(metaEl)metaEl.textContent='리더+';
     sitesReady=true; siteTab('find');
     return;
   }
-  if(koEl)koEl.textContent='주요·신규·신청';
+  if(koEl)koEl.textContent='2024 스트릿 기준';
   if(metaEl)metaEl.textContent='섹터리더';
-  if(!sitesReady){ sitesReady=true; siteTab('main'); }
-  else { renderSiteList(); renderSiteMap(); }
+  sitesReady=true; siteTab('find');
   var au=document.getElementById('applyUrl'); if(au&&!au.value&&state.siteApplyUrl)au.value=state.siteApplyUrl;
 }
 function siteTab(k){
@@ -14850,16 +14850,18 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
     parse();
     var inpEl=document.getElementById('tfQuery'); if(!inpEl)return;
     var raw=inpEl.value.trim();
-    var box=document.getElementById('tfResults'), hint=document.getElementById('tfHint');
+    var box=document.getElementById('tfResults'), hint=document.getElementById('tfHint'), count=document.getElementById('tfCount');
     if(!box)return;
-    if(raw.length<1){ box.innerHTML=''; if(hint)hint.style.display='block'; return; }
+    if(raw.length<1){ box.innerHTML=''; if(hint)hint.style.display='block'; if(count)count.textContent=''; tfMapClose(); return; }
     if(hint)hint.style.display='none';
+    tfMapClose();
     var q=norm(raw); window._tfLastQ=q;
     var tokens=raw.split(/\s+/).map(norm).filter(function(x){return x.length>0;});
     var out=[];
     for(var i=0;i<ROWS.length;i++){
       var nn=NN[i], loc=LOC[ROWS[i][0]];
       var sc=scoreRow(q, nn, loc);
+      if(q.length>=2 && norm(ROWS[i][2]).indexOf(q)>=0) sc=Math.max(sc,850);
       if(sc<600 && tokens.length>1){
         var all=true, hitname=false;
         for(var k=0;k<tokens.length;k++){
@@ -14873,10 +14875,12 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
     }
     out.sort(function(a,b){ if(b[0]!==a[0])return b[0]-a[0]; return NN[a[1]].length-NN[b[1]].length; });
     if(!out.length){
-      box.innerHTML='<div class="tf-empty">\u201c<b>'+esc(raw)+'</b>\u201d\uc5d0 \ub9de\ub294 \ucf54\ub4dc\ub97c \ubabb \ucc3e\uc558\uc5b4\uc694.<br>\uac80\uc0c9\uc5b4\ub97c \ub354 \uc9e7\uac8c(\uc608: <b>\ubd80\ud3c9\uc5ed</b>) \ub610\ub294 \uc815\uc2dd \uc0c1\ud638\uba85\uc73c\ub85c \ubc14\uafc0\ubcf4\uc138\uc694.</div>';
+      if(count)count.textContent='검색 결과 0개';
+      box.innerHTML='<div class="tf-empty"><b>'+esc(raw)+'</b>에 맞는 코드가 없어요.<br>검색어를 짧게 하거나 정식 상호명으로 다시 검색해 보세요.</div>';
       return;
     }
     var top=out.slice(0,40);
+    if(count)count.textContent='검색 결과 '+out.length+'개'+(out.length>40?' · 상위 40개 표시':'');
     var terms=tokens.length?tokens:[q];
     var html=top.map(function(pair){
       var r=ROWS[pair[1]], loc=LOC[r[0]]||{sido:'',sigu:''}, nm=r[1], code=r[2];
@@ -14886,9 +14890,10 @@ window.tfKakao=function(idx){ var s=tfFull(idx); if(!s)return; tfDoCopy(s); try{
       return '<div class="tf-row'+(exact?' exact':'')+'">'
         +'<div class="tf-info"><div class="tf-nm">'+hl+(exact?'<span class="tf-badge">\uc815\ud655</span>':'')+'</div>'
         +'<div class="tf-loc">\ud83d\udccd '+esc(locTxt)+'</div></div>'
-        +'<div class="tf-right">'
-        +'<button class="tf-code" title="\ud0ed\ud558\uba74 \ucf54\ub4dc \ubcf5\uc0ac" onclick="tfCopyFull('+idx+')">'+esc(cls+'/'+code)+'</button>'+'<button class="tf-code" style="background:#FEE500;color:#3C1E1E;border-color:#FEE500;border-style:solid" title="카톡 공유·복사" onclick="tfKakao('+idx+')">💬 카톡</button>'
-        +'<button class="tf-mapbtn" onclick="tfShowMap('+pair[1]+')"><svg viewBox="0 0 24 24" fill="none" stroke="#5CBC2E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 L3 6 V21 L9 18 L15 21 L21 18 V3 L15 6 Z"/><path d="M9 3 V18 M15 6 V21"/></svg>\uc9c0\ub3c4</button>'
+        +'<div class="tf-right"><div class="tf-value"><small>기입코드</small><strong>'+esc(cls+'/'+code)+'</strong></div>'
+        +'<div class="tf-actions"><button class="tf-code" aria-label="'+esc(nm)+' 기입코드 전체 복사" onclick="tfCopyFull('+idx+')">복사</button>'
+        +'<button class="tf-mapbtn" aria-label="'+esc(nm)+' 지도 보기" onclick="tfShowMap('+idx+')">지도</button>'
+        +'<button class="tf-sharebtn" aria-label="'+esc(nm)+' 카카오톡 공유" onclick="tfKakao('+idx+')">공유</button></div>'
         +'</div></div>';
     }).join('');
     if(out.length>40) html+='<div class="tf-more">\uc0c1\uc704 40\uac1c \ud45c\uc2dc \u00b7 \uac80\uc0c9\uc5b4\ub97c \ub354 \uc815\ud655\ud788 \uc801\uc73c\uba74 \uc881\ud600\uc838\uc694</div>';
@@ -17415,13 +17420,15 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20260727-2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
-<script src="assets/presence-home-quickslots.js?v=20260914-little-garden-7"></script>
+<script src="assets/presence-home-quickslots.js?v=20260928-mobile-focus-8"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20260914-garden-4"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
-<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260914-little-garden-7">
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260928-mobile-focus-8">
+<link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-8">
+<link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-8">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
-<script src="assets/presence-workspace-v2.js?v=20260914-little-garden-7"></script>
+<script src="assets/presence-workspace-v2.js?v=20260928-mobile-focus-8"></script>
 </body>
 </html>

@@ -1,0 +1,4 @@
+# September 28, 2026 workspace images
+
+- `gardens/autumn-home-20260928.webp`: optimized 960 × 537 WebP (quality 82) from the user-approved `/Users/jaeyoung5178/Documents/ChatGPT/Presence Work Book/design-review/20260928-mobile-simplification/autumn-garden-concept.png` (1344 × 752 PNG). Its composition and content are unchanged. The older large seasonal garden files remain available.
+- `territory-finder-20260928.webp`: optimized 384 × 384 WebP (quality 82) from the generated image at `https://d8j0ntlcm91z4.cloudfront.net/user_3IgZUWjMmGdBwz8qVwp8dQQVjv0/hf_20260928_120441_e239bc36-9fcb-4152-af48-f8f37eb65182.png`. Higgsfield project `e14522ba-e69c-4cbd-8a57-6db88ce27418`, job `e239bc36-9fcb-4152-af48-f8f37eb65182`, model `gpt_image_2_5`. Decorative clay map and magnifier only; it represents no real location or territory data.
