@@ -15,7 +15,7 @@
     {id:'leader-guide',title:'섹터리더 · 동행과 피드백',detail:'신입에게 설명하고 현장에서 함께 실습하기',tab:'training',minutes:'20분',leader:true}
   ];
   let sessionUid='',week=C.monday(C.dateKey()),channel='team',peopleQuery='',profitKind='week',profitDate='',profitScope='self',profitUid='',teamGoalPeriod='week',supportUid='',dmUid='',replyTo='',timer=null,booted=false;
-  let coreValues=[],historyReplay=false,historyReady=false,wateringUid='',pledgeExpanded=false;
+  let coreValues=[],historyReplay=false,historyReady=false,wateringUid='',pledgeExpanded=false,homePendingExpanded=false;
   function beforeNavigate(name){if(!actor())return;const old=typeof curTab==='string'?curTab:'home';if(historyReplay)return;if(!historyReady){history.replaceState({presenceWorkspace:true,tab:old,scroll:scrollY},'');historyReady=true;}else history.replaceState({presenceWorkspace:true,tab:old,scroll:scrollY},'');if(name!==old)history.pushState({presenceWorkspace:true,tab:name,scroll:0},'');}
   window.addEventListener('popstate',event=>{const h=event.state;if(!actor()||!h?.presenceWorkspace)return;historyReplay=true;goTab(h.tab);historyReplay=false;requestAnimationFrame(()=>window.scrollTo({top:h.scroll||0,behavior:'instant'}));});
   function actor(){return typeof me!=='undefined'?me:null;}
@@ -61,7 +61,7 @@
     for(const [path,off] of subscriptions){const match=path.match(/^(workspaceWeeks|workspaceLearning|workspacePromotions)\/([^/]+)$/);if(match&&!ids.has(match[2])){off();subscriptions.delete(path);loaded.delete(path);const store={workspaceWeeks:'weeks',workspaceLearning:'learning',workspacePromotions:'promotions'}[match[1]];delete data[store][match[2]];$('workspaceSupport')?.replaceChildren();if($('pwDialog')?.querySelector('[data-form=promotion],[data-form=coach]'))$('pwDialog').close();}}
     for(const uid of ids){watch('workspaceWeeks/'+uid,v=>data.weeks[uid]=v);watch('workspaceLearning/'+uid,v=>data.learning[uid]=v);watch('workspacePromotions/'+uid,v=>data.promotions[uid]=v);}
   }
-  function dispose(){window.PresenceQuickAccess?.dispose();for(const off of subscriptions.values())try{off();}catch(e){}subscriptions.clear();loaded.clear();drafts.clear();Object.keys(data).forEach(k=>data[k]={});sessionUid='';dmUid='';replyTo='';supportUid='';profitDate='';profitKind='week';profitScope='self';profitUid='';pledgeExpanded=false;const dialog=$('pwDialog');if(dialog){dialog.close();dialog.remove();}document.querySelectorAll('.pw-private-root').forEach(el=>el.replaceChildren());}
+  function dispose(){window.PresenceQuickAccess?.dispose();for(const off of subscriptions.values())try{off();}catch(e){}subscriptions.clear();loaded.clear();drafts.clear();Object.keys(data).forEach(k=>data[k]={});sessionUid='';dmUid='';replyTo='';supportUid='';profitDate='';profitKind='week';profitScope='self';profitUid='';pledgeExpanded=false;homePendingExpanded=false;const dialog=$('pwDialog');if(dialog){dialog.close();dialog.remove();}document.querySelectorAll('.pw-private-root').forEach(el=>el.replaceChildren());}
   function schedule(){clearTimeout(timer);timer=setTimeout(()=>render(),70);}
   function rangeStats(names,range){return C.aggregate(state.sales,names,range.start,range.cutoff,saleEntryCountsAsWork);}
   function goal(uid,start){return (((data.weeks[uid]||{})[start||C.monday(C.dateKey())]||{}).entry||{}).target||0;}
@@ -86,6 +86,24 @@
     return '<div class="pw-week-comparison" aria-label="지난주와 이번 주 성과 비교">'+row('last','지난주 전체',dateLabel(range.previousStart)+' — '+dateLabel(range.previousEnd),last)+row('current','이번 주 현재',dateLabel(range.start)+' — '+dateLabel(range.cutoff),now)+'</div>';
   }
   function weeklyChart(u,range){const names=[u.name],labels=['월','화','수','목','금','토','일'],days=labels.map((label,i)=>{const day=C.add(range.start,i),oldDay=C.add(range.previousStart,i);return {label,day,now:day<=range.cutoff?C.aggregate(state.sales,names,day,day,saleEntryCountsAsWork):null,old:C.aggregate(state.sales,names,oldDay,oldDay,saleEntryCountsAsWork)};}),max=Math.max(1,...days.flatMap(d=>[d.old.sales,d.now?.sales||0]));return '<figure class="pw-week-chart"><figcaption><span>지난주</span><span>이번 주</span><small>일별 결과 · 건</small></figcaption><div class="pw-week-bars">'+days.map(d=>'<div class="pw-week-day" aria-label="'+d.label+'요일 지난주 '+(d.old.days?d.old.sales+'건':'미입력')+', 이번 주 '+(d.now?(d.now.days?d.now.sales+'건':'미입력'):'예정')+'"><div class="pw-week-values"><span>'+ (d.old.days?d.old.sales:'—')+'</span><span>'+(d.now?.days?d.now.sales:'—')+'</span></div><div class="pw-week-pair"><i style="height:'+Math.max(2,d.old.sales/max*42)+'px"></i><i style="height:'+Math.max(2,(d.now?.sales||0)/max*42)+'px"></i></div><small>'+d.label+'</small></div>').join('')+'</div></figure>';}
+  function homePendingScope(a){
+    const cfg=typeof tlHomeConfig==='function'?tlHomeConfig(a):null;
+    if(!cfg||window.__previewRole)return null;
+    return cfg.kind==='aop'?(admin()?cfg:null):cfg.kind==='team'?cfg:null;
+  }
+  function homePendingMembers(cfg,today){
+    if(!cfg||typeof tlhMembers!=='function')return [];
+    const registered=Object.values(state.users||{});
+    return tlhMembers(cfg).filter(m=>{
+      const linked=registered.filter(u=>u?.name===m.name);
+      return (!linked.length||linked.some(u=>(u.status==='active'||!u.status)&&!isTestBot(u)))&&!(typeof saleBeforeFirstField==='function'&&saleBeforeFirstField(m.name,today));
+    });
+  }
+  function homePendingHTML(pending){
+    if(!pending.length)return '';
+    const names=pending.map(m=>m.name),list=items=>'<ul class="pw-home-pending-list">'+items.map(name=>'<li>'+E(name)+'</li>').join('')+'</ul>';
+    return '<div class="pw-home-pending" id="pwHomePending" role="group" aria-label="오늘 결과 미제출자"><span class="pw-home-pending-label">미제출</span>'+list(names.slice(0,5))+(names.length>5?'<details id="pwHomePendingMore" '+(homePendingExpanded?'open':'')+'><summary><span class="pw-pending-more-closed">나머지 '+(names.length-5)+'명 보기</span><span class="pw-pending-more-open">접기</span></summary>'+list(names.slice(5))+'</details>':'')+'</div>';
+  }
   function renderHome(){
     const a=actor(),today=C.dateKey(),range=C.period('week',today),now=records(a,range),last=C.aggregate(state.sales,[a.name],range.previousStart,range.previousEnd,saleEntryCountsAsWork),same=C.aggregate(state.sales,[a.name],range.previousStart,range.previousCutoff,saleEntryCountsAsWork),target=goal(a.uid),pct=target?Math.round(now.sales/target*100):null;
     const season=currentSeason(),participated=users().filter(u=>isWatered(u.uid)).length;
@@ -93,15 +111,18 @@
     const todos=typeof tdList==='function'?tdList(a.uid,TODAY):[];
     const rows=todos.slice(0,3).map(t=>'<div class="pw-row"><label><input type="checkbox" data-action="todo" data-value="'+E(t.id)+'" '+(t.done?'checked':'')+'><span>'+E(t.text)+'</span></label></div>').join('');
     const ownRecord=typeof saleRecordFor==='function'?saleRecordFor(a.name,today):(state.sales||{})[today+'|'+a.name],beforeFirst=typeof saleBeforeFirstField==='function'&&saleBeforeFirstField(a.name,today),submitted=typeof saleEntryIsRecorded==='function'?saleEntryIsRecorded(ownRecord):!!ownRecord;
-    const cfg=typeof tlHomeConfig==='function'?tlHomeConfig(a):null,teamMembers=cfg&&typeof tlhMembers==='function'?tlhMembers(cfg).filter(m=>!(typeof saleBeforeFirstField==='function'&&saleBeforeFirstField(m.name,today))):[];
-    const pending=cfg&&typeof C.pendingSubmissions==='function'?C.pendingSubmissions(teamMembers,state.sales,today,saleEntryIsRecorded,saleBeforeFirstField):[];
-    const primaryTitle=cfg?pending.length+'명 결과 제출대기':beforeFirst?'근무 시작 전이에요':submitted?'오늘 기록을 남겼어요':'오늘 결과가 아직 미입력이에요';
-    const primaryHint=cfg?(pending.length?'팀원이 저장한 0건·NA·랠리는 제출 완료로 봅니다.':'팀원이 오늘 기록을 모두 남겼어요.'):beforeFirst?'첫 필드일부터 결과를 기록할 수 있어요.':submitted?'저장한 오늘 기록을 확인할 수 있어요.':'0건 또는 NA도 직접 저장하면 완료로 표시돼요.';
-    const primaryAction=cfg?linkButton(pending.length?'제출 현황 보기':'팀 운영 보기','tlhome'):linkButton(submitted?'오늘 기록 확인':'결과 입력','sale');
+    const cfg=homePendingScope(a),baseReady=window.__presenceWorkspaceBaseReady?.users===true&&window.__presenceWorkspaceBaseReady?.sales===true;
+    const teamMembers=cfg&&baseReady?homePendingMembers(cfg,today):[];
+    const pending=cfg&&baseReady?C.pendingSubmissions(teamMembers,state.sales,today,saleEntryIsRecorded,saleBeforeFirstField):[];
+    const primaryTitle=cfg?!baseReady?'오늘 제출 현황을 불러오는 중이에요':!teamMembers.length?'오늘 제출 대상이 없어요':pending.length?pending.length+'명 결과 제출대기':'오늘 결과 모두 제출했어요':beforeFirst?'근무 시작 전이에요':submitted?'오늘 기록을 남겼어요':'오늘 결과가 아직 미입력이에요';
+    const primaryHint=cfg?!baseReady?'팀원과 결과 기록을 확인하고 있어요.':!teamMembers.length?'현재 집계할 팀원이 없습니다.':pending.length?'0건·NA·랠리 저장도 제출 완료로 봅니다.':'대상 '+teamMembers.length+'명 모두 오늘 결과를 입력했어요.':beforeFirst?'첫 필드일부터 결과를 기록할 수 있어요.':submitted?'저장한 오늘 기록을 확인할 수 있어요.':'0건 또는 NA도 직접 저장하면 완료로 표시돼요.';
+    const primaryAction=cfg?linkButton(baseReady&&pending.length?'제출 현황 보기':'팀 운영 보기','tlhome'):linkButton(submitted?'오늘 기록 확인':'결과 입력','sale');
     const gardenImage=season==='autumn'?'assets/workspace/gardens/autumn-home-20260928.webp':'assets/workspace/gardens/'+season+'.jpg';
     if($('pwPledgeDetails'))pledgeExpanded=$('pwPledgeDetails').open;
+    if($('pwHomePendingMore'))homePendingExpanded=$('pwHomePendingMore').open;
+    if(!cfg||!pending.length)homePendingExpanded=false;
     paint($('workspaceHome'),'<header class="pw-home-intro"><div class="pw-kicker">HOME · '+E(teamName(a))+'</div><h1>'+E(a.name)+'님, 오늘도 함께해요.</h1><div class="pw-home-value"><p class="pw-sub"><strong>'+E(value.en+' · '+value.ko)+'</strong> · '+E(value.description)+'</p>'+button('전체 가치','values')+'</div></header>'+
-      '<section class="pw-home-primary"><div><h2>'+primaryTitle+'</h2><p>'+primaryHint+'</p></div>'+primaryAction+'</section>'+
+      '<section class="pw-home-primary'+(cfg?' pw-home-primary-pending':'')+'"><div class="pw-home-primary-copy"><h2>'+primaryTitle+'</h2><p>'+primaryHint+'</p></div>'+primaryAction+(cfg&&baseReady?homePendingHTML(pending):'')+'</section>'+
       '<section class="pw-panel pw-home-results"><div class="pw-home-result-head"><div><h2>이번 주 나의 성과</h2><span class="pw-sub">'+dateLabel(range.start)+' — '+dateLabel(range.end)+'</span></div>'+linkButton('자세히 보기','profithub')+'</div>'+weekComparison(last,now,range)+'<p class="pw-home-goal">'+(target?'목표 '+num(target)+'건 · 달성 '+pct+'% · '+num(Math.max(0,target-now.sales))+'건 남았어요':'이번 주 목표 미설정')+'</p><details class="pw-home-result-details"><summary>추세와 계산 기준 보기</summary>'+(target?'<div class="pw-progress" role="progressbar" aria-label="주간 목표 달성률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(pct,100)+'"><span style="width:'+Math.min(pct,100)+'%"></span></div>':'')+'<p class="pw-note">지난주 같은 요일까지 대비 '+(now.sales-same.sales>0?'+':'')+num(now.sales-same.sales)+'건</p>'+weeklyChart(a,range)+'<p class="pw-note">AVG = 결과 ÷ 필드 일수 · 미입력은 필드 일수에서 제외해요.</p>'+(target?'':button('이번 주 목표 정하기','pledge-focus'))+'</details></section>'+
       '<div id="pwHomeQuickAccess"></div>'+
       '<section class="pw-panel pw-garden pw-home-garden"><span class="pw-floral-corner pw-floral-tl" aria-hidden="true"></span><span class="pw-floral-corner pw-floral-br" aria-hidden="true"></span><img class="pw-garden-image" src="'+gardenImage+'" alt="'+E(seasons[season])+'의 우리 팀 정원"><div class="pw-garden-copy"><span class="pw-kicker">'+E(seasons[season])+'</span><h2>우리 팀의 작은 정원</h2><p>성장 Lv. '+(Math.floor(gardenTotal()/100)+1)+' · 오늘 '+participated+'명 참여</p>'+button('정원 열기','garden')+'</div></section>'+

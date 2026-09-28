@@ -5364,6 +5364,7 @@ async function logout(){
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
   clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
+  prcPendingRecapReadyUid='';prcPendingExpanded=false;const recapAdminView=document.getElementById('profitRecapAdminView');if(recapAdminView)recapAdminView.innerHTML='';
   authState={view:'login',draft:null,surveyKey:null,surveyCtx:null,sel:{}};document.getElementById('app').classList.add('hidden');document.body.classList.remove('app-on','can-mod','can-daily','is-bot');document.getElementById('authGate').classList.remove('hidden');renderAuth();closeModal('meModal');setLoginBusy(true);authMsg('로그아웃을 안전하게 마무리하는 중이에요…','info');
   try{await DB.logout();}catch(e){}finally{window.__logoutBusy=false;setLoginBusy(false);const m=document.getElementById('authMsg');if(m&&m.textContent.indexOf('로그아웃을')===0)m.className='auth-msg'}
 }
@@ -5939,6 +5940,60 @@ function prcTeamHTML(pay){
 }
 function prcBep(month,uid){return Number((((state.profitMonthlyBep||{})[month]||{})[uid||((me||{}).uid)]||0))||0;}
 let prcAdminScope='team',prcAdminFrom='',prcAdminTo='',prcAdminPreset='month',prcAdminUid='';
+let prcPendingRecapReadyUid='',prcPendingExpanded=false;
+function prcPendingRecapMembers(month){
+  if(!me||!canManageTeamRecords(me)||window.__previewRole)return null;
+  const cfg=tlHomeConfig(me);
+  if(!isFounder(me)&&(!cfg||cfg.kind!=='team'))return null;
+  if(month+'-01'>TODAY)return {eligible:0,pending:[],future:true};
+  if(month===TODAY.slice(0,7)&&!prcPayDates(month,month).some(pay=>pay<=TODAY))return {eligible:0,pending:[],beforeFirstFriday:true};
+  const allowed=!isFounder(me)?new Set(tlhMembers(cfg).map(x=>String(x.name||'').replace(/\s/g,''))):null;
+  const cutoff=month+'-'+String(new Date(+month.slice(0,4),+month.slice(5,7),0).getDate()).padStart(2,'0');
+  const through=cutoff<TODAY?cutoff:TODAY;
+  const pays=prcPayDates(month,month);
+  const worked=new Set();
+  Object.values(state.sales||{}).forEach(function(e){
+    if(e&&e.date<=through&&saleEntryCountsAsWork(e))worked.add(String(e.name||'').replace(/\s/g,''));
+  });
+  const eligible=Object.values(state.users||{}).filter(function(u){
+    if(!u||!u.uid||!u.name||(u.status&&u.status!=='active')||isTestBot(u)||isDeparted(u.name))return false;
+    const name=String(u.name).replace(/\s/g,'');
+    const team=allowed?String((dossierOf(u.name)||{}).teamName||'').toLowerCase().replace(/[\s_-]/g,''):'';
+    if(allowed&&team&&(cfg.teamKey==='fuse'?team!=='fuse':team.indexOf('youngwave')<0))return false;
+    if(allowed&&!allowed.has(name)){
+      if(!tlhAncestorIs(u.name,cfg.leaderName)&&(cfg.teamKey==='fuse'?team!=='fuse':team.indexOf('youngwave')<0))return false;
+    }
+    const first=salesFirstFieldDate(u.name);
+    return (!first||first<=through)&&worked.has(name);
+  });
+  const pending=eligible.filter(function(u){
+    return !pays.some(function(pay){return ((state.weeklyProfitRecaps||{})[pay]||{})[u.uid]!=null;});
+  }).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
+  return {eligible:eligible.length,pending:pending};
+}
+function prcPendingRecapHTML(month){
+  if(!me||!canManageTeamRecords(me)||window.__previewRole)return '';
+  const label=prcMonthLabel(month),ready=!LIVE||((window.__presenceWorkspaceBaseReady||{}).users===true&&(window.__presenceWorkspaceBaseReady||{}).sales===true&&prcPendingRecapReadyUid===me.uid);
+  if(!ready)return '<aside class="prp-card prp-loading" aria-live="polite"><div class="prp-top"><span class="prp-eyebrow">RECAP STATUS</span><span class="prp-pill">불러오는 중</span></div><h3>'+esc(label)+' 리캡 미작성</h3><p>팀원·필드 기록·주간 리캡을 확인하고 있어요.</p></aside>';
+  const result=prcPendingRecapMembers(month);
+  if(result===null)return '<aside class="prp-card prp-ineligible"><div class="prp-top"><span class="prp-eyebrow">RECAP STATUS</span></div><h3>'+esc(label)+' 리캡 현황</h3><p>표시할 수 있는 팀 범위가 연결되지 않았어요.</p></aside>';
+  if(result.future)return '<aside class="prp-card prp-ineligible"><div class="prp-top"><span class="prp-eyebrow">RECAP STATUS</span></div><h3>'+esc(label)+' 리캡 현황</h3><p>아직 시작하지 않은 월이에요.</p></aside>';
+  if(result.beforeFirstFriday)return '<aside class="prp-card prp-ineligible"><div class="prp-top"><span class="prp-eyebrow">RECAP STATUS</span></div><h3>'+esc(label)+' 리캡 현황</h3><p>첫 금요일 리캡 기록일을 기다리고 있어요.</p></aside>';
+  const pending=result.pending;
+  const names=pending.slice(0,4).map(u=>'<span class="prp-name">'+esc(u.name)+'</span>').join('');
+  const more=pending.slice(4).map(u=>'<span class="prp-name">'+esc(u.name)+'</span>').join('');
+  const detail=more?'<details class="prp-more"'+(prcPendingExpanded?' open':'')+' ontoggle="prcPendingExpanded=this.open"><summary>나머지 '+(pending.length-4)+'명 보기</summary><div class="prp-names">'+more+'</div></details>':'';
+  return '<aside class="prp-card '+(pending.length?'prp-has-pending':'prp-empty')+'" aria-live="polite"><div class="prp-top"><span class="prp-eyebrow">RECAP STATUS</span><span class="prp-pill">'+pending.length+'명</span></div><h3>'+esc(label)+' 리캡 미작성</h3><p>필드 근무 이력이 있는 팀원만 확인해요. 0원 저장도 기록에 포함돼요.</p>'+(pending.length?'<div class="prp-names">'+names+'</div>'+detail:result.eligible?'<div class="prp-clear">모두 한 건 이상 기록했어요.</div>':'<div class="prp-clear">아직 필드 근무 이력이 있는 팀원이 없어요.</div>')+'</aside>';
+}
+function prcPendingMount(month){
+  const controls=document.querySelector('#profitRecapAdminView .pra-controls');
+  if(!controls)return;
+  const row=document.createElement('div');row.className='prp-delivery';
+  controls.parentNode.insertBefore(row,controls);row.appendChild(controls);
+  row.insertAdjacentHTML('beforeend',prcPendingRecapHTML(month));
+  const card=row.querySelector('.prp-card');
+  if(card){const art=document.createElement('img');art.className='prp-art';art.src='assets/workspace/recap-status-20260928.webp';art.alt='';art.loading='lazy';art.width=64;art.height=64;card.insertBefore(art,card.firstChild);}
+}
 function prcAdminSetScope(scope){prcAdminScope=scope==='person'?'person':'team';renderProfitRecapAdminView();}
 function prcAdminSetUid(v){prcAdminUid=v||'';renderProfitRecapAdminView();}
 function prcMonthShift(mk,n){const d=new Date(mk+'-01T12:00:00');d.setMonth(d.getMonth()+n);return ymd(d).slice(0,7);}
@@ -6028,8 +6083,9 @@ function renderProfitRecapAdminView(){
   const singleMonth=prcAdminFrom===prcAdminTo,chosenMonth=singleMonth?prcAdminFrom:prcAdminTo,selectionLabel=singleMonth?prcMonthLabel(prcAdminFrom):rangeLabel,downloadLabel=prcAdminScope==='person'?'개인자료':'팀 전체자료';
   const monthPicker='<div class="pra-month-picker"><div class="pra-month-copy"><label for="praReportMonth">📅 다운로드할 리캡 월</label><small>월을 선택하면 아래 미리보기와 PPT 다운로드 자료가 같은 월로 즉시 바뀝니다.</small></div><div class="pra-month-input"><input id="praReportMonth" type="month" value="'+chosenMonth+'" onchange="prcAdminSetMonth(this.value)" aria-label="다운로드할 리캡 월"><span aria-live="polite">현재 선택 · '+esc(selectionLabel)+'</span></div></div>';
   const controls=monthPicker+'<div class="pra-controls"><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\')">'+esc(selectionLabel)+' '+downloadLabel+' PPT 다운로드</button></div><details class="pra-advanced"'+(prcAdminPreset!=='month'?' open':'')+'><summary>여러 달·분기·반기·연도 자료 받기</summary><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div></details>';
-  if(!data.rows.length){box.innerHTML=controls+'<div class="pra-empty">선택한 범위의 세일즈·주간 리캡 데이터가 아직 없어요.<br>세일즈 또는 금요일 리캡이 저장되면 같은 계산 기준으로 바로 반영됩니다.</div>';return;}
+  if(!data.rows.length){box.innerHTML=controls+'<div class="pra-empty">선택한 범위의 세일즈·주간 리캡 데이터가 아직 없어요.<br>세일즈 또는 금요일 리캡이 저장되면 같은 계산 기준으로 바로 반영됩니다.</div>';prcPendingMount(chosenMonth);return;}
   box.innerHTML=controls+'<div class="pra-deck">'+prcCoverHTML(data,prcAdminFrom,prcAdminTo,scopeName)+prcSummaryHTML(data,rangeLabel)+prcProductivityHTML(data)+prcAdminDetailSlides(data,prcAdminScope,scopeName,rangeLabel)+'</div>';
+  prcPendingMount(chosenMonth);
 }
 function prcExportHTML(month){
   if(!canManageTeamRecords(me))return '';
@@ -10019,7 +10075,7 @@ async function initFirebase(generation){
   const rawOn=(p,cb,onError)=>fb.onValue(fb.ref(db,p),s=>{try{cb(s.val());}finally{window.PresenceWorkspace?.schedule();}},onError);
   const within=(promise,ms,stage)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>{const e=new Error(stage+' timeout');e.code='network/timeout';reject(e);},ms))]);
   const profitRecapOff=[];
-  const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}state.weeklyProfitRecaps={};state.profitMonthlyBep={};state.promotionSurveys={};state.promotionSurveyResponses={};};
+  const clearProfitRecapSession=()=>{while(profitRecapOff.length){try{profitRecapOff.pop()();}catch(e){}}prcPendingRecapReadyUid='';prcPendingExpanded=false;state.weeklyProfitRecaps={};state.profitMonthlyBep={};state.promotionSurveys={};state.promotionSurveyResponses={};};
   const ensureAnon=async(deadline)=>{const left=()=>Math.max(700,(deadline||Date.now()+6500)-Date.now());if(typeof auth.authStateReady==='function')await within(auth.authStateReady(),left(),'auth ready');if(auth.currentUser)return auth.currentUser;return (await within(authMod.signInAnonymously(auth),left(),'anonymous sign-in')).user;};
   const unlock=async uid=>{const profileRequest=rawGet('users/'+uid),cfgRequest=rawGet('privateConfig'),managerRequest=rawGet('managerAccess/'+uid).catch(()=>false);
     /* 웹훅·운영 설정은 로그인 판정에 필요하지 않다. 이를 먼저 기다리면 느린 연결에서
@@ -10037,7 +10093,7 @@ async function initFirebase(generation){
       profitRecapOff.push(rawOn('promotionSurveys/'+uid,v=>applyPromotionSurveyState({[uid]:v||{}})));
     }
     if(teamManager){
-      profitRecapOff.push(rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};if(owner){const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));}if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
+      profitRecapOff.push(rawOn('weeklyProfitRecaps',v=>{state.weeklyProfitRecaps=v||{};prcPendingRecapReadyUid=uid;if(owner){const mirror={};Object.keys(v||{}).forEach(pay=>Object.keys(v[pay]||{}).forEach(id=>{mirror['weeklyProfitRecapsPrivate/'+id+'/'+pay]=v[pay][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit recap mirror]',e));}if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
       profitRecapOff.push(rawOn('profitMonthlyBep',v=>{state.profitMonthlyBep=v||{};if(owner){const mirror={};Object.keys(v||{}).forEach(month=>Object.keys(v[month]||{}).forEach(id=>{mirror['profitMonthlyBepPrivate/'+id+'/'+month]=v[month][id];}));if(Object.keys(mirror).length)fb.update(fb.ref(db),mirror).catch(e=>console.warn('[profit BEP mirror]',e));}if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();if(me&&canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='recap')renderRecap();}));
     }else{
       profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{const own={};Object.keys(v||{}).forEach(pay=>{own[pay]={[uid]:v[pay]};});state.weeklyProfitRecaps=own;if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();}));
@@ -10135,15 +10191,19 @@ async function initFirebase(generation){
   DB.on('rnPresets',v=>{state.rnPresets=v||null;if(typeof curTab!=='undefined'&&curTab==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();});
   DB.on('sales',v=>{
     state.sales=saleRecordsFromSnapshot(v);
+    (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).sales=true;
     if(me){renderSales();renderPerfGauge();}
     renderScores();renderComp();renderDaisoCompetition();
     if(me&&curTab==='tlhome')renderTLHome();
+    if(me&&curTab==='recap'&&canManageTeamRecords(me))renderProfitRecapAdminView();
   });
   DB.on('users',v=>{
     state.users=v?{...v}:{};
+    (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).users=true;
     if(me)me=state.users[me.uid]||me;
     if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
+    if(me&&curTab==='recap'&&canManageTeamRecords(me))renderProfitRecapAdminView();
   });
   if(generation&&generation!==firebaseInitGeneration)return false;
   window.__firebaseReady=true;window.dispatchEvent(new CustomEvent('presence:firebase-ready'));return true;
@@ -17425,10 +17485,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-home-tree-v2.js?v=20260914-garden-4"></script>
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
-<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260928-mobile-focus-10">
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260928-recap-pending-12">
+<link rel="stylesheet" href="assets/presence-recap-pending.css?v=20260928-recap-pending-12">
 <link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-10">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
-<script src="assets/presence-workspace-v2.js?v=20260928-mobile-focus-10"></script>
+<script src="assets/presence-workspace-v2.js?v=20260928-recap-pending-12"></script>
 </body>
 </html>

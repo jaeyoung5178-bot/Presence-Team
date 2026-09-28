@@ -236,6 +236,19 @@ body.presence-workspace-v2[data-workspace-theme=light] :is(#workspaceHome,#works
 #workspaceHome .pw-home-primary h2{font-size:18px;line-height:1.3;color:#f3f5ee}
 #workspaceHome .pw-home-primary p{margin-top:4px;color:#c6d1c0;font-size:13px;line-height:1.45}
 #workspaceHome .pw-home-primary>button{flex:none;background:var(--green);border-color:var(--green);color:#253320;font-weight:700;border-radius:12px}
+#workspaceHome .pw-home-primary-pending{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px}
+#workspaceHome .pw-home-primary-copy{min-width:0}
+#workspaceHome .pw-home-pending{grid-column:1 / -1;min-width:0;padding-top:10px;border-top:1px solid #667b5a66}
+#workspaceHome .pw-home-pending-label{display:block;margin-bottom:7px;color:#d2e6b6;font-size:12px;font-weight:650;letter-spacing:.02em}
+#workspaceHome .pw-home-pending-list{display:flex;flex-wrap:wrap;gap:7px;list-style:none;margin:0;padding:0}
+#workspaceHome .pw-home-pending-list li{max-width:100%;padding:5px 10px;border:1px solid #72856655;border-radius:9px;background:#35432e;color:#f3f5ee;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+#workspaceHome #pwHomePendingMore{margin-top:3px}
+#workspaceHome #pwHomePendingMore summary{display:inline-flex;align-items:center;min-height:44px;color:#d2e6b6;font-size:13px;font-weight:600;cursor:pointer;list-style:none}
+#workspaceHome #pwHomePendingMore summary::-webkit-details-marker{display:none}
+#workspaceHome #pwHomePendingMore summary::after{content:'⌄';margin-left:7px}
+#workspaceHome #pwHomePendingMore[open] summary::after{transform:rotate(180deg)}
+#workspaceHome #pwHomePendingMore .pw-pending-more-open,#workspaceHome #pwHomePendingMore[open] .pw-pending-more-closed{display:none}
+#workspaceHome #pwHomePendingMore[open] .pw-pending-more-open{display:inline}
 #workspaceHome .pw-home-results{margin-top:12px;border-radius:20px;padding:16px 18px}
 #workspaceHome .pw-home-result-head{display:flex;justify-content:space-between;align-items:center;gap:14px}
 #workspaceHome .pw-home-result-head h2{font-size:17px}
