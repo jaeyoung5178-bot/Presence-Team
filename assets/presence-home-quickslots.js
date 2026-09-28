@@ -116,7 +116,9 @@
     return '<div class="hqd-result-row"><button type="button" class="hqd-result-open" data-open="'+esc(k)+'"><i aria-hidden="true">'+esc(m.e||'◆')+'</i><span>'+esc(m.l||k)+'</span></button><button type="button" class="hqd-pin" data-add="'+esc(k)+'" aria-label="'+esc(m.l||k)+' 바로가기 '+(on?'추가됨':'추가')+'" '+(on||full?'disabled':'')+'>'+(on?'추가됨':full?'가득 참':'+ 추가')+'</button></div>';
   }
   function renderResults(){
-    const list=searchList(),html=list.length?list.map(r=>resultRow(r.k)).join(''):'<p class="hqd-no-result">찾는 기능이 없어요. 다른 단어로 검색해 주세요.</p>';
+    const list=searchList(),q=($('hqdSearch')?.value||'').trim();
+    const shown=!pickerOpen&&!q?list.slice(0,6):list;
+    const html=shown.length?shown.map(r=>resultRow(r.k)).join(''):'<p class="hqd-no-result">찾는 기능이 없어요. 다른 단어로 검색해 주세요.</p>';
     $('hqdResults').innerHTML=pickerOpen?'':html;
     $('quickslotOptions').innerHTML=pickerOpen?html:'';
   }
@@ -136,6 +138,9 @@
     $('hqdHint').textContent=pickerOpen?'자주 쓰는 메뉴를 최대 8개까지 저장하세요.':'메뉴 열기 또는 바로가기 추가를 선택하세요.';
     $('hqdSearchMode').setAttribute('aria-pressed',String(!pickerOpen));$('hqdPickerMode').setAttribute('aria-pressed',String(pickerOpen));
     $('hqdResults').hidden=pickerOpen;$('quickslotPicker').hidden=!pickerOpen;
+    const saved=$('hqdSaved'),picker=$('quickslotPicker'),statusNode=$('hqdStatus');
+    if(pickerOpen&&saved.nextElementSibling!==picker)picker.before(saved);
+    else if(!pickerOpen&&saved.nextElementSibling!==statusNode)statusNode.before(saved);
     const visibleSlots=slots.filter(visible);
     $('hqdSaved').hidden=!visibleSlots.length;$('hqdEdit').textContent=editing?'완료':'편집';
     $('homeQuickSlots').classList.toggle('editing',editing);

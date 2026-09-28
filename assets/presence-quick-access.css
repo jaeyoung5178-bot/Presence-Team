@@ -51,6 +51,7 @@ body.presence-workspace-v2 .hqd-dialog,body.presence-workspace-v2 .hqd-dialog *{
 .hqd-dialog .hqd-result-open span{overflow-wrap:anywhere}
 .hqd-dialog .hqd-pin{color:var(--green);font-size:13px;white-space:nowrap}
 .hqd-dialog .hqd-no-result{padding:18px 4px;color:var(--muted);font-size:14px}
+.hqd-dialog #quickslotPicker{margin-top:18px}
 .hqd-dialog #hqdSaved{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
 .hqd-dialog .hqd-saved-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
 .hqd-dialog .hqd-saved-head h3{font-size:15px;font-weight:600}

@@ -1,4 +1,7 @@
 /* Sites: territory finding stays the first task; legacy site workflows remain reachable. */
+#m-sites .wrap:has(#sp-find.active) { display: flex; flex-direction: column; }
+#m-sites .wrap:has(#sp-find.active) > .sec { order: 0; }
+#m-sites .wrap:has(#sp-find.active) > #pmsWx { order: 1; }
 #m-sites .ft-subnav { gap: 8px; }
 #m-sites .ft-sb { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 #m-sites .ft-sb:focus-visible,

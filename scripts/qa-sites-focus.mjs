@@ -19,6 +19,16 @@ try {
     page.on('pageerror', e => failures.push(label+': '+e.message));
     await page.route(/(firebaseio\.com|firebasedatabase\.app|identitytoolkit|securetoken|gstatic\.com\/firebasejs|googleapis\.com\/(?!css))/, r => r.abort());
     await page.route(/nominatim\.openstreetmap\.org/, r => r.abort());
+    await page.route(/api\.open-meteo\.com\/v1\/forecast/, r => r.fulfill({
+      status:200, contentType:'application/json',
+      body:JSON.stringify({daily:{
+        time:['2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-03','2026-10-04'],
+        weather_code:[0,1,2,3,0,1,2],
+        temperature_2m_max:[21,20,19,18,20,21,19],
+        temperature_2m_min:[13,12,11,10,12,13,11],
+        precipitation_probability_max:[0,10,20,30,0,10,20]
+      }})
+    }));
     try {
       await page.goto(base+'/?qa=sites-focus-'+Date.now(), {waitUntil:'domcontentloaded'});
       await page.waitForFunction(() => typeof goTab==='function' && typeof tfSearch==='function');
@@ -58,6 +68,10 @@ try {
       } else {
         await page.evaluate(() => siteTab('main'));
         assert.equal(await page.locator('#sp-main.active').count(),1,label+' main remains available');
+        await page.evaluate(() => siteTab('new'));
+        assert.equal(await page.locator('#sp-new.active').count(),1,label+' new-site form remains available');
+        await page.evaluate(() => siteTab('apply'));
+        assert.equal(await page.locator('#sp-apply.active').count(),1,label+' site application remains available');
         await page.evaluate(() => goTab('sites'));
         assert.equal(await page.locator('#sp-find.active').count(),1,label+' reentry default');
       }
@@ -65,6 +79,15 @@ try {
       await finderImage.evaluate(img => img.decode());
       assert.equal(await finderImage.evaluate(img => img.naturalWidth>0),true,label+' finder image');
       assert.equal(await page.locator('#tfQuery').isVisible(),true,label+' search visible');
+      await page.waitForFunction(() => document.querySelectorAll('#pmsWx .wx-d').length===7);
+      const placement=await page.evaluate(() => {
+        const search=document.querySelector('#sp-find .ms-searchbar').getBoundingClientRect();
+        const weather=document.getElementById('pmsWx').getBoundingClientRect();
+        return {searchTop:search.top,searchBottom:search.bottom,weatherTop:weather.top};
+      });
+      assert.ok(placement.weatherTop>placement.searchBottom+8,label+' weather follows finder '+JSON.stringify(placement));
+      if (viewport.width===390) assert.ok(placement.searchTop<=440,label+' search in first mobile view '+JSON.stringify(placement));
+      if (output && viewport.width===390) await page.screenshot({path:output+'/'+role+'-390-weather-order.png',fullPage:false});
       await page.locator('#tfQuery').fill('부평역');
       await page.locator('#tfQuery').press('Enter');
       assert.ok(await page.locator('#tfResults .tf-row').count()>0,label+' name match');

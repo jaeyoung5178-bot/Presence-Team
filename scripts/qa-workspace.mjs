@@ -72,11 +72,19 @@ try{
      const flower=await page.locator('.pw-floral-corner').first().evaluate(e=>({events:getComputedStyle(e).pointerEvents,url:getComputedStyle(e).backgroundImage}));assert.equal(flower.events,'none');assert.match(flower.url,/floral-corner\.png/);
     }
     await page.evaluate(()=>{delete PresenceWorkspace.data.settings.season;PresenceWorkspace.render();window.scrollTo(0,0);});
-    await page.locator('#hqdLaunch').click();assert.equal(await page.locator('#hqdDialog').isVisible(),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');
-    await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#hqdResults [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');assert.equal(await page.locator('#hqdDialog').isVisible(),false);
+    await page.locator('#hqdLaunch').click();assert.equal(await page.locator('#hqdDialog').isVisible(),true);assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');assert.ok(await page.locator('#hqdResults .hqd-result-row').count()<=6);
+    await page.locator('#hqdSearch').fill('성과 요약');
+    if(role==='member'&&view.width===390){
+     assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden');
+     await page.locator('#hqdClose').focus();await page.keyboard.press('Shift+Tab');assert.equal(await page.evaluate(()=>document.activeElement.closest('#hqdDialog')!==null),true);
+     await page.locator('#hqdSearch').focus();await page.waitForTimeout(4200);assert.equal(await page.locator('#hqdSearch').inputValue(),'성과 요약');assert.equal(await page.evaluate(()=>document.activeElement.id),'hqdSearch');
+    }
+    await page.locator('#hqdResults [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');assert.equal(await page.locator('#hqdDialog').isVisible(),false);assert.notEqual(await page.evaluate(()=>document.body.style.overflow),'hidden');
     await page.evaluate(()=>goTab('home'));await page.locator('#pwHomeQuickAccess [data-all]').click();await page.locator('#hqdSearch').fill('성과 요약');await page.locator('#quickslotOptions [data-add=profithub]').click();
     await page.waitForFunction(()=>__qaWrites.some(w=>w.path.startsWith('userPreferences/')&&w.value.quickSlots?.includes('profithub')));
     assert.equal(await page.locator('#homeQuickSlots [data-open=profithub]').count(),1);assert.equal(await page.locator('#quickslotOptions [data-add=profithub]').isDisabled(),true);
+    assert.equal(await page.evaluate(()=>!!(document.getElementById('hqdSaved').compareDocumentPosition(document.getElementById('quickslotPicker'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);
+    await page.screenshot({path:output+'/'+role+'-'+view.width+'-quick-access-manage.png'});
     assert.equal(await page.locator('#pwHomeQuickAccess [data-open=profithub]').count(),1);
     await page.evaluate(()=>{PresenceQuickAccess.dispose();PresenceQuickAccess.refresh();});await page.waitForTimeout(100);assert.equal(await page.locator('#pwHomeQuickAccess [data-open=profithub]').count(),1);
     await page.locator('#pwHomeQuickAccess [data-open=profithub]').click();assert.equal(await page.evaluate(()=>curTab),'profithub');
@@ -99,6 +107,7 @@ try{
      assert.ok(await page.locator('#pwHomeQuickAccess [data-open]').count()<=3);
      await page.locator('#hqdLaunch').click();
      await page.locator('#hqdPickerMode').click();await page.locator('#hqdSearch').fill('정원');assert.equal(await page.locator('#quickslotOptions [data-add=garden]').isDisabled(),true);
+     assert.equal(await page.locator('#homeQuickSlots .hqd-slot').count(),8);await page.screenshot({path:output+'/member-390-quick-access-eight-saved.png'});
      await page.locator('#hqdEdit').click();// Remove only this account's shortcuts through their controls.
      while(await page.locator('[data-remove]').count()){await page.locator('[data-remove]').first().click();}
      await page.evaluate(()=>addHomeQuickslot('profithub'));await page.waitForTimeout(100);if(await page.locator('#hqdEdit').textContent()==='완료')await page.locator('#hqdEdit').click();
