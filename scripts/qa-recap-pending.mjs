@@ -117,6 +117,8 @@ try {
       }
       assert.ok(!(await text()).includes('영원퓨즈'), 'saved zero payment counts complete');
       assert.equal(await card().locator('img[alt=""][width="64"][height="64"]').count(), 1);
+      await card().locator('.prp-art').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => [...document.querySelectorAll('#profitRecapAdminView .prp-art')].every(el => el.complete && el.naturalWidth > 0), { timeout: 10000 });
       assert.ok(await card().locator('.prp-art').evaluate(el => el.complete && el.naturalWidth > 0), 'decorative art loads');
       if (width === 390 && role === 'admin') {
         const toggle = card().locator('.prp-more summary');
