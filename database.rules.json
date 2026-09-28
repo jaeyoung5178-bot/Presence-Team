@@ -660,6 +660,84 @@
         }
       }
     },
+    "workspaceSelfPromotions": {
+      "$uid": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())",
+        "plan": {
+          ".write": "auth != null && newData.exists() && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && root.child('users').child($uid).child('role').val().matches(/^(LR|TL|AOP|OP|O)$/)",
+          ".validate": "newData.hasChildren(['version','targetRole','due','startDate','targetFirstLeaders','targetTotalLeaders','baselineFirstLeaders','baselineTotalLeaders','guide','homeReminder','updatedBy','updatedAt']) && (!data.exists() || (newData.child('baselineFirstLeaders').val() == data.child('baselineFirstLeaders').val() && newData.child('baselineTotalLeaders').val() == data.child('baselineTotalLeaders').val() && newData.child('startDate').val() == data.child('startDate').val())) && newData.child('baselineFirstLeaders').val() <= newData.child('baselineTotalLeaders').val() && newData.child('startDate').val() <= newData.child('due').val() && ((newData.child('targetRole').val() == 'TL' && newData.child('targetFirstLeaders').val() == 2 && newData.child('targetTotalLeaders').val() == 2) || (newData.child('targetRole').val() == 'AOP' && newData.child('targetFirstLeaders').val() == 3 && newData.child('targetTotalLeaders').val() == 5) || (newData.child('targetRole').val() == 'OP' && newData.child('targetFirstLeaders').val() == 4 && newData.child('targetTotalLeaders').val() == 10))",
+          "version": { ".validate": "newData.val() == 1" },
+          "targetRole": { ".validate": "newData.isString() && newData.val().matches(/^(TL|AOP|OP)$/)" },
+          "homeReminder": { ".validate": "newData.isBoolean()" },
+          "due": { ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/)" },
+          "startDate": { ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/)" },
+          "targetFirstLeaders": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0" },
+          "targetTotalLeaders": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0" },
+          "baselineFirstLeaders": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0" },
+          "baselineTotalLeaders": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 == 0" },
+          "guide": {
+            ".validate": "newData.hasChildren(['bookings','showups','starters','callsMin','callsMax']) && newData.child('callsMin').val() <= newData.child('callsMax').val()",
+            "bookings": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000 && newData.val() % 1 == 0" },
+            "showups": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000 && newData.val() % 1 == 0" },
+            "starters": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000 && newData.val() % 1 == 0" },
+            "callsMin": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100 && newData.val() % 1 == 0" },
+            "callsMax": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100 && newData.val() % 1 == 0" },
+            "$other": { ".validate": false }
+          },
+          "updatedBy": { ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()" },
+          "updatedAt": { ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000" },
+          "$other": { ".validate": false }
+        },
+        "weeks": {
+          "$monday": {
+            ".write": "auth != null && newData.exists() && $monday.matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && root.child('workspaceSelfPromotions').child($uid).child('plan').exists() && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active' && root.child('users').child($uid).child('role').val().matches(/^(LR|TL|AOP|OP|O)$/)",
+            ".validate": "newData.hasChildren(['calls','bookings','showups','starters','actions','updatedBy','updatedAt'])",
+            "calls": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000 && newData.val() % 1 == 0" },
+            "bookings": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000 && newData.val() % 1 == 0" },
+            "showups": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000 && newData.val() % 1 == 0" },
+            "starters": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000 && newData.val() % 1 == 0" },
+            "actions": {
+              ".validate": "newData.hasChildren(['calling','confirmation','onboarding','coaching'])",
+              "calling": { ".validate": "newData.isBoolean()" },
+              "confirmation": { ".validate": "newData.isBoolean()" },
+              "onboarding": { ".validate": "newData.isBoolean()" },
+              "coaching": { ".validate": "newData.isBoolean()" },
+              "$other": { ".validate": false }
+            },
+            "updatedBy": { ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()" },
+            "updatedAt": { ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000" },
+            "$other": { ".validate": false }
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "workspacePromotionMilestones": {
+      "$uid": {
+        "TL": {
+          ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+          ".write": "auth != null && newData.exists() && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' && root.child('users').child('admin').child('status').val() == 'active' && root.child('users').child($uid).child('status').val() == 'active' && root.child('users').child($uid).child('role').val().matches(/^(TL|AOP|OP|O)$/)",
+          ".validate": "newData.hasChildren(['status','updatedBy','updatedAt'])",
+          "status": { ".validate": "newData.val() == 'completed'" },
+          "hitDate": { ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/)" },
+          "updatedBy": { ".validate": "newData.val() == 'admin'" },
+          "updatedAt": { ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+    "workspacePromotionCheers": {
+      "presenceOP": {
+        ".read": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active'",
+        "$uid": {
+          ".write": "auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('users').child($uid).child('status').val() == 'active'",
+          ".validate": "newData.hasChildren(['emoji','updatedAt'])",
+          "emoji": { ".validate": "newData.isString() && newData.val().matches(/^(👏|🔥|🚀|💚)$/)" },
+          "updatedAt": { ".validate": "newData.isNumber() && newData.val() <= now + 10000 && newData.val() >= now - 300000" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
     "workspacePromotions": {
       "$uid": {
         ".read": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid) || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin' || root.child('workspaceAccess').child($uid).child('leaderUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val())))",

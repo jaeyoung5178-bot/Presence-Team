@@ -5361,6 +5361,7 @@ async function reconcileAuthProfiles(){
 }
 async function logout(){
   window.PresenceWorkspace?.dispose();
+  window.PresencePromotionJourney?.dispose?.();
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');me=null;window.__presenceEntryPass=false;
   clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
@@ -6663,7 +6664,7 @@ const COD_SEED=[
   {ic:'🏢',title:'COD2 · Company & 기업문화',tag:'COD 2',body:'Salesworks Group Asia — 1995년 말레이시아 쿠알라룸푸르에서 James Greaves 회장이 레스토랑 쿠폰을 팔며 시작. 현재 9개국 200개 오피스의 아시아 최대 Direct Sales & Marketing 회사.\n\n기업문화 = 구성원이 공유하는 가치와 목표. 기업의 핵심으로 함께 지키고 발전시켜야 할 가치.'},
   {ic:'🧭',title:'COD2 · G.R.A.S.P (리더의 기준)',tag:'COD 2',body:'G · Goal / Get with right people — 목표가 있는가, 잘하는 사람과 어울리는가\nR · Responsibility — 책임감 있게 행동, 변명하지 않기\nA · Assuming the role — (목표·롤모델)답게 행동하기 (태도)\nS · System — 시스템에 잘 적응하고 따르는가\nP · Profit — 세일즈로 수익을 잘 내고 있는가'},
   {ic:'⭐',title:'COD2 · S.W Core Value',tag:'COD 2',body:'· PASSION 열정\n· INTEGRITY & HONESTY 정직\n· CHALLENGES 도전\n· COMMUNICATION & RESPECT 소통과 존중\n· CELEBRATING 축하\n· SELF-IMPROVEMENT 자기계발\n· ACCOUNTABILITY 책임'},
-  {ic:'🪜',title:'COD2 · Promotion Structure (승진 구조)',tag:'COD 2',body:'직급 · First Gen(팀원) · 팀 생산성(주/2주 연속) · COD · 오버라이드\n\n· Owner Partner — 5(15LR) · 600만원/900만원 · COD5 · 35~40%\n· Assistant Owner — 4(10) · 400만원 · COD4 · 14%\n· Senior Team Leader — 3(5) · 240만원 · 리더매뉴얼 · 7%\n· Team Leader — 2 · 120만원 · COD3 · 3.5%\n· Leader — 주 8 sales · 리더 10가지 이유 · SHEMA Core Value · COD1,2\n· IC — 정직·성실·배우려는 자세·긍정적 태도\n\n※ OP 프로모션은 스타트 3주 이상 된 LR 15명이 필요'},
+  {ic:'🪜',title:'COD2 · Promotion Structure (승진 구조)',tag:'COD 2',body:'직급 · First Gen(팀원) · 팀 생산성(주/2주 연속) · COD · 오버라이드\n\n· Owner Partner — 4(전체 리더 10) · 600만원/900만원 · COD5 · 35~40%\n· Assistant Owner — 3(전체 리더 5) · 400만원 · COD4 · 14%\n· Senior Team Leader — 3(5) · 240만원 · 리더매뉴얼 · 7%\n· Team Leader — 2 · 120만원 · COD3 · 3.5%\n· Leader — 주 8 sales · 리더 10가지 이유 · SHEMA Core Value · COD1,2\n· IC — 정직·성실·배우려는 자세·긍정적 태도\n\n※ OP 목표는 직속 퍼스트 리더 4명과 하위 조직 포함 전체 활동 리더 10명이 필요'},
   {ic:'🎯',title:'COD2 · Leadership & 목표설정(What·Why·How)',tag:'COD 2',body:'리더십이란 다음을 할 수 있는 것:\nPersonal recruiting · Show vs Tell · Re-training · Attitude example · Teaching sales · Reliable · Controlling day · Image · Work Ethics · Taking out · Observers · Problem solving · Setting the pace\n\n목표설정은 What – Why – How 방식으로 구체화.\n\nHave Fun 선순환: 즐기기 → 긍정적·훌륭한 태도 → 좋은 세일즈·더 많은 배움 → 좋은 수입·승진 → 다시 즐기기'},
   {ic:'📐',title:'COD2 · Leadership Criteria & S.M.A.R.T',tag:'COD 2',body:'Leader의 조건\n· Goals — 리더가 되고 싶은 10가지 이유, SHEMA Core Value\n· Image — 성공적인 리더의 이미지(옷차림·말), 오피스 정장\n· Theory — C.O.D 1,2 배우고 가르치기\n· Sales — 5일간 8 sales\n· Promoting — 생산성(수익) 창출, 꾸준히 벨치기\n\nS.M.A.R.T 목표\n· Specific 구체적으로 (Personal/Business 구분)\n· Measurable 측정 가능 (기간별 세분화)\n· Action-oriented 행동 지향 (Short 1주)\n· Realistic 현실적 (Mid 2주)\n· Time frame 시간제한 (Long 4주)'},
   {ic:'⚖️',title:'COD2 · BEP (손익분기점)',tag:'COD 2',body:'자신의 손익분기점(BEP)을 반드시 알 것.\n구분별로 한 달 고정지출을 적어 합계를 낸다:\n· 통신비 (예: 핸드폰 50,000 + 인터넷 20,000 = 70,000)\n· 식비 / 저축 / 교통비 / 보험비 / 기타\n→ 합계 = 내 BEP. 이 금액을 넘겨야 비로소 이익.'},
@@ -10182,7 +10183,7 @@ async function initFirebase(generation){
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
-  DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();}});
+  DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();window.PresenceWorkspace?.schedule?.();}});
   DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
@@ -16638,8 +16639,8 @@ var THEMES={
 };
 var TIERS={
   TL :{name:'TL',label:'팀리더',req:'직속 First 리더 2인 이상',check:function(s){return s.first>=2;},reqTxt:function(s){return '직속 First 리더 '+s.first+'명 (필요 2)';}},
-  AOP:{name:'AOP',label:'Assistant OP',req:'직속 First 리더 3인 이상 · 팀 전체 5명 이상',check:function(s){return s.first>=3&&s.total>=5;},reqTxt:function(s){return 'First '+s.first+'/3 · 팀 전체 '+s.total+'/5';}},
-  OP :{name:'OP',label:'Owner Partner',req:'직속 First 리더 4인 이상 · 팀 전체 10명 이상',check:function(s){return s.first>=4&&s.total>=10;},reqTxt:function(s){return 'First '+s.first+'/4 · 팀 전체 '+s.total+'/10';}}
+  AOP:{name:'AOP',label:'Assistant OP',req:'직속 First 리더 3인 이상 · 전체 리더 5명 이상',check:function(s){return s.first>=3&&s.total>=5;},reqTxt:function(s){return 'First '+s.first+'/3 · 전체 리더 '+s.total+'/5';}},
+  OP :{name:'OP',label:'Owner Partner',req:'직속 First 리더 4인 이상 · 전체 리더 10명 이상',check:function(s){return s.first>=4&&s.total>=10;},reqTxt:function(s){return 'First '+s.first+'/4 · 전체 리더 '+s.total+'/10';}}
 };
 function sceneHTML(theme){
   if(theme==='city'){
@@ -16716,13 +16717,17 @@ function jOrgTeams(){
   try{
     if(typeof orgBuildTree!=='function')throw 0;
     var t=orgBuildTree();var cm=t.childMap||{};
-    function kids(n){return cm[n]||[];}
-    function descLeaders(n,acc){kids(n).forEach(function(c){if(kids(c).length){acc.push(c);descLeaders(c,acc);}});return acc;}
-    function descAll(n,acc){kids(n).forEach(function(c){acc.push(c);descAll(c,acc);});return acc;}
-    var leaders=Object.keys(cm).filter(function(n){return kids(n).length;});
+    function kids(n){return cm[nk(n)]||[];}
+    function descAll(n,acc,seen){seen=seen||{};var key=nk(n);if(seen[key])return acc;seen[key]=true;kids(n).forEach(function(c){if(!seen[nk(c)]){acc.push(c);descAll(c,acc,seen);}});return acc;}
+    var promotionCore=window.PresencePromotionCore;
+    var activeUsers=Object.values(state.users||{}).filter(function(u){return u&&u.uid&&u.status==='active'&&!isTestBot(u);});
+    var dossiers={};Object.entries(state.dossier||{}).forEach(function(entry){dossiers[promotionCore.normalizedName(entry[0])]=entry[1];});
+    var leaders=Object.keys(cm).map(function(key){return t.byk[key];}).filter(function(n){var u=activeUsers.find(function(x){return promotionCore.normalizedName(x.name)===promotionCore.normalizedName(n);});return !!u&&promotionCore.isEligibleRole(u.role);});
     return leaders.map(function(n){
       var members=descAll(n,[]).length;
-      return {name:n, first:kids(n).length /* 직속 팀원 전원 = First 리더 */, total:members /* 팀 전체 인원 */, members:members};
+      var owner=activeUsers.find(function(u){return promotionCore.normalizedName(u.name)===promotionCore.normalizedName(n);});
+      var count=promotionCore.teamCounts(owner,activeUsers,dossiers);
+      return {name:n, first:count.firstCount, total:count.totalCount, members:members};
     }).sort(function(a,b){return b.members-a.members;});
   }catch(e){return null;}
 }
@@ -16758,6 +16763,7 @@ function jRenderList(){
     +'<div class="pj-h"><h2>🏁 프로모션 저니</h2><span class="sub">팀과 함께 2주 스테이지 정복</span><span style="flex:1"></span><button id="pjMuteBtn" class="pj-btn ghost" style="padding:6px 11px" onclick="__pjMuteToggle()">'+(window.__pjMute?'🔇':'🔊')+'</button></div>'
     +(keys.length||add?('<div class="pj-grid">'+cards+add+'</div>'):'<div class="pj-card" style="text-align:center;color:#99a">아직 등록된 저니가 없어요.'+(amLeader()?'':'<br>리더가 등록하면 여기에 표시돼요.')+'</div>')
     +'</div>';
+  window.PresencePromotionJourney?.render?.(host,null,J.teams);
 }
 window.__jOpen=function(k){J.view='detail';J.openKey=k;J.tab=(J.teams[k]&&J.teams[k].curWeek)||1;jRenderDetail();};
 window.__jBack=function(){J.view='list';J.openKey=null;jRenderList();};
@@ -16809,7 +16815,7 @@ function jWizard(step,state){
       listHTML=teams.map(function(tm){
         var sel=W.teamName===tm.name?' sel':'';
         return '<div class="pj-pick'+sel+'" onclick="__jPickTeam(\''+encodeURIComponent(tm.name)+'\',this)" data-first="'+tm.first+'" data-total="'+tm.total+'">'
-          +'<div class="t">👥 '+esc(tm.name)+' 팀</div><div class="r">직속 First 리더 '+tm.first+'명 · 팀 전체 '+tm.members+'명</div></div>';
+          +'<div class="t">👥 '+esc(tm.name)+' 팀</div><div class="r">직속 First 리더 '+tm.first+'명 · 전체 리더 '+tm.total+'명 · 팀원 '+tm.members+'명</div></div>';
       }).join('');
     } else {
       listHTML='<div class="pj-field"><label>조직도를 불러올 수 없어 직접 입력해요</label>'
@@ -16823,7 +16829,7 @@ function jWizard(step,state){
   else if(step===3){ /* 직급/기준 */
     var stat={first:W._first||0,total:W._total||0};
     body='<div class="pj-steps">'+dots+'</div><h4 style="margin:2px 0 6px">🎖️ 도전 직급</h4>'
-      +'<p style="color:#889;font-size:13px;margin:0 0 12px">'+esc(W.teamName)+' 팀 기준 — 직속 First 리더 '+stat.first+'명 · 팀 전체 '+stat.total+'명</p>'
+      +'<p style="color:#889;font-size:13px;margin:0 0 12px">'+esc(W.teamName)+' 팀 기준 — 직속 First 리더 '+stat.first+'명 · 전체 리더 '+stat.total+'명</p>'
       +'<div class="pj-tierlist">'
       +Object.keys(TIERS).map(function(tk){var T=TIERS[tk];var ok=T.check(stat);
         return '<div class="pj-pick'+(W.tier===tk?' sel':'')+'" onclick="__jPickTier(\''+tk+'\')">'
@@ -16981,6 +16987,7 @@ function jRenderDetail(){
    +'   <span style="flex:1"></span><button class="pj-btn danger ghost" style="background:#fde8e8;color:#c0392b" onclick="__jDelete()">삭제</button>'
    +'</div></div>'):'')
    +'</div>';
+  window.PresencePromotionJourney?.render?.(host,j,J.teams);
 
   // 새로 처치된 스테이지에 파티클·사운드·배너 (생산성이 오른 경우)
   var lk=j.key+'_w'+wk, prev=(J.lastTotal[lk]==null?total:J.lastTotal[lk]); J.lastTotal[lk]=total;
@@ -17119,7 +17126,7 @@ function mountPanel(k){
 function patchTabs(){
   try{ if(typeof TABMETA!=='undefined'&&TABMETA){
     TABMETA.oneonone=TABMETA.oneonone||{e:'🗓️',l:'1 on 1',g:function(){return amLeader();}};
-    TABMETA.journey =TABMETA.journey ||{e:'🏁',l:'프로모션 저니',g:function(){return amLeader();}};
+    TABMETA.journey =TABMETA.journey ||{e:'🏁',l:'프로모션 저니',g:function(){return !!(me&&me.status==='active');}};
   } }catch(e){}
   try{ if(typeof NAV!=='undefined'&&NAV&&NAV.find){
     var lead=NAV.find(function(g){return g.k==='lead';})||NAV.find(function(g){return /리더/.test(g.l);});
@@ -17486,10 +17493,15 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-youtube-bgm.js?v=20260727-2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260928-recap-pending-12">
+<link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
+<link rel="stylesheet" href="assets/presence-promotion-journey.css?v=20260928-promotion-plan-13">
 <link rel="stylesheet" href="assets/presence-recap-pending.css?v=20260928-recap-pending-12">
 <link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-10">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
-<script src="assets/presence-workspace-v2.js?v=20260928-recap-pending-12"></script>
+<script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
+<script src="assets/presence-promotion-planner.js?v=20260928-promotion-plan-13"></script>
+<script src="assets/presence-workspace-v2.js?v=20260928-promotion-plan-13"></script>
+<script src="assets/presence-promotion-journey.js?v=20260928-promotion-plan-13"></script>
 </body>
 </html>
