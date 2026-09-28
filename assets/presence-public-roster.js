@@ -24,7 +24,7 @@
   if(typeof module==='object'&&module.exports){module.exports={build};return;}
   if(root.PresencePublicRoster)return;
   const state={users:null,config:null,removed:null},ready=new Set();
-  let started=false,timer=0,busy=false,queued=false,last='';
+  let started=false,timer=0,busy=false,queued=false,last='',wasPublisher=false;
   function canPublish(){return typeof me!=='undefined'&&me&&me.uid==='admin'&&me.status==='active';}
   async function publish(){
     if(busy){queued=true;return;}
@@ -45,6 +45,8 @@
   root.PresencePublicRoster={build,sync:schedule};
   root.addEventListener('presence:firebase-ready',start);
   root.addEventListener('online',schedule);
+  // A restored login can finish after the first database snapshots arrive.
+  setInterval(()=>{const active=canPublish();if(active&&!wasPublisher){last='';schedule();}wasPublisher=active;},1000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){start();schedule();}});
   start();
 })(typeof window==='undefined'?globalThis:window);
