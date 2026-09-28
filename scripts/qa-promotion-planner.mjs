@@ -10,7 +10,7 @@ await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 const pageErrors = [];
-page.on('pageerror', error => pageErrors.push(error.message));
+page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 await page.route(/(firebaseio\.com|firebasedatabase\.app|identitytoolkit|securetoken|gstatic\.com\/firebasejs|googleapis\.com\/(?!css))/, route => route.abort());
 
 const users = {
@@ -40,7 +40,7 @@ async function fixture(role, { plan = null, week = null, adminOff = true } = {})
     window.__qaWrites = [];
     window.__qaFail = false;
     window.__qaWatch = new Map();
-    window.__qaStore = { workspaceSelfPromotions: {} };
+    window.__qaStore = { workspaceSelfPromotions: {}, workspacePromotionPlans: {} };
     const weekKey = window.PresencePromotionCore.weekKey(new Date());
     if (plan) window.__qaStore.workspaceSelfPromotions[role] = { plan, weeks: week ? { [weekKey]: week } : {} };
     const get = path => path.split('/').reduce((value, key) => value?.[key], window.__qaStore);
@@ -58,7 +58,23 @@ async function fixture(role, { plan = null, week = null, adminOff = true } = {})
       target[last] = structuredClone(value);
       for (const [watched, callback] of window.__qaWatch) if (path === watched || path.startsWith(watched + '/')) callback(structuredClone(get(watched)));
     };
-    DB.update = async (path, value) => DB.set(path, { ...(get(path) || {}), ...value });
+    DB.update = async (path, value) => {
+      if (path == null) {
+        if (window.__qaFail) throw new Error('연결이 끊겼습니다. 다시 시도해 주세요.');
+        window.__qaWrites.push({ method: 'atomic-update', path: null, value: structuredClone(value) });
+        for (const [key, record] of Object.entries(value)) {
+          const parts = key.split('/'), last = parts.pop();
+          let target = window.__qaStore;
+          for (const part of parts) target = target[part] ||= {};
+          target[last] = structuredClone(record);
+        }
+        for (const [watched, callback] of window.__qaWatch) {
+          if (Object.keys(value).some(key => key === watched || key.startsWith(watched + '/'))) callback(structuredClone(get(watched) || null));
+        }
+        return;
+      }
+      return DB.set(path, { ...(get(path) || {}), ...value });
+    };
     DB.get = async path => get(path) || null;
     window.__firebaseReady = true;
     window.__adminOff = adminOff;
@@ -131,7 +147,9 @@ async function checkVisibleHeading(selector, label) {
 }
 
 try {
-  await page.goto(`${base}/?qa=promotion-planner-${Date.now()}`, { waitUntil: 'domcontentloaded' });
+  const qaURL = new URL(base);
+  qaURL.searchParams.set('qa', `promotion-planner-${Date.now()}`);
+  await page.goto(qaURL.href, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!window.PresenceWorkspace && !!window.PresencePromotionPlanner && !!window.PresencePromotionCore);
   const today = await page.evaluate(() => { const d = new Date(); return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-'); });
   const due = await page.evaluate(() => { const d = new Date(); d.setDate(d.getDate() + 90); return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-'); });
@@ -184,15 +202,20 @@ try {
   await page.locator('#ppPlanForm button[type=submit]').click();
   await page.waitForTimeout(100);
   assert.equal((await stateNow()).writes.length, 0, 'failed save cannot write');
+  assert.deepEqual(await page.evaluate(() => window.__qaStore.workspacePromotionPlans), {}, 'failed private save does not publish public plan');
   assert.doesNotMatch(await page.locator('#ppPlanForm [data-pp-status]').textContent(), /서버에 저장했습니다/);
   await page.evaluate(() => { window.__qaFail = false; });
   await page.locator('#ppPlanForm button[type=submit]').click();
-  await page.waitForFunction(() => window.__qaWrites.some(write => write.path === 'workspaceSelfPromotions/lr/plan'));
-  const planWrite = await page.evaluate(() => window.__qaWrites.find(write => write.path === 'workspaceSelfPromotions/lr/plan'));
-  assert.equal(planWrite.value.targetRole, 'TL');
-  assert.equal(planWrite.value.targetFirstLeaders, 2);
-  assert.equal(planWrite.value.targetTotalLeaders, 2);
-  assert.equal(planWrite.value.homeReminder, false);
+  await page.waitForFunction(() => window.__qaWrites.some(write => write.method === 'atomic-update' && write.value['workspaceSelfPromotions/lr/plan']));
+  const planWrite = await page.evaluate(() => window.__qaWrites.find(write => write.method === 'atomic-update'));
+  assert.deepEqual(Object.keys(planWrite.value).sort(), ['workspacePromotionPlans/lr', 'workspaceSelfPromotions/lr/plan'], 'one atomic update writes only private and public plan');
+  const privatePlan = planWrite.value['workspaceSelfPromotions/lr/plan'];
+  const publicPlan = planWrite.value['workspacePromotionPlans/lr'];
+  assert.equal(privatePlan.targetRole, 'TL');
+  assert.equal(privatePlan.targetFirstLeaders, 2);
+  assert.equal(privatePlan.targetTotalLeaders, 2);
+  assert.equal(privatePlan.homeReminder, false);
+  assert.deepEqual(publicPlan, { version: 1, targetRole: 'TL', due: privatePlan.due, updatedBy: 'lr', updatedAt: privatePlan.updatedAt }, 'directory exposes only minimal public fields');
   assert.equal(await page.locator('#ppWeekForm').count(), 0, 'weekly log starts compact after plan save');
   assert.match(await page.locator('#pwPersonalPromotion').textContent(), /퍼스트 리더 1명/);
   assert.match(await page.locator('#pwPersonalPromotion .pp-requirements').textContent(), /1 \/ 2/);
@@ -212,8 +235,8 @@ try {
   await page.waitForTimeout(100);
   assert.equal(await page.locator('#ppWeekForm [name=bookingsWeek]').inputValue(), '4', 'weekly draft survives rerender');
   await page.locator('#ppWeekForm button[type=submit]').click();
-  await page.waitForFunction(() => window.__qaWrites.some(write => write.path.startsWith('workspaceSelfPromotions/lr/weeks/')));
-  const weekWrite = await page.evaluate(() => window.__qaWrites.find(write => write.path.startsWith('workspaceSelfPromotions/lr/weeks/')));
+  await page.waitForFunction(() => window.__qaWrites.some(write => write.path?.startsWith('workspaceSelfPromotions/lr/weeks/')));
+  const weekWrite = await page.evaluate(() => window.__qaWrites.find(write => write.path?.startsWith('workspaceSelfPromotions/lr/weeks/')));
   assert.equal(weekWrite.value.bookings, 4);
   assert.equal(weekWrite.value.calls, 18);
   assert.equal(weekWrite.value.actions.calling, true);
@@ -227,7 +250,7 @@ try {
   assert.equal((await stateNow()).home, false, 'Home reminder remains hidden by default');
   await page.evaluate(() => goTab('learnhub'));
   await page.locator('#ppHomeReminder').check();
-  await page.waitForFunction(() => window.__qaWrites.some(write => write.path === 'workspaceSelfPromotions/lr/plan' && write.value.homeReminder));
+  await page.waitForFunction(() => window.__qaWrites.some(write => write.method === 'atomic-update' && write.value['workspaceSelfPromotions/lr/plan']?.homeReminder));
   await page.evaluate(() => goTab('home'));
   assert.equal((await stateNow()).home, true, 'opted-in Home reminder appears');
   assert.match(await page.locator('#ppHomeCard .pp-home-stages').textContent(), /부킹4 \/ 30/);
@@ -266,12 +289,12 @@ try {
   await fixture('admin', { adminOff: true });
   await page.locator('[data-pp-action=create-plan]').click();
   await page.locator('#ppPlanForm button[type=submit]').click();
-  await page.waitForFunction(() => window.__qaWrites.some(write => write.path === 'workspaceSelfPromotions/admin/plan'));
-  const adminWrite = await page.evaluate(() => window.__qaWrites.find(write => write.path === 'workspaceSelfPromotions/admin/plan'));
-  assert.equal(adminWrite.value.targetRole, 'OP', 'admin OFF still permits own AOP plan');
-  assert.equal(adminWrite.value.targetFirstLeaders, 4);
-  assert.equal(adminWrite.value.targetTotalLeaders, 10);
-  assert.deepEqual((await stateNow()).writes.map(write => write.path), ['workspaceSelfPromotions/admin/plan'], 'old coach plan remains untouched');
+  await page.waitForFunction(() => window.__qaWrites.some(write => write.method === 'atomic-update' && write.value['workspaceSelfPromotions/admin/plan']));
+  const adminWrite = await page.evaluate(() => window.__qaWrites.find(write => write.value['workspaceSelfPromotions/admin/plan']));
+  assert.equal(adminWrite.value['workspaceSelfPromotions/admin/plan'].targetRole, 'OP', 'admin OFF still permits own AOP plan');
+  assert.equal(adminWrite.value['workspaceSelfPromotions/admin/plan'].targetFirstLeaders, 4);
+  assert.equal(adminWrite.value['workspaceSelfPromotions/admin/plan'].targetTotalLeaders, 10);
+  assert.deepEqual(Object.keys(adminWrite.value).sort(), ['workspacePromotionPlans/admin', 'workspaceSelfPromotions/admin/plan'], 'old coach plan remains untouched');
   await page.evaluate(() => { window.__adminOff = false; goTab('home'); });
   assert.ok(await page.locator('#pwHomePending').count() > 0, 'daily Home pending list survives promotion planner integration');
 
@@ -283,7 +306,7 @@ try {
   await page.locator('#pwSupportUid').selectOption('lr');
   assert.match(await page.locator('.pp-readonly').textContent(), /서리더님의 TL 목표/);
   assert.equal(await page.locator('.pp-readonly input,.pp-readonly button').count(), 0, 'coach view is read-only');
-  assert.deepEqual((await stateNow()).writes.map(write => write.path), ['workspaceSelfPromotions/admin/plan'], 'coach viewing creates no writes');
+  assert.equal((await stateNow()).writes.length, 1, 'coach viewing creates no writes');
   assert.deepEqual(pageErrors, [], 'browser errors');
   console.log('PASS promotion planner: role scope, defaults, validation/failure, own writes, weekly log, Home opt-in, preview/UID disposal, responsive geometry');
 } finally {
