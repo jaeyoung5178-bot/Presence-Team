@@ -13,6 +13,7 @@ const errors = [];
 const consoleErrors = [];
 page.on('pageerror', (error) => errors.push(error.message));
 page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+await page.route(/(firebaseio\.com|firebasedatabase\.app|identitytoolkit|securetoken|gstatic\.com\/firebasejs|googleapis\.com\/(?!css))/, (route) => route.abort());
 await page.goto(`${baseUrl}/?qa=profit-recap-ppt`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.locator('#authGate:not(.hidden) .auth-card').waitFor({ state: 'visible', timeout: 20000 });
 
@@ -161,10 +162,13 @@ const leaderPhone = await page.evaluate(async () => {
     performanceHidden: !!perf?.hidden,
     note: document.getElementById('prcPayTypeNote')?.textContent || '',
     label: document.querySelector('label[for="prcNet"]')?.textContent || '',
+    buttonOrder: [...document.querySelectorAll('#m-profitrecap .prc-paytype button')].map((button) => button.dataset.payType),
   };
+  prcSetPayType('hourly');
   document.getElementById('prcNet').value = '123456';
   await saveProfitRecap();
   const saved = state.weeklyProfitRecaps['2026-07-31']['qa-a'];
+  const reopenedHourly = document.querySelector('#m-profitrecap [data-pay-type="hourly"]')?.getAttribute('aria-pressed');
   prcSetPayType('performance');
   const switched = {
     performanceHidden: !!document.getElementById('prcPerformanceFields')?.hidden,
@@ -174,6 +178,7 @@ const leaderPhone = await page.evaluate(async () => {
   return {
     first,
     switched,
+    reopenedHourly,
     saved: { payType: saved?.payType, netPayment: saved?.netPayment, hourlyPay: saved?.hourlyPay, rejectCLCount: saved?.rejectCLCount, rejectSWCount: saved?.rejectSWCount, bondBalance: saved?.bondBalance, bep: saved?.bep },
     horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
     undersized: controls.map((el) => ({ label: el.textContent.trim() || el.getAttribute('aria-label'), h: Math.round(el.getBoundingClientRect().height) })).filter((x) => x.h < 44),
@@ -197,6 +202,14 @@ const managerPhone = await page.evaluate(async () => {
     targetText: document.querySelector('#m-profitrecap .prc-target')?.textContent || '',
     net: document.getElementById('prcNet')?.value || '',
   };
+  prcSetPayDate('2026-08-07');
+  const existingHourly = document.querySelector('#m-profitrecap [data-pay-type="hourly"]')?.getAttribute('aria-pressed');
+  prcSetTargetUid('qa-a');
+  const otherTargetPerformance = document.querySelector('#m-profitrecap [data-pay-type="performance"]')?.getAttribute('aria-pressed');
+  prcSetTargetUid('qa-b');
+  const returnedHourly = document.querySelector('#m-profitrecap [data-pay-type="hourly"]')?.getAttribute('aria-pressed');
+  prcSetPayDate('2026-08-14');
+  const returnedPerformance = document.querySelector('#m-profitrecap [data-pay-type="performance"]')?.getAttribute('aria-pressed');
   document.getElementById('prcNet').value = '777';
   await saveProfitRecap();
   const controls = [...document.querySelectorAll('#m-profitrecap .prc-target select,#m-profitrecap input,#m-profitrecap button')].filter((el) => getComputedStyle(el).display !== 'none' && !el.closest('[hidden]') && el.getBoundingClientRect().height > 0);
@@ -207,6 +220,7 @@ const managerPhone = await page.evaluate(async () => {
   const saved = state.weeklyProfitRecaps['2026-08-14']['qa-b'];
   return {
     before,
+    restored: { existingHourly, otherTargetPerformance, returnedHourly, returnedPerformance },
     saved: { uid: saved?.uid, name: saved?.name, netPayment: saved?.netPayment, updatedBy: saved?.updatedBy },
     paths: window.__qaRecapWrites.map((x) => x.path),
     adminPreview: (document.getElementById('profitRecapAdminView')?.textContent || '').includes('팀 전체'),
@@ -263,8 +277,8 @@ if (!desktop.yoon || desktop.yoon.sales !== 14 || desktop.yoon.fieldDays !== 4 |
 if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) failures.push('Hourly/performance recap counts are incorrect');
 if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested presentation-grade donut structure');
 if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
-if (leaderPhone.first.hourlyPressed !== 'true' || leaderPhone.first.performancePressed !== 'false' || !leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('급여 금액만') || !leaderPhone.first.label.includes('시급 급여') || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
-if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
+if (leaderPhone.first.hourlyPressed !== 'false' || leaderPhone.first.performancePressed !== 'true' || leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('실인컴') || !leaderPhone.first.label.includes('이번 주 인컴') || JSON.stringify(leaderPhone.first.buttonOrder) !== JSON.stringify(['performance','hourly']) || leaderPhone.reopenedHourly !== 'true' || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
+if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || Object.values(managerPhone.restored).some((value) => value !== 'true') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
 if (!download.suggestedFilename().startsWith('Presence_2026-08_2026-08_')) failures.push('Selected report month is not reflected in the PPT filename');
 if (errors.length) failures.push('Browser page errors occurred');

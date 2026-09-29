@@ -5901,17 +5901,17 @@ function saveRecap(){if(!me||!isFounder(me))return;const mk=document.getElementB
 /* ===== Profit · 금요일 주간 리캡 (리더 본인 작성 / 관리자 현황) ===== */
 let profitRecapPayDate='';
 let profitRecapTargetUid='';
-let profitRecapPayType='hourly';
-function prcPayTypeOf(r){if(r&&r.payType==='hourly')return 'hourly';if(r&&r.payType==='performance')return 'performance';return r&&r.updatedAt?'performance':'hourly';}
+let profitRecapPayType='performance';
+function prcPayTypeOf(r){if(r&&r.payType==='hourly')return 'hourly';if(r&&r.payType==='performance')return 'performance';return r&&Object.keys(r).length&&!r.updatedAt?'hourly':'performance';}
 function prcApplyPayType(){
-  const type=profitRecapPayType==='performance'?'performance':'hourly',perf=document.getElementById('prcPerformanceFields'),label=document.querySelector('label[for="prcNet"]'),note=document.getElementById('prcPayTypeNote');
+  const type=profitRecapPayType==='hourly'?'hourly':'performance',perf=document.getElementById('prcPerformanceFields'),label=document.querySelector('label[for="prcNet"]'),note=document.getElementById('prcPayTypeNote');
   document.querySelectorAll('#m-profitrecap .prc-paytype button').forEach(function(btn){const on=btn.dataset.payType===type;btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on?'true':'false');});
   if(perf)perf.hidden=type!=='performance';
   if(label)label.innerHTML=type==='hourly'?'이번 주 시급 급여 <small>· 통장에 실제 들어온 시급제 급여</small>':'이번 주 인컴 <small>· 통장에 실제 들어온 성과 급여</small>';
   if(note)note.textContent=type==='hourly'?'시급제는 급여 금액만 기록하며 리젝·리섭·본드·BEP는 묻지 않아요.':'성과급은 실인컴과 CL/SW 리젝·리섭, 잔여 본드와 월 BEP를 함께 기록해요.';
 }
-function prcSetPayType(type){profitRecapPayType=type==='performance'?'performance':'hourly';prcApplyPayType();}
-function prcPayTypeHTML(type){return '<div class="prc-paytype" role="group" aria-label="급여 형태"><button type="button" data-pay-type="hourly" class="'+(type==='hourly'?'on':'')+'" aria-pressed="'+(type==='hourly'?'true':'false')+'" onclick="prcSetPayType(\'hourly\')">⏱ 시급</button><button type="button" data-pay-type="performance" class="'+(type==='performance'?'on':'')+'" aria-pressed="'+(type==='performance'?'true':'false')+'" onclick="prcSetPayType(\'performance\')">📈 성과</button><p class="prc-paytype-note" id="prcPayTypeNote"></p></div>';}
+function prcSetPayType(type){profitRecapPayType=type==='hourly'?'hourly':'performance';prcApplyPayType();}
+function prcPayTypeHTML(type){return '<div class="prc-paytype" role="group" aria-label="급여 형태"><button type="button" data-pay-type="performance" class="'+(type==='performance'?'on':'')+'" aria-pressed="'+(type==='performance'?'true':'false')+'" onclick="prcSetPayType(\'performance\')">📈 성과</button><button type="button" data-pay-type="hourly" class="'+(type==='hourly'?'on':'')+'" aria-pressed="'+(type==='hourly'?'true':'false')+'" onclick="prcSetPayType(\'hourly\')">⏱ 시급</button><p class="prc-paytype-note" id="prcPayTypeNote"></p></div>';}
 function prcAddDays(ds,n){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return ymd(d);}
 function prcFriday(ds){const d=new Date((ds||TODAY)+'T12:00:00');if(isNaN(d))return TODAY;const diff=(d.getDay()-5+7)%7;d.setDate(d.getDate()-diff);return ymd(d);}
 function prcWeekInfo(pay){pay=prcFriday(pay);const we=prcAddDays(pay,-5);return {pay:pay,we:we,sd:prcAddDays(we,-6),ed:we};}
@@ -6120,7 +6120,7 @@ async function saveProfitRecap(){
   const target=prcTargetUser();if(!target)return;if(target.uid!==me.uid&&!canManageTeamRecords(me)){toast('다른 팀원의 리캡은 관리자 또는 매니저만 수정할 수 있어요');return;}
   const info=prcWeekInfo(profitRecapPayDate||TODAY);if(info.pay>TODAY){toast('급여일 이후에 작성해 주세요');return;}
   const val=id=>((document.getElementById(id)||{}).value||'');
-  const month=info.pay.slice(0,7),payType=profitRecapPayType==='performance'?'performance':'hourly',netPayment=prcWon(val('prcNet')),bep=payType==='performance'?prcWon(val('prcBep')):prcBep(month,target.uid);
+  const month=info.pay.slice(0,7),payType=profitRecapPayType==='hourly'?'hourly':'performance',netPayment=prcWon(val('prcNet')),bep=payType==='performance'?prcWon(val('prcBep')):prcBep(month,target.uid);
   const rec={uid:target.uid,name:target.name||'',role:target.role||'LR',payType:payType,payDate:info.pay,incomeDate:info.pay,weekEnding:info.we,activityFrom:info.sd,activityTo:info.ed,netPayment:netPayment,hourlyPay:payType==='hourly'?netPayment:0,rejectCLCount:payType==='performance'?prcNum(val('prcRcl')):0,rejectSWCount:payType==='performance'?prcNum(val('prcRsw')):0,resubmitCLCount:payType==='performance'?prcNum(val('prcScl')):0,resubmitSWCount:payType==='performance'?prcNum(val('prcSsw')):0,bondBalance:payType==='performance'?prcWon(val('prcBond')):0,bep:payType==='performance'?bep:0,updatedAt:Date.now(),updatedBy:me.uid,updatedByName:me.name||''};
   state.profitMonthlyBep=state.profitMonthlyBep||{};state.profitMonthlyBep[month]=state.profitMonthlyBep[month]||{};const oldBep=state.profitMonthlyBep[month][target.uid];if(payType==='performance')state.profitMonthlyBep[month][target.uid]=bep;
   const old=prcMyRecord(info.pay,target.uid);state.weeklyProfitRecaps=state.weeklyProfitRecaps||{};state.weeklyProfitRecaps[info.pay]=state.weeklyProfitRecaps[info.pay]||{};state.weeklyProfitRecaps[info.pay][target.uid]=rec;renderProfitRecap();
