@@ -1,0 +1,233 @@
+(function (global) {
+  'use strict';
+
+  var session = { root: null, actor: null, snapshot: null };
+
+  function resolveRoot(target) {
+    if (!target) return null;
+    if (typeof target === 'string') return document.getElementById(target);
+    return target && typeof target === 'object' ? target : null;
+  }
+
+  function liveActor(options) {
+    if (options && Object.prototype.hasOwnProperty.call(options, 'actor')) return options.actor;
+    try { return typeof me !== 'undefined' ? me : null; } catch (error) { return null; }
+  }
+
+  function liveState(options) {
+    if (options && options.state) return options.state;
+    try { return typeof state !== 'undefined' && state ? state : {}; } catch (error) { return {}; }
+  }
+
+  function currentActor() {
+    try { if (typeof me !== 'undefined') return me; } catch (error) {}
+    return session.actor;
+  }
+
+  function isAuthorized(actor) {
+    if (!actor || actor.status !== 'active') return false;
+    try {
+      if (typeof isFounder === 'function') return !!isFounder(actor);
+    } catch (error) {}
+    if (global.__previewRole || global.__adminOff) return false;
+    return actor.uid === 'admin' || actor.isFounder === true || actor.isAdmin === true || actor.role === 'ADMIN' || actor.role === 'FOUNDER';
+  }
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeList(value) {
+    return Array.isArray(value) ? value.filter(Boolean) : [];
+  }
+
+  function values(value) {
+    return value && typeof value === 'object' ? Object.keys(value).map(function (key) { return value[key]; }) : [];
+  }
+
+  function isTestUser(user) {
+    try { if (typeof isTestBot === 'function') return !!isTestBot(user); } catch (error) {}
+    return !!(user && user.test === true);
+  }
+
+  function approvalRows(snapshot) {
+    try {
+      if (typeof pendingApprovalUsers === 'function') return safeList(pendingApprovalUsers());
+    } catch (error) {}
+    return values(snapshot.users).filter(function (user) { return user && user.status === 'pending'; });
+  }
+
+  function surveyRows(snapshot) {
+    try {
+      if (typeof promotionRecords === 'function') {
+        return safeList(promotionRecords()).filter(function (record) { return record && record.status === 'pending'; });
+      }
+    } catch (error) {}
+    var rows = [];
+    values(snapshot.promotionSurveys).forEach(function (entry) {
+      if (!entry || typeof entry !== 'object') return;
+      if (entry.status) rows.push(entry);
+      else values(entry).forEach(function (record) { if (record) rows.push(record); });
+    });
+    return rows.filter(function (record) { return record && record.status === 'pending'; });
+  }
+
+  function activeRows(snapshot) {
+    return values(snapshot.users).filter(function (user) {
+      return user && user.status === 'active' && !isTestUser(user);
+    });
+  }
+
+  function departedCount(snapshot) {
+    var names = Object.create(null);
+    safeList(snapshot.removedMembers).forEach(function (name) {
+      var key = String(name || '').replace(/\s/g, '');
+      if (key) names[key] = true;
+    });
+    Object.keys(snapshot.memberInfo || {}).forEach(function (memberName) {
+      var entry = snapshot.memberInfo[memberName];
+      if (!entry || !entry.left) return;
+      var name = entry.name || entry.memberName || memberName;
+      var key = String(name).replace(/\s/g, '');
+      if (key) names[key] = true;
+    });
+    return Object.keys(names).length;
+  }
+
+  function badge(count, label) {
+    return count > 0
+      ? '<span class="pah-badge" aria-label="' + esc(label) + ' ' + count + '건">' + count + '</span>'
+      : '<span class="pah-ready" aria-label="' + esc(label) + ' 없음">READY</span>';
+  }
+
+  function actionCard(action, code, title, description, meta) {
+    return '<button type="button" class="pah-action" data-pah-action="' + action + '">' +
+      '<span class="pah-action-top"><span class="pah-action-code" aria-hidden="true">' + code + '</span>' + meta + '</span>' +
+      '<span class="pah-action-copy"><strong>' + title + '</strong><small>' + description + '</small></span>' +
+      '<span class="pah-action-go" aria-hidden="true">→</span>' +
+      '</button>';
+  }
+
+  function go(name) {
+    try {
+      if (typeof goTab === 'function') { goTab(name); return true; }
+    } catch (error) {}
+    if (typeof global.goTab === 'function') { global.goTab(name); return true; }
+    return false;
+  }
+
+  function scrollTarget(selector, focus) {
+    var target = null;
+    try { target = document.querySelector(selector); } catch (error) {}
+    if (!target) return false;
+    var reduce = false;
+    try { reduce = !!global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (error) {}
+    try { target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center', inline: 'nearest' }); }
+    catch (error) { try { target.scrollIntoView(); } catch (ignored) {} }
+    if (focus && typeof target.focus === 'function') {
+      try { target.focus({ preventScroll: true }); } catch (error) { try { target.focus(); } catch (ignored) {} }
+    }
+    return true;
+  }
+
+  function afterAdmin(selector, focus) {
+    go('admin');
+    if (scrollTarget(selector, focus)) return;
+    global.setTimeout(function () { scrollTarget(selector, focus); }, 140);
+  }
+
+  function runAction(action) {
+    var actor = currentActor();
+    if (!isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return;
+    if (action === 'survey') { go('survey'); return; }
+    if (action === 'new-member') { afterAdmin('#newMemberIn', true); return; }
+    if (action === 'permissions') { afterAdmin('.mem-rows', false); return; }
+    if (action === 'departed') { afterAdmin('#departedBody', false); return; }
+    if (action === 'approvals') {
+      try {
+        if (typeof openPendingApprovals === 'function') { openPendingApprovals(); return; }
+      } catch (error) {}
+      if (typeof global.openPendingApprovals === 'function') { global.openPendingApprovals(); return; }
+      afterAdmin('#pendList', false);
+    }
+  }
+
+  function bind(root) {
+    root.querySelectorAll('[data-pah-action]').forEach(function (button) {
+      button.addEventListener('click', function () { runAction(button.dataset.pahAction); });
+    });
+  }
+
+  function clear(root) {
+    if (!root) return;
+    root.innerHTML = '';
+    root.hidden = true;
+    root.removeAttribute('data-pah-ready');
+  }
+
+  function render(target, options) {
+    var root = resolveRoot(target);
+    var actor = liveActor(options || {});
+    var snapshot = liveState(options || {});
+    if (!root) return false;
+    session.root = root;
+    session.actor = actor;
+    session.snapshot = snapshot;
+    if (!isAuthorized(actor)) { clear(root); return false; }
+
+    var approvals = approvalRows(snapshot);
+    var surveys = surveyRows(snapshot);
+    var active = activeRows(snapshot);
+    var departed = departedCount(snapshot);
+    var attention = approvals.length + surveys.length;
+    var name = esc(actor.name || '관리자');
+    var summary = attention
+      ? '지금 확인할 운영 항목이 <b>' + attention + '건</b> 있습니다. 필요한 화면으로 바로 이동하세요.'
+      : '현재 긴급한 승인 항목은 없습니다. 팀 운영 화면으로 바로 이동할 수 있어요.';
+
+    root.hidden = false;
+    root.setAttribute('data-pah-ready', 'true');
+    root.innerHTML = '<section class="pah-shell" aria-labelledby="pahTitle">' +
+      '<div class="pah-hero">' +
+        '<div class="pah-heading">' +
+          '<span class="pah-kicker">ADMIN HOME · OPERATIONS</span>' +
+          '<h2 id="pahTitle">' + name + '님, 오늘의 운영 흐름입니다</h2>' +
+          '<p>' + summary + '</p>' +
+        '</div>' +
+        '<dl class="pah-summary" aria-label="관리 운영 현황">' +
+          '<div><dt>ACTIVE TEAM</dt><dd>' + active.length + '<small>명</small></dd></div>' +
+          '<div class="' + (approvals.length ? 'is-alert' : '') + '"><dt>JOIN APPROVAL</dt><dd>' + approvals.length + '<small>건</small></dd></div>' +
+          '<div class="' + (surveys.length ? 'is-alert' : '') + '"><dt>SURVEY QUEUE</dt><dd>' + surveys.length + '<small>건</small></dd></div>' +
+        '</dl>' +
+      '</div>' +
+      '<div class="pah-section-head"><div><span>QUICK OPERATIONS</span><h3>자주 쓰는 관리 업무</h3></div><p>한 번의 클릭으로 기존 관리 화면을 엽니다.</p></div>' +
+      '<div class="pah-actions" aria-label="관리자 빠른 실행">' +
+        actionCard('survey', 'SV', '설문 보기', '팀원 설문과 승진 응답을 확인합니다.', badge(surveys.length, '대기 설문')) +
+        actionCard('new-member', '+', '신입 등록', '새 팀원을 등록하는 입력창으로 이동합니다.', '<span class="pah-status">CREATE</span>') +
+        actionCard('permissions', 'AC', '권한 관리', '직급·매니저·섹터 권한을 관리합니다.', '<span class="pah-status">ACCESS</span>') +
+        actionCard('departed', 'DP', '퇴사자 관리', '퇴사 기록과 재입사 대상을 관리합니다.', departed ? '<span class="pah-badge" aria-label="퇴사자 ' + departed + '명">' + departed + '</span>' : '<span class="pah-ready">CLEAR</span>') +
+        actionCard('approvals', 'OK', '가입 승인', '가입 신청자를 검토하고 승인합니다.', badge(approvals.length, '가입 승인 대기')) +
+      '</div>' +
+    '</section>';
+    bind(root);
+    return true;
+  }
+
+  function reset(target) {
+    var root = resolveRoot(target) || session.root;
+    clear(root);
+    session = { root: null, actor: null, snapshot: null };
+  }
+
+  function invalidate() {
+    if (!session.root) return false;
+    return render(session.root, { actor: currentActor(), state: liveState({}) });
+  }
+
+  global.PresenceAdminHome = Object.freeze({ render: render, reset: reset, invalidate: invalidate });
+})(typeof window !== 'undefined' ? window : this);
