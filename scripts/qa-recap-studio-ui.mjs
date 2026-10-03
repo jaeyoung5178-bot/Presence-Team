@@ -242,6 +242,80 @@ for (const stateName of ['locked', 'failed', 'rolling-back', 'rolled-back']) {
   if (states.length !== 3 || states.some(state => state !== expected)) failures.push(`migration ${stateName} state missing (${states.join('|')})`);
 }
 
+await page.setViewportSize({ width: 390, height: 844 });
+await install(roles[2]);
+await page.locator('[data-ers-action="toggle"]').click({ force: true });
+await page.evaluate(() => {
+  Object.values(window.__qaRecapSnapshots['2026-10']).forEach(data => {
+    data.migration.status.state = 'blocked';
+    data.migration.status.conflictCount = 1;
+    data.migration.status.unresolvedCount = 1;
+  });
+  window.recapStudioPreflightV3 = async () => ({
+    blocked: true,
+    conflicts: [{
+      type: 'weekly-source-invalid', uid: 'unsafe-uid', name: '<script>not executable</script>',
+      teamKey: 'youngwave', payDate: '2026-09-04', path: 'recapStudioTeams/private-path',
+      existing: { secret: 'must-not-render' },
+    }],
+    unresolved: [{
+      type: 'unapproved-descendant', uid: 'pending-uid', name: '<img src=x onerror=alert(1)>',
+      teamKey: 'youngwave', upline: '민병준', month: '2026-09', rawRecord: 'must-not-render',
+    }],
+  });
+  window.PresenceExecutiveRecap.invalidate();
+});
+await page.locator('[data-ers-action="preflight-v3"]').click({ force: true });
+await page.waitForSelector('.ers-migration-diagnostics');
+const diagnosticAudit = await page.evaluate(() => {
+  const details = document.querySelector('.ers-migration-diagnostics');
+  const items = window.PresenceExecutiveRecap.state.migrationAction.diagnostics || [];
+  return {
+    open: details?.open,
+    text: details?.textContent.replace(/\s+/g, ' ').trim() || '',
+    html: details?.innerHTML || '',
+    executableNodes: details?.querySelectorAll('script,img').length || 0,
+    itemCount: details?.querySelectorAll('li').length || 0,
+    resultBeforeDetails: details?.previousElementSibling?.classList.contains('ers-migration-result') || false,
+    fieldSets: items.map(item => Object.keys(item).sort()),
+  };
+});
+const allowedDiagnosticFields = new Set(['type', 'uid', 'name', 'teamKey', 'upline', 'month', 'payDate']);
+if (diagnosticAudit.open !== false || diagnosticAudit.itemCount !== 2 || !diagnosticAudit.resultBeforeDetails) failures.push(`admin diagnostic disclosure layout failed (${JSON.stringify(diagnosticAudit)})`);
+if (!diagnosticAudit.text.includes('주간 원본 확인 필요') || !diagnosticAudit.text.includes('미승인 하위 구성원') || !diagnosticAudit.text.includes('pending-uid')) failures.push(`admin diagnostic details missing (${JSON.stringify(diagnosticAudit)})`);
+if (diagnosticAudit.executableNodes || /private-path|must-not-render|rawRecord|existing/.test(diagnosticAudit.html)) failures.push(`admin diagnostic leaked raw or executable payload (${JSON.stringify(diagnosticAudit)})`);
+if (!diagnosticAudit.html.includes('&lt;script&gt;') || !diagnosticAudit.html.includes('&lt;img')) failures.push('admin diagnostic values were not HTML-escaped');
+if (diagnosticAudit.fieldSets.some(fields => fields.some(field => !allowedDiagnosticFields.has(field)))) failures.push(`admin diagnostic whitelist failed (${JSON.stringify(diagnosticAudit.fieldSets)})`);
+await page.locator('.ers-migration-diagnostics summary').click();
+const diagnosticGeometry = await page.evaluate(() => {
+  const details = document.querySelector('.ers-migration-diagnostics');
+  const summary = details?.querySelector('summary');
+  const rect = details?.getBoundingClientRect();
+  return {
+    open: details?.open,
+    overflow: document.documentElement.scrollWidth > innerWidth + 1,
+    summaryHeight: summary?.getBoundingClientRect().height || 0,
+    left: rect?.left || 0,
+    right: rect?.right || 0,
+    viewport: innerWidth,
+  };
+});
+if (!diagnosticGeometry.open || diagnosticGeometry.overflow || diagnosticGeometry.summaryHeight < 44 || diagnosticGeometry.left < -1 || diagnosticGeometry.right > diagnosticGeometry.viewport + 1) failures.push(`admin diagnostic mobile geometry failed (${JSON.stringify(diagnosticGeometry)})`);
+
+for (const role of [roles[1], roles[0]]) {
+  await install(role);
+  if (role.key !== 'member') await page.locator('[data-ers-action="toggle"]').click({ force: true });
+  await page.evaluate(() => {
+    window.PresenceExecutiveRecap.state.migrationAction = {
+      busy: false, ready: false, tone: 'error', message: '관리자 전용 진단',
+      diagnostics: [{ type: 'unapproved-descendant', uid: 'should-not-render', name: '비공개' }],
+    };
+    window.PresenceExecutiveRecap.invalidate();
+  });
+  const leakedDiagnostics = await page.locator('.ers-migration-diagnostics, [data-ers-action="preflight-v3"], [data-ers-action="migrate-v3"]').count();
+  if (leakedDiagnostics) failures.push(`${role.key}: admin migration diagnostics/control exposed`);
+}
+
 await install(roles[1]);
 await page.evaluate(() => window.PresenceExecutiveRecap.reset());
 const zeroized = await page.evaluate(() => ({ html: document.getElementById('tlhExecutiveRecapMount')?.innerHTML || '', context: window.PresenceExecutiveRecap.state.context, hostId: window.PresenceExecutiveRecap.state.hostId }));
