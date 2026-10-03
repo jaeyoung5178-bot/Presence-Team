@@ -12,7 +12,7 @@ const api = new Function(`${core}\n${rosterActive}\n${leaseMutation}\nreturn {
   RECAP_STUDIO_SECURITY_VERSION, RECAP_STUDIO_MIRROR_MONTHS, RECAP_STUDIO_LEGACY_PATHS, RECAP_STUDIO_REVIEWED_ROSTER,
   recapStudioPlanHistoryV3, recapStudioVerifyHistoryV3, recapStudioLeaseMutation,
   recapStudioReviewedTargetsAt, recapStudioReviewedTargetsInMonth,
-  recapStudioRollbackLeafMap, recapStudioBuildRollbackPatch
+  recapStudioRollbackLeafMap, recapStudioBuildRollbackPatch, recapStudioRosterActive
 };`)();
 
 const uids = {
@@ -111,8 +111,22 @@ assert.ok(unsupportedRollback.unsupported.includes('recapStudioTeams/rogue'), 'u
 const canonical = migrated.teams.youngwave.weekly['2026-08-21'][uids.sumin];
 assert.equal(canonical.teamKey, 'youngwave');
 assert.ok(canonical.assignmentId && canonical.assignmentConfigHash === first.configHash, 'weekly canonical record must bind to exact assignment/config');
+const suminRoster = migrated.teams.youngwave.roster[uids.sumin];
+const suminInterval = suminRoster.intervals[canonical.assignmentId];
+assert.deepEqual(
+  Object.keys(suminRoster).sort(),
+  ['intervals', 'name', 'role', 'uid'],
+  'canonical roster rows must be interval holders, not a single flattened assignment',
+);
+assert.equal(suminInterval.uid, uids.sumin);
+assert.equal(suminInterval.assignmentId, canonical.assignmentId);
+assert.equal(suminInterval.configHash, first.configHash);
+assert.equal(api.recapStudioRosterActive(suminRoster, '2026-08-14'), false, 'interval holder must respect the join boundary');
+assert.equal(api.recapStudioRosterActive(suminRoster, '2026-08-21'), true, 'interval holder must activate on the first eligible pay date');
 assert.equal(migrated.teams.fuse.weekly['2026-09-04']?.[uids.hajin], undefined, '김하진 must be excluded after August');
 assert.ok(migrated.teams.fuse.weekly['2026-08-28'][uids.hajin], '김하진 August record must remain');
+assert.equal(api.recapStudioRosterActive(migrated.teams.fuse.roster[uids.hajin], '2026-08-28'), true, 'departed history remains active inside its reviewed interval');
+assert.equal(api.recapStudioRosterActive(migrated.teams.fuse.roster[uids.hajin], '2026-09-04'), false, 'departed history closes after its reviewed interval');
 assert.equal(migrated.teams.youngwave.weekly['2026-08-14']?.[uids.sumin], undefined, '8/16 joiner must be excluded before boundary');
 assert.ok(migrated.teams.youngwave.weekly['2026-08-21'][uids.sumin], 'recursive grandchild 이수민 must resolve under Young Wave');
 assert.ok(migrated.teams.presence.weekly['2026-09-04'][uids.direct], 'non-root member must remain Presence-direct');
@@ -148,23 +162,48 @@ const unapproved = api.recapStudioPlanHistoryV3(extra, 1790985605000);
 assert.equal(unapproved.blocked, true);
 assert.ok(unapproved.unresolved.some((x) => x.type === 'unapproved-descendant' && x.uid === uids.blin), 'new recursive descendant must be enumerated for explicit approval');
 
-const yw = { uid: uids.blin, name: 'Blin', role: 'LR', teamKey: 'youngwave', activeFrom: '2026-08-01', activeTo: '2026-09-30', source: 'reviewed-v3' };
-const fuse = { uid: uids.blin, name: 'Blin', role: 'LR', teamKey: 'fuse', activeFrom: '2026-10-01', activeTo: '2026-10-31', source: 'reviewed-v3' };
-yw.assignmentId = assignmentId(yw); fuse.assignmentId = assignmentId(fuse);
+const yw = { uid: uids.blin, name: 'Blin', role: 'LR', teamKey: 'youngwave', activeFrom: '2026-08-01', activeTo: '2026-09-15', source: 'reviewed-v3' };
+const fuse = { uid: uids.blin, name: 'Blin', role: 'LR', teamKey: 'fuse', activeFrom: '2026-09-16', activeTo: '2026-10-15', source: 'reviewed-v3' };
+const ywReturn = { uid: uids.blin, name: 'Blin', role: 'LR', teamKey: 'youngwave', activeFrom: '2026-10-16', activeTo: '2026-10-31', source: 'reviewed-v3' };
+yw.assignmentId = assignmentId(yw); fuse.assignmentId = assignmentId(fuse); ywReturn.assignmentId = assignmentId(ywReturn);
 extra.assignments = { byUid: { [uids.blin]: { intervals: {
   [yw.assignmentId]: { ...yw, reviewedAt: 1790985600000, reviewedBy: 'admin' },
   [fuse.assignmentId]: { ...fuse, reviewedAt: 1790985600001, reviewedBy: 'admin' },
+  [ywReturn.assignmentId]: { ...ywReturn, reviewedAt: 1790985600002, reviewedBy: 'admin' },
 } } } };
-const transfer = api.recapStudioPlanHistoryV3(extra, 1790985606000);
+const ambiguousMonth = api.recapStudioPlanHistoryV3(extra, 1790985606000);
+assert.equal(ambiguousMonth.blocked, true, 'two non-overlapping assignments in one month require an explicit monthly selection');
+assert.ok(ambiguousMonth.conflicts.some((x) => x.type === 'monthly-assignment-ambiguous' && x.month === '2026-09' && x.uid === uids.blin));
+assert.ok(ambiguousMonth.conflicts.some((x) => x.type === 'monthly-assignment-ambiguous' && x.month === '2026-10' && x.uid === uids.blin));
+const reviewedTransfer = clone(extra);
+reviewedTransfer.assignments.byMonth = {
+  '2026-09': { [uids.blin]: { uid: uids.blin, teamKey: 'fuse', assignmentId: fuse.assignmentId, activeFrom: fuse.activeFrom, activeTo: fuse.activeTo, configHash: 'prior', selection: 'reviewed', reviewedBy: 'admin', reviewedAt: 1790985600003 } },
+  '2026-10': { [uids.blin]: { uid: uids.blin, teamKey: 'youngwave', assignmentId: ywReturn.assignmentId, activeFrom: ywReturn.activeFrom, activeTo: ywReturn.activeTo, configHash: 'prior', selection: 'reviewed', reviewedBy: 'admin', reviewedAt: 1790985600004 } },
+};
+const transfer = api.recapStudioPlanHistoryV3(reviewedTransfer, 1790985606001);
 assert.equal(transfer.blocked, false, JSON.stringify({ conflicts: transfer.conflicts, unresolved: transfer.unresolved }));
-assert.ok(transfer.desired.teams.youngwave.weekly['2026-09-25'][uids.blin]);
-assert.ok(transfer.desired.teams.fuse.weekly['2026-10-02'][uids.blin]);
-assert.equal(transfer.desired.assignments.byPay['2026-09-25'][uids.blin].teamKey, 'youngwave');
-assert.equal(transfer.desired.assignments.byPay['2026-10-02'][uids.blin].teamKey, 'fuse');
+assert.equal(Object.keys(transfer.desired.assignments.byUid[uids.blin].intervals).length, 3, 'YW→FUSE→YW rejoin must preserve all three reviewed intervals');
+assert.ok(transfer.desired.teams.youngwave.weekly['2026-09-11'][uids.blin]);
+assert.ok(transfer.desired.teams.fuse.weekly['2026-09-18'][uids.blin]);
+assert.ok(transfer.desired.teams.fuse.weekly['2026-10-09'][uids.blin]);
+assert.ok(transfer.desired.teams.youngwave.weekly['2026-10-16'][uids.blin]);
+assert.ok(transfer.desired.teams.youngwave.roster[uids.blin].intervals[yw.assignmentId], 'source team must retain its reviewed interval in the roster holder');
+assert.ok(transfer.desired.teams.youngwave.roster[uids.blin].intervals[ywReturn.assignmentId], 'rejoined team holder must retain the later reviewed interval');
+assert.ok(transfer.desired.teams.fuse.roster[uids.blin].intervals[fuse.assignmentId], 'destination team must materialize its reviewed interval in the roster holder');
+assert.equal(Object.keys(transfer.desired.teams.youngwave.roster[uids.blin].intervals).length, 2);
+assert.equal(Object.keys(transfer.desired.teams.fuse.roster[uids.blin].intervals).length, 1);
+assert.equal(transfer.desired.assignments.byPay['2026-09-11'][uids.blin].teamKey, 'youngwave');
+assert.equal(transfer.desired.assignments.byPay['2026-09-18'][uids.blin].teamKey, 'fuse');
+assert.equal(transfer.desired.assignments.byPay['2026-10-09'][uids.blin].teamKey, 'fuse');
+assert.equal(transfer.desired.assignments.byPay['2026-10-16'][uids.blin].teamKey, 'youngwave');
+assert.equal(transfer.desired.assignments.byMonth['2026-09'][uids.blin].selection, 'reviewed');
+assert.equal(transfer.desired.assignments.byMonth['2026-09'][uids.blin].assignmentId, fuse.assignmentId);
+assert.equal(transfer.desired.assignments.byMonth['2026-10'][uids.blin].selection, 'reviewed');
+assert.equal(transfer.desired.assignments.byMonth['2026-10'][uids.blin].assignmentId, ywReturn.assignmentId);
 
-const overlap = clone(extra);
+const overlap = clone(reviewedTransfer);
 const bad = { ...fuse, activeFrom: '2026-09-15' }; bad.assignmentId = assignmentId(bad);
-overlap.assignments.byUid[uids.blin].intervals[bad.assignmentId] = { ...bad, reviewedAt: 1790985600002, reviewedBy: 'admin' };
+overlap.assignments.byUid[uids.blin].intervals[bad.assignmentId] = { ...bad, reviewedAt: 1790985600005, reviewedBy: 'admin' };
 const overlapPlan = api.recapStudioPlanHistoryV3(overlap, 1790985607000);
 assert.equal(overlapPlan.blocked, true);
 assert.ok(overlapPlan.conflicts.some((x) => x.type === 'assignment-overlap'));
@@ -200,23 +239,28 @@ assert.match(html, /function recapStudioPresenceAgg\(/, 'Presence historical vie
 assert.doesNotMatch(html.match(/function recapStudioAdminPeople\(\)\{[^\n]+/)?.[0] || '', /status==='active'/, 'historical person selector must not drop departed people');
 assert.match(html, /DB\.tx\(RECAP_STUDIO_MIGRATION_PATH\+'\/lock'/, 'migration lock must use an exact-path transaction');
 assert.doesNotMatch(html, /DB\.tx\((?:null|''|""|'')/, 'root transaction is forbidden');
-assert.match(html, /backup=\{schemaVersion:RECAP_STUDIO_SECURITY_VERSION,createdAt:applyAt,configHash:plan\.configHash,legacyFrozenAt:applyAt,teamsExisted:/, 'backup metadata must record schema, freeze time and prior root existence');
+assert.match(html, /backup=\{schemaVersion:RECAP_STUDIO_SECURITY_VERSION,leaseId:lease\.leaseId,createdAt:applyAt,configHash:plan\.configHash,legacyFrozenAt:applyAt,teamsExisted:/, 'backup metadata must bind schema, freeze time and prior root existence to the active lease');
 assert.match(html, /assignmentsExisted:!!\(snapshot\.assignments/, 'backup metadata must preserve whether the prior assignment root existed');
-assert.match(html, /legacyFrozen:true,legacyFrozenAt:applyAt,legacyPaths:RECAP_STUDIO_LEGACY_PATHS/, 'migration config must explicitly freeze every legacy path');
-assert.match(html, /verifiedHash:verified\.verifiedHash,legacyFrozen:true,legacyFrozenAt:applyAt/, 'complete marker must attest the legacy freeze');
-assert.match(html, /config\/legacyFrozen'\]=false/, 'rollback must explicitly release the legacy freeze metadata');
+assert.match(html, /config'\]=\{version:RECAP_STUDIO_SECURITY_VERSION,leaseId:lease\.leaseId,configHash:plan\.configHash,[^\n]+legacyFrozen:true,legacyFrozenAt:applyAt,legacyPaths:RECAP_STUDIO_LEGACY_PATHS/, 'migration config must bind the active lease and explicitly freeze every legacy path');
+assert.match(html, /marker'\]=\{state:'complete',version:RECAP_STUDIO_SECURITY_VERSION,runId:runId,leaseId:lease\.leaseId,[^\n]+verifiedHash:verified\.verifiedHash,legacyFrozen:true,legacyFrozenAt:applyAt/, 'complete marker must bind the active lease and attest the legacy freeze');
+assert.match(html, /config'\]=Object\.assign\(\{\},oldConfig,\{leaseId:lease\.leaseId,legacyFrozen:false,rolledBackAt:/, 'rollback must explicitly release the legacy freeze metadata under its lease');
 const rollbackSource = html.match(/async function recapStudioRollbackHistoryV3\(\)\{[\s\S]*?(?=async function recapStudioApproveAssignment)/)?.[0] || '';
 assert.ok(rollbackSource, 'rollback runtime must be extractable');
 assert.doesNotMatch(rollbackSource, /patch\.recapStudioTeams|patch\.recapStudioAssignments/, 'runtime rollback must use granular leaves, never broad roots');
 assert.match(rollbackSource, /recapStudioBuildRollbackPatch\(snapshot,backup\)/, 'runtime rollback must derive an exact leaf diff from the backup');
 assert.match(html, /stored=Object\.assign\(\{\},entry,\{reviewedAt:reviewedAt,reviewedBy:'admin',configHash:draftPlan\.configHash\}\)/, 'approved intervals must carry the planned config hash required by rules');
 assert.match(html, /action:'approve-assignment'[^\n]+desiredHash:draftPlan\.desiredHash[^\n]+counts:\{writes:1,cleanup:0\}[^\n]+conflictCount:/, 'assignment approval audit must use the standard required shape');
-assert.match(html, /DB\.get\(RECAP_STUDIO_MIGRATION_PATH\+'\/status'\)[^\n]+status\.state!=='complete'[^\n]+status\.configHash!==marker\.configHash/, 'ordinary canonical saves must require matching complete marker and status');
+assert.match(html, /DB\.get\(RECAP_STUDIO_PUBLIC_STATUS_PATH\)[^\n]+publicStatus=values\[2\]/, 'ordinary canonical saves must read the narrow public readiness record');
+assert.match(html, /publicStatus\.status!=='complete'\|\|publicStatus\.version!==RECAP_STUDIO_SECURITY_VERSION\|\|!publicStatus\.configHash\|\|!publicStatus\.verifiedHash/, 'ordinary canonical saves must fail closed unless public readiness is verified');
+assert.match(html, /weekly\.configHash!==publicStatus\.configHash/, 'ordinary canonical saves must bind the materialized assignment to public readiness');
+assert.match(html, /lockedPatch\[RECAP_STUDIO_PUBLIC_STATUS_PATH\]=null/, 'migration must revoke public readiness before canonical mutation');
+assert.match(html, /freeze\[RECAP_STUDIO_PUBLIC_STATUS_PATH\]=null/, 'rollback must revoke public readiness before canonical mutation');
+assert.match(html, /finalPatch\[RECAP_STUDIO_PUBLIC_STATUS_PATH\]=recapStudioPublicComplete\(plan,verified\.verifiedHash,completedAt\)/, 'public readiness may be restored only after verification');
 
 console.log(JSON.stringify({
   version: first.version,
   coverage: verified.coverage,
   idempotentWrites: second.written,
   boundaries: { kimAugustOnly: true, joinDate: '2026-08-16', recursiveGrandchild: '이수민', presenceDirect: '박인선' },
-  safety: { exactDuplicateCleanup: true, nonIdenticalBlocked: true, transferIntervals: true, cycleBlocked: true, orphanBlocked: true, duplicateBlocked: true, canonicalSavePreserved: true, granularRollback: true, twoTabLease: true },
+  safety: { exactDuplicateCleanup: true, nonIdenticalBlocked: true, intervalHolders: true, transferIntervals: true, cycleBlocked: true, orphanBlocked: true, duplicateBlocked: true, canonicalSavePreserved: true, granularRollback: true, twoTabLease: true, publicReadiness: true },
 }, null, 2));

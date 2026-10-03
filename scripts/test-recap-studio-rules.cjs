@@ -37,6 +37,8 @@ const port = Number(rawPort);
 if (!host || !Number.isInteger(port) || port <= 0) process.exit(2);
 const rules = fs.readFileSync(rulesPath, 'utf8');
 const CFG = 'cfg-v3-12345678';
+const VERSION = '2026-10-03.team-history-v3';
+const DEFAULT_LEASE = 'lease-v3';
 let passCount = 0;
 
 function interval(uid, assignmentId, teamKey, activeFrom, activeTo, name = uid, role = 'IC') {
@@ -55,10 +57,19 @@ function exactIndex(uid, assignmentId, teamKey, activeFrom, activeTo) {
   return value;
 }
 
+function monthIndex(uid, assignmentId, teamKey, activeFrom, activeTo) {
+  return { ...exactIndex(uid, assignmentId, teamKey, activeFrom, activeTo), selection: 'derived' };
+}
+
 function rosterSummary(value) {
-  const copy = { ...value };
-  delete copy.teamKey;
-  return copy;
+  const rosterInterval = { ...value };
+  delete rosterInterval.teamKey;
+  return {
+    uid: value.uid,
+    name: value.name,
+    role: value.role,
+    intervals: { [value.assignmentId]: rosterInterval },
+  };
 }
 
 function legacyRoster(uid, name = uid, role = 'IC') {
@@ -83,19 +94,26 @@ function legacyRecap(uid, payDate, netPayment) {
   };
 }
 
-function marker(runId = 'run-complete') {
+function marker(runId = 'run-complete', leaseId = DEFAULT_LEASE) {
   return {
-    state: 'complete', version: '2026-10-03.team-history-v3', runId,
+    state: 'complete', version: VERSION, runId, leaseId,
     configHash: CFG, desiredHash: 'desired-v3', verifiedHash: 'verified-v3', completedAt: Date.now(),
   };
 }
 
-function status(state, runId = `run-${state}`) {
+function status(state, runId = `run-${state}`, leaseId = DEFAULT_LEASE) {
   const done = state === 'complete';
   return {
-    state, runId, configHash: CFG, desiredHash: 'desired-v3', updatedAt: Date.now(),
+    state, runId, leaseId, configHash: CFG, desiredHash: 'desired-v3', updatedAt: Date.now(),
     coverage: { expectedWeekly: 3, actualWeekly: done ? 3 : 0, expectedBep: 3, actualBep: done ? 3 : 0 },
     conflictCount: 0, unresolvedCount: 0,
+  };
+}
+
+function publicStatus() {
+  return {
+    status: 'complete', version: VERSION, configHash: CFG,
+    verifiedHash: 'verified-v3', completedAt: Date.now(),
   };
 }
 
@@ -173,10 +191,10 @@ async function seed(testEnv, migrationState = 'complete') {
           inactive: exactIndex('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31'),
         } },
         byMonth: { '2026-09': {
-          fuseMember: exactIndex('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31'),
-          waveMember: exactIndex('waveMember', 'wave-a', 'youngwave', '2026-08-01', '2026-10-31'),
-          direct: exactIndex('direct', 'presence-a', 'presence', '2026-08-01', '2026-10-31'),
-          inactive: exactIndex('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31'),
+          fuseMember: monthIndex('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31'),
+          waveMember: monthIndex('waveMember', 'wave-a', 'youngwave', '2026-08-01', '2026-10-31'),
+          direct: monthIndex('direct', 'presence-a', 'presence', '2026-08-01', '2026-10-31'),
+          inactive: monthIndex('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31'),
         } },
       },
       recapStudioTeams: {
@@ -199,15 +217,17 @@ async function seed(testEnv, migrationState = 'complete') {
           bep: { '2026-09': { waveMember: 20 } },
         },
       },
+      recapStudioPublicStatus: migrationState === 'complete' ? { teamHistoryV3: publicStatus() } : {},
       recapStudioMigrations: { teamHistoryV3: migration },
       dossier: { fuseMember: { upline: 'FUSE TL' } },
     });
   });
 }
 
-async function setMigration(testEnv, value) {
+async function setMigration(testEnv, value, published = null) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await set(ref(context.database(), 'recapStudioMigrations/teamHistoryV3'), value);
+    await set(ref(context.database(), 'recapStudioPublicStatus/teamHistoryV3'), published);
   });
 }
 
@@ -244,6 +264,9 @@ async function main() {
     await allow('Wave TL reads exact migration marker needed for cutover readiness', () => get(ref(waveTl, 'recapStudioMigrations/teamHistoryV3/marker')));
     await allow('scope=all manager reads exact migration readiness marker', () => get(ref(globalManager, 'recapStudioMigrations/teamHistoryV3/marker')));
     await deny('member cannot read migration status', () => get(ref(fuseMember, 'recapStudioMigrations/teamHistoryV3/status')));
+    await allow('active member reads minimal public readiness', () => get(ref(fuseMember, 'recapStudioPublicStatus/teamHistoryV3')));
+    await deny('inactive identity cannot read public readiness', () => get(ref(inactive, 'recapStudioPublicStatus/teamHistoryV3')));
+    await deny('anonymous cannot read public readiness', () => get(ref(anonymous, 'recapStudioPublicStatus/teamHistoryV3')));
     await deny('revoked TL cannot read migration marker', () => get(ref(revokedTl, 'recapStudioMigrations/teamHistoryV3/marker')));
     await deny('TL cannot read migration lock', () => get(ref(fuseTl, 'recapStudioMigrations/teamHistoryV3/lock')));
     await deny('TL cannot read migration audit', () => get(ref(fuseTl, 'recapStudioMigrations/teamHistoryV3/audit')));
@@ -292,7 +315,7 @@ async function main() {
     await deny('new canonical write is denied before complete marker', () =>
       set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 503)));
 
-    await setMigration(testEnv, { status: status('locked'), lock: lease('lease-active') });
+    await setMigration(testEnv, { status: status('locked', 'run-locked', 'lease-active'), lock: lease('lease-active') });
     await deny('legacy write is denied once migration is locked', () =>
       set(ref(fuseMember, 'weeklyProfitRecaps/2026-09-11/fuseMember'), legacyRecap('fuseMember', '2026-09-11', 504)));
     const newUid = 'migratedMember';
@@ -321,21 +344,21 @@ async function main() {
 
     await allow('admin writes valid audit row', () =>
       set(ref(admin, 'recapStudioMigrations/teamHistoryV3/audit/run-audit'), {
-        action: 'migrate', actorUid: 'admin', startedAt: Date.now(), state: 'applying', configHash: CFG,
+        action: 'migrate', actorUid: 'admin', leaseId: 'lease-active', startedAt: Date.now(), state: 'applying', configHash: CFG,
         desiredHash: 'desired-v3', counts: { writes: 4, cleanup: 1 }, conflictCount: 0, unresolvedCount: 0,
       }));
     await allow('admin writes backup metadata when snapshots are empty', () =>
-      set(ref(admin, 'recapStudioMigrations/teamHistoryV3/backup/run-audit'), { createdAt: Date.now(), configHash: CFG }));
-    await setMigration(testEnv, { status: status('failed'), lock: lease('stale-lease', Date.now() - 1000) });
+      set(ref(admin, 'recapStudioMigrations/teamHistoryV3/backup/run-audit'), { createdAt: Date.now(), leaseId: 'lease-active', configHash: CFG }));
+    await setMigration(testEnv, { status: status('failed', 'run-failed', 'stale-lease'), lock: lease('stale-lease', Date.now() - 1000) });
     await allow('admin clears an expired lease', () => remove(ref(admin, 'recapStudioMigrations/teamHistoryV3/lock')));
 
-    await setMigration(testEnv, { status: status('complete'), marker: marker('run-final') });
+    await setMigration(testEnv, { status: status('complete'), marker: marker('run-final') }, publicStatus());
     await allow('new canonical write is restored after complete marker', () =>
       set(ref(direct, 'recapStudioTeams/presence/weekly/2026-09-11/direct'), recap('direct', '2026-09-11', 'presence', 'presence-a', 333)));
     await deny('legacy private write remains frozen after complete marker', () =>
       set(ref(direct, 'weeklyProfitRecapsPrivate/direct/2026-09-11'), legacyRecap('direct', '2026-09-11', 333)));
 
-    await setMigration(testEnv, { status: status('complete', 'run-rollback-source'), marker: marker('run-rollback-source'), lock: lease('lease-rollback') });
+    await setMigration(testEnv, { status: status('rolling-back', 'run-rollback', 'lease-rollback'), marker: marker('run-rollback-source', 'lease-source'), lock: lease('lease-rollback') });
     const restoredRoster = legacyRoster('fuseMember', 'FUSE Member');
     const restoredWeekly = legacyRecap('fuseMember', '2026-09-11', 77);
     await allow('admin atomically rolls reviewed leaves back under an active lease', () =>
@@ -347,9 +370,9 @@ async function main() {
         'recapStudioAssignments/byPay/2026-09-11/fuseMember': null,
         'recapStudioAssignments/byMonth/2026-09/fuseMember': null,
         'recapStudioMigrations/teamHistoryV3/marker': null,
-        'recapStudioMigrations/teamHistoryV3/status': status('rolled-back', 'run-rollback'),
+        'recapStudioMigrations/teamHistoryV3/status': status('rolled-back', 'run-rollback', 'lease-rollback'),
         'recapStudioMigrations/teamHistoryV3/audit/run-rollback': {
-          action: 'rollback', actorUid: 'admin', startedAt: Date.now(), completedAt: Date.now(),
+          action: 'rollback', actorUid: 'admin', leaseId: 'lease-rollback', startedAt: Date.now(), completedAt: Date.now(),
           state: 'rolled-back', configHash: CFG, desiredHash: 'desired-v3',
           counts: { writes: 2, cleanup: 0 }, conflictCount: 0, unresolvedCount: 0,
         },

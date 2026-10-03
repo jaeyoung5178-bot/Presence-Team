@@ -26,7 +26,15 @@ await page.evaluate(() => {
   const admin = { uid: 'admin', name: '임재영', id: 'presence', loginKey: 'presence', role: 'AOP', status: 'active', surveys: {} };
   const a = { uid: 'qa-a', name: '윤채영', id: 'yoon', loginKey: 'yoon', role: 'TL', status: 'active', surveys: {} };
   const b = { uid: 'qa-b', name: '황혜진', id: 'hwang', loginKey: 'hwang', role: 'LR', status: 'active', surveys: {} };
-  state.users = { admin, 'qa-a': a, 'qa-b': b };
+  window.__qaRecapUsers = { admin, 'qa-a': a, 'qa-b': b };
+  window.__qaRestoreRecapUsers = () => {
+    state.users = {
+      admin: window.__qaRecapUsers.admin,
+      'qa-a': window.__qaRecapUsers['qa-a'],
+      'qa-b': window.__qaRecapUsers['qa-b'],
+    };
+  };
+  window.__qaRestoreRecapUsers();
   state.managers = [];
   state.extraMembers = [];
   state.removedMembers = [];
@@ -53,7 +61,16 @@ await page.evaluate(() => {
   window.__qaRecapWrites = [];
   DB.set = async (path, value) => { window.__qaRecapWrites.push({ path, value }); };
   DB.update = async (_path, value) => { Object.entries(value || {}).forEach(([path, nextValue]) => window.__qaRecapWrites.push({ path, value: nextValue })); };
-  DB.get = async () => null;
+  DB.get = async (path) => {
+    if (path === 'recapStudioPublicStatus/teamHistoryV3') {
+      return { status: 'complete', version: RECAP_STUDIO_SECURITY_VERSION, configHash: 'qa-config', verifiedHash: 'qa-verified', completedAt: 1 };
+    }
+    const payMatch = String(path || '').match(/^recapStudioAssignments\/byPay\/([^/]+)\/([^/]+)$/);
+    if (payMatch) return { uid: payMatch[2], teamKey: 'youngwave', assignmentId: `qa-${payMatch[2]}`, activeFrom: '2026-01-01', configHash: 'qa-config' };
+    const monthMatch = String(path || '').match(/^recapStudioAssignments\/byMonth\/([^/]+)\/([^/]+)$/);
+    if (monthMatch) return { uid: monthMatch[2], teamKey: 'youngwave', assignmentId: `qa-${monthMatch[2]}`, activeFrom: '2026-01-01', configHash: 'qa-config', selection: 'derived' };
+    return null;
+  };
   DB.on = () => () => {};
   me = admin;
   continueLogin(admin);
@@ -194,6 +211,7 @@ const phone = await page.evaluate(() => {
 await page.screenshot({ path: '/tmp/presence-recap-month-phone.png', fullPage: false });
 
 const leaderPhone = await page.evaluate(async () => {
+  window.__qaRestoreRecapUsers();
   const leader = state.users['qa-a'];
   me = leader;
   profitRecapPayDate = '2026-07-31';
@@ -233,6 +251,7 @@ const leaderPhone = await page.evaluate(async () => {
 });
 
 const managerPhone = await page.evaluate(async () => {
+  window.__qaRestoreRecapUsers();
   const manager = state.users['qa-a'];
   state.managers = [manager.name];
   me = manager;
@@ -278,6 +297,7 @@ const managerPhone = await page.evaluate(async () => {
 
 await page.setViewportSize({ width: 1440, height: 900 });
 await page.evaluate(() => {
+  window.__qaRestoreRecapUsers();
   me = state.users.admin;
   const pptIncome = [1937346, 2040035, 2541542, 4382067];
   ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'].forEach((pay, index) => {
@@ -328,7 +348,7 @@ if (desktop.totals.hourlyWeeks !== 1 || desktop.totals.performanceWeeks !== 7) f
 if (Object.values(desktop.previewChecks).some((v) => !v) || desktop.chartCount !== 3) failures.push('Preview does not match requested presentation-grade donut structure');
 if (desktop.horizontalOverflow || tablet.horizontalOverflow || tablet.chartCount !== 3 || !tablet.chartsInsideViewport || phone.horizontalOverflow || phone.chartCount !== 3 || !phone.tableScrollable || phone.undersized.length) failures.push('Responsive layout gate failed');
 if (leaderPhone.first.hourlyPressed !== 'false' || leaderPhone.first.performancePressed !== 'true' || leaderPhone.first.performanceHidden || !leaderPhone.first.note.includes('실인컴') || !leaderPhone.first.label.includes('이번 주 인컴') || JSON.stringify(leaderPhone.first.buttonOrder) !== JSON.stringify(['performance','hourly']) || leaderPhone.reopenedHourly !== 'true' || leaderPhone.switched.performanceHidden || leaderPhone.switched.performancePressed !== 'true' || leaderPhone.saved.payType !== 'hourly' || leaderPhone.saved.netPayment !== 123456 || leaderPhone.saved.hourlyPay !== 123456 || leaderPhone.saved.rejectCLCount !== 0 || leaderPhone.saved.rejectSWCount !== 0 || leaderPhone.saved.bondBalance !== 0 || leaderPhone.saved.bep !== 0 || leaderPhone.horizontalOverflow || leaderPhone.undersized.length) failures.push('Mobile hourly/performance recap editor gate failed');
-if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || Object.values(managerPhone.restored).some((value) => value !== 'true') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('weeklyProfitRecaps/2026-08-14/qa-b') || !managerPhone.paths.includes('weeklyProfitRecapsPrivate/qa-b/2026-08-14') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
+if (!managerPhone.before.manager || !managerPhone.before.canManage || managerPhone.before.selected !== 'qa-b' || !managerPhone.before.targetText.includes('황혜진') || Object.values(managerPhone.restored).some((value) => value !== 'true') || managerPhone.saved.uid !== 'qa-b' || managerPhone.saved.name !== '황혜진' || managerPhone.saved.netPayment !== 777 || managerPhone.saved.updatedBy !== 'qa-a' || !managerPhone.paths.includes('recapStudioTeams/youngwave/weekly/2026-08-14/qa-b') || !managerPhone.paths.includes('recapStudioTeams/youngwave/bep/2026-08/qa-b') || !managerPhone.adminPreview || managerPhone.horizontalOverflow || managerPhone.undersized.length) failures.push('Manager team-member recap edit gate failed');
 if (pptxStat.size < 25000) failures.push('Generated PPTX is unexpectedly small');
 if (!download.suggestedFilename().startsWith('Presence_2026-08_2026-08_')) failures.push('Selected report month is not reflected in the PPT filename');
 if (errors.length) failures.push('Browser page errors occurred');
