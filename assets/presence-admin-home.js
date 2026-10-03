@@ -1,7 +1,7 @@
 (function (global) {
   'use strict';
 
-  var session = { root: null, actor: null, snapshot: null };
+  var session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null };
 
   function resolveRoot(target) {
     if (!target) return null;
@@ -16,7 +16,7 @@
 
   function liveState(options) {
     if (options && options.state) return options.state;
-    try { return typeof state !== 'undefined' && state ? state : {}; } catch (error) { return {}; }
+    try { return typeof state !== 'undefined' && state ? state : (session.snapshot || {}); } catch (error) { return session.snapshot || {}; }
   }
 
   function currentActor() {
@@ -113,6 +113,13 @@
       '</button>';
   }
 
+  function modeSwitch(mode) {
+    return '<div class="pah-mode-switch" role="group" aria-label="Home 화면 전환">' +
+      '<button type="button" data-pah-mode="admin" aria-pressed="' + (mode === 'admin' ? 'true' : 'false') + '" class="' + (mode === 'admin' ? 'is-active' : '') + '">Admin Home</button>' +
+      '<button type="button" data-pah-mode="general" aria-pressed="' + (mode === 'general' ? 'true' : 'false') + '" class="' + (mode === 'general' ? 'is-active' : '') + '">일반 Home</button>' +
+    '</div>';
+  }
+
   function go(name) {
     try {
       if (typeof goTab === 'function') { goTab(name); return true; }
@@ -157,9 +164,25 @@
     }
   }
 
+  function emitMode(root) {
+    if (!root) return;
+    root.setAttribute('data-pah-mode', session.mode);
+    if (typeof session.onModeChange === 'function') {
+      try { session.onModeChange(session.mode); } catch (error) {}
+    }
+    try {
+      if (typeof global.CustomEvent === 'function' && typeof root.dispatchEvent === 'function') {
+        root.dispatchEvent(new global.CustomEvent('presence:admin-home-mode', { bubbles: true, detail: { mode: session.mode } }));
+      }
+    } catch (error) {}
+  }
+
   function bind(root) {
     root.querySelectorAll('[data-pah-action]').forEach(function (button) {
       button.addEventListener('click', function () { runAction(button.dataset.pahAction); });
+    });
+    root.querySelectorAll('[data-pah-mode]').forEach(function (button) {
+      button.addEventListener('click', function () { setMode(button.dataset.pahMode); });
     });
   }
 
@@ -168,6 +191,7 @@
     root.innerHTML = '';
     root.hidden = true;
     root.removeAttribute('data-pah-ready');
+    root.removeAttribute('data-pah-mode');
   }
 
   function render(target, options) {
@@ -175,10 +199,28 @@
     var actor = liveActor(options || {});
     var snapshot = liveState(options || {});
     if (!root) return false;
+    var nextUid = actor && actor.uid ? String(actor.uid) : '';
+    var changedActor = nextUid !== session.actorUid;
     session.root = root;
     session.actor = actor;
     session.snapshot = snapshot;
+    session.actorUid = nextUid;
+    session.onModeChange = options && typeof options.onModeChange === 'function' ? options.onModeChange : session.onModeChange;
     if (!isAuthorized(actor)) { clear(root); return false; }
+    if (changedActor) session.mode = 'admin';
+    if (options && (options.mode === 'admin' || options.mode === 'general')) session.mode = options.mode;
+
+    root.hidden = false;
+    root.setAttribute('data-pah-ready', 'true');
+    if (session.mode === 'general') {
+      root.innerHTML = '<section class="pah-general-shell" aria-label="Home 화면 모드">' +
+        '<div><span>HOME VIEW</span><strong>일반 Home을 보고 있습니다</strong><small>관리 업무로 돌아갈 때 Admin Home을 선택하세요.</small></div>' +
+        modeSwitch('general') +
+      '</section>';
+      bind(root);
+      emitMode(root);
+      return true;
+    }
 
     var approvals = approvalRows(snapshot);
     var surveys = surveyRows(snapshot);
@@ -190,9 +232,8 @@
       ? '지금 확인할 운영 항목이 <b>' + attention + '건</b> 있습니다. 필요한 화면으로 바로 이동하세요.'
       : '현재 긴급한 승인 항목은 없습니다. 팀 운영 화면으로 바로 이동할 수 있어요.';
 
-    root.hidden = false;
-    root.setAttribute('data-pah-ready', 'true');
     root.innerHTML = '<section class="pah-shell" aria-labelledby="pahTitle">' +
+      '<div class="pah-mode-row"><span>HOME VIEW</span>' + modeSwitch('admin') + '</div>' +
       '<div class="pah-hero">' +
         '<div class="pah-heading">' +
           '<span class="pah-kicker">ADMIN HOME · OPERATIONS</span>' +
@@ -215,19 +256,35 @@
       '</div>' +
     '</section>';
     bind(root);
+    emitMode(root);
     return true;
   }
+
+  function setMode(mode) {
+    var next = mode === 'general' ? 'general' : 'admin';
+    var actor = currentActor();
+    if (!session.root || !isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return false;
+    session.mode = next;
+    render(session.root, { actor: actor, state: liveState({}), mode: next, onModeChange: session.onModeChange });
+    return true;
+  }
+
+  function toggle() {
+    return setMode(session.mode === 'admin' ? 'general' : 'admin');
+  }
+
+  function getMode() { return session.mode; }
 
   function reset(target) {
     var root = resolveRoot(target) || session.root;
     clear(root);
-    session = { root: null, actor: null, snapshot: null };
+    session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null };
   }
 
   function invalidate() {
     if (!session.root) return false;
-    return render(session.root, { actor: currentActor(), state: liveState({}) });
+    return render(session.root, { actor: currentActor(), state: liveState({}), mode: session.mode, onModeChange: session.onModeChange });
   }
 
-  global.PresenceAdminHome = Object.freeze({ render: render, reset: reset, invalidate: invalidate });
+  global.PresenceAdminHome = Object.freeze({ render: render, reset: reset, invalidate: invalidate, setMode: setMode, toggle: toggle, getMode: getMode });
 })(typeof window !== 'undefined' ? window : this);

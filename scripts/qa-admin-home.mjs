@@ -15,11 +15,16 @@ for (const token of [
   'openPendingApprovals',
   'pendingApprovalUsers',
   'promotionRecords',
+  'setMode: setMode',
+  'toggle: toggle',
+  'getMode: getMode',
 ]) assert.ok(js.includes(token), `missing Admin Home contract: ${token}`);
 
 for (const token of [
   '.pah-shell',
   '.pah-action:focus-visible',
+  '.pah-mode-switch',
+  '#adminHomeMount[data-pah-mode="admin"]~*',
   '@media (min-width:640px) and (max-width:1199px)',
   '@media (max-width:639px)',
   '@media (prefers-reduced-motion:reduce)',
@@ -48,11 +53,20 @@ class FakeElement {
   set innerHTML(value) {
     this._html = String(value);
     this.buttons = [...this._html.matchAll(/data-pah-action="([^"]+)"/g)].map((match) => new FakeButton(match[1]));
+    this.modeButtons = [...this._html.matchAll(/data-pah-mode="([^"]+)"/g)].map((match) => {
+      const button = new FakeButton('');
+      button.dataset = { pahMode: match[1] };
+      return button;
+    });
   }
   get innerHTML() { return this._html; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   removeAttribute(name) { delete this.attributes[name]; }
-  querySelectorAll(selector) { return selector === '[data-pah-action]' ? this.buttons : []; }
+  querySelectorAll(selector) {
+    if (selector === '[data-pah-action]') return this.buttons;
+    if (selector === '[data-pah-mode]') return this.modeButtons || [];
+    return [];
+  }
   scrollIntoView() { this.scrolled += 1; }
   focus() { this.focused += 1; }
 }
@@ -97,10 +111,13 @@ const snapshot = {
   removedMembers: ['퇴사자'],
 };
 const admin = snapshot.users.admin;
+const modeChanges = [];
 
-assert.equal(context.PresenceAdminHome.render('adminHomeMount', { actor: admin, state: snapshot }), true);
+assert.equal(context.PresenceAdminHome.render('adminHomeMount', { actor: admin, state: snapshot, onModeChange: (mode) => modeChanges.push(mode) }), true);
 assert.equal(mount.hidden, false);
 assert.equal(mount.attributes['data-pah-ready'], 'true');
+assert.equal(mount.attributes['data-pah-mode'], 'admin');
+assert.equal(context.PresenceAdminHome.getMode(), 'admin');
 assert.match(mount.innerHTML, /ADMIN HOME · OPERATIONS/);
 assert.match(mount.innerHTML, /설문 보기/);
 assert.match(mount.innerHTML, /신입 등록/);
@@ -108,6 +125,16 @@ assert.match(mount.innerHTML, /권한 관리/);
 assert.match(mount.innerHTML, /퇴사자 관리/);
 assert.match(mount.innerHTML, /가입 승인/);
 assert.match(mount.innerHTML, /ACTIVE TEAM[\s\S]*2<small>명/);
+
+mount.modeButtons.find((item) => item.dataset.pahMode === 'general').click();
+assert.equal(context.PresenceAdminHome.getMode(), 'general');
+assert.equal(mount.attributes['data-pah-mode'], 'general');
+assert.match(mount.innerHTML, /일반 Home을 보고 있습니다/);
+assert.equal(mount.buttons.length, 0, 'general mode retained privileged action cards');
+mount.modeButtons.find((item) => item.dataset.pahMode === 'admin').click();
+assert.equal(context.PresenceAdminHome.getMode(), 'admin');
+assert.equal(mount.attributes['data-pah-mode'], 'admin');
+assert.deepEqual(modeChanges.slice(0, 3), ['admin', 'general', 'admin']);
 
 const button = (action) => mount.buttons.find((item) => item.dataset.pahAction === action);
 button('survey').click();
@@ -148,7 +175,7 @@ const browser = await chromium.launch({ headless: true, executablePath: '/Applic
 const page = await browser.newPage({ reducedMotion: 'reduce' });
 const pageErrors = [];
 page.on('pageerror', (error) => pageErrors.push(error.message));
-await page.setContent('<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><main id="adminHomeMount"></main></body></html>');
+await page.setContent('<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><main id="adminHomeMount"></main><section id="generalHomeFixture">일반 Home 콘텐츠</section></body></html>');
 await page.addScriptTag({ content: `
   window.me={uid:'admin',name:'임재영',role:'AOP',status:'active'};
   window.state={users:{admin:me,a:{uid:'a',name:'팀원',role:'IC',status:'active'},p:{uid:'p',name:'가입대기',role:'IC',status:'pending'}},promotionSurveys:{a:{TL:{status:'pending'}}},removedMembers:['퇴사자']};
@@ -189,19 +216,28 @@ for (const viewport of viewports) {
         return { left: rect.left, right: rect.right, width: rect.width, height: rect.height };
       }),
       clipped,
+      mode: document.getElementById('adminHomeMount').dataset.pahMode,
+      generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display,
     };
   });
   assert.ok(geometry.pageOverflow <= 1, `${viewport.width}px has horizontal overflow: ${geometry.pageOverflow}`);
   assert.deepEqual(geometry.rows, viewport.columns, `${viewport.width}px action grid is not balanced`);
   assert.deepEqual(geometry.clipped, [], `${viewport.width}px clips key text`);
+  assert.equal(geometry.mode, 'admin', `${viewport.width}px did not default to Admin Home`);
+  assert.equal(geometry.generalDisplay, 'none', `${viewport.width}px did not hide general Home in admin mode`);
   for (const card of geometry.cards) {
     assert.ok(card.width >= 44 && card.height >= 44, `${viewport.width}px has an undersized action`);
     assert.ok(card.left >= -0.5 && card.right <= viewport.width + 0.5, `${viewport.width}px card escapes viewport`);
   }
 }
 
+await page.evaluate(() => window.PresenceAdminHome.setMode('general'));
+assert.deepEqual(await page.evaluate(() => ({ mode: document.getElementById('adminHomeMount').dataset.pahMode, generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display, hasSwitch: !!document.querySelector('.pah-general-shell .pah-mode-switch') })), { mode: 'general', generalDisplay: 'block', hasSwitch: true });
+await page.evaluate(() => window.PresenceAdminHome.toggle());
+assert.equal(await page.evaluate(() => document.getElementById('adminHomeMount').dataset.pahMode), 'admin');
+
 await page.evaluate(() => window.PresenceAdminHome.render('adminHomeMount', { actor: { uid: 'tl', name: '팀장', role: 'TL', status: 'active' }, state: window.state }));
-assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden })), { children: 0, hidden: true });
+assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode'), generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display })), { children: 0, hidden: true, mode: false, generalDisplay: 'block' });
 await browser.close();
 assert.deepEqual(pageErrors, [], `browser errors: ${pageErrors.join(' | ')}`);
 

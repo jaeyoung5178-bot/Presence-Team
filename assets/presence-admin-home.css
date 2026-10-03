@@ -1,5 +1,8 @@
 .pah-shell,
-.pah-shell *{box-sizing:border-box}
+.pah-shell *,
+.pah-general-shell,
+.pah-general-shell *{box-sizing:border-box}
+#adminHomeMount[data-pah-mode="admin"]~*{display:none!important}
 .pah-shell{
   --pah-bg:#09101c;
   --pah-panel:#101a2a;
@@ -27,6 +30,72 @@
   box-shadow:0 24px 70px rgba(2,7,16,.28);
   font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+.pah-mode-row{
+  display:flex;
+  min-width:0;
+  margin:0 0 24px;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.pah-mode-row>span,
+.pah-general-shell>div>span{
+  color:#8fa1ba;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.15em;
+}
+.pah-mode-switch{
+  display:inline-grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:4px;
+  min-width:232px;
+  padding:4px;
+  background:rgba(1,7,16,.48);
+  border:1px solid rgba(159,181,215,.18);
+  border-radius:14px;
+}
+.pah-mode-switch button{
+  min-width:0;
+  min-height:44px;
+  padding:9px 13px;
+  color:#9eacc0;
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.2;
+  white-space:nowrap;
+  background:transparent;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  appearance:none;
+}
+.pah-mode-switch button.is-active{
+  color:#07150f;
+  background:var(--pah-accent,#69e3b5);
+  box-shadow:0 5px 16px rgba(35,194,138,.16);
+}
+.pah-mode-switch button:focus-visible{outline:3px solid #74a8ff;outline-offset:2px}
+.pah-general-shell{
+  display:flex;
+  width:100%;
+  min-width:0;
+  margin:0 auto 20px;
+  padding:14px 16px 14px 19px;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  color:#f6f8fc;
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(135deg,#101a2a,#0b1422);
+  border:1px solid rgba(159,181,215,.18);
+  border-radius:18px;
+  box-shadow:0 14px 34px rgba(2,7,16,.14);
+}
+.pah-general-shell>div:first-child{display:grid;min-width:0;gap:3px}
+.pah-general-shell strong{font-size:15px;line-height:1.35;word-break:keep-all}
+.pah-general-shell small{color:#a7b4c8;font-size:12px;line-height:1.45;word-break:keep-all}
 .pah-shell::before{
   content:"";
   position:absolute;
@@ -218,6 +287,10 @@
 @media (max-width:639px){
   .pah-shell{margin-bottom:18px;padding:20px 16px;border-radius:21px}
   .pah-hero{gap:20px;padding:1px 0 24px}
+  .pah-mode-row{margin-bottom:20px;align-items:flex-start;flex-direction:column}
+  .pah-mode-switch{width:100%;min-width:0}
+  .pah-general-shell{padding:15px;align-items:stretch;flex-direction:column}
+  .pah-general-shell .pah-mode-switch{width:100%}
   .pah-heading h2{margin-top:10px;font-size:28px;line-height:1.15}
   .pah-heading p{font-size:16px;line-height:1.58}
   .pah-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
