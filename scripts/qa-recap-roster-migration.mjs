@@ -11,7 +11,8 @@ assert.ok(core && rosterActive && leaseMutation && migrationViewSource, 'v3 migr
 const api = new Function(`${core}\n${rosterActive}\n${leaseMutation}\nreturn {
   RECAP_STUDIO_SECURITY_VERSION, RECAP_STUDIO_MIRROR_MONTHS, RECAP_STUDIO_LEGACY_PATHS, RECAP_STUDIO_REVIEWED_ROSTER,
   recapStudioPlanHistoryV3, recapStudioVerifyHistoryV3, recapStudioLeaseMutation,
-  recapStudioReviewedTargetsAt, recapStudioReviewedTargetsInMonth
+  recapStudioReviewedTargetsAt, recapStudioReviewedTargetsInMonth,
+  recapStudioRollbackLeafMap, recapStudioBuildRollbackPatch
 };`)();
 
 const uids = {
@@ -94,6 +95,18 @@ const verified = api.recapStudioVerifyHistoryV3(migrated, first);
 assert.equal(verified.ok, true, JSON.stringify(verified));
 assert.equal(verified.coverage.actualWeekly, first.coverage.expectedWeekly);
 assert.equal(verified.coverage.actualBep, first.coverage.expectedBep);
+
+const rollback = api.recapStudioBuildRollbackPatch(migrated, { teams: initial.teams, assignments: initial.assignments });
+assert.deepEqual(rollback.unsupported, [], 'known canonical schema must produce a granular rollback');
+assert.equal(Object.hasOwn(rollback.patch, 'recapStudioTeams'), false, 'rollback must never replace the broad team root');
+assert.equal(Object.hasOwn(rollback.patch, 'recapStudioAssignments'), false, 'rollback must never replace the broad assignment root');
+assert.ok(Object.keys(rollback.patch).length > 100, 'rollback must enumerate the exact changed leaves');
+const rolledBack = { recapStudioTeams: clone(migrated.teams), recapStudioAssignments: clone(migrated.assignments) };
+applyPatch(rolledBack, rollback.patch);
+assert.deepEqual(api.recapStudioRollbackLeafMap(rolledBack.recapStudioTeams, rolledBack.recapStudioAssignments).leaves, api.recapStudioRollbackLeafMap(initial.teams, initial.assignments).leaves, 'granular rollback must exactly restore the backed-up leaves');
+const unsupportedRollback = api.recapStudioBuildRollbackPatch({ teams: { rogue: { roster: { x: {} } } }, assignments: {} }, { teams: {}, assignments: {} });
+assert.deepEqual(unsupportedRollback.patch, {}, 'unsupported branches must never generate guessed writes');
+assert.ok(unsupportedRollback.unsupported.includes('recapStudioTeams/rogue'), 'unsupported branches must fail closed');
 
 const canonical = migrated.teams.youngwave.weekly['2026-08-21'][uids.sumin];
 assert.equal(canonical.teamKey, 'youngwave');
@@ -192,6 +205,10 @@ assert.match(html, /assignmentsExisted:!!\(snapshot\.assignments/, 'backup metad
 assert.match(html, /legacyFrozen:true,legacyFrozenAt:applyAt,legacyPaths:RECAP_STUDIO_LEGACY_PATHS/, 'migration config must explicitly freeze every legacy path');
 assert.match(html, /verifiedHash:verified\.verifiedHash,legacyFrozen:true,legacyFrozenAt:applyAt/, 'complete marker must attest the legacy freeze');
 assert.match(html, /config\/legacyFrozen'\]=false/, 'rollback must explicitly release the legacy freeze metadata');
+const rollbackSource = html.match(/async function recapStudioRollbackHistoryV3\(\)\{[\s\S]*?(?=async function recapStudioApproveAssignment)/)?.[0] || '';
+assert.ok(rollbackSource, 'rollback runtime must be extractable');
+assert.doesNotMatch(rollbackSource, /patch\.recapStudioTeams|patch\.recapStudioAssignments/, 'runtime rollback must use granular leaves, never broad roots');
+assert.match(rollbackSource, /recapStudioBuildRollbackPatch\(snapshot,backup\)/, 'runtime rollback must derive an exact leaf diff from the backup');
 assert.match(html, /stored=Object\.assign\(\{\},entry,\{reviewedAt:reviewedAt,reviewedBy:'admin',configHash:draftPlan\.configHash\}\)/, 'approved intervals must carry the planned config hash required by rules');
 assert.match(html, /action:'approve-assignment'[^\n]+desiredHash:draftPlan\.desiredHash[^\n]+counts:\{writes:1,cleanup:0\}[^\n]+conflictCount:/, 'assignment approval audit must use the standard required shape');
 assert.match(html, /DB\.get\(RECAP_STUDIO_MIGRATION_PATH\+'\/status'\)[^\n]+status\.state!=='complete'[^\n]+status\.configHash!==marker\.configHash/, 'ordinary canonical saves must require matching complete marker and status');
@@ -201,5 +218,5 @@ console.log(JSON.stringify({
   coverage: verified.coverage,
   idempotentWrites: second.written,
   boundaries: { kimAugustOnly: true, joinDate: '2026-08-16', recursiveGrandchild: '이수민', presenceDirect: '박인선' },
-  safety: { exactDuplicateCleanup: true, nonIdenticalBlocked: true, transferIntervals: true, cycleBlocked: true, orphanBlocked: true, duplicateBlocked: true, canonicalSavePreserved: true, twoTabLease: true },
+  safety: { exactDuplicateCleanup: true, nonIdenticalBlocked: true, transferIntervals: true, cycleBlocked: true, orphanBlocked: true, duplicateBlocked: true, canonicalSavePreserved: true, granularRollback: true, twoTabLease: true },
 }, null, 2));
