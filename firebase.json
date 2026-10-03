@@ -2,13 +2,19 @@
   "hosting": {
     "public": ".",
     "ignore": [
-      "firebase.json", ".firebaserc", "database.rules.json", "**/.*", "**/node_modules/**",
-      "index.html.bak-pj", "index (30).html", "audio/index.html", "presence-studio.js", "output/qa-tl-home/**"
+      "firebase.json", ".firebaserc", "database.rules.json", "**/.*", ".git/**", "**/.git/**", "**/node_modules/**",
+      "scripts/**", "output/**", "qa/**", "docs/**", "work/**", "**/*.md", "**/*.pdf",
+      "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "**/*.config.*", "**/*.map",
+      "preview.html", "index.html.bak-pj", "index (30).html", "audio/index.html", "presence-studio.js"
     ],
     "headers": [
       {
         "source": "**/*.html",
         "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]
+      },
+      {
+        "source": "**/*.{js,css}",
+        "headers": [{"key": "Cache-Control", "value": "public, max-age=3600, must-revalidate"}]
       }
     ]
   },

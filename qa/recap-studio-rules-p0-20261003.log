@@ -1,0 +1,69 @@
+Recap Studio RTDB Rules P0 independent QA
+Date: 2026-10-03 (Asia/Seoul)
+Worktree: /private/tmp/presence-recap-studio-20261003
+
+[environment]
+Bundled Node: /Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node
+Node version: v24.19.0
+RTDB emulator cache: /Users/jaeyoung5178/.cache/firebase/emulators/firebase-database-emulator-v4.11.2.jar
+System java command: /usr/bin/java
+`java -version`: EXIT 1 — Unable to locate a Java Runtime.
+`/usr/libexec/java_home -V`: EXIT 1 — Unable to locate a Java Runtime.
+No bin/java was found in /Library/Java, /Applications IDE bundles, or Codex bundled runtimes.
+Portable Java home: /tmp/presence-temurin17/jdk-17.0.20.1+1-jre/Contents/Home
+Portable Java version: Eclipse Temurin 17.0.20.1+1, macOS aarch64 JRE
+Official Adoptium archive: OpenJDK17U-jre_aarch64_mac_hotspot_17.0.20.1_1.tar.gz
+Archive bytes: 42722113
+Expected SHA-256 from Adoptium API: 190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05
+Actual SHA-256: 190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05 (MATCH)
+Rules file SHA-256 under test: 9253c8031ddfaec0e305e5232b04c3c1ffcfaeb2e7b3d6e2e45b6af92fac1d15
+
+[implemented]
+scripts/test-recap-studio-rules.cjs
+- Uses @firebase/rules-unit-testing against FIREBASE_DATABASE_EMULATOR_HOST.
+- Loads the worktree database.rules.json into initializeTestEnvironment.
+- Seeds users, authSessions, managerAccess, scoped ACLs, and reviewed roster intervals with rules disabled.
+- Covers admin/scope-all reads, exact FUSE/Young Wave reads, cross/root/canonical denial,
+  ordinary/inactive/anonymous denial, owner-only ACL/roster writes, member self compatibility,
+  inclusive transfer boundaries, atomic public+private+mirror 3-way saves, and no-partial-write evidence.
+
+[checks]
+PASS: node --check scripts/test-recap-studio-rules.cjs
+PASS: node scripts/qa-recap-studio-security.mjs
+      PASS Recap Studio security contract: static rules + deny/allow policy matrix
+PASS: cached dependencies resolved offline in /tmp/presence-recap-rules-deps
+      @firebase/rules-unit-testing 5.0.2, firebase 12.19.0
+PASS: test runner imports and starts with RECAP_RULES_DEPS_DIR=/tmp/presence-recap-rules-deps
+      With no emulator listening it reaches initializeTestEnvironment and exits `TypeError: fetch failed`,
+      confirming that dependency loading is not the remaining blocker.
+PASS: portable Temurin `java -version`
+      openjdk version "17.0.20.1" 2026-08-18
+PASS: Firebase CLI 14.12.1 + Database Emulator + actual rules test
+      PASS Recap Studio RTDB Rules P0 matrix (39 assertions)
+      Script exited successfully (code 0)
+
+[real emulator run]
+Command:
+env JAVA_HOME=/tmp/presence-temurin17/jdk-17.0.20.1+1-jre/Contents/Home \
+  PATH=/tmp/presence-temurin17/jdk-17.0.20.1+1-jre/Contents/Home/bin:/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin \
+  RECAP_RULES_DEPS_DIR=/tmp/presence-recap-rules-deps \
+  /Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node \
+  /Users/jaeyoung5178/Library/pnpm/store/v11/links/@/firebase-tools/14.12.1/b8d3f23133f58cb6b5dbdea687664d1f01a24489df5146b0bccd8512d204a031/node_modules/firebase-tools/lib/bin/firebase.js \
+  emulators:exec --only database --project demo-presence-recap-rules \
+  "/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/test-recap-studio-rules.cjs"
+
+Result: EXIT 0
+Assertions: 39/39 PASS
+Denied-operation `permission_denied` warnings are expected evidence for assertFails cases.
+The emulator shut down cleanly after the test process exited successfully.
+
+[compatibility note]
+Firebase CLI 15.28.2 was tried first and refused Java 17 before starting the emulator:
+  firebase-tools no longer supports Java version before 21.
+The already-cached Firebase CLI 14.12.1 supports the requested Java 17 runtime and ran the same
+cached Database Emulator v4.11.2 successfully. No package or system Java installation occurred.
+
+[verdict]
+PASS: The real RTDB Rules emulator P0 matrix completed with 39/39 assertions.
+No database.rules.json change was made by this QA task.
+No live Firebase Rules deployment was attempted.
