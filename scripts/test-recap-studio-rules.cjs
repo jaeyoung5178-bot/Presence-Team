@@ -61,6 +61,13 @@ function rosterSummary(value) {
   return copy;
 }
 
+function legacyRoster(uid, name = uid, role = 'IC') {
+  return {
+    uid, name, role, activeFrom: '2026-08-01', activeTo: '2026-10-31',
+    reviewedAt: Date.now(), reviewedBy: 'admin',
+  };
+}
+
 function recap(uid, payDate, teamKey, assignmentId, netPayment) {
   return {
     uid, payDate, weekEnding: payDate, netPayment,
@@ -233,6 +240,13 @@ async function main() {
     await deny('revoked TL cannot read former team', () => get(ref(revokedTl, 'recapStudioTeams/fuse')));
     await deny('inactive identity cannot read team', () => get(ref(inactive, 'recapStudioTeams/fuse')));
     await deny('anonymous cannot read team', () => get(ref(anonymous, 'recapStudioTeams/fuse')));
+    await allow('FUSE TL reads exact migration status needed for cutover readiness', () => get(ref(fuseTl, 'recapStudioMigrations/teamHistoryV3/status')));
+    await allow('Wave TL reads exact migration marker needed for cutover readiness', () => get(ref(waveTl, 'recapStudioMigrations/teamHistoryV3/marker')));
+    await allow('scope=all manager reads exact migration readiness marker', () => get(ref(globalManager, 'recapStudioMigrations/teamHistoryV3/marker')));
+    await deny('member cannot read migration status', () => get(ref(fuseMember, 'recapStudioMigrations/teamHistoryV3/status')));
+    await deny('revoked TL cannot read migration marker', () => get(ref(revokedTl, 'recapStudioMigrations/teamHistoryV3/marker')));
+    await deny('TL cannot read migration lock', () => get(ref(fuseTl, 'recapStudioMigrations/teamHistoryV3/lock')));
+    await deny('TL cannot read migration audit', () => get(ref(fuseTl, 'recapStudioMigrations/teamHistoryV3/audit')));
 
     await allow('member reads own assignment intervals', () => get(ref(fuseMember, 'recapStudioAssignments/byUid/fuseMember')));
     await allow('member reads own pay index', () => get(ref(fuseMember, 'recapStudioAssignments/byPay/2026-09-11/fuseMember')));
@@ -322,11 +336,13 @@ async function main() {
       set(ref(direct, 'weeklyProfitRecapsPrivate/direct/2026-09-11'), legacyRecap('direct', '2026-09-11', 333)));
 
     await setMigration(testEnv, { status: status('complete', 'run-rollback-source'), marker: marker('run-rollback-source'), lock: lease('lease-rollback') });
+    const restoredRoster = legacyRoster('fuseMember', 'FUSE Member');
+    const restoredWeekly = legacyRecap('fuseMember', '2026-09-11', 77);
     await allow('admin atomically rolls reviewed leaves back under an active lease', () =>
       update(ref(admin), {
-        'recapStudioTeams/fuse/roster/fuseMember': null,
-        'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember': null,
-        'recapStudioTeams/fuse/bep/2026-09/fuseMember': null,
+        'recapStudioTeams/fuse/roster/fuseMember': restoredRoster,
+        'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember': restoredWeekly,
+        'recapStudioTeams/fuse/bep/2026-09/fuseMember': 9,
         'recapStudioAssignments/byUid/fuseMember/intervals/fuse-a': null,
         'recapStudioAssignments/byPay/2026-09-11/fuseMember': null,
         'recapStudioAssignments/byMonth/2026-09/fuseMember': null,
@@ -338,10 +354,13 @@ async function main() {
           counts: { writes: 2, cleanup: 0 }, conflictCount: 0, unresolvedCount: 0,
         },
       }));
-    await expectValue('rollback removes canonical weekly leaf atomically', admin, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember', null);
+    await expectValue('rollback restores the exact v2 weekly leaf atomically', admin, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember', restoredWeekly);
+    await expectValue('rollback restores the exact v2 roster leaf atomically', admin, 'recapStudioTeams/fuse/roster/fuseMember', restoredRoster);
     await expectValue('rollback removes assignment interval atomically', admin, 'recapStudioAssignments/byUid/fuseMember/intervals/fuse-a', null);
     await expectValue('rollback removes completion marker atomically', admin, 'recapStudioMigrations/teamHistoryV3/marker', null);
     await expectValue('rollback records rolled-back status atomically', admin, 'recapStudioMigrations/teamHistoryV3/status/state', 'rolled-back');
+    await deny('member cannot use the leased legacy restore schema', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), legacyRecap('fuseMember', '2026-09-11', 999)));
 
     console.log(`PASS Recap Studio RTDB Rules v3 matrix (${passCount} assertions)`);
   } finally {

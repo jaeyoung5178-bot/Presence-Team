@@ -110,8 +110,23 @@ for (const name of ['status', 'marker', 'config']) {
   check(includesAll(migrations?.[name]?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), `${name} migration writes must be admin-only`);
 }
 check(includesAll(migrations?.lock?.['.write'], ["== 'admin'", "child('expiresAt').val() <= now", "child('leaseId')"]), 'lease rule must support owner/stale cleanup and collision safety');
+for (const name of ['status', 'marker']) {
+  check(
+    includesAll(migrations?.[name]?.['.read'], ["child('scope').val() == 'team'", "child('scope').val() == 'all'", "child('revokedAt')", '> now']),
+    `${name} readiness reads must allow only active, non-revoked Recap Studio viewers`,
+  );
+}
+check(!migrations?.lock?.['.read'] && !migrations?.audit?.['.read'] && !migrations?.backup?.['.read'], 'lock, audit and backup must not expose viewer read overrides');
 check(includesAll(migrations?.audit?.$runId?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), 'audit writes must be admin-only');
 check(includesAll(migrations?.backup?.$runId?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), 'backup writes must be admin-only');
+check(
+  includesAll(roster?.['.validate'], ["lock').child('expiresAt').val() > now", "state').val() == 'rolled-back'", "!newData.child('assignmentId').exists()"]),
+  'v2 roster restoration must be narrowly gated to a live admin rollback lease',
+);
+check(
+  includesAll(weekly?.['.validate'], ["lock').child('expiresAt').val() > now", "state').val() == 'rolled-back'", "!newData.child('assignmentConfigHash').exists()"]),
+  'v2 weekly restoration must be narrowly gated to a live admin rollback lease',
+);
 check(
   includesAll(rules.dossier?.['.write'], ["== 'admin'", "child('role').val() == 'Founder'", "child('status').val() == 'active'"]),
   'security-sensitive dossier ancestry must be admin/founder-only',
