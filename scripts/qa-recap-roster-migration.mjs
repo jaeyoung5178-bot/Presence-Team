@@ -5,10 +5,11 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const core = html.match(/const RECAP_STUDIO_SECURITY_VERSION=[\s\S]*?(?=function tlHomeConfig)/)?.[0];
 const rosterActive = html.match(/function recapStudioRosterActive\(entry,pay\)\{[^\n]+\}/)?.[0];
 const leaseMutation = html.match(/function recapStudioLeaseMutation\(current,candidate,now\)\{[^\n]+\}/)?.[0];
-assert.ok(core && rosterActive && leaseMutation, 'v3 migration source must be extractable');
+const migrationViewSource = html.match(/function recapStudioMigrationView\(periodCoverage\)\{[^\n]+\}/)?.[0];
+assert.ok(core && rosterActive && leaseMutation && migrationViewSource, 'v3 migration source must be extractable');
 
 const api = new Function(`${core}\n${rosterActive}\n${leaseMutation}\nreturn {
-  RECAP_STUDIO_SECURITY_VERSION, RECAP_STUDIO_MIRROR_MONTHS, RECAP_STUDIO_REVIEWED_ROSTER,
+  RECAP_STUDIO_SECURITY_VERSION, RECAP_STUDIO_MIRROR_MONTHS, RECAP_STUDIO_LEGACY_PATHS, RECAP_STUDIO_REVIEWED_ROSTER,
   recapStudioPlanHistoryV3, recapStudioVerifyHistoryV3, recapStudioLeaseMutation,
   recapStudioReviewedTargetsAt, recapStudioReviewedTargetsInMonth
 };`)();
@@ -64,6 +65,20 @@ function baseline() {
 
 assert.equal(api.RECAP_STUDIO_SECURITY_VERSION, '2026-10-03.team-history-v3');
 assert.deepEqual(api.RECAP_STUDIO_MIRROR_MONTHS, months);
+assert.deepEqual(api.RECAP_STUDIO_LEGACY_PATHS, ['weeklyProfitRecaps','profitMonthlyBep','weeklyProfitRecapsPrivate','profitMonthlyBepPrivate']);
+
+const migrationView = new Function('state', `${migrationViewSource}\nreturn recapStudioMigrationView;`)({
+  recapStudioMigration: {
+    status: { state: 'complete', configHash: 'cfg-flat' },
+    marker: { state: 'complete', configHash: 'cfg-flat' },
+  },
+});
+const partialView = migrationView({ expectedRecords: 4, actualRecords: 3, conflicts: 0 });
+assert.equal(partialView.configHash, 'cfg-flat', 'adapter must expose a flat configHash alias');
+assert.equal(partialView.periodStatus, 'partial', 'adapter must expose periodStatus');
+assert.deepEqual(partialView.coverage, { expected: 4, actual: 3, conflicts: 0 }, 'adapter must expose normalized period coverage aliases');
+assert.equal(migrationView({ expectedRecords: 0, actualRecords: 0, conflicts: 0 }).periodStatus, 'no-records');
+assert.equal(migrationView({ expectedRecords: 4, actualRecords: 4, conflicts: 1 }).periodStatus, 'blocked');
 
 const initial = baseline();
 const first = api.recapStudioPlanHistoryV3(initial, 1790985601000);
@@ -172,6 +187,14 @@ assert.match(html, /function recapStudioPresenceAgg\(/, 'Presence historical vie
 assert.doesNotMatch(html.match(/function recapStudioAdminPeople\(\)\{[^\n]+/)?.[0] || '', /status==='active'/, 'historical person selector must not drop departed people');
 assert.match(html, /DB\.tx\(RECAP_STUDIO_MIGRATION_PATH\+'\/lock'/, 'migration lock must use an exact-path transaction');
 assert.doesNotMatch(html, /DB\.tx\((?:null|''|""|'')/, 'root transaction is forbidden');
+assert.match(html, /backup=\{schemaVersion:RECAP_STUDIO_SECURITY_VERSION,createdAt:applyAt,configHash:plan\.configHash,legacyFrozenAt:applyAt,teamsExisted:/, 'backup metadata must record schema, freeze time and prior root existence');
+assert.match(html, /assignmentsExisted:!!\(snapshot\.assignments/, 'backup metadata must preserve whether the prior assignment root existed');
+assert.match(html, /legacyFrozen:true,legacyFrozenAt:applyAt,legacyPaths:RECAP_STUDIO_LEGACY_PATHS/, 'migration config must explicitly freeze every legacy path');
+assert.match(html, /verifiedHash:verified\.verifiedHash,legacyFrozen:true,legacyFrozenAt:applyAt/, 'complete marker must attest the legacy freeze');
+assert.match(html, /config\/legacyFrozen'\]=false/, 'rollback must explicitly release the legacy freeze metadata');
+assert.match(html, /stored=Object\.assign\(\{\},entry,\{reviewedAt:reviewedAt,reviewedBy:'admin',configHash:draftPlan\.configHash\}\)/, 'approved intervals must carry the planned config hash required by rules');
+assert.match(html, /action:'approve-assignment'[^\n]+desiredHash:draftPlan\.desiredHash[^\n]+counts:\{writes:1,cleanup:0\}[^\n]+conflictCount:/, 'assignment approval audit must use the standard required shape');
+assert.match(html, /DB\.get\(RECAP_STUDIO_MIGRATION_PATH\+'\/status'\)[^\n]+status\.state!=='complete'[^\n]+status\.configHash!==marker\.configHash/, 'ordinary canonical saves must require matching complete marker and status');
 
 console.log(JSON.stringify({
   version: first.version,
