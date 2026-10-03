@@ -11,6 +11,7 @@
     hostId: '',
     cache: new Map(),
     pending: new Map(),
+    migrationAction: { busy: false, ready: false, message: '', tone: '' },
   };
 
   const PERIODS = [
@@ -195,7 +196,18 @@
     const body = error || (pending ? '팀 범위를 확인하고 수익·리젝 집계를 안전하게 가져오고 있어요.' : esc(context.config.teamName) + '의 승인된 팀 범위가 확인되면 이 화면에 바로 반영됩니다.');
     return '<section class="ers-secure-state" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div><b>' + title + '</b><p>' + body + '</p></div><span class="ers-secure-badge">TEAM AGGREGATE ONLY</span></section>';
   }
-  function guardedStateHTML(availability) {
+  function migrationActionHTML(context, data, availability) {
+    if (!canAggregate(context && context.actor) || !['pending', 'blocked'].includes(availability.key)) return '';
+    const envelope = migrationEnvelope(data);
+    if (migrationVerified(envelope.status, envelope.marker)) return '';
+    const action = store.migrationAction || {}, busy = !!action.busy;
+    const result = action.message ? '<p class="ers-migration-result is-' + esc(action.tone || 'info') + '" role="status" aria-live="polite">' + esc(action.message) + '</p>' : '';
+    const label = action.ready ? '검증 완료 · 마이그레이션 실행' : '마이그레이션 사전 검증';
+    const detail = action.ready ? '승인된 기록만 반영하고 완료 상태를 다시 검증합니다' : '변경 없이 충돌과 미확인 배정을 먼저 점검합니다';
+    const actionName = action.ready ? 'migrate-v3' : 'preflight-v3';
+    return '<div class="ers-migration-action"><button type="button" class="ers-migration-button' + (action.ready ? ' is-ready' : '') + '" data-ers-action="' + actionName + '"' + (busy ? ' disabled aria-disabled="true"' : '') + ' aria-busy="' + busy + '"><span>' + (busy ? '안전하게 확인하는 중…' : label) + '</span><small>' + (busy ? '창을 닫지 말고 잠시 기다려 주세요' : detail) + '</small></button>' + result + '</div>';
+  }
+  function guardedStateHTML(context, data, availability) {
     const copy = {
       pending: ['리캡 검증 중', '기간과 팀 범위를 검증한 뒤 성과를 표시합니다.'],
       locked: ['다른 작업이 진행 중입니다', '집계 작업이 종료되면 안전하게 자동 새로고침됩니다.'],
@@ -205,7 +217,7 @@
       missing: ['입력된 리캡이 없습니다', '선택한 팀과 기간의 입력 상태를 확인해 주세요.'],
       empty: ['선택한 기간에 입력이 없습니다', '급여·세일즈 기록이 입력되면 팀 성과가 자동으로 표시됩니다.'],
     }[availability.key] || ['리캡 상태를 확인 중입니다', '안전한 집계가 확인되면 결과를 표시합니다.'];
-    return '<section class="ers-secure-state is-' + esc(availability.key) + '" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div><b>' + esc(copy[0]) + '</b><p>' + esc(copy[1]) + '</p></div><span class="ers-secure-badge">' + esc(availability.label) + '</span></section>';
+    return '<section class="ers-secure-state is-' + esc(availability.key) + '" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div class="ers-secure-copy"><b>' + esc(copy[0]) + '</b><p>' + esc(copy[1]) + '</p>' + migrationActionHTML(context, data, availability) + '</div><span class="ers-secure-badge">' + esc(availability.label) + '</span></section>';
   }
   function coverageNoticeHTML(availability) {
     if (!availability || !['partial', 'progress'].includes(availability.key)) return '';
@@ -352,7 +364,7 @@
     if (!data) return emptyStateHTML(context, false, '');
     if (data.error) return emptyStateHTML(context, false, data.error);
     const availability = summaryAvailability(request.scope, data, request);
-    if (!availability.safe || availability.key === 'empty') return guardedStateHTML(availability);
+    if (!availability.safe || availability.key === 'empty') return guardedStateHTML(context, data, availability);
     const totals = data.totals || {}, productivity = typeof root.prcProductivityOf === 'function' ? root.prcProductivityOf(data) : { sales: number(totals.sales), actualIncome: number(totals.income), netRejects: 0, netCL: 0, netSW: 0, retained: number(totals.netSales), rejectPctOfSales: number(totals.rejectRate), clPctOfSales: 0, swPctOfSales: 0, retainedPctOfSales: 100, rejectValue: 0, clValue: 0, swValue: 0 };
     const label = scopeLabel(store.scope, store.personUid, data), periodText = meta.rangeLabel || store.anchor;
     return '<div class="ers-dashboard">' + coverageNoticeHTML(availability) + '<div class="ers-dashboard-title"><div><span>EXECUTIVE RECAP</span><h2>' + esc(label) + '</h2><p>' + esc(periodText) + ' · 실제 리캡과 필드 기록 기준</p></div><span class="ers-live"><i></i>' + (availability.key === 'ready' ? 'VERIFIED' : 'LIVE DATA') + '</span></div><div class="ers-kpis">' + metricHTML('Actual Income', money(totals.income), (data.pays || []).length + '개 급여 주차', 'income') + metricHTML('Net Sales', number(totals.netSales).toLocaleString('ko-KR') + '건', '총 ' + number(totals.sales).toLocaleString('ko-KR') + '건 기준', 'net') + metricHTML('Reject Rate', percent(totals.rejectRate), '리섭 반영 후 순리젝', 'reject') + metricHTML('AVG', number(totals.avg).toFixed(2), number(totals.fieldDays).toLocaleString('ko-KR') + ' 필드일', 'avg') + '</div><div class="ers-visual-grid">' + performanceChartHTML(data) + donutHTML(productivity) + '</div><div class="ers-detail-grid">' + tableHTML(data) + insightHTML(data, productivity) + '</div></div>';
@@ -385,14 +397,76 @@
     render(host, store.context);
     if (focusId) requestAnimationFrame(function () { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }); });
   }
-  function onClick(event) {
+  function migrationFailureMessage(error) {
+    const code = String(error && error.code || '');
+    if (code === 'recap/migration-locked' || code === 'recap/migration-lease-lost') return '다른 관리자 작업이 진행 중입니다. 잠시 후 다시 시도해 주세요.';
+    if (code === 'recap/migration-verify') return '최종 검증을 통과하지 못했습니다. 원본 기록을 확인한 뒤 다시 시도해 주세요.';
+    if (/admin only/i.test(String(error && error.message || ''))) return '관리자 권한을 다시 확인해 주세요.';
+    return '마이그레이션을 완료하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.';
+  }
+  async function runMigrationPreflight() {
+    if (store.migrationAction.busy || !canAggregate(store.context && store.context.actor)) return;
+    if (typeof root.recapStudioPreflightV3 !== 'function') {
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.' };
+      rerender();
+      return;
+    }
+    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '배정과 원본 기록을 변경 없이 확인하고 있습니다.' };
+    rerender();
+    try {
+      const plan = await root.recapStudioPreflightV3();
+      if (!canAggregate(store.context && store.context.actor)) throw new Error('Recap Studio migration is admin only');
+      const conflicts = Array.isArray(plan && plan.conflicts) ? plan.conflicts.length : 0;
+      const unresolved = Array.isArray(plan && plan.unresolved) ? plan.unresolved.length : 0;
+      if (!plan || plan.blocked !== false || conflicts || unresolved) {
+        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증에서 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건이 발견되었습니다. 먼저 배정과 원본 기록을 확인해 주세요.' };
+      } else {
+        store.migrationAction = { busy: false, ready: true, tone: 'success', message: '사전 검증을 통과했습니다. 아래 버튼을 다시 눌러 승인된 기록 반영을 확인해 주세요.' };
+      }
+      rerender();
+    } catch (error) {
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error) };
+      rerender();
+    }
+  }
+  async function runMigration() {
+    if (store.migrationAction.busy || !store.migrationAction.ready || !canAggregate(store.context && store.context.actor)) return;
+    if (typeof root.recapStudioMigrateV3 !== 'function') {
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '마이그레이션 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.' };
+      rerender();
+      return;
+    }
+    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '승인된 기록을 반영하고 완료 상태를 검증하고 있습니다.' };
+    rerender();
+    try {
+      const report = await root.recapStudioMigrateV3();
+      const conflicts = Array.isArray(report && report.conflicts) ? report.conflicts.length : 0;
+      const unresolved = Array.isArray(report && report.unresolved) ? report.unresolved.length : 0;
+      if (!report || report.blocked || conflicts || unresolved) {
+        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '반영이 중단되었습니다. 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건을 확인해 주세요.' };
+        rerender();
+        return;
+      }
+      const written = Math.max(0, number(report.written));
+      store.migrationAction = { busy: false, ready: false, tone: 'success', message: '마이그레이션이 완료되었습니다. 승인된 기록 ' + written.toLocaleString('ko-KR') + '건을 반영하고 다시 검증했습니다.' };
+      store.cache.clear();
+      store.pending.clear();
+      rerender();
+    } catch (error) {
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error) };
+      rerender();
+    }
+  }
+  async function onClick(event) {
     const button = event.target.closest('[data-ers-action]');
     if (!button || !button.closest('.ers-shell')) return;
     const action = button.dataset.ersAction;
-    if (action === 'toggle') { store.open = !store.open; rerender(); if (store.open) requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-toolbar')?.scrollIntoView({ block: 'nearest' }); }); }
-    if (action === 'period') { store.period = button.dataset.value || 'monthly'; rerender(); }
-    if (action === 'shift') { store.anchor = shiftMonth(store.anchor, number(button.dataset.value)); rerender(); }
-    if (action === 'scope-card' && canAggregate(store.context && store.context.actor)) { store.scope = ['presence', 'fuse', 'youngwave'].includes(button.dataset.value) ? button.dataset.value : 'presence'; store.personUid = ''; rerender(); requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-dashboard-title')?.scrollIntoView({ block: 'start' }); }); }
+    if (action === 'toggle') { store.open = !store.open; rerender(); if (store.open) requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-toolbar')?.scrollIntoView({ block: 'nearest' }); }); return; }
+    if (action === 'period') { store.period = button.dataset.value || 'monthly'; rerender(); return; }
+    if (action === 'shift') { store.anchor = shiftMonth(store.anchor, number(button.dataset.value)); rerender(); return; }
+    if (action === 'scope-card' && canAggregate(store.context && store.context.actor)) { store.scope = ['presence', 'fuse', 'youngwave'].includes(button.dataset.value) ? button.dataset.value : 'presence'; store.personUid = ''; rerender(); requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-dashboard-title')?.scrollIntoView({ block: 'start' }); }); return; }
+    if (action === 'preflight-v3') { event.preventDefault(); await runMigrationPreflight(); return; }
+    if (action === 'migrate-v3') { event.preventDefault(); await runMigration(); }
   }
   function onChange(event) {
     const input = event.target.closest('[data-ers-change]');
@@ -407,7 +481,7 @@
 
   root.PresenceExecutiveRecap = {
     render: render,
-    reset: function () { const host = document.getElementById(store.hostId); if (host) host.replaceChildren(); store.open = false; store.period = 'monthly'; store.anchor = ''; store.scope = 'presence'; store.personUid = ''; store.context = null; store.hostId = ''; store.cache.clear(); store.pending.clear(); },
+    reset: function () { const host = document.getElementById(store.hostId); if (host) host.replaceChildren(); store.open = false; store.period = 'monthly'; store.anchor = ''; store.scope = 'presence'; store.personUid = ''; store.context = null; store.hostId = ''; store.migrationAction = { busy: false, ready: false, message: '', tone: '' }; store.cache.clear(); store.pending.clear(); },
     invalidate: function () { store.cache.clear(); store.pending.clear(); if (store.open) rerender(); },
     open: function () { store.open = true; rerender(); },
     state: store,
