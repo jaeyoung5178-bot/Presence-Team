@@ -11,7 +11,7 @@
     hostId: '',
     cache: new Map(),
     pending: new Map(),
-    migrationAction: { busy: false, ready: false, message: '', tone: '' },
+    migrationAction: { busy: false, ready: false, message: '', tone: '', diagnostics: [] },
   };
 
   const PERIODS = [
@@ -196,6 +196,60 @@
     const body = error || (pending ? '팀 범위를 확인하고 수익·리젝 집계를 안전하게 가져오고 있어요.' : esc(context.config.teamName) + '의 승인된 팀 범위가 확인되면 이 화면에 바로 반영됩니다.');
     return '<section class="ers-secure-state" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div><b>' + title + '</b><p>' + body + '</p></div><span class="ers-secure-badge">TEAM AGGREGATE ONLY</span></section>';
   }
+  const MIGRATION_DIAGNOSTIC_FIELDS = ['type', 'uid', 'name', 'teamKey', 'upline', 'month', 'payDate'];
+  const MIGRATION_DIAGNOSTIC_LABELS = { type: '유형', uid: 'UID', name: '이름', teamKey: '팀', upline: '상위', month: '월', payDate: '급여일' };
+  const MIGRATION_DIAGNOSTIC_TYPES = {
+    'unapproved-descendant': '미승인 하위 구성원',
+    'descendant-without-uid': 'UID 미확인 구성원',
+    'unresolved-upline': '상위 조직 미확인',
+    'duplicate-name-uid': '이름·UID 중복',
+    'ancestry-cycle': '조직도 순환',
+    'assignment-invalid': '배정 정보 오류',
+    'assignment-overlap': '배정 기간 중복',
+    'monthly-assignment-ambiguous': '월간 배정 중복',
+    'weekly-assignment-ambiguous': '주간 배정 중복',
+    'weekly-source-invalid': '주간 원본 확인 필요',
+    'bep-source-invalid': 'BEP 원본 확인 필요',
+    'non-identical-conflict': '기존 데이터 불일치',
+    'stale-roster-conflict': '기존 명단 충돌',
+    'stale-weekly-conflict': '기존 주간 데이터 충돌',
+    'stale-bep-conflict': '기존 BEP 충돌',
+    'stale-assignment-conflict': '기존 배정 충돌',
+  };
+  function migrationDiagnosticValue(value) {
+    if (typeof value === 'string') return value.trim().slice(0, 180);
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+    return '';
+  }
+  function sanitizeMigrationDiagnostics(plan) {
+    const output = [];
+    ['conflicts', 'unresolved'].forEach(function (branch) {
+      const list = Array.isArray(plan && plan[branch]) ? plan[branch] : [];
+      list.forEach(function (source) {
+        if (!source || typeof source !== 'object') return;
+        const item = {};
+        MIGRATION_DIAGNOSTIC_FIELDS.forEach(function (field) {
+          const value = migrationDiagnosticValue(source[field]);
+          if (value) item[field] = value;
+        });
+        if (item.type) output.push(item);
+      });
+    });
+    return output;
+  }
+  function migrationDiagnosticsHTML(context, action) {
+    if (!canAggregate(context && context.actor)) return '';
+    const diagnostics = Array.isArray(action && action.diagnostics) ? action.diagnostics : [];
+    if (!diagnostics.length) return '';
+    const items = diagnostics.map(function (item) {
+      const fields = MIGRATION_DIAGNOSTIC_FIELDS.filter(function (field) { return field !== 'type' && item[field]; }).map(function (field) {
+        return '<span><b>' + esc(MIGRATION_DIAGNOSTIC_LABELS[field]) + '</b><em>' + esc(item[field]) + '</em></span>';
+      }).join('');
+      const title = MIGRATION_DIAGNOSTIC_TYPES[item.type] || item.type;
+      return '<li><strong>' + esc(title) + '</strong><div>' + fields + '</div></li>';
+    }).join('');
+    return '<details class="ers-migration-diagnostics"><summary><span>검증 세부 항목</span><b>' + diagnostics.length.toLocaleString('ko-KR') + '건</b></summary><ol>' + items + '</ol></details>';
+  }
   function migrationActionHTML(context, data, availability) {
     if (!canAggregate(context && context.actor) || !['pending', 'blocked'].includes(availability.key)) return '';
     const envelope = migrationEnvelope(data);
@@ -205,7 +259,7 @@
     const label = action.ready ? '검증 완료 · 마이그레이션 실행' : '마이그레이션 사전 검증';
     const detail = action.ready ? '승인된 기록만 반영하고 완료 상태를 다시 검증합니다' : '변경 없이 충돌과 미확인 배정을 먼저 점검합니다';
     const actionName = action.ready ? 'migrate-v3' : 'preflight-v3';
-    return '<div class="ers-migration-action"><button type="button" class="ers-migration-button' + (action.ready ? ' is-ready' : '') + '" data-ers-action="' + actionName + '"' + (busy ? ' disabled aria-disabled="true"' : '') + ' aria-busy="' + busy + '"><span>' + (busy ? '안전하게 확인하는 중…' : label) + '</span><small>' + (busy ? '창을 닫지 말고 잠시 기다려 주세요' : detail) + '</small></button>' + result + '</div>';
+    return '<div class="ers-migration-action"><button type="button" class="ers-migration-button' + (action.ready ? ' is-ready' : '') + '" data-ers-action="' + actionName + '"' + (busy ? ' disabled aria-disabled="true"' : '') + ' aria-busy="' + busy + '"><span>' + (busy ? '안전하게 확인하는 중…' : label) + '</span><small>' + (busy ? '창을 닫지 말고 잠시 기다려 주세요' : detail) + '</small></button>' + result + migrationDiagnosticsHTML(context, action) + '</div>';
   }
   function guardedStateHTML(context, data, availability) {
     const copy = {
@@ -407,53 +461,54 @@
   async function runMigrationPreflight() {
     if (store.migrationAction.busy || !canAggregate(store.context && store.context.actor)) return;
     if (typeof root.recapStudioPreflightV3 !== 'function') {
-      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.' };
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.', diagnostics: [] };
       rerender();
       return;
     }
-    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '배정과 원본 기록을 변경 없이 확인하고 있습니다.' };
+    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '배정과 원본 기록을 변경 없이 확인하고 있습니다.', diagnostics: [] };
     rerender();
     try {
       const plan = await root.recapStudioPreflightV3();
       if (!canAggregate(store.context && store.context.actor)) throw new Error('Recap Studio migration is admin only');
       const conflicts = Array.isArray(plan && plan.conflicts) ? plan.conflicts.length : 0;
       const unresolved = Array.isArray(plan && plan.unresolved) ? plan.unresolved.length : 0;
+      const diagnostics = sanitizeMigrationDiagnostics(plan);
       if (!plan || plan.blocked !== false || conflicts || unresolved) {
-        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증에서 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건이 발견되었습니다. 먼저 배정과 원본 기록을 확인해 주세요.' };
+        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '사전 검증에서 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건이 발견되었습니다. 먼저 배정과 원본 기록을 확인해 주세요.', diagnostics: diagnostics };
       } else {
-        store.migrationAction = { busy: false, ready: true, tone: 'success', message: '사전 검증을 통과했습니다. 아래 버튼을 다시 눌러 승인된 기록 반영을 확인해 주세요.' };
+        store.migrationAction = { busy: false, ready: true, tone: 'success', message: '사전 검증을 통과했습니다. 아래 버튼을 다시 눌러 승인된 기록 반영을 확인해 주세요.', diagnostics: [] };
       }
       rerender();
     } catch (error) {
-      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error) };
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error), diagnostics: [] };
       rerender();
     }
   }
   async function runMigration() {
     if (store.migrationAction.busy || !store.migrationAction.ready || !canAggregate(store.context && store.context.actor)) return;
     if (typeof root.recapStudioMigrateV3 !== 'function') {
-      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '마이그레이션 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.' };
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: '마이그레이션 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.', diagnostics: [] };
       rerender();
       return;
     }
-    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '승인된 기록을 반영하고 완료 상태를 검증하고 있습니다.' };
+    store.migrationAction = { busy: true, ready: false, tone: 'info', message: '승인된 기록을 반영하고 완료 상태를 검증하고 있습니다.', diagnostics: [] };
     rerender();
     try {
       const report = await root.recapStudioMigrateV3();
       const conflicts = Array.isArray(report && report.conflicts) ? report.conflicts.length : 0;
       const unresolved = Array.isArray(report && report.unresolved) ? report.unresolved.length : 0;
       if (!report || report.blocked || conflicts || unresolved) {
-        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '반영이 중단되었습니다. 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건을 확인해 주세요.' };
+        store.migrationAction = { busy: false, ready: false, tone: 'error', message: '반영이 중단되었습니다. 충돌 ' + conflicts + '건, 미확인 ' + unresolved + '건을 확인해 주세요.', diagnostics: sanitizeMigrationDiagnostics(report) };
         rerender();
         return;
       }
       const written = Math.max(0, number(report.written));
-      store.migrationAction = { busy: false, ready: false, tone: 'success', message: '마이그레이션이 완료되었습니다. 승인된 기록 ' + written.toLocaleString('ko-KR') + '건을 반영하고 다시 검증했습니다.' };
+      store.migrationAction = { busy: false, ready: false, tone: 'success', message: '마이그레이션이 완료되었습니다. 승인된 기록 ' + written.toLocaleString('ko-KR') + '건을 반영하고 다시 검증했습니다.', diagnostics: [] };
       store.cache.clear();
       store.pending.clear();
       rerender();
     } catch (error) {
-      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error) };
+      store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error), diagnostics: [] };
       rerender();
     }
   }
@@ -481,7 +536,7 @@
 
   root.PresenceExecutiveRecap = {
     render: render,
-    reset: function () { const host = document.getElementById(store.hostId); if (host) host.replaceChildren(); store.open = false; store.period = 'monthly'; store.anchor = ''; store.scope = 'presence'; store.personUid = ''; store.context = null; store.hostId = ''; store.migrationAction = { busy: false, ready: false, message: '', tone: '' }; store.cache.clear(); store.pending.clear(); },
+    reset: function () { const host = document.getElementById(store.hostId); if (host) host.replaceChildren(); store.open = false; store.period = 'monthly'; store.anchor = ''; store.scope = 'presence'; store.personUid = ''; store.context = null; store.hostId = ''; store.migrationAction = { busy: false, ready: false, message: '', tone: '', diagnostics: [] }; store.cache.clear(); store.pending.clear(); },
     invalidate: function () { store.cache.clear(); store.pending.clear(); if (store.open) rerender(); },
     open: function () { store.open = true; rerender(); },
     state: store,
