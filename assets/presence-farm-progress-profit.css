@@ -1,0 +1,1294 @@
+/*
+ * Presence Workbook — Progress / Profit farm-world skin
+ * --------------------------------------------------------------------------
+ * Visual-only layer. DOM, data, role visibility and interaction logic remain
+ * owned by the workbook. This file deliberately scopes every rule to the
+ * Progress / Profit panels or their dedicated overlays.
+ */
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) {
+  --pf-navy: #071827;
+  --pf-navy-2: #0d2637;
+  --pf-fabric: #102636;
+  --pf-fabric-2: #152e3c;
+  --pf-paper: #f3e8d0;
+  --pf-paper-2: #e7d4b2;
+  --pf-paper-3: #d8bf95;
+  --pf-ink: #18283a;
+  --pf-ink-soft: #52606a;
+  --pf-brass: #c6a466;
+  --pf-brass-light: #ead29a;
+  --pf-olive: #747b4e;
+  --pf-olive-dark: #4f5838;
+  --pf-wood: #422a1d;
+  --pf-wood-2: #68452e;
+  --pf-danger: #9e5549;
+  --pf-line: rgba(99, 71, 40, 0.25);
+  --pf-line-dark: rgba(234, 210, 154, 0.28);
+  --pf-paper-shadow: 0 12px 34px rgba(3, 13, 20, 0.24);
+  --pf-fabric-shadow: 0 16px 38px rgba(1, 8, 14, 0.32);
+  --card: var(--pf-paper);
+  --card-2: var(--pf-paper-2);
+  --surface: var(--pf-paper);
+  --cream: var(--pf-ink);
+  --muted: var(--pf-ink-soft);
+  --line: var(--pf-line);
+  --green: var(--pf-olive);
+  --green-soft: rgba(116, 123, 78, 0.17);
+  --amber: var(--pf-brass);
+  color: var(--pf-ink);
+  color-scheme: light;
+}
+
+/* --------------------------------------------------------------------------
+   Shared parchment surfaces, cards and section rhythm
+   -------------------------------------------------------------------------- */
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.sec, .sk-page) {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  border: 1px solid var(--pf-line) !important;
+  border-radius: 22px !important;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 31px,
+      rgba(99, 71, 40, 0.035) 32px
+    ),
+    linear-gradient(145deg, rgba(255, 252, 241, 0.76), transparent 46%),
+    var(--pf-paper) !important;
+  box-shadow: var(--pf-paper-shadow) !important;
+  color: var(--pf-ink) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.sec-head, .pj-h, .lh-rule, .sf-h, .feed-log-head, .reward-head, .ah) {
+  color: var(--pf-ink) !important;
+  letter-spacing: -0.02em;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.intro, .meta, .pj-help, .lh-note, .lh-coach-sub, .perf-note, .token-note, .gift-note, .reward-info, .tgt, .gauge-sub, .rn-help, .pmsr-help) {
+  color: var(--pf-ink-soft) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(
+  .gauge-card,
+  .sfeed,
+  .board,
+  .daily-top,
+  .daily-cal,
+  .daily-side,
+  .daily-sum,
+  .rank-card,
+  .reward-box,
+  .feed-log,
+  .adm-card,
+  .lh-top,
+  .lh-card,
+  .lh-coach,
+  .lhc,
+  .obj-card,
+  .pmsr-row,
+  .rn-statc,
+  .pj-card,
+  .pj-jcard,
+  .pj-boss,
+  .pj-stage,
+  .pj-arena,
+  .topic-card,
+  .msec
+) {
+  border: 1px solid var(--pf-line) !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(145deg, rgba(255, 253, 244, 0.72), transparent 56%),
+    var(--pf-paper) !important;
+  box-shadow: 0 8px 22px rgba(21, 31, 38, 0.14) !important;
+  color: var(--pf-ink) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.msec-head, .topic-sec-h, .lh-row1, .lhc-top, .daily-row, .rn-stat, .reward-main, .board-top) {
+  border-color: var(--pf-line) !important;
+  color: var(--pf-ink) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Inputs, buttons, chips and keyboard states
+   -------------------------------------------------------------------------- */
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily,
+  #pjModal,
+  #tokenIssueModal,
+  #rewardModal,
+  #feedRemindModal,
+  #giftStartModal,
+  #giftWinModal,
+  #rnEditOv,
+  #pdfOverlay
+) :is(input, select, textarea) {
+  min-height: 44px;
+  border: 1px solid rgba(76, 55, 33, 0.36) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 250, 237, 0.9) !important;
+  color: var(--pf-ink, #18283a) !important;
+  caret-color: var(--pf-olive-dark, #4f5838);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily,
+  #pjModal,
+  #tokenIssueModal,
+  #rewardModal,
+  #feedRemindModal,
+  #giftStartModal,
+  #giftWinModal,
+  #rnEditOv,
+  #pdfOverlay
+) :is(input, select, textarea)::placeholder {
+  color: #7a7f7d !important;
+  opacity: 1;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily,
+  #pjModal,
+  #tokenIssueModal,
+  #rewardModal,
+  #feedRemindModal,
+  #giftStartModal,
+  #giftWinModal,
+  #rnEditOv,
+  #pdfOverlay
+) :is(button, .btn, [role="button"], .tf-chip, .pmsr-chip) {
+  min-height: 44px;
+  border-radius: 12px;
+  touch-action: manipulation;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(
+  .pj-btn,
+  .pmsr-btn,
+  .sale-done,
+  .buy-feed-btn,
+  .interact-btn,
+  .gift-all-btn,
+  .sync,
+  .sheet-sync,
+  .step-btn,
+  .preview-btn2,
+  .month-btns button
+) {
+  border: 1px solid rgba(55, 61, 38, 0.75) !important;
+  background: linear-gradient(180deg, #879064, var(--pf-olive)) !important;
+  color: #fffdf4 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 5px 12px rgba(34, 39, 24, 0.2) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(
+  .pj-btn,
+  .pmsr-btn,
+  .sale-done,
+  .buy-feed-btn,
+  .interact-btn,
+  .gift-all-btn,
+  .sync,
+  .sheet-sync,
+  .step-btn,
+  .preview-btn2,
+  .month-btns button
+):hover {
+  filter: brightness(1.06) saturate(0.92);
+  transform: translateY(-1px);
+}
+
+:is(#m-comp, #m-daily, #m-rejectnote, #m-journey) :is(.reset-btn, .pj-x) {
+  border: 1px solid rgba(122, 67, 57, 0.54) !important;
+  background: rgba(158, 85, 73, 0.11) !important;
+  color: #793f37 !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily,
+  #pjModal,
+  #tokenIssueModal,
+  #rewardModal,
+  #feedRemindModal,
+  #giftStartModal,
+  #giftWinModal,
+  #rnEditOv,
+  #pdfOverlay
+) :is(button, a, input, select, textarea, [tabindex], [role="button"]):focus-visible {
+  outline: 3px solid var(--pf-brass, #c6a466) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(198, 164, 102, 0.2) !important;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.45);
+  opacity: 0.58;
+}
+
+/* --------------------------------------------------------------------------
+   Progress — journey, coaching and learning library
+   -------------------------------------------------------------------------- */
+
+#m-journey :is(.pj-grid, .pj-field, .pj-figs, .pj-theme-row, .pj-teamlist) {
+  gap: 14px !important;
+}
+
+#m-journey :is(.banner, .pj-banner-lg, .pj-boss, .pj-arena) {
+  border: 1px solid var(--pf-line-dark) !important;
+  background:
+    radial-gradient(circle at 16% 10%, rgba(234, 210, 154, 0.13), transparent 34%),
+    linear-gradient(145deg, var(--pf-fabric-2), var(--pf-navy)) !important;
+  box-shadow: var(--pf-fabric-shadow) !important;
+  color: #f7ecd3 !important;
+}
+
+#m-journey :is(.banner, .pj-banner-lg, .pj-boss, .pj-arena) :is(.meta, .lab, .stp) {
+  color: #cbbfaa !important;
+}
+
+#m-journey :is(.tname, .tt, .tc, .runhead, .pj-mini) {
+  color: inherit !important;
+}
+
+#m-journey :is(.ov, .pj-pick, .pj-theme, .pj-tier) {
+  border-color: var(--pf-line) !important;
+  background: var(--pf-paper-2) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-journey :is(.pj-pick, .pj-theme, .pj-check):has(input:checked),
+#m-journey :is(.pj-pick, .pj-theme).on {
+  border-color: var(--pf-olive-dark) !important;
+  background: rgba(116, 123, 78, 0.16) !important;
+  box-shadow: inset 0 0 0 1px rgba(79, 88, 56, 0.26) !important;
+}
+
+#m-journey .pj-gauge-wrap,
+#m-journey .pj-gauge {
+  overflow: hidden;
+  border: 1px solid rgba(234, 210, 154, 0.25) !important;
+  background: rgba(2, 12, 19, 0.62) !important;
+}
+
+#m-journey :is(.pj-gauge .fill, .pj-prog-in) {
+  background: linear-gradient(90deg, var(--pf-olive), var(--pf-brass)) !important;
+}
+
+#m-journey .pj-stage {
+  position: relative;
+}
+
+#m-journey .pj-stage::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(198, 164, 102, 0.12), transparent 32%),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(80, 55, 33, 0.035) 29px);
+  content: "";
+}
+
+#m-journey .pj-tbl,
+#m-leaderhit :is(.lh-cells, .lh-cell),
+#m-topics .topic-sec,
+#m-training :is(.training-grid, .training-card),
+#m-cod :is(.cod-grid, .cod-card) {
+  color: var(--pf-ink) !important;
+}
+
+#m-leaderhit :is(.lh-av, .lh-badge, .lhc-tag, .lhc-lbl) {
+  border: 1px solid rgba(79, 88, 56, 0.32) !important;
+  background: rgba(116, 123, 78, 0.14) !important;
+  color: var(--pf-olive-dark) !important;
+}
+
+#m-leaderhit .lh-cell {
+  border: 1px solid var(--pf-line) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 250, 237, 0.62) !important;
+}
+
+#m-leaderhit :is(.lh-prog, .lhc-bar) {
+  overflow: hidden;
+  background: rgba(24, 40, 58, 0.12) !important;
+}
+
+#m-leaderhit :is(.lh-prog-in, .lhc-bar > i, .lhc-bar .fill) {
+  background: linear-gradient(90deg, var(--pf-olive), var(--pf-brass)) !important;
+}
+
+#m-leaderhit .lhc-act {
+  border-left: 3px solid var(--pf-brass) !important;
+  background: rgba(198, 164, 102, 0.1) !important;
+  color: var(--pf-ink) !important;
+}
+
+:is(#m-manual, #m-callback, #m-topics, #m-training, #m-cod) :is(.manual-acc, .lacc) {
+  display: grid;
+  gap: 12px;
+}
+
+:is(#m-manual, #m-callback, #m-topics, #m-training, #m-cod) .msec {
+  overflow: clip;
+}
+
+:is(#m-manual, #m-callback, #m-topics, #m-training, #m-cod) .msec-head {
+  min-height: 52px;
+  padding: 12px 16px !important;
+  background: rgba(231, 212, 178, 0.64) !important;
+}
+
+:is(#m-manual, #m-callback, #m-topics, #m-training, #m-cod) .msec-body {
+  border-top: 1px solid var(--pf-line) !important;
+  background: rgba(255, 251, 239, 0.48) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-topics .topic-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#m-topics .tf-chip {
+  border: 1px solid var(--pf-line) !important;
+  background: var(--pf-paper-2) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-topics .tf-chip:is(.on, [aria-pressed="true"]) {
+  border-color: var(--pf-olive-dark) !important;
+  background: var(--pf-olive) !important;
+  color: #fffdf4 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Profit — sales, competition, performance, journal and daily operations
+   -------------------------------------------------------------------------- */
+
+:is(#m-sale, #m-comp, #m-perf) .perfseg {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--pf-line-dark) !important;
+  border-radius: 14px !important;
+  background: var(--pf-navy) !important;
+  box-shadow: 0 8px 20px rgba(3, 12, 18, 0.24) !important;
+}
+
+:is(#m-sale, #m-comp, #m-perf) .perfseg :is(button, a, .seg) {
+  min-height: 44px;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: #c8c0af !important;
+}
+
+:is(#m-sale, #m-comp, #m-perf) .perfseg :is(.on, .active, [aria-selected="true"]) {
+  border-color: rgba(234, 210, 154, 0.32) !important;
+  background: linear-gradient(180deg, rgba(198, 164, 102, 0.24), rgba(116, 123, 78, 0.28)) !important;
+  color: #fff5dc !important;
+}
+
+#m-sale .sales-hero,
+#m-comp .comp-banner,
+#m-comp .animal-stage,
+#m-perf .board {
+  position: relative;
+  overflow: clip;
+  border: 1px solid var(--pf-line-dark) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(198, 164, 102, 0.16), transparent 35%),
+    linear-gradient(150deg, var(--pf-fabric-2), var(--pf-navy)) !important;
+  box-shadow: var(--pf-fabric-shadow) !important;
+  color: #f7ecd3 !important;
+}
+
+#m-sale .sales-hero::after,
+#m-comp .comp-banner::after,
+#m-comp .animal-stage::after,
+#m-perf .board::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(110deg, transparent 0 5px, rgba(255, 255, 255, 0.012) 6px 7px),
+    radial-gradient(circle at 16% 86%, rgba(116, 123, 78, 0.12), transparent 34%);
+  content: "";
+}
+
+#m-sale .sales-hero > *,
+#m-comp .comp-banner > *,
+#m-comp .animal-stage > *,
+#m-perf .board > * {
+  position: relative;
+  z-index: 1;
+}
+
+#m-sale .sales-hero :is(.sh-date, .sh-who, .sh-unit, .sh-month),
+#m-comp .comp-banner :is(.comp-period, .comp-days),
+#m-comp .animal-stage :is(.animal-lv, .animal-food, .animal-pet-name),
+#m-perf .board :is(.src, .board-foot) {
+  color: #cbbfaa !important;
+}
+
+#m-sale .sales-hero :is(.sh-count, .sh-who),
+#m-comp .comp-banner .comp-title,
+#m-comp .animal-stage :is(.animal-lv, .animal-pet-name),
+#m-perf .board .big {
+  color: #fff2d2 !important;
+}
+
+:is(#m-sale, #m-perf) .gauge-card {
+  display: grid;
+  gap: 12px;
+}
+
+:is(#m-sale, #m-perf) :is(.gauge-track, .animal-bar) {
+  overflow: hidden;
+  border: 1px solid rgba(24, 40, 58, 0.1) !important;
+  background: rgba(24, 40, 58, 0.12) !important;
+}
+
+:is(#m-sale, #m-perf) .gauge-fill,
+#m-comp .animal-bar-fill {
+  background: linear-gradient(90deg, var(--pf-olive), var(--pf-brass)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+#m-sale .sale-stepper {
+  display: grid;
+  grid-template-columns: 44px minmax(64px, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+}
+
+#m-sale .step-btn {
+  width: 44px;
+  min-width: 44px;
+  padding: 0 !important;
+}
+
+#m-sale #adminSaleEdit {
+  border-top: 1px dashed var(--pf-line) !important;
+  background: rgba(231, 212, 178, 0.32) !important;
+}
+
+#m-comp .token-shop,
+#m-comp .adm-grid {
+  display: grid;
+  gap: 14px;
+}
+
+#m-comp .coin-row,
+#m-comp .feed-attend,
+#m-comp .tok-date-row {
+  border-color: var(--pf-line) !important;
+  background: rgba(255, 250, 237, 0.58) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-comp :is(.coin, .reward-tag, .badge, .animal-lv) {
+  border: 1px solid rgba(110, 81, 43, 0.34) !important;
+  background: rgba(198, 164, 102, 0.16) !important;
+  color: #745326 !important;
+}
+
+#m-comp .tumbler-art {
+  border: 1px solid var(--pf-line-dark) !important;
+  background: radial-gradient(circle, rgba(234, 210, 154, 0.2), transparent 66%), var(--pf-navy-2) !important;
+}
+
+#m-comp .animal-hint,
+#m-comp .tok-date-hint {
+  border-left: 3px solid var(--pf-brass) !important;
+  background: rgba(198, 164, 102, 0.1) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-comp .tok-scroll,
+#m-perf .board-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--pf-brass) rgba(7, 24, 39, 0.12);
+  scrollbar-width: thin;
+}
+
+#m-perf .led,
+#m-daily .sync-dot {
+  background: var(--pf-olive) !important;
+  box-shadow: 0 0 0 4px rgba(116, 123, 78, 0.15) !important;
+}
+
+#m-perf .scores,
+#m-journey .pj-tbl,
+#m-rejectnote .rn-tbl,
+#m-comp .tok-table,
+#m-daily table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  color: var(--pf-ink) !important;
+}
+
+:is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) :is(th, td) {
+  padding: 12px 14px !important;
+  border-right: 0 !important;
+  border-bottom: 1px solid var(--pf-line) !important;
+  text-align: left;
+  vertical-align: middle;
+}
+
+:is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-color: var(--pf-line-dark) !important;
+  background: var(--pf-navy-2) !important;
+  color: #f3e8d0 !important;
+  font-weight: 800;
+}
+
+:is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) tbody tr:nth-child(even) td {
+  background: rgba(231, 212, 178, 0.34) !important;
+}
+
+:is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) tbody tr:hover td {
+  background: rgba(198, 164, 102, 0.16) !important;
+}
+
+#m-cbjournal #cbBody,
+#m-rejectnote :is(.sk-f, .rn-f),
+#m-daily .daily-list {
+  color: var(--pf-ink) !important;
+}
+
+#m-rejectnote .pmsr-row {
+  padding: 14px !important;
+}
+
+#m-rejectnote .pmsr-chip {
+  border: 1px solid var(--pf-line) !important;
+  background: var(--pf-paper-2) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-rejectnote .pmsr-chip:is(.on, [aria-pressed="true"]),
+#m-rejectnote .rn-pill {
+  border-color: var(--pf-olive-dark) !important;
+  background: rgba(116, 123, 78, 0.16) !important;
+  color: var(--pf-olive-dark) !important;
+}
+
+#m-rejectnote .rn-statc .sum {
+  color: var(--pf-wood-2) !important;
+}
+
+#m-daily .daily-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
+  gap: 16px;
+}
+
+#m-daily .daily-cal,
+#m-daily .daily-side {
+  min-width: 0;
+}
+
+#m-daily :is(.daily-row, .daily-sum) {
+  border-color: var(--pf-line) !important;
+  background: rgba(255, 250, 237, 0.64) !important;
+  color: var(--pf-ink) !important;
+}
+
+#m-daily .sync-now {
+  color: var(--pf-olive-dark) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Dedicated overlays and dialogs
+   -------------------------------------------------------------------------- */
+
+:is(
+  #pjModal,
+  #tokenIssueModal,
+  #rewardModal,
+  #feedRemindModal,
+  #giftStartModal,
+  #giftWinModal,
+  #rnEditOv,
+  #pdfOverlay
+) {
+  --pf-navy: #071827;
+  --pf-navy-2: #0d2637;
+  --pf-paper: #f3e8d0;
+  --pf-paper-2: #e7d4b2;
+  --pf-ink: #18283a;
+  --pf-ink-soft: #52606a;
+  --pf-brass: #c6a466;
+  --pf-olive: #747b4e;
+  --pf-olive-dark: #4f5838;
+  --pf-line: rgba(99, 71, 40, 0.25);
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+  background: rgba(3, 14, 23, 0.76) !important;
+  backdrop-filter: blur(10px) saturate(0.82);
+}
+
+#pjModal .pj-sheet,
+:is(#tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal) :is(.box, .modal-box, .sheet),
+#rnEditOv > div,
+#pdfOverlay > div {
+  width: min(720px, 100%) !important;
+  max-height: min(86dvh, 820px) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(234, 210, 154, 0.4) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(145deg, rgba(255, 253, 244, 0.74), transparent 48%),
+    var(--pf-paper) !important;
+  box-shadow: 0 24px 80px rgba(0, 5, 9, 0.52) !important;
+  color: var(--pf-ink) !important;
+}
+
+#pjModal :is(.bd, .pj-steps),
+:is(#tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal) :is(.body, .modal-body, .ti-body),
+#rnEditOv > div > :is(.body, form, main),
+#pdfOverlay > div > :is(.body, main) {
+  max-height: calc(min(86dvh, 820px) - 92px) !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--pf-brass) rgba(7, 24, 39, 0.12);
+  scrollbar-width: thin;
+}
+
+#pjModal .hd,
+:is(#tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal) :is(.head, .modal-head, .ti-head),
+#rnEditOv > div > :is(.head, header),
+#pdfOverlay > div > :is(.head, header) {
+  min-height: 64px;
+  border-bottom: 1px solid var(--pf-line) !important;
+  background: var(--pf-paper-2) !important;
+  color: var(--pf-ink) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Chart and media containment
+   -------------------------------------------------------------------------- */
+
+:is(#m-sale, #m-comp, #m-perf, #m-daily, #m-rejectnote) :is(canvas, svg, img) {
+  max-width: 100%;
+}
+
+:is(#m-sale, #m-comp, #m-perf, #m-daily, #m-rejectnote) canvas {
+  border-radius: 14px;
+  background: rgba(255, 250, 237, 0.68);
+}
+
+:is(#m-sale, #m-perf) :is(.val, .gauge-pct),
+#m-sale .sh-count,
+#m-comp :is(.comp-days, .animal-food, .feed-count),
+#m-rejectnote :is(.sum, .rn-statc),
+#m-daily .daily-sum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Scrollbars and small state labels
+   -------------------------------------------------------------------------- */
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.board-scroll, .tok-scroll, .msec-body, .daily-list)::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.board-scroll, .tok-scroll, .msec-body, .daily-list)::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--pf-brass);
+  background-clip: padding-box;
+}
+
+:is(
+  #m-journey,
+  #m-leaderhit,
+  #m-manual,
+  #m-obj,
+  #m-callback,
+  #m-topics,
+  #m-training,
+  #m-cod,
+  #m-sale,
+  #m-comp,
+  #m-perf,
+  #m-cbjournal,
+  #m-rejectnote,
+  #m-daily
+) :is(.empty, .lh-empty, .no-data, [data-empty="true"]) {
+  border: 1px dashed rgba(99, 71, 40, 0.35) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 250, 237, 0.42) !important;
+  color: var(--pf-ink-soft) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop composition (1440 × 900 baseline)
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 1101px) {
+  #m-journey .pj-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #m-leaderhit .lh-list,
+  #m-leaderhit .lh-coach {
+    min-width: 0;
+  }
+
+  #m-comp .adm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #m-comp .token-shop {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  }
+
+  :is(#m-perf .board-scroll, #m-comp .tok-scroll, #m-daily .daily-list) {
+    max-height: min(58vh, 560px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tablet composition (1024 × 768 baseline)
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) {
+    --pf-paper-shadow: 0 10px 24px rgba(3, 13, 20, 0.2);
+  }
+
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) :is(input, select, textarea) {
+    font-size: 16px !important;
+  }
+
+  #m-journey .pj-grid,
+  #m-comp .adm-grid,
+  #m-comp .token-shop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #m-daily .daily-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :is(#m-sale, #m-comp, #m-perf) .perfseg {
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  :is(#m-sale, #m-comp, #m-perf) .perfseg :is(button, a, .seg) {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  :is(#m-perf .board-scroll, #m-comp .tok-scroll, #m-daily .daily-list) {
+    max-height: min(54vh, 460px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile composition (390 × 844 baseline)
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) :is(.sec, .sk-page) {
+    border-radius: 16px !important;
+    background:
+      repeating-linear-gradient(0deg, transparent 0, transparent 27px, rgba(99, 71, 40, 0.03) 28px),
+      var(--pf-paper) !important;
+  }
+
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) :is(
+    .gauge-card,
+    .sfeed,
+    .board,
+    .daily-top,
+    .daily-cal,
+    .daily-side,
+    .daily-sum,
+    .rank-card,
+    .reward-box,
+    .feed-log,
+    .adm-card,
+    .lh-top,
+    .lh-card,
+    .lh-coach,
+    .lhc,
+    .obj-card,
+    .pmsr-row,
+    .rn-statc,
+    .pj-card,
+    .pj-jcard,
+    .pj-boss,
+    .pj-stage,
+    .pj-arena,
+    .topic-card,
+    .msec
+  ) {
+    border-radius: 14px !important;
+  }
+
+  #m-journey .pj-grid,
+  #m-journey .pj-field,
+  #m-leaderhit :is(.lh-cells, .lh-coach),
+  #m-comp .adm-grid,
+  #m-comp .token-shop,
+  #m-sale #adminSaleEdit,
+  #m-rejectnote :is(.pmsr-row, .rn-stat),
+  #m-daily .daily-top {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  #m-journey :is(.pj-banner-lg, .pj-boss, .pj-arena),
+  #m-sale .sales-hero,
+  #m-comp :is(.comp-banner, .animal-stage),
+  #m-perf .board {
+    border-radius: 16px !important;
+  }
+
+  #m-sale .sales-hero :is(.sh-count, .sh-who),
+  #m-comp .comp-title,
+  #m-perf .board .big {
+    overflow-wrap: anywhere;
+  }
+
+  #m-topics .topic-filter,
+  #m-rejectnote .pmsr-chips,
+  #m-journey .pj-theme-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  #m-topics .tf-chip,
+  #m-rejectnote .pmsr-chip,
+  #m-journey .pj-theme {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  :is(#m-perf .board-scroll, #m-comp .tok-scroll, #m-daily .daily-list) {
+    max-height: min(52vh, 420px);
+  }
+
+  :is(#m-perf .board-scroll, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-scroll, #m-daily .daily-list) {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) {
+    min-width: 620px;
+  }
+
+  :is(#m-perf .scores, #m-journey .pj-tbl, #m-rejectnote .rn-tbl, #m-comp .tok-table, #m-daily table) :is(th, td) {
+    padding: 11px 12px !important;
+  }
+
+  #pjModal .pj-sheet,
+  :is(#tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal) :is(.box, .modal-box, .sheet),
+  #rnEditOv > div,
+  #pdfOverlay > div {
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: 16px !important;
+  }
+
+  #pjModal :is(.bd, .pj-steps),
+  :is(#tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal) :is(.body, .modal-body, .ti-body),
+  #rnEditOv > div > :is(.body, form, main),
+  #pdfOverlay > div > :is(.body, main) {
+    max-height: calc(100dvh - 104px) !important;
+  }
+
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) :is(button, .btn, [role="button"], .tf-chip, .pmsr-chip) + :is(button, .btn, [role="button"], .tf-chip, .pmsr-chip) {
+    margin-inline-start: 8px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility preferences
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) *,
+  :is(#pjModal, #tokenIssueModal, #rewardModal, #feedRemindModal, #giftStartModal, #giftWinModal, #rnEditOv, #pdfOverlay) * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) {
+    --pf-line: rgba(44, 31, 18, 0.62);
+    --pf-line-dark: rgba(255, 232, 178, 0.58);
+    --pf-ink-soft: #34414a;
+  }
+}
+
+@media (forced-colors: active) {
+  :is(
+    #m-journey,
+    #m-leaderhit,
+    #m-manual,
+    #m-obj,
+    #m-callback,
+    #m-topics,
+    #m-training,
+    #m-cod,
+    #m-sale,
+    #m-comp,
+    #m-perf,
+    #m-cbjournal,
+    #m-rejectnote,
+    #m-daily
+  ) :is(button, a, input, select, textarea, [role="button"]) {
+    forced-color-adjust: auto;
+  }
+}
+

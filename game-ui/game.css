@@ -1,0 +1,166 @@
+/* ============================================================
+   프레젠스 동물농장 — Cozy RPG 게임 UI 디자인 시스템
+   완전히 새로 작성. 기존 앱 CSS와 무관.
+   스코프: html.pg-on (게임 레이어 활성 시)
+   ============================================================ */
+
+/* ---- 팔레트/토큰 ---- */
+:root{
+  --pg-navy:#16233c;      --pg-navy-2:#101a2e;   --pg-navy-3:#1e2f4d;
+  --pg-gold:#d8b877;      --pg-gold-2:#c9a86a;   --pg-gold-deep:#a8843f;
+  --pg-cream:#f6efdb;     --pg-paper:#f3ead2;    --pg-paper-2:#efe3c6;
+  --pg-ink:#33261a;       --pg-ink-soft:#6f5a3f; --pg-ink-faint:#9a8460;
+  --pg-wood:#6b4a2f;      --pg-wood-2:#523821;
+  --pg-green:#6f9a4e;     --pg-green-2:#557a38;  --pg-green-deep:#3f5c28;
+  --pg-sky:#bfe0ea;       --pg-dusk:#f0b078;     --pg-leaf:#88b25a;
+  --pg-red:#c9542e;
+  --pg-shadow:0 18px 44px rgba(10,18,30,.45);
+  --pg-disp:'Gowun Batang','Nanum Myeongjo',serif;
+  --pg-sans:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+  --pg-safe-b:env(safe-area-inset-bottom,0px);
+}
+
+/* ---- 게임 레이어가 켜지면 기존 앱을 완전히 가린다 ---- */
+html.pg-on, html.pg-on body{ margin:0; height:100%; overflow:hidden; background:#0c1424; }
+html.pg-on #app > header,
+html.pg-on #app > nav,
+html.pg-on #app .rail,
+html.pg-on #app .botbar,
+html.pg-on #app .mobile-tabbar,
+html.pg-on #fxDock{ display:none !important; }
+/* 기존 패널들은 DOM에 남기되 화면에서 제거(함수 호출용) */
+html.pg-on #app main,
+html.pg-on #app .mpanel{ position:absolute !important; left:-99999px !important; top:0 !important; width:1200px; }
+html.pg-on #app{ background:transparent !important; }
+
+/* ---- 게임 루트 ---- */
+#pgRoot{
+  position:fixed; inset:0; z-index:9000; overflow:hidden;
+  font-family:var(--pg-sans); color:var(--pg-ink);
+  background:
+    radial-gradient(120% 80% at 50% 0%, #2a4266 0%, #1a2b47 45%, #0e1a30 100%);
+  -webkit-font-smoothing:antialiased;
+}
+#pgRoot *{ box-sizing:border-box; }
+
+/* ============================================================
+   공통 게임 컴포넌트
+   ============================================================ */
+
+/* 나무 간판 (건물/버튼 라벨) */
+.pg-sign{
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  padding:9px 18px 10px; border:0; cursor:pointer; white-space:nowrap;
+  font-family:var(--pg-disp); font-weight:700; font-size:clamp(13px,1.15vw,16px);
+  color:var(--pg-cream); letter-spacing:.02em; border-radius:10px;
+  background:linear-gradient(180deg,#26385a,#1a2840 60%,#152238);
+  box-shadow:
+    0 0 0 2px var(--pg-gold-2),
+    0 0 0 4px rgba(22,35,60,.95),
+    0 0 0 5.5px rgba(201,168,106,.5),
+    0 10px 22px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+}
+.pg-sign::before,.pg-sign::after{
+  content:""; position:absolute; top:5px; width:5px; height:5px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#f4e3b6,#9c7a37);
+}
+.pg-sign::before{ left:9px; } .pg-sign::after{ right:9px; }
+.pg-sign:hover{ transform:translateY(-3px) scale(1.06);
+  box-shadow:0 0 0 2px var(--pg-gold),0 0 0 4px rgba(22,35,60,.95),
+    0 0 0 6px rgba(216,184,119,.7),0 0 26px 6px rgba(216,184,119,.4),
+    0 16px 30px rgba(0,0,0,.5); }
+.pg-sign:active{ transform:translateY(-1px) scale(.97); }
+
+/* 목재 간판 (넓은 헤더/타이틀 판) */
+.pg-plank{
+  position:relative; display:inline-flex; align-items:center; gap:10px;
+  padding:10px 20px; border-radius:12px; color:var(--pg-cream);
+  font-family:var(--pg-disp); font-weight:700;
+  background:linear-gradient(180deg,#6f4d31,#563a22);
+  box-shadow:0 0 0 2px var(--pg-gold-deep), 0 8px 20px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.12), inset 0 -3px 8px rgba(0,0,0,.3);
+}
+
+/* 양피지 두루마리 패널 */
+.pg-scroll{
+  position:relative; border-radius:16px; color:var(--pg-ink);
+  background:
+    linear-gradient(180deg,rgba(255,252,243,.96),rgba(243,234,210,.96)),
+    repeating-linear-gradient(180deg,transparent 0 26px,rgba(120,95,60,.06) 26px 27px);
+  box-shadow:var(--pg-shadow), inset 0 0 0 1px rgba(150,120,75,.4),
+    inset 0 0 40px rgba(190,160,110,.18);
+  padding:20px;
+}
+.pg-scroll::before,.pg-scroll::after{
+  content:""; position:absolute; left:-4px; right:-4px; height:16px;
+  background:linear-gradient(180deg,#6f4d31,#4e3418);
+  border-radius:9px; box-shadow:0 0 0 2px var(--pg-gold-deep), 0 4px 10px rgba(0,0,0,.35);
+}
+.pg-scroll::before{ top:-8px; } .pg-scroll::after{ bottom:-8px; }
+.pg-scroll.pg-no-rods::before,.pg-scroll.pg-no-rods::after{ display:none; }
+
+/* 나무 표지 노트(스프링) */
+.pg-note{
+  position:relative; background:#6b4a2f; padding:11px; border-radius:15px;
+  box-shadow:var(--pg-shadow);
+}
+.pg-note-paper{
+  position:relative; background:var(--pg-paper); border-radius:10px;
+  padding:18px 18px 18px 36px;
+  background-image:linear-gradient(180deg,rgba(255,252,243,.7),rgba(239,227,198,.7)),
+    repeating-linear-gradient(180deg,transparent 0 25px,rgba(120,100,70,.08) 25px 26px);
+  box-shadow:inset 0 0 0 1px rgba(150,120,80,.35);
+}
+.pg-rings{ position:absolute; left:13px; top:16px; bottom:16px;
+  display:flex; flex-direction:column; justify-content:space-between; }
+.pg-rings i{ width:12px; height:12px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,#c8c0ad 58%,#7d7460);
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.2); }
+
+/* 픽셀 필 버튼 */
+.pg-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 20px; border:0; cursor:pointer; border-radius:12px;
+  font-family:var(--pg-disp); font-weight:700; font-size:15px; color:#fff;
+  background:linear-gradient(180deg,#7aa855,#557a38);
+  box-shadow:0 0 0 2px rgba(63,92,40,.9), 0 8px 18px rgba(40,70,25,.35),
+    inset 0 1px 0 rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.2);
+  transition:transform .18s, filter .18s;
+}
+.pg-btn:hover{ transform:translateY(-2px); filter:brightness(1.06); }
+.pg-btn:active{ transform:translateY(1px); }
+.pg-btn:disabled{ filter:grayscale(.5) brightness(.9); cursor:default; transform:none; }
+.pg-btn.pg-btn-navy{ background:linear-gradient(180deg,#2b3f5f,#1c2a44);
+  box-shadow:0 0 0 2px var(--pg-gold-deep),0 8px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12); }
+.pg-btn.pg-btn-ghost{ background:linear-gradient(180deg,#f3ead2,#e6d7b4); color:var(--pg-ink);
+  box-shadow:0 0 0 2px var(--pg-gold-deep),0 6px 14px rgba(0,0,0,.25); }
+
+/* 상태 칩 */
+.pg-chip{ display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px;
+  font-size:11px; font-weight:800; letter-spacing:.02em; }
+.pg-chip.ok{ background:#dff2d2; color:#2f6b17; box-shadow:inset 0 0 0 1px #a9d68f; }
+.pg-chip.go{ background:#e6f0d6; color:#3f6b1c; box-shadow:inset 0 0 0 1px #b6d692; }
+.pg-chip.wait{ background:#ece6d6; color:#6b6355; box-shadow:inset 0 0 0 1px #d6ccb4; }
+.pg-chip.src{ background:#ebe3d0; color:#7a6549; box-shadow:inset 0 0 0 1px #d8cbac; }
+
+/* 잎사귀 장식 */
+.pg-leaf{ display:inline-block; vertical-align:middle; }
+
+/* 토스트 */
+#pgToast{ position:fixed; left:50%; bottom:calc(28px + var(--pg-safe-b)); transform:translateX(-50%) translateY(20px);
+  z-index:9999; padding:12px 20px; border-radius:14px; opacity:0; pointer-events:none;
+  font-family:var(--pg-disp); font-weight:700; color:var(--pg-cream);
+  background:linear-gradient(180deg,#26385a,#16233c); transition:opacity .3s, transform .3s;
+  box-shadow:0 0 0 2px var(--pg-gold-2),0 12px 30px rgba(0,0,0,.4); }
+#pgToast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* 스크롤바 */
+#pgRoot *::-webkit-scrollbar{ width:10px; height:10px; }
+#pgRoot *::-webkit-scrollbar-thumb{ background:#8a6a45; border-radius:8px; border:2px solid rgba(0,0,0,.1); }
+#pgRoot *::-webkit-scrollbar-track{ background:rgba(107,74,47,.2); border-radius:8px; }
+
+@media (prefers-reduced-motion: reduce){
+  #pgRoot *{ animation:none !important; transition:none !important; }
+}

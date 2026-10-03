@@ -1,0 +1,231 @@
+/* Presence canonical BGM — compact game control + visible YouTube source card. */
+#presenceBgmQuick {
+  position: fixed;
+  z-index: var(--z-float, 900);
+  right: 14px;
+  bottom: calc(73px + var(--safe-b, env(safe-area-inset-bottom)));
+  display: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgba(255, 244, 205, .24);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .18), transparent 28%),
+    linear-gradient(145deg, rgba(61, 79, 63, .98), rgba(25, 35, 31, .98));
+  box-shadow: 0 9px 24px rgba(0, 0, 0, .38), inset 0 1px rgba(255, 255, 255, .12);
+  color: #fff3c7;
+  font: 900 20px/1 inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+body.app-on #presenceBgmQuick {
+  display: grid;
+}
+
+#presenceBgmQuick:is(:hover, :focus-visible) {
+  border-color: rgba(255, 223, 126, .78);
+  box-shadow: 0 11px 28px rgba(0, 0, 0, .44), 0 0 0 4px rgba(255, 217, 104, .12);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+#presenceBgmQuick.is-playing {
+  border-color: rgba(156, 233, 170, .72);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .25), transparent 28%),
+    linear-gradient(145deg, #5e9869, #315941);
+}
+
+#presenceBgmQuick.is-playing .presence-bgm-note {
+  animation: presence-bgm-note 1.45s ease-in-out infinite;
+}
+
+#presenceBgmToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  border: 1px solid rgba(255, 236, 181, .22);
+  border-radius: 999px;
+  background: rgba(255, 229, 151, .08);
+  color: #fff1c4;
+  padding: 9px 13px;
+  font: 800 12px/1 inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#presenceBgmToggle.is-playing {
+  border-color: rgba(135, 224, 157, .55);
+  background: rgba(92, 169, 107, .24);
+  color: #dffff0;
+}
+
+.presence-bgm-card {
+  position: relative;
+  overflow: hidden;
+  margin: 10px 0 2px;
+  border: 1px solid rgba(255, 235, 188, .14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.presence-bgm-card-head {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  color: #fff1c4;
+  font-size: 11px;
+}
+
+.presence-bgm-card-toggle {
+  min-height: 34px;
+  border: 1px solid rgba(255, 235, 188, .18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .055);
+  color: rgba(255, 246, 219, .84);
+  padding: 7px 10px;
+  font: 800 10px/1 inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.presence-bgm-card-body {
+  display: block;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 235, 188, .11);
+}
+
+.presence-bgm-card.is-collapsed .presence-bgm-card-body {
+  display: none;
+}
+
+.presence-bgm-frame-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(131, 197, 145, .22), transparent 38%),
+    linear-gradient(145deg, #273b31, #121b18);
+}
+
+.presence-bgm-frame-shell iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.presence-bgm-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  place-items: center;
+  padding: 16px;
+  color: rgba(255, 246, 219, .72);
+  font-size: 11px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.presence-bgm-placeholder > span {
+  color: #fff3ce;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.presence-bgm-placeholder > small {
+  color: rgba(255, 246, 219, .58);
+  font-size: 9.5px;
+}
+
+.presence-bgm-start {
+  min-width: 142px;
+  min-height: 44px;
+  border: 1px solid rgba(255, 226, 141, .48);
+  border-radius: 999px;
+  background: linear-gradient(145deg, #6b9e69, #3d6d4b);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, .25), inset 0 1px rgba(255, 255, 255, .17);
+  color: #fff8dc;
+  font: 900 12px/1 inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.presence-bgm-start:is(:hover, :focus-visible),
+.presence-bgm-card-toggle:is(:hover, :focus-visible) {
+  border-color: rgba(255, 226, 141, .72);
+  outline: none;
+}
+
+.presence-bgm-start.is-playing {
+  border-color: rgba(147, 230, 167, .62);
+  background: linear-gradient(145deg, #568a61, #31553c);
+}
+
+.presence-bgm-card.has-player .presence-bgm-placeholder {
+  display: none;
+}
+
+.presence-bgm-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  color: rgba(255, 246, 219, .72);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.presence-bgm-meta b {
+  color: #fff1c4;
+  font-size: 10.5px;
+}
+
+.presence-bgm-meta a {
+  flex: 0 0 auto;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  color: #bce9c7;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@keyframes presence-bgm-note {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  38% { transform: translateY(-3px) rotate(-7deg); }
+  68% { transform: translateY(1px) rotate(4deg); }
+}
+
+@media (max-width: 760px) {
+  #presenceBgmQuick {
+    right: 10px;
+    bottom: calc(70px + var(--safe-b, env(safe-area-inset-bottom)));
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #presenceBgmQuick,
+  #presenceBgmQuick .presence-bgm-note {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+}

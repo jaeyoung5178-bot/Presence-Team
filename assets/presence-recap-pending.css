@@ -1,0 +1,26 @@
+#m-recap .prp-delivery{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,340px);gap:12px;align-items:start;margin-bottom:12px}
+#m-recap .prp-delivery .pra-controls{margin:0;min-width:0;grid-template-columns:160px minmax(0,1fr)}
+#m-recap .prp-delivery .pra-download{grid-column:1/-1;width:100%}
+#m-recap .prp-card{position:relative;min-width:0;box-sizing:border-box;overflow:hidden;border:1px solid rgba(160,191,170,.28);border-radius:16px;background:linear-gradient(135deg,#172c29,#14231f);color:#f0f6ef;padding:16px 18px;box-shadow:inset 0 1px rgba(255,255,255,.04)}
+#m-recap .prp-card::before{content:"";position:absolute;inset:auto -20px -38px auto;width:150px;height:100px;border-radius:50%;background:rgba(143,174,137,.08);pointer-events:none}
+#m-recap .prp-art{position:absolute;right:13px;top:12px;width:64px;height:64px;object-fit:cover;border-radius:13px;opacity:.92}
+#m-recap .prp-top{display:flex;align-items:center;gap:8px;padding-right:74px;min-height:20px}
+#m-recap .prp-eyebrow{font-size:10px;letter-spacing:.14em;font-weight:900;color:#a8c6af}
+#m-recap .prp-pill{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:0 8px;border-radius:99px;background:rgba(161,198,166,.15);color:#d4edce;font-size:11px;font-weight:900;white-space:nowrap}
+#m-recap .prp-card h3{position:relative;margin:8px 72px 4px 0;font-size:16px;line-height:1.35;font-weight:900;color:#f6f8f0}
+#m-recap .prp-card p{position:relative;margin:0;max-width:38ch;color:#b7c9bd;font-size:12px;line-height:1.5}
+#m-recap .prp-names{position:relative;display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+#m-recap .prp-name{display:inline-flex;align-items:center;min-height:26px;max-width:100%;box-sizing:border-box;border:1px solid rgba(175,207,176,.28);border-radius:7px;background:rgba(229,241,224,.08);padding:3px 8px;color:#f0f6ef;font-size:12px;font-weight:800;overflow-wrap:anywhere}
+#m-recap .prp-clear{position:relative;margin-top:12px;color:#cee5ca;font-size:13px;font-weight:800;line-height:1.5}
+#m-recap .prp-more{position:relative;margin-top:8px}
+#m-recap .prp-more summary{display:inline-flex;align-items:center;min-height:44px;color:#d0e7cc;font-size:12px;font-weight:850;cursor:pointer;list-style:none}
+#m-recap .prp-more summary::-webkit-details-marker{display:none}
+#m-recap .prp-more summary::after{content:"⌄";margin-left:6px;font-size:16px}
+#m-recap .prp-more[open] summary::after{content:"⌃"}
+#m-recap .prp-more summary:focus-visible{outline:2px solid #bad9b1;outline-offset:2px;border-radius:4px}
+#m-recap .prp-more .prp-names{margin-top:2px;padding-bottom:2px}
+#m-recap .prp-loading{border-style:dashed}
+#m-recap .prp-loading .prp-pill{color:#e8dcc1;background:rgba(215,187,129,.16)}
+#m-recap .prp-ineligible{border-color:rgba(181,178,151,.32)}
+@media(max-width:1150px){#m-recap .prp-delivery{grid-template-columns:minmax(0,1fr)}#m-recap .prp-card{min-height:132px}}
+@media(max-width:620px){#m-recap .prp-delivery{gap:9px}#m-recap .prp-delivery .pra-controls{grid-template-columns:1fr}#m-recap .prp-card{padding:15px 16px;min-height:130px}#m-recap .prp-card h3{font-size:17px}#m-recap .prp-card p{font-size:12px}#m-recap .prp-name{font-size:13px;min-height:30px}}

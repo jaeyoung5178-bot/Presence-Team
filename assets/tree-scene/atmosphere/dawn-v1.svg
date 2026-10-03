@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4e5f9e" stop-opacity=".46"/>
+      <stop offset=".46" stop-color="#c4799b" stop-opacity=".28"/>
+      <stop offset=".7" stop-color="#ffb47b" stop-opacity=".29"/>
+      <stop offset="1" stop-color="#ffe0b0" stop-opacity=".05"/>
+    </linearGradient>
+    <radialGradient id="horizon" cx="50%" cy="63%" r="54%">
+      <stop offset="0" stop-color="#ffd6a0" stop-opacity=".34"/>
+      <stop offset=".62" stop-color="#e995a5" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#6d77ad" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1672" height="941" fill="url(#sky)"/>
+  <rect width="1672" height="941" fill="url(#horizon)"/>
+</svg>

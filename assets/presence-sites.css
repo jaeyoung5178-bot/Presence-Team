@@ -1,0 +1,74 @@
+/* Sites: territory finding stays the first task; legacy site workflows remain reachable. */
+#m-sites .wrap:has(#sp-find.active) { display: flex; flex-direction: column; }
+#m-sites .wrap:has(#sp-find.active) > .sec { order: 0; }
+#m-sites .wrap:has(#sp-find.active) > #pmsWx { order: 1; }
+#m-sites .ft-subnav { gap: 8px; }
+#m-sites .ft-sb { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+#m-sites .ft-sb:focus-visible,
+#m-sites .tf-finder-card button:focus-visible,
+#m-sites .tf-finder-card a:focus-visible {
+  outline: 3px solid #c8f0a9;
+  outline-offset: 2px;
+}
+#m-sites .tf-finder-card { max-width: 1040px; padding: clamp(16px, 2.5vw, 28px); }
+#m-sites .tf-intro { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+#m-sites .tf-intro-copy { min-width: 0; }
+#m-sites .tf-eyebrow { margin: 0 0 7px; color: var(--green-soft); font: 800 11px/1.35 var(--mono, monospace); letter-spacing: .12em; }
+#m-sites .tf-intro h3 { margin: 0; color: var(--cream); font: 800 clamp(23px, 2.5vw, 31px)/1.2 var(--disp, inherit); }
+#m-sites .tf-intro-copy > p:last-child { margin: 7px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+#m-sites .tf-intro-art { flex: none; width: 96px; height: 96px; object-fit: contain; border-radius: 18px; }
+#m-sites #sp-find .ft-f label { color: var(--cream); font-size: 15px; font-weight: 700; line-height: 1.45; }
+#m-sites #sp-find .ms-searchbar { background: #252d28; border: 1px solid #566b55; box-shadow: none; }
+#m-sites #sp-find .ms-searchbar:focus-within { border-color: #a9c79b; box-shadow: 0 0 0 2px rgba(169,199,155,.18); }
+#m-sites #sp-find .ms-sinput { font-size: 16px; min-height: 52px; background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--cream) !important; }
+#m-sites #sp-find .ms-sinput::placeholder { color: #a7b3a6; }
+#m-sites #sp-find .ms-sinput::-webkit-search-cancel-button { filter: grayscale(1) brightness(2); }
+body.presence-workspace-v2 #app #m-sites #sp-find .ms-sinput:focus-visible { outline: none !important; outline-offset: 0 !important; }
+#m-sites #sp-find .ms-sbtn { min-width: 70px; min-height: 44px; background: #badb9d; color: #172318; }
+#m-sites .tf-hint, #m-sites .tf-count { color: var(--muted); font-size: 13px; line-height: 1.5; }
+#m-sites .tf-hint { padding: 16px 2px; }
+#m-sites .tf-count { min-height: 22px; margin: 13px 0 5px; font-weight: 700; }
+#m-sites .tf-count:empty { display: none; }
+#m-sites .tf-list { gap: 10px; }
+#m-sites .tf-row { align-items: center; gap: 18px; padding: 16px; }
+#m-sites .tf-info { min-width: 0; }
+#m-sites .tf-nm { font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; }
+#m-sites .tf-loc { color: var(--muted); font-size: 13px; line-height: 1.45; margin-top: 5px; }
+#m-sites .tf-right { min-width: 220px; align-items: stretch; gap: 8px; }
+#m-sites .tf-value { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; min-width: 0; }
+#m-sites .tf-value small { color: var(--muted); font-size: 12px; }
+#m-sites .tf-value strong { color: var(--green-soft); font: 800 20px/1.2 var(--mono, monospace); letter-spacing: .04em; overflow-wrap: anywhere; }
+#m-sites .tf-actions { display: flex; justify-content: flex-end; gap: 8px; }
+#m-sites .tf-actions button { min-height: 44px; min-width: 54px; padding: 8px 12px; justify-content: center; border-radius: 10px; font: 800 13px/1.2 inherit; cursor: pointer; }
+#m-sites .tf-actions .tf-code { background: var(--green); border: 1px solid var(--green); color: var(--green-ink); letter-spacing: 0; }
+#m-sites .tf-actions .tf-mapbtn, #m-sites .tf-actions .tf-sharebtn { background: var(--ink); border: 1px solid var(--line); color: var(--cream); }
+#m-sites .tf-actions button:hover { filter: brightness(1.12); }
+#m-sites .tf-empty { border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); padding: 20px 16px; font-size: 14px; line-height: 1.6; }
+#m-sites .tf-mapclose { width: 44px; height: 44px; display: inline-grid; place-items: center; }
+#m-sites .tf-openbtn { min-height: 44px; }
+#m-sites .tf-maploading { min-height: 200px; }
+@media (max-width: 767px) {
+  #m-sites .sec { display: flex; flex-direction: column; min-width: 0; }
+  #m-sites .sec:has(> #sp-find.active) > .sec-head { display: none; }
+  #m-sites .sec-head { order: 0; }
+  #m-sites #sp-find { order: 1; }
+  #m-sites .ft-subnav { order: 2; margin: 0 0 18px; }
+  #m-sites #sp-main, #m-sites #sp-new, #m-sites #sp-apply { order: 3; }
+  #m-sites #sp-find .tf-finder-card { padding: 0; margin-bottom: 13px; border: 0; background: transparent; box-shadow: none; }
+  #m-sites .tf-intro { gap: 10px; margin-bottom: 12px; }
+  #m-sites .tf-intro h3 { font-size: 23px; }
+  #m-sites .tf-intro-copy > p:last-child { font-size: 12px; }
+  #m-sites .tf-intro-art { width: 66px; height: 66px; }
+  #m-sites .ft-subnav .ft-sb { flex: 1 1 calc(50% - 8px); }
+  #m-sites .tf-row { display: block; padding: 14px; }
+  #m-sites .tf-right { min-width: 0; margin-top: 12px; align-items: stretch; }
+  #m-sites .tf-value { justify-content: flex-start; }
+  #m-sites .tf-actions { justify-content: stretch; }
+  #m-sites .tf-actions button { flex: 1; }
+  #m-sites .tf-mapbtns { flex-wrap: wrap; }
+  #m-sites .tf-openbtn { min-width: 130px; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  #m-sites .tf-row { gap: 12px; }
+  #m-sites .tf-right { min-width: 205px; }
+}
