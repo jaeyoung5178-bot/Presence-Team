@@ -1,7 +1,8 @@
 (function (global) {
   'use strict';
 
-  var session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null };
+  var session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null, onNavigate: null };
+  var historyBound = false;
 
   function resolveRoot(target) {
     if (!target) return null;
@@ -128,6 +129,41 @@
     return false;
   }
 
+  function historyState(extra) {
+    var base = {};
+    try {
+      if (global.history && global.history.state && typeof global.history.state === 'object') {
+        Object.keys(global.history.state).forEach(function (key) { base[key] = global.history.state[key]; });
+      }
+    } catch (error) {}
+    Object.keys(extra || {}).forEach(function (key) { base[key] = extra[key]; });
+    return base;
+  }
+
+  function markHomeHistory(mode) {
+    try {
+      if (!global.history || typeof global.history.replaceState !== 'function') return;
+      global.history.replaceState(historyState({ presenceAdminHome: mode === 'admin' ? 'home' : 'general', presenceAdminHomeVersion: 1 }), document.title, global.location && global.location.href);
+    } catch (error) {}
+  }
+
+  function pushDestinationHistory(name) {
+    markHomeHistory('admin');
+    try {
+      if (global.history && typeof global.history.pushState === 'function') {
+        global.history.pushState(historyState({ presenceAdminHome: 'destination', presenceAdminHomeDestination: name, presenceAdminHomeVersion: 1 }), document.title, global.location && global.location.href);
+      }
+    } catch (error) {}
+  }
+
+  function navigate(name) {
+    pushDestinationHistory(name);
+    if (typeof session.onNavigate === 'function') {
+      try { session.onNavigate({ from: 'adminhome', to: name }); } catch (error) {}
+    }
+    return go(name);
+  }
+
   function scrollTarget(selector, focus) {
     var target = null;
     try { target = document.querySelector(selector); } catch (error) {}
@@ -143,7 +179,7 @@
   }
 
   function afterAdmin(selector, focus) {
-    go('admin');
+    navigate('admin');
     if (scrollTarget(selector, focus)) return;
     global.setTimeout(function () { scrollTarget(selector, focus); }, 140);
   }
@@ -151,7 +187,7 @@
   function runAction(action) {
     var actor = currentActor();
     if (!isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return;
-    if (action === 'survey') { go('survey'); return; }
+    if (action === 'survey') { navigate('survey'); return; }
     if (action === 'new-member') { afterAdmin('#newMemberIn', true); return; }
     if (action === 'permissions') { afterAdmin('.mem-rows', false); return; }
     if (action === 'departed') { afterAdmin('#departedBody', false); return; }
@@ -175,6 +211,24 @@
         root.dispatchEvent(new global.CustomEvent('presence:admin-home-mode', { bubbles: true, detail: { mode: session.mode } }));
       }
     } catch (error) {}
+    markHomeHistory(session.mode);
+  }
+
+  function handlePopState(event) {
+    var marker = event && event.state && event.state.presenceAdminHome;
+    if (marker !== 'home') return false;
+    var actor = currentActor();
+    if (!session.root || !isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return false;
+    session.mode = 'admin';
+    go('home');
+    render(session.root, { actor: actor, state: liveState({}), mode: 'admin', onModeChange: session.onModeChange, onNavigate: session.onNavigate });
+    return true;
+  }
+
+  function bindHistory() {
+    if (historyBound || typeof global.addEventListener !== 'function') return;
+    historyBound = true;
+    global.addEventListener('popstate', handlePopState);
   }
 
   function bind(root) {
@@ -206,6 +260,7 @@
     session.snapshot = snapshot;
     session.actorUid = nextUid;
     session.onModeChange = options && typeof options.onModeChange === 'function' ? options.onModeChange : session.onModeChange;
+    session.onNavigate = options && typeof options.onNavigate === 'function' ? options.onNavigate : session.onNavigate;
     if (!isAuthorized(actor)) { clear(root); return false; }
     if (changedActor) session.mode = 'admin';
     if (options && (options.mode === 'admin' || options.mode === 'general')) session.mode = options.mode;
@@ -265,7 +320,7 @@
     var actor = currentActor();
     if (!session.root || !isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return false;
     session.mode = next;
-    render(session.root, { actor: actor, state: liveState({}), mode: next, onModeChange: session.onModeChange });
+    render(session.root, { actor: actor, state: liveState({}), mode: next, onModeChange: session.onModeChange, onNavigate: session.onNavigate });
     return true;
   }
 
@@ -278,13 +333,26 @@
   function reset(target) {
     var root = resolveRoot(target) || session.root;
     clear(root);
-    session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null };
+    session = { root: null, actor: null, snapshot: null, actorUid: '', mode: 'admin', onModeChange: null, onNavigate: null };
   }
 
   function invalidate() {
     if (!session.root) return false;
-    return render(session.root, { actor: currentActor(), state: liveState({}), mode: session.mode, onModeChange: session.onModeChange });
+    return render(session.root, { actor: currentActor(), state: liveState({}), mode: session.mode, onModeChange: session.onModeChange, onNavigate: session.onNavigate });
   }
 
-  global.PresenceAdminHome = Object.freeze({ render: render, reset: reset, invalidate: invalidate, setMode: setMode, toggle: toggle, getMode: getMode });
+  function guardRoute(requested, actor, target) {
+    var name = String(requested || '').toLowerCase();
+    if (name !== 'adminhome' && name !== 'admin-home') return requested;
+    var root = resolveRoot(target) || session.root;
+    if (!isAuthorized(actor)) {
+      reset(root);
+      return 'home';
+    }
+    if (root) render(root, { actor: actor, state: liveState({}), mode: 'admin', onModeChange: session.onModeChange, onNavigate: session.onNavigate });
+    return 'home';
+  }
+
+  bindHistory();
+  global.PresenceAdminHome = Object.freeze({ render: render, reset: reset, invalidate: invalidate, setMode: setMode, toggle: toggle, getMode: getMode, guardRoute: guardRoute, handlePopState: handlePopState });
 })(typeof window !== 'undefined' ? window : this);

@@ -8,7 +8,7 @@ const css = await readFile(new URL('../assets/presence-admin-home.css', import.m
 
 for (const token of [
   'global.PresenceAdminHome',
-  "go('survey')",
+  "navigate('survey')",
   "afterAdmin('#newMemberIn', true)",
   "afterAdmin('.mem-rows', false)",
   "afterAdmin('#departedBody', false)",
@@ -18,6 +18,10 @@ for (const token of [
   'setMode: setMode',
   'toggle: toggle',
   'getMode: getMode',
+  'guardRoute: guardRoute',
+  'handlePopState: handlePopState',
+  'presenceAdminHomeDestination',
+  'onNavigate',
 ]) assert.ok(js.includes(token), `missing Admin Home contract: ${token}`);
 
 for (const token of [
@@ -79,13 +83,40 @@ const targets = {
   '#pendList': new FakeElement('pendList'),
 };
 const tabCalls = [];
+const navigateCalls = [];
 let approvalCalls = 0;
+const popstateListeners = [];
+const historyEntries = [{ state: null, url: 'https://presence.test/' }];
+let historyIndex = 0;
+const historyApi = {
+  state: null,
+  replaceState(nextState, _title, url) {
+    this.state = nextState;
+    historyEntries[historyIndex] = { state: nextState, url };
+  },
+  pushState(nextState, _title, url) {
+    historyEntries.splice(historyIndex + 1);
+    historyEntries.push({ state: nextState, url });
+    historyIndex += 1;
+    this.state = nextState;
+  },
+  back() {
+    if (historyIndex < 1) return;
+    historyIndex -= 1;
+    this.state = historyEntries[historyIndex].state;
+    popstateListeners.forEach((listener) => listener({ state: this.state }));
+  },
+};
 const context = {
   console,
   document: {
+    title: 'Presence',
     getElementById(id) { return id === 'adminHomeMount' ? mount : null; },
     querySelector(selector) { return targets[selector] || null; },
   },
+  location: { href: 'https://presence.test/' },
+  history: historyApi,
+  addEventListener(type, listener) { if (type === 'popstate') popstateListeners.push(listener); },
   setTimeout(fn) { fn(); return 1; },
   clearTimeout() {},
   matchMedia() { return { matches: true }; },
@@ -113,7 +144,12 @@ const snapshot = {
 const admin = snapshot.users.admin;
 const modeChanges = [];
 
-assert.equal(context.PresenceAdminHome.render('adminHomeMount', { actor: admin, state: snapshot, onModeChange: (mode) => modeChanges.push(mode) }), true);
+assert.equal(context.PresenceAdminHome.render('adminHomeMount', {
+  actor: admin,
+  state: snapshot,
+  onModeChange: (mode) => modeChanges.push(mode),
+  onNavigate: (route) => navigateCalls.push(route),
+}), true);
 assert.equal(mount.hidden, false);
 assert.equal(mount.attributes['data-pah-ready'], 'true');
 assert.equal(mount.attributes['data-pah-mode'], 'admin');
@@ -139,6 +175,15 @@ assert.deepEqual(modeChanges.slice(0, 3), ['admin', 'general', 'admin']);
 const button = (action) => mount.buttons.find((item) => item.dataset.pahAction === action);
 button('survey').click();
 assert.equal(tabCalls.at(-1), 'survey');
+assert.equal(historyEntries.length, 2, 'survey navigation did not create a Back entry');
+assert.equal(historyApi.state.presenceAdminHome, 'destination');
+assert.equal(historyApi.state.presenceAdminHomeDestination, 'survey');
+assert.equal(navigateCalls.at(-1)?.from, 'adminhome');
+assert.equal(navigateCalls.at(-1)?.to, 'survey');
+historyApi.back();
+assert.equal(tabCalls.at(-1), 'home', 'browser Back did not return to Admin Home');
+assert.equal(mount.attributes['data-pah-mode'], 'admin');
+assert.match(mount.innerHTML, /ADMIN HOME · OPERATIONS/);
 button('new-member').click();
 assert.equal(tabCalls.at(-1), 'admin');
 assert.equal(targets['#newMemberIn'].focused, 1);
@@ -149,6 +194,19 @@ button('departed').click();
 assert.equal(targets['#departedBody'].scrolled, 1);
 button('approvals').click();
 assert.equal(approvalCalls, 1);
+
+assert.equal(context.PresenceAdminHome.guardRoute('survey', admin, mount), 'survey');
+assert.equal(context.PresenceAdminHome.guardRoute('adminhome', admin, mount), 'home');
+assert.equal(mount.attributes['data-pah-mode'], 'admin');
+assert.match(mount.innerHTML, /관리자 빠른 실행/);
+
+const directLeader = { uid: 'direct-leader', name: '직행 리더', role: 'TL', status: 'active' };
+assert.equal(context.PresenceAdminHome.guardRoute('adminhome', directLeader, mount), 'home');
+assert.equal(mount.innerHTML, '', 'direct non-admin route retained privileged markup');
+assert.equal(mount.hidden, true);
+assert.equal(mount.attributes['data-pah-mode'], undefined);
+assert.equal(context.PresenceAdminHome.handlePopState({ state: { presenceAdminHome: 'home' } }), false, 'stale admin session survived route denial');
+assert.equal(mount.innerHTML, '');
 
 for (const actor of [
   { uid: 'leader', name: '리더', role: 'TL', status: 'active' },
@@ -175,7 +233,11 @@ const browser = await chromium.launch({ headless: true, executablePath: '/Applic
 const page = await browser.newPage({ reducedMotion: 'reduce' });
 const pageErrors = [];
 page.on('pageerror', (error) => pageErrors.push(error.message));
-await page.setContent('<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><main id="adminHomeMount"></main><section id="generalHomeFixture">일반 Home 콘텐츠</section></body></html>');
+await page.route('https://presence-admin-home.test/**', (route) => route.fulfill({
+  contentType: 'text/html',
+  body: '<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><main id="adminHomeMount"></main><section id="generalHomeFixture">일반 Home 콘텐츠</section></body></html>',
+}));
+await page.goto('https://presence-admin-home.test/');
 await page.addScriptTag({ content: `
   window.me={uid:'admin',name:'임재영',role:'AOP',status:'active'};
   window.state={users:{admin:me,a:{uid:'a',name:'팀원',role:'IC',status:'active'},p:{uid:'p',name:'가입대기',role:'IC',status:'pending'}},promotionSurveys:{a:{TL:{status:'pending'}}},removedMembers:['퇴사자']};
@@ -183,7 +245,8 @@ await page.addScriptTag({ content: `
   window.isTestBot=(actor)=>!!(actor&&actor.test);
   window.pendingApprovalUsers=()=>Object.values(state.users).filter((user)=>user.status==='pending');
   window.promotionRecords=()=>[{status:'pending'}];
-  window.goTab=()=>{};
+  window.__tabCalls=[];
+  window.goTab=(name)=>window.__tabCalls.push(name);
   window.openPendingApprovals=()=>{};
 ` });
 await page.addScriptTag({ content: js });
@@ -236,9 +299,17 @@ assert.deepEqual(await page.evaluate(() => ({ mode: document.getElementById('adm
 await page.evaluate(() => window.PresenceAdminHome.toggle());
 assert.equal(await page.evaluate(() => document.getElementById('adminHomeMount').dataset.pahMode), 'admin');
 
+await page.evaluate(() => document.querySelector('[data-pah-action="survey"]').click());
+assert.deepEqual(await page.evaluate(() => ({ marker: history.state.presenceAdminHome, destination: history.state.presenceAdminHomeDestination, tab: window.__tabCalls.at(-1) })), { marker: 'destination', destination: 'survey', tab: 'survey' });
+await page.goBack();
+await page.waitForFunction(() => window.__tabCalls.at(-1) === 'home' && document.getElementById('adminHomeMount').dataset.pahMode === 'admin');
+
+assert.equal(await page.evaluate(() => window.PresenceAdminHome.guardRoute('adminhome', { uid: 'direct-tl', name: '팀장', role: 'TL', status: 'active' }, 'adminHomeMount')), 'home');
+assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode') })), { children: 0, hidden: true, mode: false });
+
 await page.evaluate(() => window.PresenceAdminHome.render('adminHomeMount', { actor: { uid: 'tl', name: '팀장', role: 'TL', status: 'active' }, state: window.state }));
 assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode'), generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display })), { children: 0, hidden: true, mode: false, generalDisplay: 'block' });
 await browser.close();
 assert.deepEqual(pageErrors, [], `browser errors: ${pageErrors.join(' | ')}`);
 
-console.log('PASS Admin Home module: auth, real actions, pending data, and 390/1024/1440 geometry');
+console.log('PASS Admin Home module: auth, route guard, Back contract, real actions, pending data, and 390/1024/1440 geometry');
