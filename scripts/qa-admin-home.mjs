@@ -22,6 +22,9 @@ for (const token of [
   'handlePopState: handlePopState',
   'presenceAdminHomeDestination',
   'onNavigate',
+  "target.closest('.adm-card.adm-collapsed')",
+  "root.closest('#m-home')",
+  "classList.toggle('pah-admin-active'",
 ]) assert.ok(js.includes(token), `missing Admin Home contract: ${token}`);
 
 for (const token of [
@@ -29,6 +32,7 @@ for (const token of [
   '.pah-action:focus-visible',
   '.pah-mode-switch',
   '#adminHomeMount[data-pah-mode="admin"]~*',
+  '#m-home.pah-admin-active #workspaceHome',
   '@media (min-width:640px) and (max-width:1199px)',
   '@media (max-width:639px)',
   '@media (prefers-reduced-motion:reduce)',
@@ -45,14 +49,26 @@ class FakeButton {
 }
 
 class FakeElement {
-  constructor(id = '') {
+  constructor(id = '', parent = null) {
     this.id = id;
+    this.parent = parent;
     this.hidden = false;
     this.attributes = {};
     this.buttons = [];
     this._html = '';
     this.focused = 0;
     this.scrolled = 0;
+    const names = new Set();
+    this.classList = {
+      contains(name) { return names.has(name); },
+      toggle(name, force) {
+        if (force === true) names.add(name);
+        else if (force === false) names.delete(name);
+        else if (names.has(name)) names.delete(name);
+        else names.add(name);
+        return names.has(name);
+      },
+    };
   }
   set innerHTML(value) {
     this._html = String(value);
@@ -71,11 +87,13 @@ class FakeElement {
     if (selector === '[data-pah-mode]') return this.modeButtons || [];
     return [];
   }
+  closest(selector) { return selector === '#m-home' ? this.parent : null; }
   scrollIntoView() { this.scrolled += 1; }
   focus() { this.focused += 1; }
 }
 
-const mount = new FakeElement('adminHomeMount');
+const homePanel = new FakeElement('m-home');
+const mount = new FakeElement('adminHomeMount', homePanel);
 const targets = {
   '#newMemberIn': new FakeElement('newMemberIn'),
   '.mem-rows': new FakeElement('memberRows'),
@@ -154,6 +172,7 @@ assert.equal(mount.hidden, false);
 assert.equal(mount.attributes['data-pah-ready'], 'true');
 assert.equal(mount.attributes['data-pah-mode'], 'admin');
 assert.equal(context.PresenceAdminHome.getMode(), 'admin');
+assert.equal(homePanel.classList.contains('pah-admin-active'), true);
 assert.match(mount.innerHTML, /ADMIN HOME · OPERATIONS/);
 assert.match(mount.innerHTML, /설문 보기/);
 assert.match(mount.innerHTML, /신입 등록/);
@@ -165,11 +184,13 @@ assert.match(mount.innerHTML, /ACTIVE TEAM[\s\S]*2<small>명/);
 mount.modeButtons.find((item) => item.dataset.pahMode === 'general').click();
 assert.equal(context.PresenceAdminHome.getMode(), 'general');
 assert.equal(mount.attributes['data-pah-mode'], 'general');
+assert.equal(homePanel.classList.contains('pah-admin-active'), false);
 assert.match(mount.innerHTML, /일반 Home을 보고 있습니다/);
 assert.equal(mount.buttons.length, 0, 'general mode retained privileged action cards');
 mount.modeButtons.find((item) => item.dataset.pahMode === 'admin').click();
 assert.equal(context.PresenceAdminHome.getMode(), 'admin');
 assert.equal(mount.attributes['data-pah-mode'], 'admin');
+assert.equal(homePanel.classList.contains('pah-admin-active'), true);
 assert.deepEqual(modeChanges.slice(0, 3), ['admin', 'general', 'admin']);
 
 const button = (action) => mount.buttons.find((item) => item.dataset.pahAction === action);
@@ -186,8 +207,8 @@ assert.equal(mount.attributes['data-pah-mode'], 'admin');
 assert.match(mount.innerHTML, /ADMIN HOME · OPERATIONS/);
 button('new-member').click();
 assert.equal(tabCalls.at(-1), 'admin');
-assert.equal(targets['#newMemberIn'].focused, 1);
-assert.equal(targets['#newMemberIn'].scrolled, 1);
+assert.ok(targets['#newMemberIn'].focused >= 1);
+assert.ok(targets['#newMemberIn'].scrolled >= 1);
 button('permissions').click();
 assert.equal(targets['.mem-rows'].scrolled, 1);
 button('departed').click();
@@ -205,6 +226,7 @@ assert.equal(context.PresenceAdminHome.guardRoute('adminhome', directLeader, mou
 assert.equal(mount.innerHTML, '', 'direct non-admin route retained privileged markup');
 assert.equal(mount.hidden, true);
 assert.equal(mount.attributes['data-pah-mode'], undefined);
+assert.equal(homePanel.classList.contains('pah-admin-active'), false);
 assert.equal(context.PresenceAdminHome.handlePopState({ state: { presenceAdminHome: 'home' } }), false, 'stale admin session survived route denial');
 assert.equal(mount.innerHTML, '');
 
@@ -215,6 +237,7 @@ for (const actor of [
   assert.equal(context.PresenceAdminHome.render(mount, { actor, state: snapshot }), false);
   assert.equal(mount.innerHTML, '', `${actor.role} received privileged markup`);
   assert.equal(mount.hidden, true);
+  assert.equal(homePanel.classList.contains('pah-admin-active'), false);
 }
 
 context.isFounder = () => false;
@@ -226,6 +249,7 @@ context.PresenceAdminHome.render(mount, { actor: admin, state: snapshot });
 context.PresenceAdminHome.reset(mount);
 assert.equal(mount.innerHTML, '');
 assert.equal(mount.hidden, true);
+assert.equal(homePanel.classList.contains('pah-admin-active'), false);
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
@@ -235,7 +259,7 @@ const pageErrors = [];
 page.on('pageerror', (error) => pageErrors.push(error.message));
 await page.route('https://presence-admin-home.test/**', (route) => route.fulfill({
   contentType: 'text/html',
-  body: '<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><main id="adminHomeMount"></main><section id="generalHomeFixture">일반 Home 콘텐츠</section></body></html>',
+  body: '<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>html,body{margin:0;min-height:100%;background:#e9edf3}body{padding:20px}#adminHomeMount{width:min(1320px,100%);margin:auto}</style><style>' + css + '</style></head><body><div id="m-home"><section id="workspaceHome">실제 일반 Home 콘텐츠</section><main id="adminHomeMount"></main><section id="generalHomeFixture">기존 일반 Home 콘텐츠</section></div></body></html>',
 }));
 await page.goto('https://presence-admin-home.test/');
 await page.addScriptTag({ content: `
@@ -281,6 +305,8 @@ for (const viewport of viewports) {
       clipped,
       mode: document.getElementById('adminHomeMount').dataset.pahMode,
       generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display,
+      workspaceDisplay: getComputedStyle(document.getElementById('workspaceHome')).display,
+      activeClass: document.getElementById('m-home').classList.contains('pah-admin-active'),
     };
   });
   assert.ok(geometry.pageOverflow <= 1, `${viewport.width}px has horizontal overflow: ${geometry.pageOverflow}`);
@@ -288,6 +314,8 @@ for (const viewport of viewports) {
   assert.deepEqual(geometry.clipped, [], `${viewport.width}px clips key text`);
   assert.equal(geometry.mode, 'admin', `${viewport.width}px did not default to Admin Home`);
   assert.equal(geometry.generalDisplay, 'none', `${viewport.width}px did not hide general Home in admin mode`);
+  assert.equal(geometry.workspaceDisplay, 'none', `${viewport.width}px did not hide workspace Home in admin mode`);
+  assert.equal(geometry.activeClass, true, `${viewport.width}px lost explicit admin state`);
   for (const card of geometry.cards) {
     assert.ok(card.width >= 44 && card.height >= 44, `${viewport.width}px has an undersized action`);
     assert.ok(card.left >= -0.5 && card.right <= viewport.width + 0.5, `${viewport.width}px card escapes viewport`);
@@ -295,7 +323,7 @@ for (const viewport of viewports) {
 }
 
 await page.evaluate(() => window.PresenceAdminHome.setMode('general'));
-assert.deepEqual(await page.evaluate(() => ({ mode: document.getElementById('adminHomeMount').dataset.pahMode, generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display, hasSwitch: !!document.querySelector('.pah-general-shell .pah-mode-switch') })), { mode: 'general', generalDisplay: 'block', hasSwitch: true });
+assert.deepEqual(await page.evaluate(() => ({ mode: document.getElementById('adminHomeMount').dataset.pahMode, generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display, workspaceDisplay: getComputedStyle(document.getElementById('workspaceHome')).display, activeClass: document.getElementById('m-home').classList.contains('pah-admin-active'), hasSwitch: !!document.querySelector('.pah-general-shell .pah-mode-switch') })), { mode: 'general', generalDisplay: 'block', workspaceDisplay: 'block', activeClass: false, hasSwitch: true });
 await page.evaluate(() => window.PresenceAdminHome.toggle());
 assert.equal(await page.evaluate(() => document.getElementById('adminHomeMount').dataset.pahMode), 'admin');
 
@@ -305,10 +333,10 @@ await page.goBack();
 await page.waitForFunction(() => window.__tabCalls.at(-1) === 'home' && document.getElementById('adminHomeMount').dataset.pahMode === 'admin');
 
 assert.equal(await page.evaluate(() => window.PresenceAdminHome.guardRoute('adminhome', { uid: 'direct-tl', name: '팀장', role: 'TL', status: 'active' }, 'adminHomeMount')), 'home');
-assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode') })), { children: 0, hidden: true, mode: false });
+assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode'), activeClass: document.getElementById('m-home').classList.contains('pah-admin-active') })), { children: 0, hidden: true, mode: false, activeClass: false });
 
 await page.evaluate(() => window.PresenceAdminHome.render('adminHomeMount', { actor: { uid: 'tl', name: '팀장', role: 'TL', status: 'active' }, state: window.state }));
-assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode'), generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display })), { children: 0, hidden: true, mode: false, generalDisplay: 'block' });
+assert.deepEqual(await page.evaluate(() => ({ children: document.getElementById('adminHomeMount').childElementCount, hidden: document.getElementById('adminHomeMount').hidden, mode: document.getElementById('adminHomeMount').hasAttribute('data-pah-mode'), activeClass: document.getElementById('m-home').classList.contains('pah-admin-active'), generalDisplay: getComputedStyle(document.getElementById('generalHomeFixture')).display, workspaceDisplay: getComputedStyle(document.getElementById('workspaceHome')).display })), { children: 0, hidden: true, mode: false, activeClass: false, generalDisplay: 'block', workspaceDisplay: 'block' });
 await browser.close();
 assert.deepEqual(pageErrors, [], `browser errors: ${pageErrors.join(' | ')}`);
 

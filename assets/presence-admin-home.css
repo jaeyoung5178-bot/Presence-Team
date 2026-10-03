@@ -3,6 +3,7 @@
 .pah-general-shell,
 .pah-general-shell *{box-sizing:border-box}
 #adminHomeMount[data-pah-mode="admin"]~*{display:none!important}
+#m-home.pah-admin-active #workspaceHome{display:none!important}
 .pah-shell{
   --pah-bg:#09101c;
   --pah-panel:#101a2a;
@@ -48,7 +49,7 @@
 .pah-mode-switch{
   display:inline-grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:4px;
+  gap:8px;
   min-width:232px;
   padding:4px;
   background:rgba(1,7,16,.48);

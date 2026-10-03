@@ -168,6 +168,10 @@
     var target = null;
     try { target = document.querySelector(selector); } catch (error) {}
     if (!target) return false;
+    try {
+      var collapsed = typeof target.closest === 'function' ? target.closest('.adm-card.adm-collapsed') : null;
+      if (collapsed && collapsed.classList) collapsed.classList.remove('adm-collapsed');
+    } catch (error) {}
     var reduce = false;
     try { reduce = !!global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (error) {}
     try { target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center', inline: 'nearest' }); }
@@ -180,8 +184,8 @@
 
   function afterAdmin(selector, focus) {
     navigate('admin');
-    if (scrollTarget(selector, focus)) return;
-    global.setTimeout(function () { scrollTarget(selector, focus); }, 140);
+    var found = scrollTarget(selector, focus);
+    if (!found || focus) global.setTimeout(function () { scrollTarget(selector, focus); }, 140);
   }
 
   function runAction(action) {
@@ -200,8 +204,17 @@
     }
   }
 
+  function syncAdminActive(root, active) {
+    if (!root || typeof root.closest !== 'function') return;
+    var panel = null;
+    try { panel = root.closest('#m-home'); } catch (error) {}
+    if (!panel || !panel.classList || typeof panel.classList.toggle !== 'function') return;
+    panel.classList.toggle('pah-admin-active', active === true);
+  }
+
   function emitMode(root) {
     if (!root) return;
+    syncAdminActive(root, session.mode === 'admin');
     root.setAttribute('data-pah-mode', session.mode);
     if (typeof session.onModeChange === 'function') {
       try { session.onModeChange(session.mode); } catch (error) {}
@@ -242,6 +255,7 @@
 
   function clear(root) {
     if (!root) return;
+    syncAdminActive(root, false);
     root.innerHTML = '';
     root.hidden = true;
     root.removeAttribute('data-pah-ready');

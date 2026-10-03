@@ -52,7 +52,7 @@ await page.evaluate(() => {
   state.profitMonthlyBep = { '2026-08': { 'qa-a': 2000, 'qa-b': 2000 } };
   window.__qaRecapWrites = [];
   DB.set = async (path, value) => { window.__qaRecapWrites.push({ path, value }); };
-  DB.update = async () => {};
+  DB.update = async (_path, value) => { Object.entries(value || {}).forEach(([path, nextValue]) => window.__qaRecapWrites.push({ path, value: nextValue })); };
   DB.get = async () => null;
   DB.on = () => () => {};
   me = admin;
@@ -153,7 +153,7 @@ const desktop = await page.evaluate(() => {
       memberAvg: [...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === 'AVG') && preview.includes('AVG=세일즈÷필드일(NA 제외·0건 포함)') && [...document.querySelectorAll('#m-recap .pra-table td.avg')].some((el) => el.textContent.trim() === '3.50'),
       payColumnRemoved: ![...document.querySelectorAll('#m-recap .pra-table thead th')].some((el) => el.textContent.trim() === '급여'),
       productivitySlide: preview.includes('실인컴과 리젝') && preview.includes('실제 인컴') && preview.includes('CL · 클라이언트') && preview.includes('SW · 세일즈웍스'),
-      simplifiedProductivity: (() => { const slide=document.querySelector('#m-recap .pra-income-reject-slide'); return !!slide && slide.textContent.includes('총 리젝률') && slide.textContent.includes('Net 세일즈') && !slide.textContent.includes('Gross Sales'); })(),
+      simplifiedProductivity: (() => { const slide=document.querySelector('#m-recap .pra-income-reject-slide'); return !!slide && slide.textContent.includes('총 리젝률') && slide.textContent.includes('Net') && slide.textContent.includes('CL') && slide.textContent.includes('SW') && !slide.textContent.includes('Gross Sales'); })(),
       bondRemovedFromRing: !document.querySelector('#m-recap .pra-story-donut svg')?.textContent.includes('본드'),
       lossWithoutBondCalculation: preview.includes('리젝 손실액') && preview.includes('(본드에서 우선차감)') && preview.includes('₩440,000') && preview.includes('순리젝 4건 × ₩110,000'),
       oneCompositeRing: document.querySelectorAll('#m-recap .pra-story-donut').length === 1 && document.querySelectorAll('#m-recap .pra-story-donut svg').length === 1,
@@ -306,7 +306,7 @@ const report = await page.evaluate(async bytes => {
   const paths=Object.keys(zip.files).filter(p=>/^ppt\/slides\/slide\d+\.xml$/.test(p)).sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));
   const slides=await Promise.all(paths.map(p=>zip.file(p).async('string')));
   const detail=slides.slice(3).join('');
-  return {slideCount:slides.length,month:slides[0]?.includes('26년 8월 Recap')&&slides[0]?.includes('2026.08'),brand:[...slides].every((slide)=>slide.includes('Presence')),weekly:slides[1]?.includes('주차별 현황'),reject:slides[2]?.includes('리젝 손실액')&&slides[2]?.includes('Net 세일즈'),detail:detail.includes('팀원별 상세 세일즈')&&['AVG','3.50','AVG=세일즈÷필드일(NA 제외·0건 포함)','W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t)),theme:[...slides].every((slide)=>slide.includes('EFF8FF'))};
+  return {slideCount:slides.length,month:slides[0]?.includes('26년 8월 Recap')&&slides[0]?.includes('2026.08'),brand:[...slides].every((slide)=>slide.includes('Presence')),weekly:slides[1]?.includes('주차별 현황'),reject:['리젝 손실액','총 리젝률','Net'].every((token)=>slides[2]?.includes(token)),detail:detail.includes('팀원별 상세 세일즈')&&['AVG','3.50','AVG=세일즈÷필드일(NA 제외·0건 포함)','W1','W2','W3','W4','황혜진','윤채영','잔여본드'].every(t=>detail.includes(t)),theme:[...slides].every((slide)=>slide.includes('EFF8FF'))};
 }, Array.from(await readFile(output)));
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
