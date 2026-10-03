@@ -320,7 +320,7 @@ body.presence-atelier-home .presence-tree-photoreal {
   width: min(60%, 560px);
   aspect-ratio: 480 / 670;
   pointer-events: none;
-  background-image: url("../docs/design/presence-home-atelier-approved.png");
+  background-image: url("farm-world/approved/home-tree-approved.png");
   background-repeat: no-repeat;
   background-size: 427% 172%;
   background-position: 30.6% 21.8%;
