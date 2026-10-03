@@ -73,7 +73,7 @@ check(
   'weekly child reads must be exact-self and assignment-index bound',
 );
 check(
-  includesAll(weekly?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "child('byPay')", "== $uid"]),
+  includesAll(weekly?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "state').val() == 'rolled-back'", "child('byPay')", "== $uid"]),
   'weekly writes must cut over on complete and allow only leased migration or exact self index',
 );
 check(
@@ -85,7 +85,7 @@ check(
   'BEP child reads must be exact-self and month-index bound',
 );
 check(
-  includesAll(bep?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "child('byMonth')", "== $uid"]),
+  includesAll(bep?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "state').val() == 'rolled-back'", "child('byMonth')", "== $uid"]),
   'BEP writes must use the same fail-closed v3 cutover',
 );
 
@@ -121,9 +121,10 @@ check(
 const complete = { marker: true, status: 'complete' };
 const rolledBack = { marker: false, status: 'rolled-back' };
 const locked = { marker: false, status: 'locked', lease: true };
+const rollbackReady = { marker: true, status: 'complete', lease: true };
 const canLegacyWrite = (state) => !state.marker && [undefined, 'blocked', 'failed', 'rolled-back'].includes(state.status);
 const canNewSelfWrite = (state, exact) => state.marker && state.status === 'complete' && exact;
-const canMigrationWrite = (state, admin) => admin && state.lease && ['locked', 'running', 'applying', 'verifying', 'applied'].includes(state.status);
+const canMigrationWrite = (state, admin) => admin && state.lease && ['locked', 'running', 'applying', 'verifying', 'applied', 'complete', 'rolled-back'].includes(state.status);
 
 assert.equal(canLegacyWrite(rolledBack), true, 'legacy remains available before lock');
 assert.equal(canLegacyWrite(locked), false, 'legacy freezes at lock');
@@ -133,6 +134,8 @@ assert.equal(canNewSelfWrite(complete, false), false, 'new self path requires an
 assert.equal(canNewSelfWrite(complete, true), true, 'new self path opens after verified complete');
 assert.equal(canMigrationWrite(locked, true), true, 'admin may apply under a live migration lease');
 assert.equal(canMigrationWrite(locked, false), false, 'ordinary users cannot use the migration bypass');
+assert.equal(canMigrationWrite(rollbackReady, true), true, 'admin may restore canonical leaves under a live rollback lease');
+assert.equal(canMigrationWrite({ ...rollbackReady, lease: false }, true), false, 'rollback bypass fails closed without a live lease');
 
 if (failures.length) {
   console.error(`FAIL ${failures.length} Recap Studio v3 security contract checks`);

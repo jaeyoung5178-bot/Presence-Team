@@ -321,6 +321,28 @@ async function main() {
     await deny('legacy private write remains frozen after complete marker', () =>
       set(ref(direct, 'weeklyProfitRecapsPrivate/direct/2026-09-11'), legacyRecap('direct', '2026-09-11', 333)));
 
+    await setMigration(testEnv, { status: status('complete', 'run-rollback-source'), marker: marker('run-rollback-source'), lock: lease('lease-rollback') });
+    await allow('admin atomically rolls reviewed leaves back under an active lease', () =>
+      update(ref(admin), {
+        'recapStudioTeams/fuse/roster/fuseMember': null,
+        'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember': null,
+        'recapStudioTeams/fuse/bep/2026-09/fuseMember': null,
+        'recapStudioAssignments/byUid/fuseMember/intervals/fuse-a': null,
+        'recapStudioAssignments/byPay/2026-09-11/fuseMember': null,
+        'recapStudioAssignments/byMonth/2026-09/fuseMember': null,
+        'recapStudioMigrations/teamHistoryV3/marker': null,
+        'recapStudioMigrations/teamHistoryV3/status': status('rolled-back', 'run-rollback'),
+        'recapStudioMigrations/teamHistoryV3/audit/run-rollback': {
+          action: 'rollback', actorUid: 'admin', startedAt: Date.now(), completedAt: Date.now(),
+          state: 'rolled-back', configHash: CFG, desiredHash: 'desired-v3',
+          counts: { writes: 2, cleanup: 0 }, conflictCount: 0, unresolvedCount: 0,
+        },
+      }));
+    await expectValue('rollback removes canonical weekly leaf atomically', admin, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember', null);
+    await expectValue('rollback removes assignment interval atomically', admin, 'recapStudioAssignments/byUid/fuseMember/intervals/fuse-a', null);
+    await expectValue('rollback removes completion marker atomically', admin, 'recapStudioMigrations/teamHistoryV3/marker', null);
+    await expectValue('rollback records rolled-back status atomically', admin, 'recapStudioMigrations/teamHistoryV3/status/state', 'rolled-back');
+
     console.log(`PASS Recap Studio RTDB Rules v3 matrix (${passCount} assertions)`);
   } finally {
     await testEnv.cleanup();
