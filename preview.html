@@ -6001,6 +6001,20 @@ function prcMonthShift(mk,n){const d=new Date(mk+'-01T12:00:00');d.setMonth(d.ge
 function prcLatestPayMonth(ds){return prcFriday(ds||TODAY).slice(0,7);}
 function prcMonthLabel(mk){return /^\d{4}-\d{2}$/.test(mk||'')?Number(mk.slice(0,4))+'년 '+Number(mk.slice(5,7))+'월':'';}
 function prcAdminSetMonth(v){if(!/^\d{4}-\d{2}$/.test(v||''))return;prcAdminPreset='month';prcAdminFrom=v;prcAdminTo=v;renderProfitRecapAdminView();}
+function prcValidMonth(v){return /^\d{4}-\d{2}$/.test(v||'')?v:'';}
+function prcResolveExportRange(source){
+  source=source==='weekly'?'weekly':'admin';
+  if(source==='weekly'){
+    const fallback=prcValidMonth(String(profitRecapPayDate||TODAY).slice(0,7))||prcLatestPayMonth(TODAY),month=prcValidMonth(((document.getElementById('prcExportMonth')||{}).value)||'')||fallback;
+    return {from:month,to:month,source:source};
+  }
+  const selected=prcValidMonth(((document.getElementById('praReportMonth')||{}).value)||'');
+  let from=prcValidMonth(prcAdminFrom),to=prcValidMonth(prcAdminTo);
+  if(prcAdminPreset==='month'&&selected){from=selected;to=selected;}
+  if(!from||!to){const fallback=selected||prcLatestPayMonth(TODAY);from=from||fallback;to=to||fallback;}
+  if(from>to){const swap=from;from=to;to=swap;}
+  return {from:from,to:to,source:source};
+}
 function prcRangeMonths(from,to){if(!/^\d{4}-\d{2}$/.test(from||'')||!/^\d{4}-\d{2}$/.test(to||''))return [];if(from>to){const t=from;from=to;to=t;}const out=[];for(let m=from,i=0;m<=to&&i<60;m=prcMonthShift(m,1),i++)out.push(m);return out;}
 function prcRangeLabel(from,to){return from===to?from.replace('-','년 ')+'월':from.replace('-','.')+' ~ '+to.replace('-','.');}
 function prcAdminSetPreset(kind){
@@ -6083,7 +6097,7 @@ function renderProfitRecapAdminView(){
   const uid=prcAdminScope==='person'?prcAdminUid:'',data=prcAdminAgg(prcAdminFrom,prcAdminTo,uid),person=leaders.find(function(u){return u.uid===prcAdminUid;}),scopeName=prcAdminScope==='person'?((person||{}).name||'개인')+' '+((person||{}).role||''):(me.name||'관리자')+' '+(me.role||''),rangeLabel=prcRangeLabel(prcAdminFrom,prcAdminTo);
   const singleMonth=prcAdminFrom===prcAdminTo,chosenMonth=singleMonth?prcAdminFrom:prcAdminTo,selectionLabel=singleMonth?prcMonthLabel(prcAdminFrom):rangeLabel,downloadLabel=prcAdminScope==='person'?'개인자료':'팀 전체자료';
   const monthPicker='<div class="pra-month-picker"><div class="pra-month-copy"><label for="praReportMonth">📅 다운로드할 리캡 월</label><small>월을 선택하면 아래 미리보기와 PPT 다운로드 자료가 같은 월로 즉시 바뀝니다.</small></div><div class="pra-month-input"><input id="praReportMonth" type="month" value="'+chosenMonth+'" onchange="prcAdminSetMonth(this.value)" aria-label="다운로드할 리캡 월"><span aria-live="polite">현재 선택 · '+esc(selectionLabel)+'</span></div></div>';
-  const controls=monthPicker+'<div class="pra-controls"><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\')">'+esc(selectionLabel)+' '+downloadLabel+' PPT 다운로드</button></div><details class="pra-advanced"'+(prcAdminPreset!=='month'?' open':'')+'><summary>여러 달·분기·반기·연도 자료 받기</summary><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div></details>';
+  const controls=monthPicker+'<div class="pra-controls"><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\',\'admin\')">'+esc(selectionLabel)+' '+downloadLabel+' PPT 다운로드</button></div><details class="pra-advanced"'+(prcAdminPreset!=='month'?' open':'')+'><summary>여러 달·분기·반기·연도 자료 받기</summary><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div></details>';
   if(!data.rows.length){box.innerHTML=controls+'<div class="pra-empty">선택한 범위의 세일즈·주간 리캡 데이터가 아직 없어요.<br>세일즈 또는 금요일 리캡이 저장되면 같은 계산 기준으로 바로 반영됩니다.</div>';prcPendingMount(chosenMonth);return;}
   box.innerHTML=controls+'<div class="pra-deck">'+prcCoverHTML(data,prcAdminFrom,prcAdminTo,scopeName)+prcSummaryHTML(data,rangeLabel)+prcProductivityHTML(data)+prcAdminDetailSlides(data,prcAdminScope,scopeName,rangeLabel)+'</div>';
   prcPendingMount(chosenMonth);
@@ -6091,7 +6105,7 @@ function renderProfitRecapAdminView(){
 function prcExportHTML(month){
   if(!canManageTeamRecords(me))return '';
   const leaders=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&ri(u.role)>=1&&!isTestBot(u);}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
-  return '<div class="prc-export"><div class="prc-side-title"><b>📊 샘플 양식 PPT</b><span>모든 도형·표·차트 수정 가능</span></div><div class="prc-export-grid"><input id="prcExportMonth" type="month" value="'+month+'" aria-label="PPT 리캡 월"><select id="prcExportUid" aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'">'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><div class="prc-export-actions"><button onclick="exportProfitRecapPpt(\'team\')">팀 전체자료 PPT</button><button onclick="exportProfitRecapPpt(\'person\')">개인자료 PPT</button></div></div></div>';
+  return '<div class="prc-export"><div class="prc-side-title"><b>📊 샘플 양식 PPT</b><span>모든 도형·표·차트 수정 가능</span></div><div class="prc-export-grid"><input id="prcExportMonth" type="month" value="'+month+'" aria-label="PPT 리캡 월"><select id="prcExportUid" aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'">'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><div class="prc-export-actions"><button onclick="exportProfitRecapPpt(\'team\',\'weekly\')">팀 전체자료 PPT</button><button onclick="exportProfitRecapPpt(\'person\',\'weekly\')">개인자료 PPT</button></div></div></div>';
 }
 function renderProfitRecap(){
   const box=document.getElementById('profitRecapBody');if(!box)return;
@@ -6384,9 +6398,9 @@ function prcPptDetail(pptx,data,rows,start,rowPage,rowPages,weekStart,weekEnd,pa
   const sumLine=function(label,x,fill){return [prcPptCell(label,fill,'1E293B',true,'left'),prcPptCell(x.fieldDays+'일',fill,'1E293B',true),prcPptCell(x.sales,fill,'1E293B',true),prcPptCell(prcAvgText(x),fill,PRC_DECK_BLUE,true),prcPptCell('₩'+prcFmt(x.income),fill,'F59E0B',true),prcPptCell('₩'+prcFmt(x.bond),fill,'6D67C7',true),prcPptCell(x.rejects,fill,'1E293B',true),prcPptCell(x.resubmits,fill,'1E293B',true),prcPptCell(prcPct(x.rejectRate),fill,x.rejectRate<=15?'009E6C':x.rejectRate<=30?'F59E0B':'E54864',true)].concat(x.weekly.slice(weekStart,weekEnd).map(function(v){return prcPptCell(v,fill,'1E293B',true);}));};tableRows.push(sumLine((start+1)+'–'+(start+rows.length)+' 합계',chunk,'E8EDF1'));tableRows.push(sumLine('팀 합계',total,'D5EAFF'));
   const base=[1.48,.64,.64,.62,1.16,1.0,.5,.5,.66],remaining=11.72-base.reduce(function(s,v){return s+v;},0),ww=remaining/Math.max(1,pays.length),cols=base.concat(pays.map(function(){return ww;}));slide.addTable(tableRows,{x:.8,y:2.12,w:11.72,h:4.2,border:{type:'solid',color:'AEB8C1',pt:.55},fill:'FFFFFF',color:'1E293B',fontFace:'Noto Sans KR',fontSize:8.1,margin:.035,rowH:.47,colW:cols,align:'center',valign:'middle',autoFit:false});prcPptText(slide,pptx,'입력 상태: 리캡 '+rows.reduce(function(s,x){return s+x.savedWeeks;},0)+' / '+(rows.length*data.pays.length)+' 주차 · 시급 '+chunk.hourlyWeeks+' · 성과 '+chunk.performanceWeeks,.9,6.56,7.1,.18,8.5,'64748B',false);return slide;
 }
-async function exportProfitRecapPpt(scope){
+async function exportProfitRecapPpt(scope,source){
   if(!canManageTeamRecords(me)){toast('관리자 또는 매니저만 다운로드할 수 있어요');return;}
-  const base=((document.getElementById('prcExportMonth')||{}).value||(profitRecapPayDate||TODAY).slice(0,7)),from=((document.getElementById('praFrom')||{}).value||base),to=((document.getElementById('praTo')||{}).value||base),uid=scope==='person'?((document.getElementById('prcExportUid')||document.getElementById('praUid')||{}).value||''):'';
+  const range=prcResolveExportRange(source),from=range.from,to=range.to,uid=scope==='person'?(range.source==='weekly'?((document.getElementById('prcExportUid')||{}).value||''):((document.getElementById('praUid')||{}).value||'')):'';
   const data=prcAdminAgg(from,to,uid);if(!data.rows.length){toast('선택한 범위에 세일즈·리캡 데이터가 없어요');return;}
   toast('샘플 양식으로 편집 가능한 PPT를 만드는 중이에요…');
   try{
@@ -12711,7 +12725,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-09-06.setup-weekday-edit-68';
+const APP_VERSION='2026-10-03.recap-month-fix-70';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){

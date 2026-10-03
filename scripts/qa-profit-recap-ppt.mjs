@@ -73,6 +73,49 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(150);
 
+const monthRangeRegression = await page.evaluate(() => {
+  let weeklyMonth = document.getElementById('prcExportMonth');
+  let temporaryWeeklyMonth = false;
+  if (!weeklyMonth) {
+    weeklyMonth = document.createElement('input');
+    weeklyMonth.id = 'prcExportMonth';
+    weeklyMonth.type = 'month';
+    weeklyMonth.hidden = true;
+    document.body.appendChild(weeklyMonth);
+    temporaryWeeklyMonth = true;
+  }
+  weeklyMonth.value = '2026-10';
+  prcAdminSetMonth('2026-09');
+  const september = prcResolveExportRange('admin');
+  const septemberPays = prcAdminAgg(september.from, september.to, '').pays;
+  const septemberPeriod = prcPeriodForPays(septemberPays);
+  const septemberButton = document.querySelector('#m-recap .pra-download')?.getAttribute('onclick') || '';
+  weeklyMonth.value = '2026-09';
+  prcAdminSetMonth('2026-10');
+  const october = prcResolveExportRange('admin');
+  const octoberPays = prcAdminAgg(october.from, october.to, '').pays;
+  const octoberPeriod = prcPeriodForPays(octoberPays);
+  const weekly = prcResolveExportRange('weekly');
+  const octoberButton = document.querySelector('#m-recap .pra-download')?.getAttribute('onclick') || '';
+  prcAdminSetMonth('2026-08');
+  if (temporaryWeeklyMonth) weeklyMonth.remove();
+  return {
+    september,
+    septemberPays,
+    septemberPeriod,
+    septemberTitle: prcMonthTitle(september.from, september.to),
+    septemberFilenamePrefix: `Presence_${september.from}_${september.to}_`,
+    septemberButton,
+    october,
+    octoberPays,
+    octoberPeriod,
+    octoberTitle: prcMonthTitle(october.from, october.to),
+    octoberFilenamePrefix: `Presence_${october.from}_${october.to}_`,
+    octoberButton,
+    weekly,
+  };
+});
+
 const desktop = await page.evaluate(() => {
   const d = prcAdminAgg('2026-08', '2026-08', '');
   const yoon = d.rows.find((r) => r.name === '윤채영');
@@ -264,6 +307,9 @@ const report = await page.evaluate(async bytes => {
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
+if (JSON.stringify(monthRangeRegression.september) !== JSON.stringify({ from: '2026-09', to: '2026-09', source: 'admin' }) || JSON.stringify(monthRangeRegression.septemberPays) !== JSON.stringify(['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25']) || JSON.stringify(monthRangeRegression.septemberPeriod) !== JSON.stringify({ from: '2026-08-24', to: '2026-09-20' }) || monthRangeRegression.septemberTitle !== '26년 9월 Recap' || monthRangeRegression.septemberFilenamePrefix !== 'Presence_2026-09_2026-09_' || !monthRangeRegression.septemberButton.includes("'admin'")) failures.push('September selection is not pinned to September data, title, period, and filename');
+if (JSON.stringify(monthRangeRegression.october) !== JSON.stringify({ from: '2026-10', to: '2026-10', source: 'admin' }) || JSON.stringify(monthRangeRegression.octoberPays) !== JSON.stringify(['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30']) || JSON.stringify(monthRangeRegression.octoberPeriod) !== JSON.stringify({ from: '2026-09-21', to: '2026-10-25' }) || monthRangeRegression.octoberTitle !== '26년 10월 Recap' || monthRangeRegression.octoberFilenamePrefix !== 'Presence_2026-10_2026-10_' || !monthRangeRegression.octoberButton.includes("'admin'")) failures.push('October selection is not pinned to October data, title, period, and filename');
+if (JSON.stringify(monthRangeRegression.weekly) !== JSON.stringify({ from: '2026-09', to: '2026-09', source: 'weekly' })) failures.push('Weekly export month was contaminated by the hidden admin month selector');
 if(report.slideCount!==4||!report.month||!report.brand||!report.weekly||!report.reject||!report.detail||!report.theme)failures.push('Selected month, reference theme, visible brand, weekly charts, member AVG, or detail slides are missing from the full report');
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
 if (JSON.stringify(desktop.rowOrder) !== JSON.stringify(['황혜진', '윤채영'])) failures.push('Recap members are not ordered by entry date');
@@ -284,5 +330,5 @@ if (!download.suggestedFilename().startsWith('Presence_2026-08_2026-08_')) failu
 if (errors.length) failures.push('Browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ desktop, tablet, phone, leaderPhone, managerPhone, report, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
+console.log(JSON.stringify({ monthRangeRegression, desktop, tablet, phone, leaderPhone, managerPhone, report, pptx: { output, bytes: pptxStat.size, suggestedFilename: download.suggestedFilename() }, errors, consoleErrors, failures }, null, 2));
 if (failures.length) process.exit(1);
