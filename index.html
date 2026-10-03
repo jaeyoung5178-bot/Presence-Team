@@ -4530,13 +4530,73 @@ const TL_HOME_CONFIGS={
   umqna7jpj:{teamKey:'youngwave',teamName:'YOUNG WAVE',leaderName:'윤채영',kind:'team'}
 };
 const TL_HOME_BY_NAME={임재영:TL_HOME_CONFIGS.admin,고윤경:TL_HOME_CONFIGS.umqn54ujf,윤채영:TL_HOME_CONFIGS.umqna7jpj};
-const RECAP_STUDIO_SECURITY_VERSION='2026-10-03.v1';
-/* Only identities already fixed in the TL Home configuration are safe to seed.
-   Team members stay unassigned until an admin reviews their roster intervals. */
+const RECAP_STUDIO_SECURITY_VERSION='2026-10-03.team-history-v2';
+const RECAP_STUDIO_MIRROR_MONTHS=['2026-08','2026-09','2026-10'];
+/* 2026-10-03 관리자 검수 완료 명단. 급여일을 기준으로 유효 구간을 판정한다.
+   Presence 직속 인원은 어느 팀에도 자동 배정하지 않는다. */
 const RECAP_STUDIO_REVIEWED_ROSTER={
+  fuse:{
+    umqn54ujf:{uid:'umqn54ujf',name:'고윤경',role:'TL',activeFrom:'2025-12-22'},
+    umqon3e0p:{uid:'umqon3e0p',name:'권영웅',role:'LR',activeFrom:'2026-06-10'},
+    umqonn3id:{uid:'umqonn3id',name:'김하진',role:'LR',activeFrom:'2026-01-24',activeTo:'2026-08-31'}
+  },
+  youngwave:{
+    umqna7jpj:{uid:'umqna7jpj',name:'윤채영',role:'TL',activeFrom:'2026-02-02'},
+    umrcsjqmm:{uid:'umrcsjqmm',name:'민병준',role:'LR',activeFrom:'2026-07-06'},
+    umqp1ufdo:{uid:'umqp1ufdo',name:'손예진',role:'LR',activeFrom:'2026-03-25'},
+    opc6wFbahNXpfyxP0AlJI4inKrd2:{uid:'opc6wFbahNXpfyxP0AlJI4inKrd2',name:'이수민',role:'LR',activeFrom:'2026-08-16'},
+    iEaGdVqSAEbRVI6Yeus7ZG0Zf4t2:{uid:'iEaGdVqSAEbRVI6Yeus7ZG0Zf4t2',name:'황혜진',role:'LR',activeFrom:'2026-08-16'}
+  }
+};
+const RECAP_STUDIO_LEGACY_ROSTER_SEED={
   fuse:{umqn54ujf:{uid:'umqn54ujf',name:'고윤경',role:'TL',activeFrom:'2026-10-03'}},
   youngwave:{umqna7jpj:{uid:'umqna7jpj',name:'윤채영',role:'TL',activeFrom:'2026-10-03'}}
 };
+function recapStudioStableValue(value){if(Array.isArray(value))return value.map(recapStudioStableValue);if(value&&typeof value==='object'){const out={};Object.keys(value).sort().forEach(function(key){if(value[key]!==undefined)out[key]=recapStudioStableValue(value[key]);});return out;}return value;}
+function recapStudioSameValue(a,b){return JSON.stringify(recapStudioStableValue(a))===JSON.stringify(recapStudioStableValue(b));}
+function recapStudioRosterCore(entry){if(!entry)return null;const out={uid:entry.uid,name:entry.name,role:entry.role,activeFrom:entry.activeFrom};if(entry.activeTo)out.activeTo=entry.activeTo;return out;}
+function recapStudioReviewedTargetsAt(uid,pay){const matches=[];Object.keys(RECAP_STUDIO_REVIEWED_ROSTER).forEach(function(teamKey){const entry=RECAP_STUDIO_REVIEWED_ROSTER[teamKey][uid];if(recapStudioRosterActive(entry,pay))matches.push(teamKey);});return matches;}
+function recapStudioReviewedTargetsInMonth(uid,month){const first=month+'-01',last=month+'-31',matches=[];Object.keys(RECAP_STUDIO_REVIEWED_ROSTER).forEach(function(teamKey){const entry=RECAP_STUDIO_REVIEWED_ROSTER[teamKey][uid];if(entry&&entry.activeFrom<=last&&(!entry.activeTo||entry.activeTo>=first))matches.push(teamKey);});return matches;}
+function recapStudioPlanReviewedHistoryMigration(snapshot,stamp){
+  snapshot=snapshot||{};const teams=snapshot.teams||{},weekly=snapshot.weekly||{},bep=snapshot.bep||{},patch={},conflicts=[],already=[],ignored=[],safeRoster=new Set(),reviewedUids=new Set();
+  const addConflict=function(type,detail){conflicts.push(Object.assign({type:type},detail||{}));};
+  Object.keys(RECAP_STUDIO_REVIEWED_ROSTER).forEach(function(teamKey){
+    Object.keys(RECAP_STUDIO_REVIEWED_ROSTER[teamKey]).forEach(function(uid){
+      reviewedUids.add(uid);const desired=RECAP_STUDIO_REVIEWED_ROSTER[teamKey][uid],wrongTeams=Object.keys(teams).filter(function(other){return other!==teamKey&&((((teams[other]||{}).roster)||{})[uid]);});
+      if(wrongTeams.length){addConflict('roster-overlap',{uid:uid,teamKey:teamKey,otherTeams:wrongTeams});return;}
+      const existing=((((teams[teamKey]||{}).roster)||{})[uid]);
+      if(!existing){patch['recapStudioTeams/'+teamKey+'/roster/'+uid]=Object.assign({},desired,{reviewedAt:stamp,reviewedBy:'admin'});safeRoster.add(teamKey+'|'+uid);return;}
+      const reviewed=existing.reviewedBy==='admin'&&typeof existing.reviewedAt==='number'&&Number.isFinite(existing.reviewedAt),same=recapStudioSameValue(recapStudioRosterCore(existing),desired),legacy=((((RECAP_STUDIO_LEGACY_ROSTER_SEED[teamKey]||{})[uid])||null));
+      if(same&&reviewed){already.push({type:'roster',teamKey:teamKey,uid:uid});safeRoster.add(teamKey+'|'+uid);return;}
+      if(legacy&&reviewed&&recapStudioSameValue(recapStudioRosterCore(existing),legacy)){patch['recapStudioTeams/'+teamKey+'/roster/'+uid]=Object.assign({},desired,{reviewedAt:stamp,reviewedBy:'admin'});safeRoster.add(teamKey+'|'+uid);return;}
+      addConflict('roster-mismatch',{uid:uid,teamKey:teamKey,existing:existing,expected:desired});
+    });
+  });
+  Object.keys(weekly).sort().forEach(function(pay){
+    const month=String(pay).slice(0,7);if(!RECAP_STUDIO_MIRROR_MONTHS.includes(month))return;
+    Object.keys(weekly[pay]||{}).forEach(function(uid){
+      if(!reviewedUids.has(uid)){ignored.push({type:'weekly-unassigned',payDate:pay,uid:uid});return;}
+      const targets=recapStudioReviewedTargetsAt(uid,pay);if(targets.length!==1){ignored.push({type:'weekly-outside-roster',payDate:pay,uid:uid,matches:targets});return;}
+      const teamKey=targets[0],source=weekly[pay][uid];if(!safeRoster.has(teamKey+'|'+uid)){addConflict('weekly-roster-unsafe',{payDate:pay,uid:uid,teamKey:teamKey});return;}
+      if(!source||source.uid!==uid||source.payDate!==pay||!/^\d{4}-\d{2}-\d{2}$/.test(source.weekEnding||'')||typeof source.netPayment!=='number'||!Number.isFinite(source.netPayment)||typeof source.rejectCLCount!=='number'||!Number.isFinite(source.rejectCLCount)||typeof source.rejectSWCount!=='number'||!Number.isFinite(source.rejectSWCount)||typeof source.updatedAt!=='number'||!Number.isFinite(source.updatedAt)){addConflict('weekly-source-invalid',{payDate:pay,uid:uid,teamKey:teamKey});return;}
+      const wrongTeams=Object.keys(teams).filter(function(other){return other!==teamKey&&((((((teams[other]||{}).weekly)||{})[pay]||{})[uid])!=null);});if(wrongTeams.length){addConflict('weekly-cross-team',{payDate:pay,uid:uid,teamKey:teamKey,otherTeams:wrongTeams});return;}
+      const existing=(((((teams[teamKey]||{}).weekly)||{})[pay]||{})[uid]);if(existing==null){patch['recapStudioTeams/'+teamKey+'/weekly/'+pay+'/'+uid]=source;return;}if(recapStudioSameValue(existing,source)){already.push({type:'weekly',payDate:pay,uid:uid,teamKey:teamKey});return;}addConflict('weekly-mismatch',{payDate:pay,uid:uid,teamKey:teamKey});
+    });
+  });
+  Object.keys(bep).sort().forEach(function(month){
+    if(!RECAP_STUDIO_MIRROR_MONTHS.includes(month))return;
+    Object.keys(bep[month]||{}).forEach(function(uid){
+      if(!reviewedUids.has(uid)){ignored.push({type:'bep-unassigned',month:month,uid:uid});return;}
+      const targets=recapStudioReviewedTargetsInMonth(uid,month);if(targets.length!==1){ignored.push({type:'bep-outside-roster',month:month,uid:uid,matches:targets});return;}
+      const teamKey=targets[0],source=bep[month][uid];if(!safeRoster.has(teamKey+'|'+uid)){addConflict('bep-roster-unsafe',{month:month,uid:uid,teamKey:teamKey});return;}
+      if(typeof source!=='number'||!Number.isFinite(source)||source<0){addConflict('bep-source-invalid',{month:month,uid:uid,teamKey:teamKey});return;}
+      const wrongTeams=Object.keys(teams).filter(function(other){return other!==teamKey&&((((((teams[other]||{}).bep)||{})[month]||{})[uid])!=null);});if(wrongTeams.length){addConflict('bep-cross-team',{month:month,uid:uid,teamKey:teamKey,otherTeams:wrongTeams});return;}
+      const existing=(((((teams[teamKey]||{}).bep)||{})[month]||{})[uid]);if(existing==null){patch['recapStudioTeams/'+teamKey+'/bep/'+month+'/'+uid]=source;return;}if(recapStudioSameValue(existing,source)){already.push({type:'bep',month:month,uid:uid,teamKey:teamKey});return;}addConflict('bep-mismatch',{month:month,uid:uid,teamKey:teamKey});
+    });
+  });
+  const keys=Object.keys(patch),counts={roster:0,weekly:0,bep:0};keys.forEach(function(key){if(key.includes('/roster/'))counts.roster++;else if(key.includes('/weekly/'))counts.weekly++;else if(key.includes('/bep/'))counts.bep++;});
+  return {version:RECAP_STUDIO_SECURITY_VERSION,patch:patch,written:keys.length,rosterWrites:counts.roster,weeklyWrites:counts.weekly,bepWrites:counts.bep,already:already,ignored:ignored,conflicts:conflicts};
+}
 function tlHomeConfig(u){if(!u)return null;const c=TL_HOME_CONFIGS[u.uid]||TL_HOME_BY_NAME[String(u.name||'').replace(/\s/g,'')];return c&&u.status==='active'&&ri(u.role)>=ri('TL')?{...c,uid:u.uid,leaderName:u.name||c.leaderName}:null;}
 function isTlHomeUser(u){return !!tlHomeConfig(u);}
 function recapStudioAccessOf(u){if(!u)return null;const current=state&&state.recapStudioAccess;if(current&&current.uid===u.uid)return current;return window.__recapStudioAuthAccess&&window.__recapStudioAuthAccess.uid===u.uid?window.__recapStudioAuthAccess:null;}
@@ -5051,15 +5111,23 @@ function recapStudioClearSession(){
   window.PresenceExecutiveRecap?.reset?.();const mount=document.getElementById('tlhExecutiveRecapMount');if(mount)mount.replaceChildren();
 }
 function tlhClearSubscriptions(){while(tlHomeOff.length){try{tlHomeOff.pop()();}catch(e){}}tlHomeSubscribed=false;recapStudioClearSession();}
+let recapStudioReviewedMigrationTask=null;
+async function recapStudioRunReviewedHistoryMigration(){
+  if(!LIVE||!me||!isFounder(me))throw new Error('Recap Studio reviewed migration is admin only');
+  if(recapStudioReviewedMigrationTask)return recapStudioReviewedMigrationTask;
+  recapStudioReviewedMigrationTask=(async function(){
+    const values=await Promise.all([DB.get('recapStudioAccess/viewers'),DB.get('recapStudioTeams'),DB.get('weeklyProfitRecaps'),DB.get('profitMonthlyBep')]),access=values[0]||{},teams=values[1]||{},weekly=values[2]||{},bep=values[3]||{},stamp=Date.now(),plan=recapStudioPlanReviewedHistoryMigration({teams:teams,weekly:weekly,bep:bep},stamp),patch=Object.assign({},plan.patch),accessConflicts=[],accessAlready=[];
+    const seedAccess={};seedAccess[me.uid]={scope:'all',updatedAt:stamp,updatedBy:'admin'};seedAccess.umqn54ujf={scope:'team',teamKey:'fuse',updatedAt:stamp,updatedBy:'admin'};seedAccess.umqna7jpj={scope:'team',teamKey:'youngwave',updatedAt:stamp,updatedBy:'admin'};
+    Object.keys(seedAccess).forEach(function(uid){const desired=seedAccess[uid],existing=access[uid];if(!existing){patch['recapStudioAccess/viewers/'+uid]=desired;return;}const same=existing.scope===desired.scope&&(desired.scope!=='team'||existing.teamKey===desired.teamKey)&&existing.active!==false;if(same)accessAlready.push(uid);else accessConflicts.push({type:'access-mismatch',uid:uid,existing:existing,expected:{scope:desired.scope,teamKey:desired.teamKey||''}});});
+    const keys=Object.keys(patch);if(keys.length)await DB.update(null,patch);
+    const report=Object.assign({},plan,{patch:patch,written:keys.length,accessWrites:keys.filter(function(key){return key.startsWith('recapStudioAccess/');}).length,accessAlready:accessAlready,conflicts:plan.conflicts.concat(accessConflicts)});
+    console.info('[Recap Studio reviewed migration]',report);return report;
+  })();
+  try{return await recapStudioReviewedMigrationTask;}finally{recapStudioReviewedMigrationTask=null;}
+}
 async function recapStudioEnsureSecuritySeed(){
-  if(!LIVE||!me||!isFounder(me))return;
-  const values=await Promise.all([DB.get('recapStudioAccess/viewers').catch(function(){return {};}),DB.get('recapStudioTeams').catch(function(){return {};})]),access=values[0]||{},teams=values[1]||{},patch={},stamp=Date.now();
-  const seedAccess={};seedAccess[me.uid]={scope:'all',updatedAt:stamp,updatedBy:'admin'};
-  seedAccess.umqn54ujf={scope:'team',teamKey:'fuse',updatedAt:stamp,updatedBy:'admin'};
-  seedAccess.umqna7jpj={scope:'team',teamKey:'youngwave',updatedAt:stamp,updatedBy:'admin'};
-  Object.keys(seedAccess).forEach(function(uid){if(!access[uid])patch['recapStudioAccess/viewers/'+uid]=seedAccess[uid];});
-  Object.keys(RECAP_STUDIO_REVIEWED_ROSTER).forEach(function(teamKey){Object.keys(RECAP_STUDIO_REVIEWED_ROSTER[teamKey]).forEach(function(uid){if(!((((teams[teamKey]||{}).roster)||{})[uid]))patch['recapStudioTeams/'+teamKey+'/roster/'+uid]=Object.assign({},RECAP_STUDIO_REVIEWED_ROSTER[teamKey][uid],{reviewedAt:stamp,reviewedBy:'admin'});});});
-  if(Object.keys(patch).length)await DB.update(null,patch);
+  if(!LIVE||!me||!isFounder(me))return null;
+  try{const report=await recapStudioRunReviewedHistoryMigration();if(report.conflicts.length)console.warn('[Recap Studio migration conflicts]',report.conflicts);return report;}catch(e){console.warn('[Recap Studio seed]',e);throw e;}
 }
 function recapStudioSubscribe(){
   recapStudioClearSession();if(!LIVE||!me||!isTlHomeUser(me))return;
@@ -6114,11 +6182,8 @@ function recapStudioAdminPeople(){return Object.values(state.users||{}).filter(f
 window.PresenceExecutiveRecapDataAdapter={getSnapshot:function(request){if(recapStudioIsAdmin(request.actor))return null;const teamKey=recapStudioScopedTeam(request.actor);if(!teamKey||teamKey!==request.scope)return {error:'승인된 팀 범위와 요청 범위가 일치하지 않습니다.'};if(state.recapStudioError)return {error:state.recapStudioError};if(!state.recapStudioTeam||state.recapStudioTeamKey!==teamKey)return undefined;return recapStudioMirrorAgg(teamKey,request.range.from,request.range.to,'');}};
 window.recapStudioIsAdmin=recapStudioIsAdmin;window.recapStudioTeamMemberIds=recapStudioTeamMemberIds;window.recapStudioAdminPeople=recapStudioAdminPeople;
 window.recapStudioBackfillReviewed=async function(){
-  if(!me||!isFounder(me))throw new Error('Admin only');
-  const teams=Object.keys(state.recapStudioTeams||{}).length?state.recapStudioTeams:((await DB.get('recapStudioTeams'))||{}),patch={},unassigned=[],already=[];
-  Object.keys(state.weeklyProfitRecaps||{}).sort().forEach(function(pay){Object.keys((state.weeklyProfitRecaps||{})[pay]||{}).forEach(function(uid){const matches=Object.keys(teams).filter(function(teamKey){return recapStudioRosterActive((((teams[teamKey]||{}).roster)||{})[uid],pay);});if(matches.length!==1){unassigned.push({type:'weekly',payDate:pay,uid:uid,matches:matches});return;}const teamKey=matches[0],existing=(((((teams[teamKey]||{}).weekly)||{})[pay]||{})[uid]);if(existing){already.push({type:'weekly',payDate:pay,uid:uid,teamKey:teamKey});return;}patch['recapStudioTeams/'+teamKey+'/weekly/'+pay+'/'+uid]=state.weeklyProfitRecaps[pay][uid];});});
-  Object.keys(state.profitMonthlyBep||{}).sort().forEach(function(month){Object.keys((state.profitMonthlyBep||{})[month]||{}).forEach(function(uid){const candidatePays=prcPayDates(month,month),matches=Object.keys(teams).filter(function(teamKey){return candidatePays.some(function(pay){return recapStudioRosterActive((((teams[teamKey]||{}).roster)||{})[uid],pay);});});if(matches.length!==1){unassigned.push({type:'bep',month:month,uid:uid,matches:matches});return;}const teamKey=matches[0],existing=(((((teams[teamKey]||{}).bep)||{})[month]||{})[uid]);if(existing!=null){already.push({type:'bep',month:month,uid:uid,teamKey:teamKey});return;}patch['recapStudioTeams/'+teamKey+'/bep/'+month+'/'+uid]=state.profitMonthlyBep[month][uid];});});
-  if(Object.keys(patch).length)await DB.update(null,patch);const report={written:Object.keys(patch).length,already:already.length,unassigned:unassigned};console.info('[Recap Studio backfill]',report);toast('리캡 미러 '+report.written+'건 반영 · 미배정 '+unassigned.length+'건');return report;
+  if(!me||!isFounder(me))throw new Error('Recap Studio reviewed migration is admin only');
+  const report=await recapStudioRunReviewedHistoryMigration();toast('8·9·10월 팀 리캡 '+report.written+'건 반영 · 충돌 '+report.conflicts.length+'건');return report;
 };
 function prcAdminMembers(uid,pays){const periods=Array.isArray(pays)&&pays.length?pays:[profitRecapPayDate||TODAY],teamKey=recapStudioScopedTeam(me);let all;if(teamKey){const byUid={};periods.forEach(function(pay){recapStudioRosterUsers(teamKey,pay).forEach(function(u){byUid[u.uid]=u;});});all=Object.values(byUid);}else all=Object.values(state.users||{}).filter(function(u){return u&&u.status==='active'&&!isTestBot(u)&&periods.some(function(pay){return prcMemberEligibleForRecap(u,pay);});});if(uid)return all.filter(function(u){return u.uid===uid;});return all;}
 function prcAdminAgg(from,to,uid){
