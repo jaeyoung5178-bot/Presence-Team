@@ -44,7 +44,9 @@ async function install(role) {
         wave1: { uid: 'wave1', name: '민병준', role: 'LR', activeFrom: '2026-01-01' },
       },
     };
-    const pays = ['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30'];
+    const septemberPays = ['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25'];
+    const octoberPays = ['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30'];
+    const pays = [...septemberPays, ...octoberPays];
     const weekly = {};
     pays.forEach((pay, index) => {
       weekly[pay] = {
@@ -54,11 +56,14 @@ async function install(role) {
         wave1: { uid: 'wave1', name: '민병준', role: 'LR', payDate: pay, payType: 'performance', netPayment: 800000, rejectCLCount: 0, rejectSWCount: 0 },
       };
     });
-    const teamWeekly = {};
-    pays.forEach(pay => { teamWeekly[pay] = { umqn54ujf: weekly[pay].umqn54ujf, fuse1: weekly[pay].fuse1 }; });
+    const fuseWeekly = {}, waveWeekly = {};
+    pays.forEach(pay => {
+      fuseWeekly[pay] = { umqn54ujf: weekly[pay].umqn54ujf, fuse1: weekly[pay].fuse1 };
+      waveWeekly[pay] = { umqna7jpj: weekly[pay].umqna7jpj, wave1: weekly[pay].wave1 };
+    });
     const sales = {};
     const names = ['고윤경', '권영웅', '윤채영', '민병준'];
-    ['2026-09-22', '2026-09-29', '2026-10-06', '2026-10-13', '2026-10-20'].forEach((date, i) => names.forEach((name, j) => {
+    pays.map(pay => prcWeekInfo(pay).ed).forEach((date, i) => names.forEach((name, j) => {
       sales[`${date}|${name}`] = { date, name, count: 2 + ((i + j) % 4), checked: true };
     }));
     state.users = structuredClone(users);
@@ -67,8 +72,8 @@ async function install(role) {
     state.profitMonthlyBep = {};
     state.recapStudioAccess = role.access ? structuredClone(role.access) : null;
     state.recapStudioTeams = {
-      fuse: { roster: structuredClone(roster.fuse), weekly: structuredClone(teamWeekly), bep: {} },
-      youngwave: { roster: structuredClone(roster.youngwave), weekly: {}, bep: {} },
+      fuse: { roster: structuredClone(roster.fuse), weekly: structuredClone(fuseWeekly), bep: {} },
+      youngwave: { roster: structuredClone(roster.youngwave), weekly: structuredClone(waveWeekly), bep: {} },
     };
     state.recapStudioTeam = role.key === 'tl' ? structuredClone(state.recapStudioTeams.fuse) : null;
     state.recapStudioTeamKey = role.key === 'tl' ? 'fuse' : '';
@@ -105,13 +110,14 @@ for (const role of roles) {
       const periodGrid = document.querySelector('.ers-periods');
       const periodStyle = periodGrid ? getComputedStyle(periodGrid) : null;
       const buttons = [...document.querySelectorAll('.ers-shell button,.ers-shell select,.ers-shell input')].filter(visible).map(element => ({ name: element.textContent.trim() || element.getAttribute('aria-label') || element.id, width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }));
-      const rects = [...document.querySelectorAll('.ers-kpi,.ers-card')].filter(visible).map(element => ({ name: element.className, top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right }));
+      const rects = [...document.querySelectorAll('.ers-team-summary-card,.ers-kpi,.ers-card')].filter(visible).map(element => ({ name: element.className, top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right }));
       const overlap = rects.some((a, index) => rects.slice(index + 1).some(b => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2));
       return {
         roleKey,
         shell: !!shell,
         text: shell?.textContent.replace(/\s+/g, ' ').trim() || '',
         scopeOptions: [...document.querySelectorAll('#ersScope option')].map(option => option.textContent.trim()),
+        teamCards: [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim(), selected: card.classList.contains('is-selected') })),
         people: [...document.querySelectorAll('.ers-members tbody th b')].map(element => element.textContent.trim()),
         periods: [...document.querySelectorAll('.ers-period')].map(element => element.textContent.trim()),
         periodGap: periodStyle ? Number.parseFloat(periodStyle.columnGap || periodStyle.gap || '0') : 0,
@@ -133,11 +139,41 @@ for (const role of roles) {
     if (!['Actual Income', 'Net Sales', 'Reject Rate', 'AVG', 'Net / CL / SW', 'PERFORMANCE & RECAP SUPPORT'].every(token => row.text.includes(token))) failures.push(`${role.key}/${viewport.width}: dashboard essentials missing`);
     if (row.overflow || row.overlap || row.rotatedLabels || !row.chartScroll) failures.push(`${role.key}/${viewport.width}: overflow/overlap/rotation/scroll-region regression`);
     if (viewport.width <= 1024 && row.buttonSizes.some(item => item.width < 44 || item.height < 44)) failures.push(`${role.key}/${viewport.width}: target below 44px`);
-    if (role.key === 'tl' && (row.scopeOptions.length || row.people.some(name => ['윤채영', '민병준'].includes(name)) || !row.people.includes('고윤경') || !row.people.includes('권영웅'))) failures.push(`${role.key}/${viewport.width}: exact-team boundary failed`);
-    if (role.key === 'admin' && !['Presence', 'FUSE', 'YOUNG WAVE', '개인'].every(option => row.scopeOptions.includes(option))) failures.push(`${role.key}/${viewport.width}: admin scope selector missing`);
+    if (role.key === 'tl' && (row.scopeOptions.length || row.teamCards.length !== 1 || row.teamCards[0]?.scope !== 'fuse' || row.people.some(name => ['윤채영', '민병준'].includes(name)) || !row.people.includes('고윤경') || !row.people.includes('권영웅'))) failures.push(`${role.key}/${viewport.width}: exact-team boundary failed`);
+    if (role.key === 'admin' && (!['Presence', 'FUSE', 'YOUNG WAVE', '개인'].every(option => row.scopeOptions.includes(option)) || row.teamCards.map(card => card.scope).join('|') !== 'presence|fuse|youngwave')) failures.push(`${role.key}/${viewport.width}: admin scope selector/cards missing`);
     if (role.key !== 'member' && (viewport.width === 390 || viewport.width === 1440)) await page.screenshot({ path: `/tmp/presence-recap-studio-${role.key}-${viewport.width}.png`, fullPage: true });
   }
 }
+
+await page.setViewportSize({ width: 390, height: 844 });
+await install(roles[2]);
+await page.locator('[data-ers-action="toggle"]').click({ force: true });
+await page.locator('#ersAnchor').evaluate(input => {
+  input.value = '2026-09';
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(100);
+const septemberCards = await page.evaluate(() => [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() })));
+if (septemberCards.length !== 3 || septemberCards.some(card => card.status !== 'ready' || !['세일즈', '필드일', 'AVG', 'Actual Income', 'Reject Rate'].every(token => card.text.includes(token)) || card.text.includes('—'))) failures.push(`admin/september: three non-empty team cards missing (${JSON.stringify(septemberCards)})`);
+for (const scope of ['fuse', 'youngwave']) {
+  await page.locator(`.ers-team-summary-card[data-scope="${scope}"]`).click({ force: true });
+  await page.waitForTimeout(60);
+  const switched = await page.evaluate(scopeName => ({ select: document.getElementById('ersScope')?.value, title: document.querySelector('.ers-dashboard-title h2')?.textContent.trim(), selected: document.querySelector(`.ers-team-summary-card[data-scope="${scopeName}"]`)?.getAttribute('aria-pressed') }), scope);
+  const expectedTitle = scope === 'fuse' ? 'FUSE' : 'YOUNG WAVE';
+  if (switched.select !== scope || switched.title !== expectedTitle || switched.selected !== 'true') failures.push(`admin/september: ${scope} card did not switch detailed scope (${JSON.stringify(switched)})`);
+}
+await page.evaluate(() => {
+  state.users.zero = { uid: 'zero', name: '무실적팀원', role: 'LR', status: 'active' };
+  state.recapStudioTeams.youngwave = { roster: { zero: { uid: 'zero', name: '무실적팀원', role: 'LR', activeFrom: '2026-01-01' } }, weekly: {}, bep: {} };
+  window.PresenceExecutiveRecap.invalidate();
+});
+await page.waitForTimeout(60);
+const zeroState = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
+if (zeroState.status !== 'zero' || !zeroState.text.includes('실적 0 · 정상 집계') || !zeroState.text.includes('₩0')) failures.push(`admin/september: true zero state is not explicit (${JSON.stringify(zeroState)})`);
+await page.evaluate(() => { delete state.recapStudioTeams.youngwave; window.PresenceExecutiveRecap.invalidate(); });
+await page.waitForTimeout(60);
+const missingState = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
+if (missingState.status !== 'missing' || !missingState.text.includes('미러 연결 필요') || !missingState.text.includes('—')) failures.push(`admin/september: missing mirror state is not distinct (${JSON.stringify(missingState)})`);
 
 await install(roles[1]);
 await page.evaluate(() => window.PresenceExecutiveRecap.reset());

@@ -121,6 +121,11 @@
   }
   function localSnapshot(context, request) {
     if (!canAggregate(context.actor) || typeof root.prcAdminAgg !== 'function') return null;
+    if (request.scope !== 'presence' && request.scope !== 'person' && typeof root.recapStudioMirrorAgg === 'function') {
+      const mirrored = root.recapStudioMirrorAgg(request.scope, request.range.from, request.range.to, '');
+      if (mirrored === undefined) return { availability: 'mirror-missing', error: '선택한 팀의 리캡 미러가 아직 연결되지 않았습니다.' };
+      return request.period === 'weekly' ? weeklySlice(mirrored) : mirrored;
+    }
     const base = root.prcAdminAgg(request.range.from, request.range.to, '');
     const filtered = filterAggregate(base, request.scope, request.personUid);
     return request.period === 'weekly' ? weeklySlice(filtered) : filtered;
@@ -192,6 +197,42 @@
   function metricHTML(label, value, note, tone) {
     return '<article class="ers-kpi ' + (tone || '') + '"><span>' + esc(label) + '</span><strong>' + value + '</strong><small>' + esc(note) + '</small></article>';
   }
+  function summarySnapshot(context, scope, request, host, activeSnapshot) {
+    if (scope === request.scope && request.scope !== 'person') return activeSnapshot;
+    const summaryRequest = Object.assign({}, request, { scope: scope, personUid: '' });
+    return resolveSnapshot(context, summaryRequest, host);
+  }
+  function summaryAvailability(scope, data) {
+    if (data === undefined) return { key: 'pending', label: '불러오는 중' };
+    if (!data || data.availability === 'mirror-missing') return { key: 'missing', label: '미러 연결 필요' };
+    if (data.error) return { key: 'error', label: '집계 확인 필요' };
+    const pays = data.pays || [];
+    const rosterCount = scope === 'presence' ? (data.rows || []).length : memberIds(scope, pays).size;
+    if (scope !== 'presence' && rosterCount === 0) return { key: 'missing', label: '팀원 범위 미설정' };
+    const totals = data.totals || {};
+    const hasPerformance = number(totals.sales) !== 0 || number(totals.fieldDays) !== 0 || number(totals.income) !== 0 || number(totals.rejects) !== 0 || number(totals.resubmits) !== 0 || (data.records || []).length !== 0;
+    return hasPerformance ? { key: 'ready', label: '집계 완료' } : { key: 'zero', label: '실적 0 · 정상 집계' };
+  }
+  function teamSummaryCardHTML(context, scope, data) {
+    const admin = canAggregate(context.actor), availability = summaryAvailability(scope, data), ready = availability.key === 'ready' || availability.key === 'zero';
+    const totals = ready && data ? (data.totals || {}) : {};
+    const label = scope === 'presence' ? 'Presence 전체' : TEAM_CONTEXT[scope].teamName;
+    const tag = admin ? 'button' : 'article';
+    const selected = store.scope === scope && store.scope !== 'person';
+    const interactive = admin ? ' type="button" data-ers-action="scope-card" data-value="' + esc(scope) + '" aria-pressed="' + selected + '" aria-label="' + esc(label) + ' 상세 결과 보기"' : '';
+    const dash = '<span aria-label="집계 준비 중">—</span>';
+    const sales = ready ? number(totals.sales).toLocaleString('ko-KR') + '<small>건</small>' : dash;
+    const fieldDays = ready ? number(totals.fieldDays).toLocaleString('ko-KR') + '일' : '—';
+    const avg = ready ? number(totals.avg).toFixed(2) : '—';
+    const income = ready ? money(totals.income) : '—';
+    const rejectRate = ready ? percent(totals.rejectRate) : '—';
+    return '<' + tag + ' class="ers-team-summary-card is-' + availability.key + (selected ? ' is-selected' : '') + '" data-scope="' + esc(scope) + '" data-status="' + availability.key + '"' + interactive + '><span class="ers-team-summary-top"><span><small>TEAM RESULT</small><b>' + esc(label) + '</b></span><em>' + esc(availability.label) + '</em></span><span class="ers-team-summary-sales"><small>세일즈</small><strong>' + sales + '</strong></span><span class="ers-team-summary-stats"><span><small>필드일</small><b>' + fieldDays + '</b></span><span><small>AVG</small><b>' + avg + '</b></span><span><small>Actual Income</small><b>' + income + '</b></span><span><small>Reject Rate</small><b>' + rejectRate + '</b></span></span>' + (admin ? '<span class="ers-team-summary-link">상세 보기 <i aria-hidden="true">→</i></span>' : '') + '</' + tag + '>';
+  }
+  function teamOverviewHTML(context, request, host, activeSnapshot, meta) {
+    const admin = canAggregate(context.actor), scopes = admin ? ['presence', 'fuse', 'youngwave'] : [context.config.teamKey];
+    const cards = scopes.map(function (scope) { return teamSummaryCardHTML(context, scope, summarySnapshot(context, scope, request, host, activeSnapshot)); }).join('');
+    return '<section class="ers-team-overview" aria-label="' + esc(meta.rangeLabel || store.anchor) + ' 팀별 결과"><div class="ers-team-overview-head"><div><span>TEAM COMPARISON</span><h2>' + (admin ? '팀별 결과' : '우리 팀 결과') + '</h2></div><p>' + (admin ? '카드를 누르면 해당 팀의 상세 리캡으로 전환됩니다.' : '승인된 우리 팀 범위만 안전하게 표시합니다.') + '</p></div><div class="ers-team-overview-grid' + (scopes.length === 1 ? ' is-single' : '') + '">' + cards + '</div></section>';
+  }
   function trendData(data) {
     const pays = data.pays || [], net = data.weeklyNetSales || (data.weeklySales || []).map(function (sales, i) { return Math.max(0, number(sales) - number((data.weeklyRejects || [])[i])); }), income = data.weeklyIncome || [];
     if (pays.length <= 8) return { labels: pays.map(function (pay) { return Number(pay.slice(5, 7)) + '/' + Number(pay.slice(8, 10)); }), net: net, income: income };
@@ -245,7 +286,7 @@
     const range = periodRange(store.period, store.anchor), meta = reportMeta(range);
     const request = { actorUid: context.actor.uid, period: store.period, range: range, scope: canAggregate(context.actor) ? store.scope : context.config.teamKey, personUid: canAggregate(context.actor) ? store.personUid : '' };
     const snapshot = resolveSnapshot(context, request, host), pending = snapshot === undefined;
-    return controlsHTML(context, meta) + (pending ? emptyStateHTML(context, true, '') : dashboardHTML(context, snapshot, meta));
+    return controlsHTML(context, meta) + teamOverviewHTML(context, request, host, snapshot, meta) + (pending ? emptyStateHTML(context, true, '') : dashboardHTML(context, snapshot, meta));
   }
   function launcherHTML(context) {
     return '<section class="ers-shell' + (store.open ? ' is-open' : '') + '" aria-label="Executive Recap Studio"><button type="button" class="ers-launcher" data-ers-action="toggle" aria-expanded="' + store.open + '"><span class="ers-launch-mark" aria-hidden="true"><i></i><b>R</b></span><span class="ers-launch-copy"><small>EXECUTIVE ANALYTICS</small><strong>Recap Studio</strong><em>Performance &amp; Recap Support</em></span><span class="ers-launch-meta"><b>' + esc(context.config.teamName) + '</b><small>' + (store.open ? 'Studio 닫기' : 'Studio 열기') + '</small></span><span class="ers-launch-arrow" aria-hidden="true">↗</span></button><div class="ers-body"' + (store.open ? '' : ' hidden') + '></div></section>';
@@ -276,6 +317,7 @@
     if (action === 'toggle') { store.open = !store.open; rerender(); if (store.open) requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-toolbar')?.scrollIntoView({ block: 'nearest' }); }); }
     if (action === 'period') { store.period = button.dataset.value || 'monthly'; rerender(); }
     if (action === 'shift') { store.anchor = shiftMonth(store.anchor, number(button.dataset.value)); rerender(); }
+    if (action === 'scope-card' && canAggregate(store.context && store.context.actor)) { store.scope = ['presence', 'fuse', 'youngwave'].includes(button.dataset.value) ? button.dataset.value : 'presence'; store.personUid = ''; rerender(); requestAnimationFrame(function () { document.querySelector('#' + store.hostId + ' .ers-dashboard-title')?.scrollIntoView({ block: 'start' }); }); }
   }
   function onChange(event) {
     const input = event.target.closest('[data-ers-change]');
