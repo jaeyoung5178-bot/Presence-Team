@@ -121,10 +121,11 @@
   }
   function localSnapshot(context, request) {
     if (!canAggregate(context.actor) || typeof root.prcAdminAgg !== 'function') return null;
-    if (request.scope !== 'presence' && request.scope !== 'person' && typeof root.recapStudioMirrorAgg === 'function') {
-      const mirrored = root.recapStudioMirrorAgg(request.scope, request.range.from, request.range.to, '');
-      if (mirrored === undefined) return { availability: 'mirror-missing', error: '선택한 팀의 리캡 미러가 아직 연결되지 않았습니다.' };
-      return request.period === 'weekly' ? weeklySlice(mirrored) : mirrored;
+    const teamAggregate = root.recapStudioTeamAgg;
+    if (request.scope !== 'presence' && request.scope !== 'person' && typeof teamAggregate === 'function') {
+      const teamData = teamAggregate(request.scope, request.range.from, request.range.to, '');
+      if (teamData === undefined) return { availability: 'team-data-missing', error: '선택한 팀의 리캡 데이터가 아직 준비되지 않았습니다.' };
+      return request.period === 'weekly' ? weeklySlice(teamData) : teamData;
     }
     const base = root.prcAdminAgg(request.range.from, request.range.to, '');
     const filtered = filterAggregate(base, request.scope, request.personUid);
@@ -191,8 +192,25 @@
   }
   function emptyStateHTML(context, pending, error) {
     const title = pending ? '보안 집계를 불러오는 중입니다' : error ? '집계 연결을 확인해 주세요' : '팀 리캡 보안 연결을 준비 중입니다';
-    const body = error || (pending ? '팀 범위를 확인하고 수익·리젝 집계를 안전하게 가져오고 있어요.' : esc(context.config.teamName) + ' TL에게는 팀원의 개별 급여 원본을 노출하지 않습니다. 승인된 팀 집계 어댑터가 연결되면 이 화면에 바로 반영됩니다.');
+    const body = error || (pending ? '팀 범위를 확인하고 수익·리젝 집계를 안전하게 가져오고 있어요.' : esc(context.config.teamName) + '의 승인된 팀 범위가 확인되면 이 화면에 바로 반영됩니다.');
     return '<section class="ers-secure-state" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div><b>' + title + '</b><p>' + body + '</p></div><span class="ers-secure-badge">TEAM AGGREGATE ONLY</span></section>';
+  }
+  function guardedStateHTML(availability) {
+    const copy = {
+      pending: ['리캡 검증 중', '기간과 팀 범위를 검증한 뒤 성과를 표시합니다.'],
+      locked: ['다른 작업이 진행 중입니다', '집계 작업이 종료되면 안전하게 자동 새로고침됩니다.'],
+      blocked: ['리캡 범위 확인이 필요합니다', '팀 배정과 입력 범위의 충돌을 확인한 후 집계를 재개해 주세요.'],
+      error: ['리캡 집계를 확인해 주세요', '오류가 해결되기 전에는 검증되지 않은 수치를 표시하지 않습니다.'],
+      rollback: ['리캡 상태를 되돌리는 중입니다', '되돌림 상태를 확인한 뒤 다시 집계합니다.'],
+      missing: ['입력된 리캡이 없습니다', '선택한 팀과 기간의 입력 상태를 확인해 주세요.'],
+      empty: ['선택한 기간에 입력이 없습니다', '급여·세일즈 기록이 입력되면 팀 성과가 자동으로 표시됩니다.'],
+    }[availability.key] || ['리캡 상태를 확인 중입니다', '안전한 집계가 확인되면 결과를 표시합니다.'];
+    return '<section class="ers-secure-state is-' + esc(availability.key) + '" role="status"><span class="ers-secure-icon" aria-hidden="true">✦</span><div><b>' + esc(copy[0]) + '</b><p>' + esc(copy[1]) + '</p></div><span class="ers-secure-badge">' + esc(availability.label) + '</span></section>';
+  }
+  function coverageNoticeHTML(availability) {
+    if (!availability || !['partial', 'progress'].includes(availability.key)) return '';
+    const coverage = availability.coverage || {}, count = coverage.expected > 0 ? '입력 ' + coverage.actual + '/' + coverage.expected : '입력 확인 중';
+    return '<div class="ers-data-notice is-' + availability.key + '" role="status"><b>' + esc(availability.label) + '</b><span>' + esc(count) + ' · 입력된 결과까지 반영합니다.</span></div>';
   }
   function metricHTML(label, value, note, tone) {
     return '<article class="ers-kpi ' + (tone || '') + '"><span>' + esc(label) + '</span><strong>' + value + '</strong><small>' + esc(note) + '</small></article>';
@@ -202,35 +220,90 @@
     const summaryRequest = Object.assign({}, request, { scope: scope, personUid: '' });
     return resolveSnapshot(context, summaryRequest, host);
   }
-  function summaryAvailability(scope, data) {
+  function migrationEnvelope(data) {
+    const attached = data && (data.migration || data.migrationV3 || data.recapStudioMigration);
+    const fallback = root.__recapStudioMigration || {};
+    return {
+      status: (attached && attached.status) || (data && data.migrationStatus) || fallback.status || {},
+      marker: (attached && attached.marker) || (data && data.migrationMarker) || fallback.marker || {},
+    };
+  }
+  function countCoverage(data, status) {
+    const period = (data && (data.coverage || data.inputCoverage || data.recordCoverage)) || {};
+    const migration = status && status.coverage || {};
+    const expectedRecords = Number(period.expectedRecords), actualRecords = Number(period.actualRecords);
+    const hasPeriod = Number.isFinite(expectedRecords) && Number.isFinite(actualRecords);
+    return {
+      hasPeriod: hasPeriod,
+      expected: hasPeriod ? Math.max(0, expectedRecords) : Math.max(0, number(migration.expectedWeekly)),
+      actual: hasPeriod ? Math.max(0, actualRecords) : Math.max(0, number(migration.actualWeekly)),
+      conflicts: Math.max(0, Array.isArray(period.conflicts) ? period.conflicts.length : number(period.conflicts)),
+      migration: migration,
+    };
+  }
+  function migrationVerified(status, marker) {
+    const coverage = status && status.coverage || {};
+    const coverageComplete = ['expectedWeekly', 'actualWeekly', 'expectedBep', 'actualBep'].every(function (key) { return Number.isFinite(Number(coverage[key])); }) &&
+      number(coverage.expectedWeekly) === number(coverage.actualWeekly) && number(coverage.expectedBep) === number(coverage.actualBep);
+    const hashesMatch = !!(status && marker && status.configHash && marker.configHash === status.configHash && marker.desiredHash && marker.desiredHash === marker.verifiedHash && (!status.desiredHash || status.desiredHash === marker.desiredHash));
+    return status.state === 'complete' && marker.state === 'complete' && hashesMatch && coverageComplete && number(status.conflictCount) === 0 && number(status.unresolvedCount) === 0;
+  }
+  function statusFromMigration(state) {
+    if (state === 'locked') return { key: 'locked', label: '다른 작업 진행 중', safe: false };
+    if (state === 'blocked') return { key: 'blocked', label: '확인 필요', safe: false };
+    if (state === 'failed' || state === 'error') return { key: 'error', label: '집계 오류', safe: false };
+    if (state === 'rolling-back') return { key: 'rollback', label: '되돌리는 중', safe: false };
+    if (state === 'rolled-back') return { key: 'rollback', label: '되돌림 완료', safe: false };
+    if (['preflight', 'applying', 'verifying'].includes(state)) return { key: 'pending', label: '검증 중', safe: false };
+    return null;
+  }
+  function isOpenPeriod(request) {
+    const range = request && request.range || {};
+    return !!range.to && range.to >= monthKey();
+  }
+  function summaryAvailability(scope, data, request) {
     if (data === undefined) return { key: 'pending', label: '불러오는 중' };
-    if (!data || data.availability === 'mirror-missing') return { key: 'missing', label: '미러 연결 필요' };
-    if (data.error) return { key: 'error', label: '집계 확인 필요' };
+    if (!data || data.availability === 'team-data-missing') return { key: 'missing', label: '입력 없음', safe: false };
+    const envelope = migrationEnvelope(data), migrationState = statusFromMigration(envelope.status.state);
+    if (migrationState) return migrationState;
+    if (data.error) return { key: 'error', label: '집계 확인 필요', safe: false };
+    if (!migrationVerified(envelope.status, envelope.marker)) return { key: 'pending', label: '검증 대기', safe: false };
+    const coverage = countCoverage(data, envelope.status);
+    if (!coverage.hasPeriod) return { key: 'pending', label: '기간 검증 대기', safe: false };
+    if (coverage.conflicts > 0) return { key: 'blocked', label: '확인 필요', safe: false, coverage: coverage };
+    if (coverage.expected === 0 && coverage.actual === 0) return { key: 'empty', label: '입력 없음', safe: true, coverage: coverage };
     const pays = data.pays || [];
-    const rosterCount = scope === 'presence' ? (data.rows || []).length : memberIds(scope, pays).size;
-    if (scope !== 'presence' && rosterCount === 0) return { key: 'missing', label: '팀원 범위 미설정' };
+    const rosterCount = scope === 'presence' || scope === 'person' ? (data.rows || []).length : memberIds(scope, pays).size;
+    if (!['presence', 'person'].includes(scope) && rosterCount === 0) return { key: 'missing', label: '팀원 범위 미설정', safe: false };
+    if (coverage.actual < coverage.expected) {
+      return isOpenPeriod(request)
+        ? { key: 'progress', label: '진행 중', safe: true, coverage: coverage }
+        : { key: 'partial', label: '입력 ' + coverage.actual + '/' + coverage.expected, safe: true, coverage: coverage };
+    }
     const totals = data.totals || {};
     const hasPerformance = number(totals.sales) !== 0 || number(totals.fieldDays) !== 0 || number(totals.income) !== 0 || number(totals.rejects) !== 0 || number(totals.resubmits) !== 0 || (data.records || []).length !== 0;
-    return hasPerformance ? { key: 'ready', label: '집계 완료' } : { key: 'zero', label: '실적 0 · 정상 집계' };
+    if (isOpenPeriod(request)) return { key: 'progress', label: '진행 중', safe: true, coverage: coverage };
+    return hasPerformance ? { key: 'ready', label: '집계 완료', safe: true, coverage: coverage } : { key: 'empty', label: '입력 없음', safe: true, coverage: coverage };
   }
-  function teamSummaryCardHTML(context, scope, data) {
-    const admin = canAggregate(context.actor), availability = summaryAvailability(scope, data), ready = availability.key === 'ready' || availability.key === 'zero';
-    const totals = ready && data ? (data.totals || {}) : {};
+  function teamSummaryCardHTML(context, scope, data, request) {
+    const admin = canAggregate(context.actor), availability = summaryAvailability(scope, data, request), showValues = availability.safe && data;
+    const totals = showValues ? (data.totals || {}) : {};
     const label = scope === 'presence' ? 'Presence 전체' : TEAM_CONTEXT[scope].teamName;
     const tag = admin ? 'button' : 'article';
     const selected = store.scope === scope && store.scope !== 'person';
     const interactive = admin ? ' type="button" data-ers-action="scope-card" data-value="' + esc(scope) + '" aria-pressed="' + selected + '" aria-label="' + esc(label) + ' 상세 결과 보기"' : '';
     const dash = '<span aria-label="집계 준비 중">—</span>';
-    const sales = ready ? number(totals.sales).toLocaleString('ko-KR') + '<small>건</small>' : dash;
-    const fieldDays = ready ? number(totals.fieldDays).toLocaleString('ko-KR') + '일' : '—';
-    const avg = ready ? number(totals.avg).toFixed(2) : '—';
-    const income = ready ? money(totals.income) : '—';
-    const rejectRate = ready ? percent(totals.rejectRate) : '—';
-    return '<' + tag + ' class="ers-team-summary-card is-' + availability.key + (selected ? ' is-selected' : '') + '" data-scope="' + esc(scope) + '" data-status="' + availability.key + '"' + interactive + '><span class="ers-team-summary-top"><span><small>TEAM RESULT</small><b>' + esc(label) + '</b></span><em>' + esc(availability.label) + '</em></span><span class="ers-team-summary-sales"><small>세일즈</small><strong>' + sales + '</strong></span><span class="ers-team-summary-stats"><span><small>필드일</small><b>' + fieldDays + '</b></span><span><small>AVG</small><b>' + avg + '</b></span><span><small>Actual Income</small><b>' + income + '</b></span><span><small>Reject Rate</small><b>' + rejectRate + '</b></span></span>' + (admin ? '<span class="ers-team-summary-link">상세 보기 <i aria-hidden="true">→</i></span>' : '') + '</' + tag + '>';
+    const sales = showValues ? number(totals.sales).toLocaleString('ko-KR') + '<small>건</small>' : dash;
+    const fieldDays = showValues ? number(totals.fieldDays).toLocaleString('ko-KR') + '일' : '—';
+    const avg = showValues ? number(totals.avg).toFixed(2) : '—';
+    const income = showValues ? money(totals.income) : '—';
+    const rejectRate = showValues ? percent(totals.rejectRate) : '—';
+    const coverage = availability.coverage && availability.coverage.expected > 0 ? '<span class="ers-team-summary-progress">입력 ' + availability.coverage.actual + '/' + availability.coverage.expected + '</span>' : '';
+    return '<' + tag + ' class="ers-team-summary-card is-' + availability.key + (selected ? ' is-selected' : '') + '" data-scope="' + esc(scope) + '" data-status="' + availability.key + '"' + interactive + '><span class="ers-team-summary-top"><span><small>TEAM RESULT</small><b>' + esc(label) + '</b></span><span class="ers-team-summary-state"><em>' + esc(availability.label) + '</em>' + coverage + '</span></span><span class="ers-team-summary-sales"><small>세일즈</small><strong>' + sales + '</strong></span><span class="ers-team-summary-stats"><span><small>필드일</small><b>' + fieldDays + '</b></span><span><small>AVG</small><b>' + avg + '</b></span><span><small>Actual Income</small><b>' + income + '</b></span><span><small>Reject Rate</small><b>' + rejectRate + '</b></span></span>' + (admin ? '<span class="ers-team-summary-link">상세 보기 <i aria-hidden="true">→</i></span>' : '') + '</' + tag + '>';
   }
   function teamOverviewHTML(context, request, host, activeSnapshot, meta) {
     const admin = canAggregate(context.actor), scopes = admin ? ['presence', 'fuse', 'youngwave'] : [context.config.teamKey];
-    const cards = scopes.map(function (scope) { return teamSummaryCardHTML(context, scope, summarySnapshot(context, scope, request, host, activeSnapshot)); }).join('');
+    const cards = scopes.map(function (scope) { return teamSummaryCardHTML(context, scope, summarySnapshot(context, scope, request, host, activeSnapshot), request); }).join('');
     return '<section class="ers-team-overview" aria-label="' + esc(meta.rangeLabel || store.anchor) + ' 팀별 결과"><div class="ers-team-overview-head"><div><span>TEAM COMPARISON</span><h2>' + (admin ? '팀별 결과' : '우리 팀 결과') + '</h2></div><p>' + (admin ? '카드를 누르면 해당 팀의 상세 리캡으로 전환됩니다.' : '승인된 우리 팀 범위만 안전하게 표시합니다.') + '</p></div><div class="ers-team-overview-grid' + (scopes.length === 1 ? ' is-single' : '') + '">' + cards + '</div></section>';
   }
   function trendData(data) {
@@ -275,18 +348,20 @@
     const risk = productivity.rejectPctOfSales >= 25 ? '리젝률이 25%를 넘어 원본 리캡과 리섭 현황을 먼저 확인해야 합니다.' : productivity.rejectPctOfSales >= 15 ? '리젝률이 주의 구간입니다. CL·SW 비중을 함께 보세요.' : '리젝률은 현재 안정 구간입니다.';
     return '<aside class="ers-card ers-insight"><span>PERFORMANCE &amp; RECAP SUPPORT</span><h3>' + esc(direction) + '</h3><p>' + esc(note) + '</p><div><b>리캡 포인트</b><p>' + esc(risk) + '</p></div><small>급여일 기준 Actual Income과 필드 기록 기준 Sales는 기준 시점이 다릅니다.</small></aside>';
   }
-  function dashboardHTML(context, data, meta) {
+  function dashboardHTML(context, data, meta, request) {
     if (!data) return emptyStateHTML(context, false, '');
     if (data.error) return emptyStateHTML(context, false, data.error);
+    const availability = summaryAvailability(request.scope, data, request);
+    if (!availability.safe || availability.key === 'empty') return guardedStateHTML(availability);
     const totals = data.totals || {}, productivity = typeof root.prcProductivityOf === 'function' ? root.prcProductivityOf(data) : { sales: number(totals.sales), actualIncome: number(totals.income), netRejects: 0, netCL: 0, netSW: 0, retained: number(totals.netSales), rejectPctOfSales: number(totals.rejectRate), clPctOfSales: 0, swPctOfSales: 0, retainedPctOfSales: 100, rejectValue: 0, clValue: 0, swValue: 0 };
     const label = scopeLabel(store.scope, store.personUid, data), periodText = meta.rangeLabel || store.anchor;
-    return '<div class="ers-dashboard"><div class="ers-dashboard-title"><div><span>EXECUTIVE RECAP</span><h2>' + esc(label) + '</h2><p>' + esc(periodText) + ' · 실제 리캡과 필드 기록 기준</p></div><span class="ers-live"><i></i>LIVE DATA</span></div><div class="ers-kpis">' + metricHTML('Actual Income', money(totals.income), (data.pays || []).length + '개 급여 주차', 'income') + metricHTML('Net Sales', number(totals.netSales).toLocaleString('ko-KR') + '건', '총 ' + number(totals.sales).toLocaleString('ko-KR') + '건 기준', 'net') + metricHTML('Reject Rate', percent(totals.rejectRate), '리섭 반영 후 순리젝', 'reject') + metricHTML('AVG', number(totals.avg).toFixed(2), number(totals.fieldDays).toLocaleString('ko-KR') + ' 필드일', 'avg') + '</div><div class="ers-visual-grid">' + performanceChartHTML(data) + donutHTML(productivity) + '</div><div class="ers-detail-grid">' + tableHTML(data) + insightHTML(data, productivity) + '</div></div>';
+    return '<div class="ers-dashboard">' + coverageNoticeHTML(availability) + '<div class="ers-dashboard-title"><div><span>EXECUTIVE RECAP</span><h2>' + esc(label) + '</h2><p>' + esc(periodText) + ' · 실제 리캡과 필드 기록 기준</p></div><span class="ers-live"><i></i>' + (availability.key === 'ready' ? 'VERIFIED' : 'LIVE DATA') + '</span></div><div class="ers-kpis">' + metricHTML('Actual Income', money(totals.income), (data.pays || []).length + '개 급여 주차', 'income') + metricHTML('Net Sales', number(totals.netSales).toLocaleString('ko-KR') + '건', '총 ' + number(totals.sales).toLocaleString('ko-KR') + '건 기준', 'net') + metricHTML('Reject Rate', percent(totals.rejectRate), '리섭 반영 후 순리젝', 'reject') + metricHTML('AVG', number(totals.avg).toFixed(2), number(totals.fieldDays).toLocaleString('ko-KR') + ' 필드일', 'avg') + '</div><div class="ers-visual-grid">' + performanceChartHTML(data) + donutHTML(productivity) + '</div><div class="ers-detail-grid">' + tableHTML(data) + insightHTML(data, productivity) + '</div></div>';
   }
   function bodyHTML(context, host) {
     const range = periodRange(store.period, store.anchor), meta = reportMeta(range);
     const request = { actorUid: context.actor.uid, period: store.period, range: range, scope: canAggregate(context.actor) ? store.scope : context.config.teamKey, personUid: canAggregate(context.actor) ? store.personUid : '' };
     const snapshot = resolveSnapshot(context, request, host), pending = snapshot === undefined;
-    return controlsHTML(context, meta) + teamOverviewHTML(context, request, host, snapshot, meta) + (pending ? emptyStateHTML(context, true, '') : dashboardHTML(context, snapshot, meta));
+    return controlsHTML(context, meta) + teamOverviewHTML(context, request, host, snapshot, meta) + (pending ? emptyStateHTML(context, true, '') : dashboardHTML(context, snapshot, meta, request));
   }
   function launcherHTML(context) {
     return '<section class="ers-shell' + (store.open ? ' is-open' : '') + '" aria-label="Executive Recap Studio"><button type="button" class="ers-launcher" data-ers-action="toggle" aria-expanded="' + store.open + '"><span class="ers-launch-mark" aria-hidden="true"><i></i><b>R</b></span><span class="ers-launch-copy"><small>EXECUTIVE ANALYTICS</small><strong>Recap Studio</strong><em>Performance &amp; Recap Support</em></span><span class="ers-launch-meta"><b>' + esc(context.config.teamName) + '</b><small>' + (store.open ? 'Studio 닫기' : 'Studio 열기') + '</small></span><span class="ers-launch-arrow" aria-hidden="true">↗</span></button><div class="ers-body"' + (store.open ? '' : ' hidden') + '></div></section>';

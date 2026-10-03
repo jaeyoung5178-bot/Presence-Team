@@ -7,18 +7,21 @@ const base = process.env.PRESENCE_QA_URL || 'http://127.0.0.1:4187';
 const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const pageErrors = [];
+const consoleErrors = [];
 page.on('pageerror', error => pageErrors.push(error.message));
+page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
 await page.route(/firebasedatabase\.app|firebaseio\.com|script\.google\.com/, route => route.abort());
-await page.goto(`${base}/?qa=recap-studio`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+await page.goto(`${base}/?qa=recap-studio-v3`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForFunction(() => !!window.PresenceExecutiveRecap && typeof window.prcProductivityOf === 'function');
 await page.waitForFunction(() => [...document.styleSheets].some(sheet => sheet.href && sheet.href.includes('presence-executive-recap.css')));
 await page.waitForTimeout(400);
 pageErrors.length = 0;
+consoleErrors.length = 0;
 
 const roles = [
   { key: 'member', actor: { uid: 'ic', name: '일반팀원', role: 'IC', status: 'active' }, access: null },
-  { key: 'tl', actor: { uid: 'umqn54ujf', name: '고윤경', role: 'TL', status: 'active' }, access: { uid: 'umqn54ujf', scope: 'team', teamKey: 'fuse' } },
-  { key: 'admin', actor: { uid: 'admin', name: '임재영', role: 'AOP', status: 'active' }, access: { uid: 'admin', scope: 'all' } },
+  { key: 'tl', actor: { uid: 'fuse-tl', name: '고윤경', role: 'TL', status: 'active' }, access: { uid: 'fuse-tl', scope: 'team', teamKey: 'fuse', active: true } },
+  { key: 'admin', actor: { uid: 'admin', name: '임재영', role: 'AOP', status: 'active' }, access: { uid: 'admin', scope: 'all', active: true } },
 ];
 const viewports = [{ width: 390, height: 844 }, { width: 1024, height: 768 }, { width: 1440, height: 900 }];
 const failures = [];
@@ -26,60 +29,93 @@ const results = [];
 
 async function install(role) {
   await page.evaluate(({ role }) => {
+    const payDates = {
+      '2026-08': ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'],
+      '2026-09': ['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25'],
+      '2026-10': ['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30'],
+    };
     const users = {
       admin: { uid: 'admin', name: '임재영', role: 'AOP', status: 'active' },
-      umqn54ujf: { uid: 'umqn54ujf', name: '고윤경', role: 'TL', status: 'active' },
-      fuse1: { uid: 'fuse1', name: '권영웅', role: 'LR', status: 'active' },
-      umqna7jpj: { uid: 'umqna7jpj', name: '윤채영', role: 'TL', status: 'active' },
-      wave1: { uid: 'wave1', name: '민병준', role: 'LR', status: 'active' },
+      'fuse-tl': { uid: 'fuse-tl', name: '고윤경', role: 'TL', status: 'active' },
+      'fuse-child': { uid: 'fuse-child', name: '권영웅', role: 'LR', status: 'active' },
+      'fuse-grandchild': { uid: 'fuse-grandchild', name: 'Blin', role: 'IC', status: 'active' },
+      'fuse-departed': { uid: 'fuse-departed', name: '김하진', role: 'LR', status: 'departed' },
+      'wave-tl': { uid: 'wave-tl', name: '윤채영', role: 'TL', status: 'active' },
+      'wave-child': { uid: 'wave-child', name: '민병준', role: 'LR', status: 'active' },
+      'wave-grandchild': { uid: 'wave-grandchild', name: '손예진', role: 'IC', status: 'active' },
       ic: { uid: 'ic', name: '일반팀원', role: 'IC', status: 'active' },
     };
-    const roster = {
-      fuse: {
-        umqn54ujf: { uid: 'umqn54ujf', name: '고윤경', role: 'TL', activeFrom: '2026-01-01' },
-        fuse1: { uid: 'fuse1', name: '권영웅', role: 'LR', activeFrom: '2026-01-01' },
-      },
-      youngwave: {
-        umqna7jpj: { uid: 'umqna7jpj', name: '윤채영', role: 'TL', activeFrom: '2026-01-01' },
-        wave1: { uid: 'wave1', name: '민병준', role: 'LR', activeFrom: '2026-01-01' },
-      },
+    const migration = {
+      status: { state: 'complete', runId: 'qa-v3', version: '2026-10-03.team-history-v3', configHash: 'cfg-v3', desiredHash: 'desired-v3', updatedAt: Date.now(), coverage: { expectedWeekly: 68, actualWeekly: 68, expectedBep: 14, actualBep: 14 }, conflictCount: 0, unresolvedCount: 0 },
+      marker: { state: 'complete', version: '2026-10-03.team-history-v3', runId: 'qa-v3', configHash: 'cfg-v3', desiredHash: 'desired-v3', verifiedHash: 'desired-v3', completedAt: Date.now() },
     };
-    const septemberPays = ['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25'];
-    const octoberPays = ['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30'];
-    const pays = [...septemberPays, ...octoberPays];
-    const weekly = {};
-    pays.forEach((pay, index) => {
-      weekly[pay] = {
-        umqn54ujf: { uid: 'umqn54ujf', name: '고윤경', role: 'TL', payDate: pay, payType: 'performance', netPayment: 1200000 + index * 100000, rejectCLCount: index % 2, rejectSWCount: 0, resubmitCLCount: 0, resubmitSWCount: 0 },
-        fuse1: { uid: 'fuse1', name: '권영웅', role: 'LR', payDate: pay, payType: 'performance', netPayment: 900000 + index * 80000, rejectCLCount: 0, rejectSWCount: index === 2 ? 1 : 0, resubmitCLCount: 0, resubmitSWCount: 0 },
-        umqna7jpj: { uid: 'umqna7jpj', name: '윤채영', role: 'TL', payDate: pay, payType: 'performance', netPayment: 1000000, rejectCLCount: 0, rejectSWCount: 0 },
-        wave1: { uid: 'wave1', name: '민병준', role: 'LR', payDate: pay, payType: 'performance', netPayment: 800000, rejectCLCount: 0, rejectSWCount: 0 },
-      };
+    const defs = {
+      fuse: [
+        { ...users['fuse-tl'], parentUid: 'admin' },
+        { ...users['fuse-child'], parentUid: 'fuse-tl' },
+        { ...users['fuse-grandchild'], parentUid: 'fuse-child' },
+        { ...users['fuse-departed'], parentUid: 'fuse-tl', activeTo: '2026-08-31' },
+      ],
+      youngwave: [
+        { ...users['wave-tl'], parentUid: 'admin' },
+        { ...users['wave-child'], parentUid: 'wave-tl' },
+        { ...users['wave-grandchild'], parentUid: 'wave-child' },
+      ],
+    };
+    const activeFor = (member, month) => !member.activeTo || month <= member.activeTo.slice(0, 7);
+    const makeRecord = (member, pay, offset) => ({ uid: member.uid, name: member.name, role: member.role, payDate: pay, payType: 'performance', netPayment: 620000 + offset * 85000, rejectCLCount: offset % 3 === 0 ? 1 : 0, rejectSWCount: offset % 5 === 0 ? 1 : 0, resubmitCLCount: 0, resubmitSWCount: 0 });
+    const makeSnapshot = (scope, month) => {
+      const pays = payDates[month];
+      const members = scope === 'presence' ? [...defs.fuse, ...defs.youngwave] : defs[scope];
+      const eligible = members.filter(member => activeFor(member, month));
+      const rows = eligible.map((member, memberIndex) => {
+        const available = month === '2026-10' ? 1 : pays.length;
+        const records = pays.map((pay, payIndex) => payIndex < available ? makeRecord(member, pay, memberIndex + payIndex + 1) : null);
+        const weekly = pays.map((pay, payIndex) => payIndex < available ? 2 + ((memberIndex + payIndex) % 4) : 0);
+        const fieldDays = weekly.reduce((sum, value) => sum + (value ? 2 : 0), 0);
+        const sales = weekly.reduce((sum, value) => sum + value, 0);
+        const rejects = records.filter(Boolean).reduce((sum, item) => sum + item.rejectCLCount + item.rejectSWCount, 0);
+        const income = records.filter(Boolean).reduce((sum, item) => sum + item.netPayment, 0);
+        return { uid: member.uid, name: member.name, role: member.role, parentUid: member.parentUid, fieldDays, sales, income, rejects, resubmits: 0, rejectRate: sales ? rejects / sales * 100 : 0, weekly, records, savedWeeks: records.filter(Boolean).length };
+      });
+      const weeklySales = pays.map((_, index) => rows.reduce((sum, row) => sum + row.weekly[index], 0));
+      const weeklyIncome = pays.map((_, index) => rows.reduce((sum, row) => sum + Number(row.records[index]?.netPayment || 0), 0));
+      const weeklyRejects = pays.map((_, index) => rows.reduce((sum, row) => sum + Number(row.records[index]?.rejectCLCount || 0) + Number(row.records[index]?.rejectSWCount || 0), 0));
+      const totals = rows.reduce((out, row) => { out.fieldDays += row.fieldDays; out.sales += row.sales; out.income += row.income; out.rejects += row.rejects; return out; }, { fieldDays: 0, sales: 0, income: 0, rejects: 0, resubmits: 0, bond: 0 });
+      totals.netSales = Math.max(0, totals.sales - totals.rejects);
+      totals.avg = totals.fieldDays ? totals.sales / totals.fieldDays : 0;
+      totals.rejectRate = totals.sales ? totals.rejects / totals.sales * 100 : 0;
+      const expectedRecords = eligible.length * pays.length;
+      const actualRecords = rows.reduce((sum, row) => sum + row.savedWeeks, 0);
+      return { scope, month, migration: structuredClone(migration), coverage: { expectedRecords, actualRecords, conflicts: 0 }, pays, rows, records: rows.flatMap(row => row.records.filter(Boolean)), totals, weeklySales, weeklyIncome, weeklyRejects, weeklyNetSales: weeklySales.map((sales, index) => Math.max(0, sales - weeklyRejects[index])), period: { from: `${month}-01`, to: `${month}-28` } };
+    };
+    const snapshots = {};
+    Object.keys(payDates).forEach(month => {
+      snapshots[month] = { presence: makeSnapshot('presence', month), fuse: makeSnapshot('fuse', month), youngwave: makeSnapshot('youngwave', month) };
     });
-    const fuseWeekly = {}, waveWeekly = {};
-    pays.forEach(pay => {
-      fuseWeekly[pay] = { umqn54ujf: weekly[pay].umqn54ujf, fuse1: weekly[pay].fuse1 };
-      waveWeekly[pay] = { umqna7jpj: weekly[pay].umqna7jpj, wave1: weekly[pay].wave1 };
-    });
-    const sales = {};
-    const names = ['고윤경', '권영웅', '윤채영', '민병준'];
-    pays.map(pay => prcWeekInfo(pay).ed).forEach((date, i) => names.forEach((name, j) => {
-      sales[`${date}|${name}`] = { date, name, count: 2 + ((i + j) % 4), checked: true };
-    }));
     state.users = structuredClone(users);
-    state.sales = sales;
-    state.weeklyProfitRecaps = weekly;
-    state.profitMonthlyBep = {};
     state.recapStudioAccess = role.access ? structuredClone(role.access) : null;
-    state.recapStudioTeams = {
-      fuse: { roster: structuredClone(roster.fuse), weekly: structuredClone(fuseWeekly), bep: {} },
-      youngwave: { roster: structuredClone(roster.youngwave), weekly: structuredClone(waveWeekly), bep: {} },
-    };
-    state.recapStudioTeam = role.key === 'tl' ? structuredClone(state.recapStudioTeams.fuse) : null;
-    state.recapStudioTeamKey = role.key === 'tl' ? 'fuse' : '';
+    state.recapStudioMigration = structuredClone(migration);
     state.recapStudioError = '';
     me = structuredClone(role.actor);
     window.__recapStudioAuthAccess = role.access ? structuredClone(role.access) : null;
+    window.__recapStudioMigration = structuredClone(migration);
+    window.__qaRecapSnapshots = snapshots;
+    window.PresenceExecutiveRecapDataAdapter = {
+      getSnapshot(request) {
+        if (role.key === 'member') return { error: '권한이 없습니다.' };
+        if (role.key === 'tl' && request.scope !== 'fuse') return { error: '승인된 팀 범위와 요청 범위가 일치하지 않습니다.' };
+        const source = window.__qaRecapSnapshots[request.range.from]?.[request.scope];
+        if (!source) return { migration: structuredClone(window.__recapStudioMigration), coverage: { expectedRecords: 0, actualRecords: 0, conflicts: 0 }, pays: [], rows: [], records: [], totals: { fieldDays: 0, sales: 0, income: 0, rejects: 0, resubmits: 0, netSales: 0, avg: 0, rejectRate: 0 }, weeklySales: [], weeklyIncome: [], weeklyRejects: [], weeklyNetSales: [] };
+        return structuredClone(source);
+      },
+    };
+    window.recapStudioIsAdmin = actor => actor?.uid === 'admin';
+    window.recapStudioTeamMemberIds = (teamKey, pays) => {
+      const month = String(pays?.[0] || '2026-09').slice(0, 7);
+      return (window.__qaRecapSnapshots[month]?.[teamKey]?.rows || []).map(row => row.uid);
+    };
+    window.recapStudioAdminPeople = () => Object.values(users);
     DB.set = async () => {};
     DB.update = async () => {};
     DB.get = async () => null;
@@ -98,37 +134,46 @@ async function install(role) {
   }, { role });
 }
 
+async function inspect(roleKey) {
+  return page.evaluate(roleKey => {
+    const visible = element => !!element && getComputedStyle(element).display !== 'none' && element.getBoundingClientRect().width > 0;
+    const shell = document.querySelector('.ers-shell');
+    const periodGrid = document.querySelector('.ers-periods');
+    const periodStyle = periodGrid ? getComputedStyle(periodGrid) : null;
+    const buttons = [...document.querySelectorAll('.ers-shell button,.ers-shell select,.ers-shell input')].filter(visible).map(element => ({ name: element.textContent.trim() || element.getAttribute('aria-label') || element.id, width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }));
+    const rects = [...document.querySelectorAll('.ers-team-summary-card,.ers-kpi,.ers-card')].filter(visible).map(element => ({ name: element.className, top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right }));
+    const overlap = rects.some((a, index) => rects.slice(index + 1).some(b => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2));
+    return {
+      roleKey,
+      shell: !!shell,
+      text: shell?.textContent.replace(/\s+/g, ' ').trim() || '',
+      scopeOptions: [...document.querySelectorAll('#ersScope option')].map(option => option.textContent.trim()),
+      teamCards: [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim(), selected: card.classList.contains('is-selected') })),
+      people: [...document.querySelectorAll('.ers-members tbody th b')].map(element => element.textContent.trim()),
+      periods: [...document.querySelectorAll('.ers-period')].map(element => element.textContent.trim()),
+      periodGap: periodStyle ? Number.parseFloat(periodStyle.columnGap || periodStyle.gap || '0') : 0,
+      buttonSizes: buttons,
+      overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      overlap,
+      chartScroll: !!document.querySelector('.ers-chart-scroll[role="region"][tabindex="0"]'),
+      rotatedLabels: [...document.querySelectorAll('.ers-donut-label')].some(label => /rotate/i.test(label.getAttribute('transform') || '')),
+      mountedContext: !!window.PresenceExecutiveRecap.state.context,
+    };
+  }, roleKey);
+}
+
+async function setMonth(month) {
+  await page.locator('#ersAnchor').evaluate((input, value) => { input.value = value; input.dispatchEvent(new Event('change', { bubbles: true })); }, month);
+  await page.waitForTimeout(80);
+}
+
 for (const role of roles) {
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
     await install(role);
     if (role.key !== 'member') await page.locator('[data-ers-action="toggle"]').click({ force: true });
-    await page.waitForTimeout(60);
-    const row = await page.evaluate(roleKey => {
-      const visible = element => !!element && getComputedStyle(element).display !== 'none' && element.getBoundingClientRect().width > 0;
-      const shell = document.querySelector('.ers-shell');
-      const periodGrid = document.querySelector('.ers-periods');
-      const periodStyle = periodGrid ? getComputedStyle(periodGrid) : null;
-      const buttons = [...document.querySelectorAll('.ers-shell button,.ers-shell select,.ers-shell input')].filter(visible).map(element => ({ name: element.textContent.trim() || element.getAttribute('aria-label') || element.id, width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }));
-      const rects = [...document.querySelectorAll('.ers-team-summary-card,.ers-kpi,.ers-card')].filter(visible).map(element => ({ name: element.className, top: element.getBoundingClientRect().top, bottom: element.getBoundingClientRect().bottom, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right }));
-      const overlap = rects.some((a, index) => rects.slice(index + 1).some(b => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2));
-      return {
-        roleKey,
-        shell: !!shell,
-        text: shell?.textContent.replace(/\s+/g, ' ').trim() || '',
-        scopeOptions: [...document.querySelectorAll('#ersScope option')].map(option => option.textContent.trim()),
-        teamCards: [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim(), selected: card.classList.contains('is-selected') })),
-        people: [...document.querySelectorAll('.ers-members tbody th b')].map(element => element.textContent.trim()),
-        periods: [...document.querySelectorAll('.ers-period')].map(element => element.textContent.trim()),
-        periodGap: periodStyle ? Number.parseFloat(periodStyle.columnGap || periodStyle.gap || '0') : 0,
-        buttonSizes: buttons,
-        overflow: document.documentElement.scrollWidth > innerWidth + 1,
-        overlap,
-        chartScroll: !!document.querySelector('.ers-chart-scroll[role="region"][tabindex="0"]'),
-        rotatedLabels: [...document.querySelectorAll('.ers-donut-label')].some(label => /rotate/i.test(label.getAttribute('transform') || '')),
-        mountedContext: !!window.PresenceExecutiveRecap.state.context,
-      };
-    }, role.key);
+    if (role.key !== 'member') await setMonth('2026-09');
+    const row = await inspect(role.key);
     results.push({ role: role.key, viewport: `${viewport.width}x${viewport.height}`, ...row });
     if (role.key === 'member') {
       if (row.shell || row.text || row.mountedContext) failures.push(`${role.key}/${viewport.width}: privileged Studio DOM/context exposed`);
@@ -139,49 +184,72 @@ for (const role of roles) {
     if (!['Actual Income', 'Net Sales', 'Reject Rate', 'AVG', 'Net / CL / SW', 'PERFORMANCE & RECAP SUPPORT'].every(token => row.text.includes(token))) failures.push(`${role.key}/${viewport.width}: dashboard essentials missing`);
     if (row.overflow || row.overlap || row.rotatedLabels || !row.chartScroll) failures.push(`${role.key}/${viewport.width}: overflow/overlap/rotation/scroll-region regression`);
     if (viewport.width <= 1024 && row.buttonSizes.some(item => item.width < 44 || item.height < 44)) failures.push(`${role.key}/${viewport.width}: target below 44px`);
-    if (role.key === 'tl' && (row.scopeOptions.length || row.teamCards.length !== 1 || row.teamCards[0]?.scope !== 'fuse' || row.people.some(name => ['윤채영', '민병준'].includes(name)) || !row.people.includes('고윤경') || !row.people.includes('권영웅'))) failures.push(`${role.key}/${viewport.width}: exact-team boundary failed`);
-    if (role.key === 'admin' && (!['Presence', 'FUSE', 'YOUNG WAVE', '개인'].every(option => row.scopeOptions.includes(option)) || row.teamCards.map(card => card.scope).join('|') !== 'presence|fuse|youngwave')) failures.push(`${role.key}/${viewport.width}: admin scope selector/cards missing`);
-    if (role.key !== 'member' && (viewport.width === 390 || viewport.width === 1440)) await page.screenshot({ path: `/tmp/presence-recap-studio-${role.key}-${viewport.width}.png`, fullPage: true });
+    if (role.key === 'tl' && (row.scopeOptions.length || row.teamCards.length !== 1 || row.teamCards[0]?.scope !== 'fuse' || row.people.some(name => ['윤채영', '민병준', '손예진'].includes(name)) || !['고윤경', '권영웅', 'Blin'].every(name => row.people.includes(name)))) failures.push(`${role.key}/${viewport.width}: exact recursive team boundary failed`);
+    if (role.key === 'admin' && (!['Presence', 'FUSE', 'YOUNG WAVE', '개인'].every(option => row.scopeOptions.includes(option)) || row.teamCards.map(card => card.scope).join('|') !== 'presence|fuse|youngwave' || row.teamCards.some(card => card.status !== 'ready'))) failures.push(`${role.key}/${viewport.width}: admin three verified cards missing`);
+    if (role.key !== 'member' && (viewport.width === 390 || viewport.width === 1440)) await page.screenshot({ path: `/tmp/presence-recap-studio-v3-${role.key}-${viewport.width}.png`, fullPage: true });
   }
 }
 
 await page.setViewportSize({ width: 390, height: 844 });
 await install(roles[2]);
 await page.locator('[data-ers-action="toggle"]').click({ force: true });
-await page.locator('#ersAnchor').evaluate(input => {
-  input.value = '2026-09';
-  input.dispatchEvent(new Event('change', { bubbles: true }));
-});
-await page.waitForTimeout(100);
-const septemberCards = await page.evaluate(() => [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() })));
-if (septemberCards.length !== 3 || septemberCards.some(card => card.status !== 'ready' || !['세일즈', '필드일', 'AVG', 'Actual Income', 'Reject Rate'].every(token => card.text.includes(token)) || card.text.includes('—'))) failures.push(`admin/september: three non-empty team cards missing (${JSON.stringify(septemberCards)})`);
-for (const scope of ['fuse', 'youngwave']) {
-  await page.locator(`.ers-team-summary-card[data-scope="${scope}"]`).click({ force: true });
-  await page.waitForTimeout(60);
-  const switched = await page.evaluate(scopeName => ({ select: document.getElementById('ersScope')?.value, title: document.querySelector('.ers-dashboard-title h2')?.textContent.trim(), selected: document.querySelector(`.ers-team-summary-card[data-scope="${scopeName}"]`)?.getAttribute('aria-pressed') }), scope);
-  const expectedTitle = scope === 'fuse' ? 'FUSE' : 'YOUNG WAVE';
-  if (switched.select !== scope || switched.title !== expectedTitle || switched.selected !== 'true') failures.push(`admin/september: ${scope} card did not switch detailed scope (${JSON.stringify(switched)})`);
+for (const month of ['2026-08', '2026-09', '2026-10']) {
+  await setMonth(month);
+  const cards = await page.evaluate(() => [...document.querySelectorAll('.ers-team-summary-card')].map(card => ({ scope: card.dataset.scope, status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() })));
+  const expectedStatus = month === '2026-10' ? 'progress' : 'ready';
+  if (cards.length !== 3 || cards.some(card => card.status !== expectedStatus)) failures.push(`admin/${month}: Presence/FUSE/YOUNG WAVE status mismatch (${JSON.stringify(cards)})`);
 }
+await setMonth('2026-08');
+await page.locator('.ers-team-summary-card[data-scope="fuse"]').click({ force: true });
+await page.waitForTimeout(60);
+let detail = await page.evaluate(() => ({ title: document.querySelector('.ers-dashboard-title h2')?.textContent.trim(), people: [...document.querySelectorAll('.ers-members tbody th b')].map(item => item.textContent.trim()) }));
+if (detail.title !== 'FUSE' || !['고윤경', '권영웅', 'Blin', '김하진'].every(name => detail.people.includes(name))) failures.push(`admin/august: recursive or historical member missing (${JSON.stringify(detail)})`);
+await setMonth('2026-09');
+detail = await page.evaluate(() => ({ people: [...document.querySelectorAll('.ers-members tbody th b')].map(item => item.textContent.trim()) }));
+if (detail.people.includes('김하진') || !detail.people.includes('Blin')) failures.push(`admin/september: departed boundary or grandchild failed (${JSON.stringify(detail)})`);
+await page.locator('.ers-team-summary-card[data-scope="youngwave"]').click({ force: true });
+detail = await page.evaluate(() => ({ title: document.querySelector('.ers-dashboard-title h2')?.textContent.trim(), people: [...document.querySelectorAll('.ers-members tbody th b')].map(item => item.textContent.trim()) }));
+if (detail.title !== 'YOUNG WAVE' || !['윤채영', '민병준', '손예진'].every(name => detail.people.includes(name)) || detail.people.includes('Blin')) failures.push(`admin/september: card detail switch or Young Wave descendants failed (${JSON.stringify(detail)})`);
+
 await page.evaluate(() => {
-  state.users.zero = { uid: 'zero', name: '무실적팀원', role: 'LR', status: 'active' };
-  state.recapStudioTeams.youngwave = { roster: { zero: { uid: 'zero', name: '무실적팀원', role: 'LR', activeFrom: '2026-01-01' } }, weekly: {}, bep: {} };
+  const data = window.__qaRecapSnapshots['2026-09'].youngwave;
+  data.coverage.actualRecords = data.coverage.expectedRecords - 2;
   window.PresenceExecutiveRecap.invalidate();
 });
 await page.waitForTimeout(60);
-const zeroState = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
-if (zeroState.status !== 'zero' || !zeroState.text.includes('실적 0 · 정상 집계') || !zeroState.text.includes('₩0')) failures.push(`admin/september: true zero state is not explicit (${JSON.stringify(zeroState)})`);
-await page.evaluate(() => { delete state.recapStudioTeams.youngwave; window.PresenceExecutiveRecap.invalidate(); });
+let statusCard = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
+if (statusCard.status !== 'partial' || !/입력 \d+\/\d+/.test(statusCard.text)) failures.push(`historical partial status missing (${JSON.stringify(statusCard)})`);
+
+await page.evaluate(() => {
+  const empty = window.__qaRecapSnapshots['2026-09'].youngwave;
+  empty.rows = []; empty.records = []; empty.weeklySales = []; empty.weeklyIncome = []; empty.weeklyRejects = []; empty.weeklyNetSales = [];
+  empty.totals = { fieldDays: 0, sales: 0, income: 0, rejects: 0, resubmits: 0, netSales: 0, avg: 0, rejectRate: 0 };
+  empty.coverage = { expectedRecords: 0, actualRecords: 0, conflicts: 0 };
+  window.PresenceExecutiveRecap.invalidate();
+});
 await page.waitForTimeout(60);
-const missingState = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
-if (missingState.status !== 'missing' || !missingState.text.includes('미러 연결 필요') || !missingState.text.includes('—')) failures.push(`admin/september: missing mirror state is not distinct (${JSON.stringify(missingState)})`);
+statusCard = await page.locator('.ers-team-summary-card[data-scope="youngwave"]').evaluate(card => ({ status: card.dataset.status, text: card.textContent.replace(/\s+/g, ' ').trim() }));
+if (statusCard.status !== 'empty' || !statusCard.text.includes('입력 없음')) failures.push(`no-record status missing (${JSON.stringify(statusCard)})`);
+
+for (const stateName of ['locked', 'failed', 'rolling-back', 'rolled-back']) {
+  await page.evaluate(stateName => {
+    Object.values(window.__qaRecapSnapshots['2026-09']).forEach(data => { data.migration.status.state = stateName; });
+    window.PresenceExecutiveRecap.invalidate();
+  }, stateName);
+  await page.waitForTimeout(40);
+  const states = await page.evaluate(() => [...document.querySelectorAll('.ers-team-summary-card')].map(card => card.dataset.status));
+  const expected = stateName === 'locked' ? 'locked' : stateName === 'failed' ? 'error' : 'rollback';
+  if (states.length !== 3 || states.some(state => state !== expected)) failures.push(`migration ${stateName} state missing (${states.join('|')})`);
+}
 
 await install(roles[1]);
 await page.evaluate(() => window.PresenceExecutiveRecap.reset());
 const zeroized = await page.evaluate(() => ({ html: document.getElementById('tlhExecutiveRecapMount')?.innerHTML || '', context: window.PresenceExecutiveRecap.state.context, hostId: window.PresenceExecutiveRecap.state.hostId }));
 if (zeroized.html || zeroized.context || zeroized.hostId) failures.push('logout reset did not clear privileged DOM/state');
 if (pageErrors.length) failures.push(...pageErrors.map(error => `pageerror: ${error}`));
+if (consoleErrors.length) failures.push(...consoleErrors.map(error => `console: ${error}`));
 
-await writeFile('/tmp/presence-recap-studio-ui-results.json', JSON.stringify(results, null, 2));
+await writeFile('/tmp/presence-recap-studio-ui-v3-results.json', JSON.stringify(results, null, 2));
 await browser.close();
 if (failures.length) throw new Error(failures.join('\n'));
-console.log(JSON.stringify({ pass: true, cases: results.length, results: '/tmp/presence-recap-studio-ui-results.json' }));
+console.log(JSON.stringify({ pass: true, cases: results.length, results: '/tmp/presence-recap-studio-ui-v3-results.json' }));
