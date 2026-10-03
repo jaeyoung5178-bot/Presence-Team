@@ -87,13 +87,15 @@ const monthRangeRegression = await page.evaluate(() => {
   weeklyMonth.value = '2026-10';
   prcAdminSetMonth('2026-09');
   const september = prcResolveExportRange('admin');
-  const septemberPays = prcAdminAgg(september.from, september.to, '').pays;
+  const septemberData = prcAdminAgg(september.from, september.to, '');
+  const septemberPays = septemberData.pays;
   const septemberPeriod = prcPeriodForPays(septemberPays);
   const septemberButton = document.querySelector('#m-recap .pra-download')?.getAttribute('onclick') || '';
   weeklyMonth.value = '2026-09';
   prcAdminSetMonth('2026-10');
   const october = prcResolveExportRange('admin');
-  const octoberPays = prcAdminAgg(october.from, october.to, '').pays;
+  const octoberData = prcAdminAgg(october.from, october.to, '');
+  const octoberPays = octoberData.pays;
   const octoberPeriod = prcPeriodForPays(octoberPays);
   const weekly = prcResolveExportRange('weekly');
   const octoberButton = document.querySelector('#m-recap .pra-download')?.getAttribute('onclick') || '';
@@ -101,12 +103,14 @@ const monthRangeRegression = await page.evaluate(() => {
   if (temporaryWeeklyMonth) weeklyMonth.remove();
   return {
     september,
+    septemberMeta: septemberData.meta,
     septemberPays,
     septemberPeriod,
     septemberTitle: prcMonthTitle(september.from, september.to),
     septemberFilenamePrefix: `Presence_${september.from}_${september.to}_`,
     septemberButton,
     october,
+    octoberMeta: octoberData.meta,
     octoberPays,
     octoberPeriod,
     octoberTitle: prcMonthTitle(october.from, october.to),
@@ -307,8 +311,8 @@ const report = await page.evaluate(async bytes => {
 
 const expectedPays = ['2026-08-07', '2026-08-14', '2026-08-21', '2026-08-28'];
 const failures = [];
-if (JSON.stringify(monthRangeRegression.september) !== JSON.stringify({ from: '2026-09', to: '2026-09', source: 'admin' }) || JSON.stringify(monthRangeRegression.septemberPays) !== JSON.stringify(['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25']) || JSON.stringify(monthRangeRegression.septemberPeriod) !== JSON.stringify({ from: '2026-08-24', to: '2026-09-20' }) || monthRangeRegression.septemberTitle !== '26년 9월 Recap' || monthRangeRegression.septemberFilenamePrefix !== 'Presence_2026-09_2026-09_' || !monthRangeRegression.septemberButton.includes("'admin'")) failures.push('September selection is not pinned to September data, title, period, and filename');
-if (JSON.stringify(monthRangeRegression.october) !== JSON.stringify({ from: '2026-10', to: '2026-10', source: 'admin' }) || JSON.stringify(monthRangeRegression.octoberPays) !== JSON.stringify(['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30']) || JSON.stringify(monthRangeRegression.octoberPeriod) !== JSON.stringify({ from: '2026-09-21', to: '2026-10-25' }) || monthRangeRegression.octoberTitle !== '26년 10월 Recap' || monthRangeRegression.octoberFilenamePrefix !== 'Presence_2026-10_2026-10_' || !monthRangeRegression.octoberButton.includes("'admin'")) failures.push('October selection is not pinned to October data, title, period, and filename');
+if (JSON.stringify(monthRangeRegression.september) !== JSON.stringify({ from: '2026-09', to: '2026-09', source: 'admin' }) || JSON.stringify(monthRangeRegression.septemberPays) !== JSON.stringify(['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-25']) || JSON.stringify(monthRangeRegression.septemberPeriod) !== JSON.stringify({ from: '2026-08-24', to: '2026-09-20' }) || monthRangeRegression.septemberTitle !== '26년 9월 Recap' || monthRangeRegression.septemberFilenamePrefix !== 'Presence_2026-09_2026-09_' || monthRangeRegression.septemberMeta.title !== '26년 9월 Recap' || monthRangeRegression.septemberMeta.rangeLabel !== '2026년 09월' || JSON.stringify(monthRangeRegression.septemberMeta.payLabels) !== JSON.stringify(['9/4', '9/11', '9/18', '9/25']) || !monthRangeRegression.septemberButton.includes("'admin'")) failures.push('September selection is not pinned to September data, title, period, paydays, and filename');
+if (JSON.stringify(monthRangeRegression.october) !== JSON.stringify({ from: '2026-10', to: '2026-10', source: 'admin' }) || JSON.stringify(monthRangeRegression.octoberPays) !== JSON.stringify(['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30']) || JSON.stringify(monthRangeRegression.octoberPeriod) !== JSON.stringify({ from: '2026-09-21', to: '2026-10-25' }) || monthRangeRegression.octoberTitle !== '26년 10월 Recap' || monthRangeRegression.octoberFilenamePrefix !== 'Presence_2026-10_2026-10_' || monthRangeRegression.octoberMeta.title !== '26년 10월 Recap' || monthRangeRegression.octoberMeta.rangeLabel !== '2026년 10월' || JSON.stringify(monthRangeRegression.octoberMeta.payLabels) !== JSON.stringify(['10/2', '10/9', '10/16', '10/23', '10/30']) || !monthRangeRegression.octoberButton.includes("'admin'")) failures.push('October selection is not pinned to October data, title, period, paydays, and filename');
 if (JSON.stringify(monthRangeRegression.weekly) !== JSON.stringify({ from: '2026-09', to: '2026-09', source: 'weekly' })) failures.push('Weekly export month was contaminated by the hidden admin month selector');
 if(report.slideCount!==4||!report.month||!report.brand||!report.weekly||!report.reject||!report.detail||!report.theme)failures.push('Selected month, reference theme, visible brand, weekly charts, member AVG, or detail slides are missing from the full report');
 if (JSON.stringify(desktop.pays) !== JSON.stringify(expectedPays)) failures.push('August pay dates are not W1-W4 Fridays');
