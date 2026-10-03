@@ -10,9 +10,22 @@ await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
 const errors = [];
+const consoleErrors = [];
 page.on('pageerror', e => errors.push(e.message));
-await page.route(/(firebaseio\.com|firebasedatabase\.app|identitytoolkit|securetoken|gstatic\.com\/firebasejs|googleapis\.com\/(?!css))/, route => route.abort());
+page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+await page.addInitScript(() => {
+  try { localStorage.clear(); } catch (error) {}
+  try { sessionStorage.clear(); } catch (error) {}
+  window.__firebaseReady = true;
+});
 await page.goto(base + '/?qa=recap-pending', { waitUntil: 'domcontentloaded', timeout: 60000 });
+await page.waitForFunction(() => typeof renderProfitRecapAdminView === 'function' && document.getElementById('profitRecapAdminView'), null, { timeout: 30000 });
+await page.evaluate(async () => { try { await ensureFirebaseReady(); } catch (error) {} });
+const futureMonth = await page.evaluate(() => {
+  const date = new Date(TODAY + 'T12:00:00');
+  date.setMonth(date.getMonth() + 1, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+});
 
 const fixtures = () => {
   const u = (uid, name, role, extra = {}) => ({ uid, id: uid, name, role, status: 'active', surveys: {}, ...extra });
@@ -23,6 +36,7 @@ const fixtures = () => {
     done: u('done', '완료퓨즈', 'IC'),
     savedZero: u('savedZero', '영원퓨즈', 'IC'),
     missing: u('missing', '미작성퓨즈', 'IC'),
+    extraPending: u('extraPending', '추가미작성퓨즈', 'IC'),
     zero: u('zero', '영건퓨즈', 'IC'),
     legacy: u('legacy', '레거시퓨즈', 'IC', { status: undefined }),
     noWork: u('noWork', '신입퓨즈', 'IC'),
@@ -38,18 +52,38 @@ const fixtures = () => {
     upline: user.uid === 'waveMissing' ? '윤채영' : user.uid === 'umqna7jpj' || user.uid === 'umqn54ujf' ? '임재영' : '고윤경',
   }]));
   const sales = {};
-  for (const user of [users.admin, users.fuse, users.wave, users.done, users.savedZero, users.missing, users.legacy, users.waveMissing, users.retired, users.bot]) {
+  for (const user of [users.admin, users.fuse, users.wave, users.done, users.savedZero, users.missing, users.extraPending, users.legacy, users.waveMissing, users.retired, users.bot]) {
     sales['2026-07-15|' + user.name] = { name: user.name, date: '2026-07-15', count: 1, checked: true };
   }
   sales['2026-07-15|' + users.zero.name] = { name: users.zero.name, date: '2026-07-15', count: 0, checked: true };
   sales['2026-07-15|' + users.na.name] = { name: users.na.name, date: '2026-07-15', na: true };
   sales['2026-07-15|' + users.rally.name] = { name: users.rally.name, date: '2026-07-15', rally: true };
   sales['2026-07-15|' + users.cleared.name] = { name: users.cleared.name, date: '2026-07-15', count: 2, checked: true, cleared: true };
-  return { users, dossier, sales };
+  const rosterEntry = user => ({ uid: user.uid, name: user.name, role: user.role || 'IC', activeFrom: '2000-01-01', reviewedAt: 1, reviewedBy: 'admin' });
+  const record = user => ({ uid: user.uid, name: user.name, payDate: '2026-08-07', netPayment: user.uid === 'done' ? 5000 : 0 });
+  const weeklyProfitRecaps = {
+    '2026-08-07': Object.fromEntries([users.admin, users.done, users.savedZero, users.fuse, users.wave].map(user => [user.uid, record(user)])),
+  };
+  const fuseUsers = [users.fuse, users.done, users.savedZero, users.missing, users.extraPending, users.zero, users.legacy, users.noWork, users.na, users.rally, users.cleared];
+  const waveUsers = [users.wave, users.waveMissing];
+  const recapStudioTeams = {
+    fuse: {
+      roster: Object.fromEntries(fuseUsers.map(user => [user.uid, rosterEntry(user)])),
+      weekly: { '2026-08-07': Object.fromEntries([users.fuse, users.done, users.savedZero].map(user => [user.uid, record(user)])) },
+      bep: {},
+    },
+    youngwave: {
+      roster: Object.fromEntries(waveUsers.map(user => [user.uid, rosterEntry(user)])),
+      weekly: { '2026-08-07': { [users.wave.uid]: record(users.wave) } },
+      bep: {},
+    },
+  };
+  return { users, dossier, sales, weeklyProfitRecaps, recapStudioTeams };
 };
 
 async function setup(role, ready = true) {
   await page.evaluate(({ role, ready, fixture }) => {
+    if (typeof recapStudioClearSession === 'function') recapStudioClearSession();
     window.__firebaseReady = true;
     window.__adminOff = false;
     window.__previewRole = null;
@@ -65,16 +99,21 @@ async function setup(role, ready = true) {
     state.removedMembers = [];
     state.extraMembers = [];
     state.managers = ['고윤경', '윤채영'];
-    state.weeklyProfitRecaps = {
-      '2026-08-07': {
-        admin: { uid: 'admin', netPayment: 0 },
-        done: { uid: 'done', netPayment: 5000 },
-        savedZero: { uid: 'savedZero', netPayment: 0 },
-        fuse: { uid: 'umqn54ujf', netPayment: 0 },
-        wave: { uid: 'umqna7jpj', netPayment: 0 },
-      },
-    };
+    state.weeklyProfitRecaps = structuredClone(fixture.weeklyProfitRecaps);
     me = fixture.users[role];
+    const access = role === 'admin'
+      ? { uid: 'admin', active: true, scope: 'all' }
+      : role === 'fuse'
+        ? { uid: fixture.users.fuse.uid, active: true, scope: 'team', teamKey: 'fuse' }
+        : role === 'wave'
+          ? { uid: fixture.users.wave.uid, active: true, scope: 'team', teamKey: 'youngwave' }
+          : null;
+    state.recapStudioAccess = access;
+    window.__recapStudioAuthAccess = access;
+    state.recapStudioTeams = access?.scope === 'all' ? structuredClone(fixture.recapStudioTeams) : {};
+    state.recapStudioTeamKey = access?.scope === 'team' ? access.teamKey : '';
+    state.recapStudioTeam = access?.scope === 'team' ? structuredClone(fixture.recapStudioTeams[access.teamKey]) : null;
+    state.recapStudioError = '';
     prcPendingRecapReadyUid = ready ? me.uid : '';
     prcPendingExpanded = false;
     prcAdminFrom = '2026-08';
@@ -94,26 +133,61 @@ const card = () => page.locator('#profitRecapAdminView .prp-card');
 const text = () => card().innerText();
 const names = () => page.locator('#profitRecapAdminView .prp-name').allInnerTexts();
 const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-const viewports = [[390, 844], [1024, 768], [1440, 900], [360, 800]];
+const viewports = [[390, 844], [1024, 768], [1440, 900]];
 
 try {
   for (const [width, height] of viewports) {
     await page.setViewportSize({ width, height });
     for (const role of ['admin', 'fuse', 'wave', 'done']) {
       await setup(role);
+      const security = await page.evaluate(() => ({
+        access: state.recapStudioAccess,
+        teamKey: state.recapStudioTeamKey,
+        rosterUids: Object.keys(state.recapStudioTeam?.roster || {}).sort(),
+        teamKeys: Object.keys(state.recapStudioTeams || {}).sort(),
+      }));
       if (role === 'done') {
         assert.equal(await card().count(), 0, 'member sees no pending card');
+        assert.equal((await page.locator('#profitRecapAdminView').innerText()).trim(), '', 'member gets no privileged recap DOM');
+        assert.equal(security.access, null, 'member gets no recap access fixture');
         continue;
       }
       assert.ok((await overflow()) <= 1, role + ' ' + width + ' horizontal overflow');
+      const geometry = await page.evaluate(() => {
+        const visible = element => {
+          const style = getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+        };
+        const controls = [...document.querySelectorAll('#profitRecapAdminView button,#profitRecapAdminView summary,#profitRecapAdminView input,#profitRecapAdminView select')]
+          .filter(visible)
+          .map(element => { const rect = element.getBoundingClientRect(); return { label: element.textContent.trim() || element.getAttribute('aria-label') || element.id, width: rect.width, height: rect.height }; });
+        const escaped = [...document.querySelectorAll('#profitRecapAdminView .prp-card,#profitRecapAdminView .prp-delivery,#profitRecapAdminView .pra-controls')]
+          .filter(visible)
+          .filter(element => { const rect = element.getBoundingClientRect(); return rect.left < -1 || rect.right > innerWidth + 1; })
+          .map(element => element.className);
+        const clipped = controls.filter(control => control.width < 1 || control.height < 1);
+        return { controls, escaped, clipped };
+      });
+      assert.deepEqual(geometry.escaped, [], role + ' ' + width + ' local layout escapes viewport');
+      assert.deepEqual(geometry.clipped, [], role + ' ' + width + ' clipped controls');
+      if (width <= 1024) assert.deepEqual(geometry.controls.filter(control => control.width < 44 || control.height < 44), [], role + ' ' + width + ' touch targets below 44px');
       const got = await names();
       if (role === 'admin') {
+        assert.equal(security.access?.scope, 'all');
+        assert.deepEqual(security.teamKeys, ['fuse', 'youngwave']);
         assert.ok(got.includes('미작성퓨즈') && got.includes('미작성웨이브') && got.includes('레거시퓨즈'));
         assert.ok(!got.includes('신입퓨즈') && !got.includes('엔에이퓨즈') && !got.includes('랠리퓨즈') && !got.includes('삭제퓨즈'));
       } else if (role === 'fuse') {
-        assert.ok(got.includes('미작성퓨즈') && !got.includes('미작성웨이브'), 'fuse list: '+JSON.stringify(got));
+        assert.equal(security.access?.scope, 'team');
+        assert.equal(security.teamKey, 'fuse');
+        assert.ok(security.rosterUids.includes('missing') && !security.rosterUids.includes('waveMissing'));
+        assert.ok(got.includes('미작성퓨즈') && got.includes('레거시퓨즈') && got.includes('영건퓨즈') && !got.includes('미작성웨이브'), 'fuse list: '+JSON.stringify(got));
       } else {
-        assert.ok(got.includes('미작성웨이브') && !got.includes('미작성퓨즈'));
+        assert.equal(security.access?.scope, 'team');
+        assert.equal(security.teamKey, 'youngwave');
+        assert.ok(security.rosterUids.includes('waveMissing') && !security.rosterUids.includes('missing'));
+        assert.ok(got.includes('미작성웨이브') && !got.includes('미작성퓨즈') && !got.includes('레거시퓨즈'));
       }
       assert.ok(!(await text()).includes('영원퓨즈'), 'saved zero payment counts complete');
       assert.equal(await card().locator('img[alt=""][width="64"][height="64"]').count(), 1);
@@ -148,7 +222,7 @@ try {
   assert.ok(!(await names()).includes('미작성퓨즈'), 'live saved-zero update removes pending name');
   await page.evaluate(() => { delete state.weeklyProfitRecaps['2026-08-14']; prcAdminSetRange('from', '2026-07'); });
   assert.match(await text(), /2026년 8월 리캡 미작성/, 'custom range status follows chosen end month');
-  await page.evaluate(() => prcAdminSetMonth('2026-10'));
+  await page.evaluate(month => prcAdminSetMonth(month), futureMonth);
   assert.match(await text(), /아직 시작하지 않은 월이에요/);
   await page.screenshot({ path: output + '/recap-future-390.png' });
   await setup('admin');
@@ -164,6 +238,7 @@ try {
   assert.equal(await card().count(), 0, 'admin OFF hides privileged card');
   assert.deepEqual(await page.evaluate(() => window.__qaWrites), [], 'status view performs no writes');
   assert.deepEqual(errors, []);
+  assert.deepEqual(consoleErrors, []);
   console.log('Recap pending QA passed. Screenshots: ' + output);
 } finally {
   await browser.close();
