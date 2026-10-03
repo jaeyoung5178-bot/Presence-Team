@@ -12,76 +12,88 @@ const projectId = process.env.GCLOUD_PROJECT || process.env.FIREBASE_PROJECT_ID 
 const emulatorHost = process.env.FIREBASE_DATABASE_EMULATOR_HOST;
 
 if (!emulatorHost) {
-  console.error(
-    'BLOCKED: FIREBASE_DATABASE_EMULATOR_HOST is not set. Run this file through ' +
-      '`firebase emulators:exec --only database --project demo-presence-recap-rules "node scripts/test-recap-studio-rules.cjs"`.',
-  );
+  console.error('BLOCKED: FIREBASE_DATABASE_EMULATOR_HOST is not set. Run through firebase emulators:exec.');
   process.exit(2);
 }
 
 const dependencyRequire = process.env.RECAP_RULES_DEPS_DIR
   ? createRequire(path.join(path.resolve(process.env.RECAP_RULES_DEPS_DIR), 'package.json'))
   : require;
-
 let rulesTesting;
 let databaseSdk;
 try {
   rulesTesting = dependencyRequire('@firebase/rules-unit-testing');
   databaseSdk = dependencyRequire('firebase/database');
 } catch (error) {
-  console.error(
-    'BLOCKED: install @firebase/rules-unit-testing and firebase in the workspace or an isolated directory, ' +
-      'then set RECAP_RULES_DEPS_DIR to that directory.',
-  );
+  console.error('BLOCKED: @firebase/rules-unit-testing and firebase are required.');
   console.error(error && error.message ? error.message : error);
   process.exit(2);
 }
 
 const { initializeTestEnvironment, assertSucceeds, assertFails } = rulesTesting;
-const { get, ref, set, update } = databaseSdk;
-
+const { get, ref, set, update, remove } = databaseSdk;
 const [host, rawPort] = emulatorHost.split(':');
 const port = Number(rawPort);
-if (!host || !Number.isInteger(port) || port <= 0) {
-  console.error(`BLOCKED: invalid FIREBASE_DATABASE_EMULATOR_HOST: ${emulatorHost}`);
-  process.exit(2);
-}
-
+if (!host || !Number.isInteger(port) || port <= 0) process.exit(2);
 const rules = fs.readFileSync(rulesPath, 'utf8');
+const CFG = 'cfg-v3-12345678';
 let passCount = 0;
 
-function recap(uid, payDate, netPayment) {
-  return {
-    uid,
-    payDate,
-    weekEnding: payDate,
-    netPayment,
-    rejectCLCount: 0,
-    rejectSWCount: 0,
-    updatedAt: 1790985600000,
-  };
-}
-
-function roster(uid, name, role, activeFrom, activeTo) {
+function interval(uid, assignmentId, teamKey, activeFrom, activeTo, name = uid, role = 'IC') {
   const value = {
-    uid,
-    name,
-    role,
-    activeFrom,
-    reviewedAt: 1790985600000,
-    reviewedBy: 'admin',
+    uid, assignmentId, teamKey, name, role, activeFrom,
+    source: teamKey === 'presence' ? 'presence-direct-v3' : 'reviewed-v3',
+    reviewedAt: Date.now(), reviewedBy: 'admin', configHash: CFG,
   };
   if (activeTo) value.activeTo = activeTo;
   return value;
 }
 
-function threeWay(teamKey, payDate, uid, amount) {
-  const value = recap(uid, payDate, amount);
+function exactIndex(uid, assignmentId, teamKey, activeFrom, activeTo) {
+  const value = { uid, assignmentId, teamKey, activeFrom, configHash: CFG };
+  if (activeTo) value.activeTo = activeTo;
+  return value;
+}
+
+function rosterSummary(value) {
+  const copy = { ...value };
+  delete copy.teamKey;
+  return copy;
+}
+
+function recap(uid, payDate, teamKey, assignmentId, netPayment) {
   return {
-    [`weeklyProfitRecaps/${payDate}/${uid}`]: value,
-    [`weeklyProfitRecapsPrivate/${uid}/${payDate}`]: value,
-    [`recapStudioTeams/${teamKey}/weekly/${payDate}/${uid}`]: value,
+    uid, payDate, weekEnding: payDate, netPayment,
+    rejectCLCount: 0, rejectSWCount: 0, updatedAt: Date.now(),
+    teamKey, assignmentId, assignmentConfigHash: CFG,
   };
+}
+
+function legacyRecap(uid, payDate, netPayment) {
+  return {
+    uid, payDate, weekEnding: payDate, netPayment,
+    rejectCLCount: 0, rejectSWCount: 0, updatedAt: Date.now(),
+  };
+}
+
+function marker(runId = 'run-complete') {
+  return {
+    state: 'complete', version: '2026-10-03.team-history-v3', runId,
+    configHash: CFG, desiredHash: 'desired-v3', verifiedHash: 'verified-v3', completedAt: Date.now(),
+  };
+}
+
+function status(state, runId = `run-${state}`) {
+  const done = state === 'complete';
+  return {
+    state, runId, configHash: CFG, desiredHash: 'desired-v3', updatedAt: Date.now(),
+    coverage: { expectedWeekly: 3, actualWeekly: done ? 3 : 0, expectedBep: 3, actualBep: done ? 3 : 0 },
+    conflictCount: 0, unresolvedCount: 0,
+  };
+}
+
+function lease(leaseId = 'lease-v3', expiresAt = Date.now() + 120000) {
+  return { ownerUid: 'admin', leaseId, configHash: CFG, acquiredAt: Date.now(), expiresAt };
 }
 
 async function allow(label, operation) {
@@ -89,13 +101,11 @@ async function allow(label, operation) {
   passCount += 1;
   console.log(`PASS allow: ${label}`);
 }
-
 async function deny(label, operation) {
   await assertFails(operation());
   passCount += 1;
   console.log(`PASS deny: ${label}`);
 }
-
 async function expectValue(label, db, location, expected) {
   const snapshot = await get(ref(db, location));
   assert.deepEqual(snapshot.val(), expected, label);
@@ -103,210 +113,222 @@ async function expectValue(label, db, location, expected) {
   console.log(`PASS state: ${label}`);
 }
 
+async function seed(testEnv, migrationState = 'complete') {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const migration = migrationState === 'complete'
+      ? { status: status('complete'), marker: marker() }
+      : migrationState ? { status: status(migrationState) } : {};
+    const fuseAssignment = interval('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31', 'FUSE Member');
+    const waveAssignment = interval('waveMember', 'wave-a', 'youngwave', '2026-08-01', '2026-10-31', 'Wave Member');
+    const directAssignment = interval('direct', 'presence-a', 'presence', '2026-08-01', '2026-10-31', 'Direct Member');
+    const inactiveAssignment = interval('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31', 'Inactive Member');
+    await set(ref(context.database()), {
+      users: {
+        admin: { uid: 'admin', name: 'Admin', role: 'Founder', status: 'active' },
+        globalManager: { uid: 'globalManager', name: 'Global Manager', role: 'AOP', status: 'active' },
+        fuseTl: { uid: 'fuseTl', name: 'FUSE TL', role: 'TL', status: 'active' },
+        waveTl: { uid: 'waveTl', name: 'Wave TL', role: 'TL', status: 'active' },
+        revokedTl: { uid: 'revokedTl', name: 'Revoked TL', role: 'TL', status: 'active' },
+        fuseMember: { uid: 'fuseMember', name: 'FUSE Member', role: 'IC', status: 'active' },
+        waveMember: { uid: 'waveMember', name: 'Wave Member', role: 'IC', status: 'active' },
+        direct: { uid: 'direct', name: 'Direct Member', role: 'IC', status: 'active' },
+        inactive: { uid: 'inactive', name: 'Inactive Member', role: 'IC', status: 'inactive' },
+      },
+      authSessions: {
+        'auth-admin': { userUid: 'admin' },
+        'auth-global': { userUid: 'globalManager' },
+        'auth-fuse-tl': { userUid: 'fuseTl' },
+        'auth-wave-tl': { userUid: 'waveTl' },
+        'auth-revoked-tl': { userUid: 'revokedTl' },
+        'auth-fuse-member': { userUid: 'fuseMember' },
+        'auth-wave-member': { userUid: 'waveMember' },
+        'auth-direct': { userUid: 'direct' },
+        'auth-inactive': { userUid: 'inactive' },
+      },
+      managerAccess: { globalManager: true, fuseTl: true, waveTl: true, revokedTl: true },
+      recapStudioAccess: { viewers: {
+        globalManager: { scope: 'all', updatedAt: Date.now(), updatedBy: 'admin' },
+        fuseTl: { scope: 'team', teamKey: 'fuse', updatedAt: Date.now(), updatedBy: 'admin' },
+        waveTl: { scope: 'team', teamKey: 'youngwave', updatedAt: Date.now(), updatedBy: 'admin' },
+        revokedTl: { scope: 'team', teamKey: 'fuse', updatedAt: Date.now(), updatedBy: 'admin', revokedAt: Date.now() - 1000 },
+      } },
+      recapStudioAssignments: {
+        byUid: {
+          fuseMember: { intervals: { 'fuse-a': fuseAssignment } },
+          waveMember: { intervals: { 'wave-a': waveAssignment } },
+          direct: { intervals: { 'presence-a': directAssignment } },
+          inactive: { intervals: { 'inactive-a': inactiveAssignment } },
+        },
+        byPay: { '2026-09-11': {
+          fuseMember: exactIndex('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31'),
+          waveMember: exactIndex('waveMember', 'wave-a', 'youngwave', '2026-08-01', '2026-10-31'),
+          direct: exactIndex('direct', 'presence-a', 'presence', '2026-08-01', '2026-10-31'),
+          inactive: exactIndex('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31'),
+        } },
+        byMonth: { '2026-09': {
+          fuseMember: exactIndex('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31'),
+          waveMember: exactIndex('waveMember', 'wave-a', 'youngwave', '2026-08-01', '2026-10-31'),
+          direct: exactIndex('direct', 'presence-a', 'presence', '2026-08-01', '2026-10-31'),
+          inactive: exactIndex('inactive', 'inactive-a', 'fuse', '2026-08-01', '2026-10-31'),
+        } },
+      },
+      recapStudioTeams: {
+        presence: {
+          roster: { direct: rosterSummary(directAssignment) },
+          weekly: { '2026-09-11': { direct: recap('direct', '2026-09-11', 'presence', 'presence-a', 300) } },
+          bep: { '2026-09': { direct: 30 } },
+        },
+        fuse: {
+          roster: { fuseMember: rosterSummary(fuseAssignment), inactive: rosterSummary(inactiveAssignment) },
+          weekly: { '2026-09-11': {
+            fuseMember: recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 100),
+            inactive: recap('inactive', '2026-09-11', 'fuse', 'inactive-a', 10),
+          } },
+          bep: { '2026-09': { fuseMember: 10, inactive: 1 } },
+        },
+        youngwave: {
+          roster: { waveMember: rosterSummary(waveAssignment) },
+          weekly: { '2026-09-11': { waveMember: recap('waveMember', '2026-09-11', 'youngwave', 'wave-a', 200) } },
+          bep: { '2026-09': { waveMember: 20 } },
+        },
+      },
+      recapStudioMigrations: { teamHistoryV3: migration },
+      dossier: { fuseMember: { upline: 'FUSE TL' } },
+    });
+  });
+}
+
+async function setMigration(testEnv, value) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await set(ref(context.database(), 'recapStudioMigrations/teamHistoryV3'), value);
+  });
+}
+
 async function main() {
   console.log(`RTDB emulator: ${host}:${port}`);
   console.log(`Rules under test: ${rulesPath}`);
-
-  const testEnv = await initializeTestEnvironment({
-    projectId,
-    database: { host, port, rules },
-  });
-
+  const testEnv = await initializeTestEnvironment({ projectId, database: { host, port, rules } });
   try {
     await testEnv.clearDatabase();
-    await testEnv.withSecurityRulesDisabled(async (context) => {
-      await set(ref(context.database()), {
-        users: {
-          admin: { uid: 'admin', name: 'Admin', role: 'Founder', status: 'active' },
-          globalManager: { uid: 'globalManager', name: 'Global Manager', role: 'TL', status: 'active' },
-          fuseTl: { uid: 'fuseTl', name: 'FUSE TL', role: 'TL', status: 'active' },
-          waveTl: { uid: 'waveTl', name: 'Young Wave TL', role: 'TL', status: 'active' },
-          fuseMember: { uid: 'fuseMember', name: 'FUSE Member', role: 'AOP', status: 'active' },
-          waveMember: { uid: 'waveMember', name: 'Young Wave Member', role: 'AOP', status: 'active' },
-          transfer: { uid: 'transfer', name: 'Transfer', role: 'AOP', status: 'active' },
-          member: { uid: 'member', name: 'Ordinary Member', role: 'AOP', status: 'active' },
-          newViewer: { uid: 'newViewer', name: 'New Viewer', role: 'TL', status: 'active' },
-          inactiveAll: { uid: 'inactiveAll', name: 'Inactive', role: 'TL', status: 'inactive' },
-        },
-        authSessions: {
-          'auth-admin': { userUid: 'admin' },
-          'auth-global': { userUid: 'globalManager' },
-          'auth-fuse-tl': { userUid: 'fuseTl' },
-          'auth-wave-tl': { userUid: 'waveTl' },
-          'auth-fuse-member': { userUid: 'fuseMember' },
-          'auth-member': { userUid: 'member' },
-          'auth-inactive': { userUid: 'inactiveAll' },
-        },
-        managerAccess: {
-          globalManager: true,
-          fuseTl: true,
-          waveTl: true,
-          inactiveAll: true,
-        },
-        recapStudioAccess: {
-          viewers: {
-            globalManager: { scope: 'all', updatedAt: 1790985600000, updatedBy: 'admin' },
-            fuseTl: { scope: 'team', teamKey: 'fuse', updatedAt: 1790985600000, updatedBy: 'admin' },
-            waveTl: { scope: 'team', teamKey: 'youngwave', updatedAt: 1790985600000, updatedBy: 'admin' },
-            inactiveAll: { scope: 'all', updatedAt: 1790985600000, updatedBy: 'admin' },
-          },
-        },
-        recapStudioTeams: {
-          presence: { roster: {} },
-          fuse: {
-            roster: {
-              fuseMember: roster('fuseMember', 'FUSE Member', 'AOP', '2026-01-01'),
-              transfer: roster('transfer', 'Transfer', 'AOP', '2026-01-01', '2026-09-11'),
-            },
-          },
-          youngwave: {
-            roster: {
-              waveMember: roster('waveMember', 'Young Wave Member', 'AOP', '2026-01-01'),
-              transfer: roster('transfer', 'Transfer', 'AOP', '2026-09-18'),
-            },
-          },
-        },
-      });
-    });
-
+    await seed(testEnv, 'complete');
     const admin = testEnv.authenticatedContext('auth-admin').database();
     const globalManager = testEnv.authenticatedContext('auth-global').database();
     const fuseTl = testEnv.authenticatedContext('auth-fuse-tl').database();
     const waveTl = testEnv.authenticatedContext('auth-wave-tl').database();
+    const revokedTl = testEnv.authenticatedContext('auth-revoked-tl').database();
     const fuseMember = testEnv.authenticatedContext('auth-fuse-member').database();
-    const member = testEnv.authenticatedContext('auth-member').database();
-    const inactiveAll = testEnv.authenticatedContext('auth-inactive').database();
+    const waveMember = testEnv.authenticatedContext('auth-wave-member').database();
+    const direct = testEnv.authenticatedContext('auth-direct').database();
+    const inactive = testEnv.authenticatedContext('auth-inactive').database();
     const anonymous = testEnv.unauthenticatedContext().database();
 
-    // Owner and scope=all coverage.
-    await allow('admin reads the complete team root', () => get(ref(admin, 'recapStudioTeams')));
-    await allow('admin reads FUSE', () => get(ref(admin, 'recapStudioTeams/fuse')));
-    await allow('admin reads Young Wave', () => get(ref(admin, 'recapStudioTeams/youngwave')));
-    await allow('admin reads the ACL root', () => get(ref(admin, 'recapStudioAccess')));
-    await allow('scope=all manager reads every team', () => get(ref(globalManager, 'recapStudioTeams')));
+    await allow('admin reads team root', () => get(ref(admin, 'recapStudioTeams')));
+    await allow('scope=all manager reads team root', () => get(ref(globalManager, 'recapStudioTeams')));
+    await allow('FUSE TL reads exact parent', () => get(ref(fuseTl, 'recapStudioTeams/fuse')));
+    await allow('Wave TL reads exact parent', () => get(ref(waveTl, 'recapStudioTeams/youngwave')));
+    await deny('FUSE TL cannot read team root', () => get(ref(fuseTl, 'recapStudioTeams')));
+    await deny('FUSE TL cannot read Wave parent', () => get(ref(fuseTl, 'recapStudioTeams/youngwave')));
+    await deny('Wave TL cannot read FUSE parent', () => get(ref(waveTl, 'recapStudioTeams/fuse')));
+    await deny('team TL cannot read legacy canonical root', () => get(ref(fuseTl, 'weeklyProfitRecaps')));
+    await deny('revoked TL cannot read former team', () => get(ref(revokedTl, 'recapStudioTeams/fuse')));
+    await deny('inactive identity cannot read team', () => get(ref(inactive, 'recapStudioTeams/fuse')));
+    await deny('anonymous cannot read team', () => get(ref(anonymous, 'recapStudioTeams/fuse')));
 
-    // Exact-team reads and cross-team/root denials.
-    await allow('FUSE TL reads exact FUSE team', () => get(ref(fuseTl, 'recapStudioTeams/fuse')));
-    await deny('FUSE TL cannot read teams root', () => get(ref(fuseTl, 'recapStudioTeams')));
-    await deny('FUSE TL cannot read Young Wave', () => get(ref(fuseTl, 'recapStudioTeams/youngwave')));
-    await deny('FUSE TL manager flag cannot bypass canonical root guard', () => get(ref(fuseTl, 'weeklyProfitRecaps')));
-    await allow('Young Wave TL reads exact Young Wave team', () => get(ref(waveTl, 'recapStudioTeams/youngwave')));
-    await deny('Young Wave TL cannot read teams root', () => get(ref(waveTl, 'recapStudioTeams')));
-    await deny('Young Wave TL cannot read FUSE', () => get(ref(waveTl, 'recapStudioTeams/fuse')));
-    await deny('Young Wave TL manager flag cannot bypass canonical root guard', () => get(ref(waveTl, 'weeklyProfitRecapsPrivate')));
+    await allow('member reads own assignment intervals', () => get(ref(fuseMember, 'recapStudioAssignments/byUid/fuseMember')));
+    await allow('member reads own pay index', () => get(ref(fuseMember, 'recapStudioAssignments/byPay/2026-09-11/fuseMember')));
+    await allow('member reads own month index', () => get(ref(fuseMember, 'recapStudioAssignments/byMonth/2026-09/fuseMember')));
+    await deny('member cannot read sibling assignment', () => get(ref(fuseMember, 'recapStudioAssignments/byUid/waveMember')));
+    await allow('member reads own weekly record', () => get(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember')));
+    await allow('member reads own BEP record', () => get(ref(fuseMember, 'recapStudioTeams/fuse/bep/2026-09/fuseMember')));
+    await deny('member cannot read team parent', () => get(ref(fuseMember, 'recapStudioTeams/fuse')));
+    await deny('member cannot read sibling record', () => get(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/inactive')));
+    await deny('member cannot read other team record', () => get(ref(fuseMember, 'recapStudioTeams/youngwave/weekly/2026-09-11/waveMember')));
+    await deny('outside interval/path without exact index is denied', () => get(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-07-31/fuseMember')));
+    await allow('direct Presence member reads own record', () => get(ref(direct, 'recapStudioTeams/presence/weekly/2026-09-11/direct')));
 
-    // Ordinary, inactive, and anonymous identities cannot browse Studio data.
-    await deny('ordinary member cannot read a Studio team', () => get(ref(member, 'recapStudioTeams/fuse')));
-    await deny('ordinary member cannot read canonical recap root', () => get(ref(member, 'weeklyProfitRecaps')));
-    await deny('inactive scope=all identity is denied', () => get(ref(inactiveAll, 'recapStudioTeams')));
-    await deny('anonymous identity is denied', () => get(ref(anonymous, 'recapStudioTeams/fuse')));
+    await allow('FUSE member writes own indexed weekly record after complete', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 111)));
+    await allow('Wave member writes own indexed BEP after complete', () =>
+      set(ref(waveMember, 'recapStudioTeams/youngwave/bep/2026-09/waveMember'), 21));
+    await deny('member cannot write sibling record', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/inactive'), recap('inactive', '2026-09-11', 'fuse', 'inactive-a', 999)));
+    await deny('member cannot write wrong team', () =>
+      set(ref(fuseMember, 'recapStudioTeams/youngwave/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'youngwave', 'fuse-a', 999)));
+    await deny('wrong assignmentId is denied', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'fuse', 'wrong-a', 999)));
+    await deny('TL is read-only for another team member', () =>
+      set(ref(fuseTl, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 999)));
+    await deny('inactive member cannot write despite exact index', () =>
+      set(ref(inactive, 'recapStudioTeams/fuse/weekly/2026-09-11/inactive'), recap('inactive', '2026-09-11', 'fuse', 'inactive-a', 999)));
 
-    // ACL and reviewed roster administration is owner-only.
-    const validAcl = { scope: 'team', teamKey: 'presence', updatedAt: 1790985600001, updatedBy: 'admin' };
-    await deny('FUSE TL cannot write ACL', () => set(ref(fuseTl, 'recapStudioAccess/viewers/newViewer'), validAcl));
-    await deny('ordinary member cannot write ACL', () => set(ref(member, 'recapStudioAccess/viewers/newViewer'), validAcl));
-    await allow('admin writes a valid ACL', () => set(ref(admin, 'recapStudioAccess/viewers/newViewer'), validAcl));
+    await deny('TL cannot seed assignment', () =>
+      set(ref(fuseTl, 'recapStudioAssignments/byUid/fuseTl/intervals/tl-a'), interval('fuseTl', 'tl-a', 'fuse', '2026-09-01', '2026-10-31', 'FUSE TL', 'TL')));
+    await deny('member cannot write roster', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/roster/fuseMember'), rosterSummary(interval('fuseMember', 'fuse-a', 'fuse', '2026-08-01', '2026-10-31', 'FUSE Member'))));
+    await deny('member cannot write migration status', () => set(ref(fuseMember, 'recapStudioMigrations/teamHistoryV3/status'), status('failed')));
+    await deny('member cannot acquire migration lease', () => set(ref(fuseMember, 'recapStudioMigrations/teamHistoryV3/lock'), lease('member-lease')));
+    await deny('ordinary member cannot modify dossier ancestry', () => set(ref(fuseMember, 'dossier/fuseMember/upline'), 'Other TL'));
+    await allow('Founder/admin can modify dossier ancestry', () => set(ref(admin, 'dossier/fuseMember/upline'), 'FUSE TL'));
 
-    const validRoster = roster('newViewer', 'New Viewer', 'TL', '2026-10-01');
-    await deny('FUSE TL cannot write reviewed roster', () => set(ref(fuseTl, 'recapStudioTeams/fuse/roster/newViewer'), validRoster));
-    await deny('ordinary member cannot write reviewed roster', () => set(ref(member, 'recapStudioTeams/fuse/roster/newViewer'), validRoster));
-    await allow('admin writes a valid reviewed roster', () => set(ref(admin, 'recapStudioTeams/presence/roster/newViewer'), validRoster));
+    await deny('legacy weekly write is denied after complete', () =>
+      set(ref(fuseMember, 'weeklyProfitRecaps/2026-09-11/fuseMember'), legacyRecap('fuseMember', '2026-09-11', 501)));
+    await setMigration(testEnv, { status: status('rolled-back') });
+    await allow('legacy weekly write is allowed before a lock', () =>
+      set(ref(fuseMember, 'weeklyProfitRecaps/2026-09-11/fuseMember'), legacyRecap('fuseMember', '2026-09-11', 502)));
+    await deny('new canonical write is denied before complete marker', () =>
+      set(ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'), recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 503)));
 
-    // Existing self-canonical writes remain valid, but unrostered mirrors do not.
-    await allow('ordinary member writes own canonical recap', () =>
-      set(ref(member, 'weeklyProfitRecaps/2026-10-02/member'), recap('member', '2026-10-02', 202)),
-    );
-    await deny('unrostered member cannot write FUSE mirror', () =>
-      set(ref(member, 'recapStudioTeams/fuse/weekly/2026-10-02/member'), recap('member', '2026-10-02', 202)),
-    );
-    await allow('rostered FUSE member writes own FUSE mirror', () =>
-      set(
-        ref(fuseMember, 'recapStudioTeams/fuse/weekly/2026-10-02/fuseMember'),
-        recap('fuseMember', '2026-10-02', 302),
-      ),
-    );
+    await setMigration(testEnv, { status: status('locked'), lock: lease('lease-active') });
+    await deny('legacy write is denied once migration is locked', () =>
+      set(ref(fuseMember, 'weeklyProfitRecaps/2026-09-11/fuseMember'), legacyRecap('fuseMember', '2026-09-11', 504)));
+    const newUid = 'migratedMember';
+    const newAssignment = interval(newUid, 'migrated-a', 'fuse', '2026-09-01', '2026-10-31', 'Migrated Member');
+    const newIndex = exactIndex(newUid, 'migrated-a', 'fuse', '2026-09-01', '2026-10-31');
+    await allow('admin atomically seeds interval, exact index, roster and canonical record under lease', () =>
+      update(ref(admin), {
+        [`recapStudioAssignments/byUid/${newUid}/intervals/migrated-a`]: newAssignment,
+        [`recapStudioAssignments/byPay/2026-09-11/${newUid}`]: newIndex,
+        [`recapStudioTeams/fuse/roster/${newUid}`]: rosterSummary(newAssignment),
+        [`recapStudioTeams/fuse/weekly/2026-09-11/${newUid}`]: recap(newUid, '2026-09-11', 'fuse', 'migrated-a', 700),
+      }));
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await set(ref(context.database(), 'recapStudioTeams/fuse/weekly/2026-09-11/stale'), recap('stale', '2026-09-11', 'fuse', 'stale-a', 1));
+    });
+    await allow('admin removes stale canonical record under active lease', () => remove(ref(admin, 'recapStudioTeams/fuse/weekly/2026-09-11/stale')));
 
-    // Inclusive transfer boundary and atomic canonical-public + canonical-private + mirror saves.
-    await allow('FUSE TL 3-way save on inclusive FUSE activeTo', () =>
-      update(ref(fuseTl), threeWay('fuse', '2026-09-11', 'transfer', 911)),
-    );
-    await expectValue(
-      'FUSE activeTo save reached its mirror',
-      admin,
-      'recapStudioTeams/fuse/weekly/2026-09-11/transfer/netPayment',
-      911,
-    );
+    const before = (await get(ref(admin, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember'))).val().netPayment;
+    await deny('mixed valid and cross-team multi-location update is atomic', () =>
+      update(ref(fuseMember), {
+        'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember': recap('fuseMember', '2026-09-11', 'fuse', 'fuse-a', 888),
+        'recapStudioTeams/youngwave/weekly/2026-09-11/fuseMember': recap('fuseMember', '2026-09-11', 'youngwave', 'fuse-a', 888),
+      }));
+    await expectValue('denied atomic update leaves valid sibling untouched', admin, 'recapStudioTeams/fuse/weekly/2026-09-11/fuseMember/netPayment', before);
+    await expectValue('denied atomic update creates no cross-team record', admin, 'recapStudioTeams/youngwave/weekly/2026-09-11/fuseMember', null);
 
-    await deny('Young Wave TL 3-way save before Young Wave activeFrom', () =>
-      update(ref(waveTl), threeWay('youngwave', '2026-09-11', 'transfer', 111)),
-    );
-    await expectValue(
-      'denied Young Wave save did not alter canonical public record',
-      admin,
-      'weeklyProfitRecaps/2026-09-11/transfer/netPayment',
-      911,
-    );
-    await expectValue(
-      'denied Young Wave save created no partial mirror',
-      admin,
-      'recapStudioTeams/youngwave/weekly/2026-09-11/transfer',
-      null,
-    );
+    await allow('admin writes valid audit row', () =>
+      set(ref(admin, 'recapStudioMigrations/teamHistoryV3/audit/run-audit'), {
+        action: 'migrate', actorUid: 'admin', startedAt: Date.now(), state: 'applying', configHash: CFG,
+        desiredHash: 'desired-v3', counts: { writes: 4, cleanup: 1 }, conflictCount: 0, unresolvedCount: 0,
+      }));
+    await allow('admin writes backup metadata when snapshots are empty', () =>
+      set(ref(admin, 'recapStudioMigrations/teamHistoryV3/backup/run-audit'), { createdAt: Date.now(), configHash: CFG }));
+    await setMigration(testEnv, { status: status('failed'), lock: lease('stale-lease', Date.now() - 1000) });
+    await allow('admin clears an expired lease', () => remove(ref(admin, 'recapStudioMigrations/teamHistoryV3/lock')));
 
-    await deny('FUSE TL 3-way save after FUSE activeTo', () =>
-      update(ref(fuseTl), threeWay('fuse', '2026-09-18', 'transfer', 118)),
-    );
-    await expectValue(
-      'denied FUSE save created no partial canonical record',
-      admin,
-      'weeklyProfitRecaps/2026-09-18/transfer',
-      null,
-    );
-    await expectValue(
-      'denied FUSE save created no partial mirror',
-      admin,
-      'recapStudioTeams/fuse/weekly/2026-09-18/transfer',
-      null,
-    );
+    await setMigration(testEnv, { status: status('complete'), marker: marker('run-final') });
+    await allow('new canonical write is restored after complete marker', () =>
+      set(ref(direct, 'recapStudioTeams/presence/weekly/2026-09-11/direct'), recap('direct', '2026-09-11', 'presence', 'presence-a', 333)));
+    await deny('legacy private write remains frozen after complete marker', () =>
+      set(ref(direct, 'weeklyProfitRecapsPrivate/direct/2026-09-11'), legacyRecap('direct', '2026-09-11', 333)));
 
-    await allow('Young Wave TL 3-way save on inclusive Young Wave activeFrom', () =>
-      update(ref(waveTl), threeWay('youngwave', '2026-09-18', 'transfer', 918)),
-    );
-    await expectValue(
-      'Young Wave activeFrom save reached canonical private record',
-      admin,
-      'weeklyProfitRecapsPrivate/transfer/2026-09-18/netPayment',
-      918,
-    );
-    await expectValue(
-      'Young Wave activeFrom save reached exact-team mirror',
-      admin,
-      'recapStudioTeams/youngwave/weekly/2026-09-18/transfer/netPayment',
-      918,
-    );
-
-    // Cross-team mirror paths remain denied even when the target is valid for that other team/date.
-    await deny('FUSE TL cannot target Young Wave mirror', () =>
-      set(
-        ref(fuseTl, 'recapStudioTeams/youngwave/weekly/2026-09-18/transfer'),
-        recap('transfer', '2026-09-18', 999),
-      ),
-    );
-    await deny('Young Wave TL cannot target FUSE mirror', () =>
-      set(
-        ref(waveTl, 'recapStudioTeams/fuse/weekly/2026-09-11/transfer'),
-        recap('transfer', '2026-09-11', 999),
-      ),
-    );
-
-    console.log(`PASS Recap Studio RTDB Rules P0 matrix (${passCount} assertions)`);
+    console.log(`PASS Recap Studio RTDB Rules v3 matrix (${passCount} assertions)`);
   } finally {
     await testEnv.cleanup();
   }
 }
 
 main().catch((error) => {
-  console.error('FAIL Recap Studio RTDB Rules P0 matrix');
+  console.error('FAIL Recap Studio RTDB Rules v3 matrix');
   console.error(error && error.stack ? error.stack : error);
   process.exitCode = 1;
 });

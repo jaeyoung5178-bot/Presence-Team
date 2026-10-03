@@ -1,90 +1,98 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const rules = JSON.parse(
-  await readFile(new URL('../database.rules.json', import.meta.url), 'utf8'),
-).rules;
-
+const rules = JSON.parse(await readFile(new URL('../database.rules.json', import.meta.url), 'utf8')).rules;
 const failures = [];
-const check = (condition, message) => {
-  if (!condition) failures.push(message);
-};
+const check = (condition, message) => { if (!condition) failures.push(message); };
 const includesAll = (value, fragments) =>
   typeof value === 'string' && fragments.every((fragment) => value.includes(fragment));
 
 const access = rules.recapStudioAccess;
+const assignments = rules.recapStudioAssignments;
+const migrations = rules.recapStudioMigrations?.teamHistoryV3;
 const teams = rules.recapStudioTeams;
 const viewer = access?.viewers?.$uid;
-const team = teams?.$teamKey;
-const roster = team?.roster?.$uid;
-const mirrorWeekly = team?.weekly?.$payDate?.$uid;
-const mirrorBep = team?.bep?.$month?.$uid;
+const interval = assignments?.byUid?.$uid?.intervals?.$assignmentId;
+const byPay = assignments?.byPay?.$payDate?.$uid;
+const byMonth = assignments?.byMonth?.$month?.$uid;
+const roster = teams?.$teamKey?.roster?.$uid;
+const weekly = teams?.$teamKey?.weekly?.$payDate?.$uid;
+const bep = teams?.$teamKey?.bep?.$month?.$uid;
 
-check(Boolean(access), 'recapStudioAccess rules are missing');
-check(Boolean(teams), 'recapStudioTeams rules are missing');
+check(Boolean(access && assignments && migrations && teams), 'v3 Recap Studio rule roots are missing');
 check(
-  includesAll(access?.['.read'], ["child('status').val() == 'active'", "child('scope').val() == 'all'", "== 'admin'"]),
-  'Recap access root must be readable only by active admin/all viewers',
+  includesAll(access?.['.read'], ["child('scope').val() == 'all'", "child('revokedAt')", '> now', "== 'admin'"]),
+  'root ACL reads must require admin or a non-revoked all scope',
 );
 check(
-  includesAll(viewer?.['.read'], ["== $uid", "child('scope').val() == 'all'", "== 'admin'"]),
-  'A viewer must be able to read only its ACL, while admin/all may read the ACL root',
+  includesAll(viewer?.['.validate'], ["val() == 'all'", "val() == 'team'", "child('revokedAt').isNumber()", "child('updatedBy').val() == 'admin'"]),
+  'ACL validation must support revokedAt without an active:false compatibility branch',
+);
+check(!String(viewer?.['.validate'] || '').includes("child('active')"), 'ACL validation must not use the obsolete active:false switch');
+
+check(
+  includesAll(assignments?.['.read'], ["== 'admin'", "child('status').val() == 'active'"]),
+  'assignment root must be admin-only',
 );
 check(
-  includesAll(viewer?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]),
-  'Only the active admin owner may write Recap Studio ACL entries',
+  includesAll(assignments?.byUid?.$uid?.['.read'], ["== $uid", "== 'admin'", "child('status').val() == 'active'"]),
+  'byUid assignment reads must be exact-self/admin',
 );
 check(
-  includesAll(viewer?.['.validate'], ["val() == 'all'", "val() == 'team'", "child('teamKey')", "child('updatedBy').val() == 'admin'"]),
-  'ACL entries must validate scope, optional exact team, and admin provenance',
+  includesAll(interval?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]),
+  'assignment interval writes must be admin-only',
 );
 check(
-  includesAll(teams?.['.read'], ["child('status').val() == 'active'", "child('scope').val() == 'all'", "== 'admin'"]),
-  'Recap team root must be readable only by active admin/all viewers',
+  includesAll(interval?.['.validate'], ["child('assignmentId').val() == $assignmentId", "child('teamKey')", "child('activeFrom')", "child('activeTo')", "child('configHash')", "child('reviewedBy').val() == 'admin'"]),
+  'assignment intervals must validate identity, team, interval, hash and review provenance',
+);
+for (const [label, node, periodFragment] of [
+  ['byPay', byPay, '$payDate'],
+  ['byMonth', byMonth, '$month'],
+]) {
+  check(includesAll(node?.['.read'], ["== $uid", "== 'admin'", "child('status').val() == 'active'"]), `${label} index reads must be self/admin`);
+  check(includesAll(node?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), `${label} index writes must be admin-only`);
+  check(includesAll(node?.['.validate'], [periodFragment, "child('assignmentId')", "child('teamKey')", "child('configHash')", "child('byUid')"]), `${label} must bind to a reviewed byUid interval`);
+}
+
+check(
+  includesAll(teams?.['.read'], ["child('scope').val() == 'all'", "child('revokedAt')", '> now', "== 'admin'"]),
+  'team root reads must require admin/all and reject revoked viewers',
 );
 check(
-  includesAll(team?.['.read'], ["child('scope').val() == 'team'", "child('teamKey').val() == $teamKey", "child('scope').val() == 'all'", "== 'admin'"]),
-  'A team child must require admin/all or an exact matching scoped-team ACL',
+  includesAll(teams?.$teamKey?.['.read'], ["child('scope').val() == 'team'", "child('teamKey').val() == $teamKey", "child('revokedAt')", '> now']),
+  'team parent reads must require a non-revoked exact-team ACL',
 );
-check(!String(teams?.['.read'] || '').includes('managerAccess'), 'managerAccess must never grant Recap Studio root reads');
-check(!String(team?.['.read'] || '').includes('managerAccess'), 'managerAccess must never grant Recap Studio team reads');
+check(!String(teams?.$teamKey?.['.read'] || '').includes('managerAccess'), 'managerAccess must not bypass exact-team reads');
 check(
-  includesAll(team?.['.validate'], ["$teamKey == 'presence'", "$teamKey == 'fuse'", "$teamKey == 'youngwave'"]),
-  'Only reviewed Presence/FUSE/Young Wave team keys may exist',
-);
-check(
-  includesAll(team?.roster?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]),
-  'Only the active admin owner may write secure rosters',
+  includesAll(roster?.['.validate'], ["child('uid').val() == $uid", "child('assignmentId')", "child('source')", "child('configHash')", "child('reviewedBy').val() == 'admin'"]),
+  'team roster rows must be reviewed v3 assignment summaries',
 );
 check(
-  includesAll(roster?.['.validate'], ["child('uid').val() == $uid", "child('activeFrom')", "child('activeTo')", "child('reviewedBy').val() == 'admin'"]),
-  'Roster records must validate identity, reviewed provenance, and an effective interval',
+  includesAll(weekly?.['.read'], ["== $uid", "child('byPay')", "child('assignmentId')", "child('assignmentConfigHash')"]),
+  'weekly child reads must be exact-self and assignment-index bound',
 );
 check(
-  includesAll(mirrorWeekly?.['.write'], ["== $uid", "managerAccess", "val() != 'team'", "child('teamKey').val() == $teamKey", "child('roster').child($uid)", "child('activeFrom')", "child('activeTo')"]),
-  'Mirrored weekly writes must preserve rostered self/global manager/admin and exact scoped-team interval checks',
+  includesAll(weekly?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "child('byPay')", "== $uid"]),
+  'weekly writes must cut over on complete and allow only leased migration or exact self index',
 );
 check(
-  includesAll(mirrorWeekly?.['.validate'], ["child('uid').val() == $uid", "child('payDate').val() == $payDate", "child('netPayment').isNumber()", "child('updatedAt').isNumber()"]),
-  'Mirrored weekly records must validate path identity and numeric recap shape',
+  includesAll(weekly?.['.validate'], ["child('teamKey').val() == $teamKey", "child('assignmentId')", "child('assignmentConfigHash')", "child('configHash')"]),
+  'weekly records must carry exact v3 assignment binding metadata',
 );
 check(
-  includesAll(mirrorBep?.['.write'], ["== $uid", "managerAccess", "val() != 'team'", "child('teamKey').val() == $teamKey", "child('roster').child($uid)", "'-31'", "'-01'"]),
-  'Mirrored BEP writes must use the same authority boundary and roster-month overlap',
+  includesAll(bep?.['.read'], ["== $uid", "child('byMonth')", "child('teamKey').val() == $teamKey"]),
+  'BEP child reads must be exact-self and month-index bound',
 );
 check(
-  includesAll(mirrorBep?.['.validate'], ['newData.isNumber()', 'newData.val() >= 0']),
-  'Mirrored BEP values must be non-negative numbers',
+  includesAll(bep?.['.write'], ["marker').child('state').val() == 'complete'", "lock').child('expiresAt').val() > now", "child('byMonth')", "== $uid"]),
+  'BEP writes must use the same fail-closed v3 cutover',
 );
 
 for (const key of ['weeklyProfitRecaps', 'weeklyProfitRecapsPrivate', 'profitMonthlyBep', 'profitMonthlyBepPrivate']) {
-  const read = rules[key]?.['.read'];
-  check(
-    includesAll(read, ['managerAccess', "child('scope').val() != 'team'", "child('status').val() == 'active'", "== 'admin'"]),
-    `${key} root reads must deny team-scoped managers while retaining active admin/global-manager access`,
-  );
+  const node = rules[key];
+  check(!String(node?.['.read'] || '').includes("child('scope').val() != 'team'"), `${key} read must not use a null-friendly != team bypass`);
 }
-
 for (const [label, write] of [
   ['weekly public', rules.weeklyProfitRecaps?.$payDate?.$uid?.['.write']],
   ['weekly private', rules.weeklyProfitRecapsPrivate?.$uid?.$payDate?.['.write']],
@@ -92,92 +100,44 @@ for (const [label, write] of [
   ['BEP private', rules.profitMonthlyBepPrivate?.$uid?.$month?.['.write']],
 ]) {
   check(
-    includesAll(write, ["== $uid", "== 'admin'", 'managerAccess', "val() != 'team'", "child('scope').val() == 'team'", "child('roster').child($uid)", "child('activeFrom')", "child('activeTo')"]),
-    `${label} writes must preserve self/admin/global-manager access and require a reviewed interval for scoped-team writes`,
+    includesAll(write, ["!root.child('recapStudioMigrations').child('teamHistoryV3').child('marker').exists()", "state').val() == 'blocked'", "state').val() == 'failed'", "state').val() == 'rolled-back'", "== $uid"]),
+    `${label} must freeze at lock/complete and remain available only before cutover`,
   );
+  check(!String(write || '').includes("child('scope').val() == 'team'"), `${label} must not grant TL cross-canonical writes`);
 }
 
-// Executable policy model: this makes the expected deny/allow matrix reviewable
-// even when the Firebase Rules emulator is not installed in the workspace.
-const users = {
-  admin: { active: true, manager: true },
-  fuseTl: { active: true, manager: true },
-  waveTl: { active: true, manager: true },
-  globalManager: { active: true, manager: true },
-  fuseMember: { active: true, manager: false },
-  waveMember: { active: true, manager: false },
-  unassignedMember: { active: true, manager: false },
-  inactiveAdmin: { active: false, manager: true },
-};
-const acl = {
-  fuseTl: { scope: 'team', teamKey: 'fuse' },
-  waveTl: { scope: 'team', teamKey: 'youngwave' },
-  globalManager: { scope: 'all' },
-  inactiveAdmin: { scope: 'all' },
-};
-const rosters = {
-  fuse: {
-    fuseMember: { activeFrom: '2026-01-01' },
-    transfer: { activeFrom: '2026-01-01', activeTo: '2026-09-11' },
-  },
-  youngwave: {
-    waveMember: { activeFrom: '2026-01-01' },
-    transfer: { activeFrom: '2026-09-18' },
-  },
-};
-const active = (uid) => users[uid]?.active === true;
-const inRoster = (teamKey, uid, date) => {
-  const interval = rosters[teamKey]?.[uid];
-  return Boolean(interval && interval.activeFrom <= date && (!interval.activeTo || interval.activeTo >= date));
-};
-const canReadTeam = (uid, teamKey, root = false) => {
-  if (!active(uid)) return false;
-  if (uid === 'admin' || acl[uid]?.scope === 'all') return true;
-  return !root && acl[uid]?.scope === 'team' && acl[uid]?.teamKey === teamKey;
-};
-const canReadCanonicalRoot = (uid) =>
-  active(uid) && (uid === 'admin' || (users[uid]?.manager === true && acl[uid]?.scope !== 'team'));
-const canWriteAclOrRoster = (uid) => active(uid) && uid === 'admin';
-const canWriteCanonical = (uid, targetUid, date) => {
-  if (!active(uid)) return false;
-  if (uid === targetUid || uid === 'admin') return true;
-  if (users[uid]?.manager === true && acl[uid]?.scope !== 'team') return true;
-  const teamKey = acl[uid]?.scope === 'team' ? acl[uid]?.teamKey : '';
-  return Boolean(teamKey && inRoster(teamKey, targetUid, date));
-};
-const canWriteMirror = (uid, teamKey, targetUid, date) => {
-  if (!active(uid)) return false;
-  if (uid === 'admin' || (users[uid]?.manager === true && acl[uid]?.scope !== 'team')) return true;
-  if (uid === targetUid) return inRoster(teamKey, targetUid, date);
-  return acl[uid]?.scope === 'team' && acl[uid]?.teamKey === teamKey && inRoster(teamKey, targetUid, date);
-};
+for (const name of ['status', 'marker', 'config']) {
+  check(includesAll(migrations?.[name]?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), `${name} migration writes must be admin-only`);
+}
+check(includesAll(migrations?.lock?.['.write'], ["== 'admin'", "child('expiresAt').val() <= now", "child('leaseId')"]), 'lease rule must support owner/stale cleanup and collision safety');
+check(includesAll(migrations?.audit?.$runId?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), 'audit writes must be admin-only');
+check(includesAll(migrations?.backup?.$runId?.['.write'], ["== 'admin'", "child('status').val() == 'active'"]), 'backup writes must be admin-only');
+check(
+  includesAll(rules.dossier?.['.write'], ["== 'admin'", "child('role').val() == 'Founder'", "child('status').val() == 'active'"]),
+  'security-sensitive dossier ancestry must be admin/founder-only',
+);
 
-assert.equal(canReadTeam('admin', 'fuse', true), true, 'admin reads the Recap team root');
-assert.equal(canReadTeam('globalManager', 'youngwave', true), true, 'scope=all reads every team and the root');
-assert.equal(canReadTeam('fuseTl', 'fuse'), true, 'FUSE TL reads FUSE');
-assert.equal(canReadTeam('fuseTl', 'youngwave'), false, 'FUSE TL is cross-team denied');
-assert.equal(canReadTeam('waveTl', 'youngwave'), true, 'Young Wave TL reads Young Wave');
-assert.equal(canReadTeam('waveTl', 'fuse'), false, 'Young Wave TL is cross-team denied');
-assert.equal(canReadTeam('fuseTl', 'fuse', true), false, 'team-scoped TL cannot read the teams root');
-assert.equal(canReadTeam('unassignedMember', 'fuse'), false, 'member without ACL is denied');
-assert.equal(canReadCanonicalRoot('fuseTl'), false, 'team-scoped manager cannot bypass via canonical root');
-assert.equal(canReadCanonicalRoot('globalManager'), true, 'global manager retains canonical root access');
-assert.equal(canWriteAclOrRoster('fuseTl'), false, 'TL cannot write ACL/roster');
-assert.equal(canWriteAclOrRoster('admin'), true, 'active owner admin can write ACL/roster');
-assert.equal(canWriteCanonical('fuseMember', 'fuseMember', '2026-09-11'), true, 'existing self canonical write remains available');
-assert.equal(canWriteCanonical('fuseTl', 'waveMember', '2026-09-11'), false, 'scoped TL cannot write a cross-team canonical record');
-assert.equal(canWriteMirror('fuseMember', 'fuse', 'fuseMember', '2026-09-11'), true, 'rostered self can write its mirror');
-assert.equal(canWriteMirror('unassignedMember', 'fuse', 'unassignedMember', '2026-09-11'), false, 'unrostered member cannot write a mirror');
-assert.equal(canWriteMirror('fuseTl', 'fuse', 'transfer', '2026-09-11'), true, 'transfer remains in FUSE through its inclusive activeTo');
-assert.equal(canWriteMirror('fuseTl', 'fuse', 'transfer', '2026-09-18'), false, 'FUSE loses transfer access after activeTo');
-assert.equal(canWriteMirror('waveTl', 'youngwave', 'transfer', '2026-09-11'), false, 'Young Wave cannot read/write transfer before activeFrom');
-assert.equal(canWriteMirror('waveTl', 'youngwave', 'transfer', '2026-09-18'), true, 'Young Wave gains transfer on activeFrom');
-assert.equal(canReadTeam('inactiveAdmin', 'fuse'), false, 'inactive sessions are denied even with scope=all');
+// Executable policy model for the v3 state transition and exact materialized indices.
+const complete = { marker: true, status: 'complete' };
+const rolledBack = { marker: false, status: 'rolled-back' };
+const locked = { marker: false, status: 'locked', lease: true };
+const canLegacyWrite = (state) => !state.marker && [undefined, 'blocked', 'failed', 'rolled-back'].includes(state.status);
+const canNewSelfWrite = (state, exact) => state.marker && state.status === 'complete' && exact;
+const canMigrationWrite = (state, admin) => admin && state.lease && ['locked', 'running', 'applying', 'verifying', 'applied'].includes(state.status);
+
+assert.equal(canLegacyWrite(rolledBack), true, 'legacy remains available before lock');
+assert.equal(canLegacyWrite(locked), false, 'legacy freezes at lock');
+assert.equal(canLegacyWrite(complete), false, 'legacy remains frozen after complete');
+assert.equal(canNewSelfWrite(rolledBack, true), false, 'new self path is denied before complete');
+assert.equal(canNewSelfWrite(complete, false), false, 'new self path requires an exact materialized index');
+assert.equal(canNewSelfWrite(complete, true), true, 'new self path opens after verified complete');
+assert.equal(canMigrationWrite(locked, true), true, 'admin may apply under a live migration lease');
+assert.equal(canMigrationWrite(locked, false), false, 'ordinary users cannot use the migration bypass');
 
 if (failures.length) {
-  console.error(`FAIL ${failures.length} Recap Studio security contract checks`);
+  console.error(`FAIL ${failures.length} Recap Studio v3 security contract checks`);
   for (const failure of failures) console.error(`- ${failure}`);
   process.exitCode = 1;
 } else {
-  console.log('PASS Recap Studio security contract: static rules + deny/allow policy matrix');
+  console.log('PASS Recap Studio v3 security contract: static rules + cutover policy model');
 }
