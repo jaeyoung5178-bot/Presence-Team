@@ -5204,7 +5204,7 @@ async function recapStudioAcquireLease(plan,runId,stamp){const lease={leaseId:ru
 async function recapStudioRenewLease(lease){
   if(!lease)throw Object.assign(new Error('Recap Studio migration lease is missing'),{code:'recap/migration-lease-lost'});
   const now=Date.now(),result=await DB.tx(RECAP_STUDIO_MIGRATION_PATH+'/lock',function(current){if(!current||current.leaseId!==lease.leaseId||Number(current.expiresAt)<=now)return undefined;return Object.assign({},current,{expiresAt:now+RECAP_STUDIO_MIGRATION_LEASE_MS});});
-  if(!result||!result.committed||!result.snapshot||result.snapshot.leaseId!==lease.leaseId)throw Object.assign(new Error('Recap Studio migration lease was lost'),{code:'recap/migration-lease-lost'});
+  if(!result||!result.committed||!result.snapshot||result.snapshot.leaseId!==lease.leaseId){console.warn('[Recap Studio renew lease]',{committed:!!(result&&result.committed),expectedLeaseId:lease.leaseId,currentLeaseId:result&&result.snapshot&&result.snapshot.leaseId,currentOwner:result&&result.snapshot&&result.snapshot.ownerUid,currentExpiresAt:result&&result.snapshot&&result.snapshot.expiresAt,now:now});throw Object.assign(new Error('Recap Studio migration lease was lost'),{code:'recap/migration-lease-lost'});}
   Object.assign(lease,result.snapshot);return lease;
 }
 async function recapStudioLeaseOwned(lease){if(!lease)return false;try{const current=await DB.get(RECAP_STUDIO_MIGRATION_PATH+'/lock');return !!current&&current.leaseId===lease.leaseId&&Number(current.expiresAt)>Date.now();}catch(e){return false;}}
