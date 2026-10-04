@@ -13047,7 +13047,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-10-03.recap-studio-admin-home-72';
+const APP_VERSION='2026-10-04.recap-report-visual-v5-73';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
@@ -13067,8 +13067,10 @@ function checkForUpdate(auto){
     fetch(location.pathname+'?_chk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(txt){
       var m=txt.match(/APP_VERSION='([^']+)'/); var remoteVer=m&&m[1];
       var sig=_updSig(txt);
-      if(_updBaseSig===null){_updBaseSig=sig;return;}        // 첫 확인은 기준선만
-      var stale=(remoteVer&&remoteVer!==APP_VERSION)||(sig!==_updBaseSig);
+      var firstCheck=_updBaseSig===null;
+      if(firstCheck)_updBaseSig=sig;
+      /* 첫 확인부터 배포 버전을 비교한다. 구버전 탭이 열린 직후에도 이전 PPT를 만들지 않게 한다. */
+      var stale=(remoteVer&&remoteVer!==APP_VERSION)||(!firstCheck&&sig!==_updBaseSig);
       if(!stale)return;
       if(_updAuthBusy()){window.__updPendingVersion=remoteVer||'최신';return;}
       if(auto&&_updSafe()){                                  // 배포 끝나면 스스로 최신본으로
@@ -15179,7 +15181,7 @@ function spawnKernel(layer,cx,cy){
   setTimeout(function(){ wrapGoTab(); try{ if(typeof state!=='undefined'&&state.homeOrder)apply(state.homeOrder); }catch(e){} syncFab(); }, 1200);
 })();
 </script>
-<script src="assets/presence-recap-pptx-compat.js?v=20261003-50"></script>
+<script src="assets/presence-recap-pptx-compat.js?v=20261004-51"></script>
 <script src="ps-hub.js"></script>
 <script>
 /* 2024 스트릿 테리토리 코드 데이터 · 사내 영업자산 */
