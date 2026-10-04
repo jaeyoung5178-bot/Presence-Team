@@ -480,6 +480,7 @@
       }
       rerender();
     } catch (error) {
+      console.warn('[Recap Studio migrate action]', error && error.code || error && error.message || error);
       store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error), diagnostics: [] };
       rerender();
     }
@@ -508,6 +509,7 @@
       store.pending.clear();
       rerender();
     } catch (error) {
+      console.warn('[Recap Studio migrate action]', error && error.code || error && error.message || error);
       store.migrationAction = { busy: false, ready: false, tone: 'error', message: migrationFailureMessage(error), diagnostics: [] };
       rerender();
     }
