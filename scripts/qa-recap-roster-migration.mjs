@@ -237,7 +237,8 @@ assert.doesNotMatch(html.match(/async function saveProfitRecap\(\)\{[\s\S]*?(?=f
 assert.doesNotMatch(html.match(/async function saveProfitRecap\(\)\{[\s\S]*?(?=function prcPptLoad)/)?.[0] || '', /profitMonthlyBep\//, 'ordinary saves must freeze legacy BEP writes');
 assert.match(html, /function recapStudioPresenceAgg\(/, 'Presence historical view must be a distinct union of canonical teams');
 assert.doesNotMatch(html.match(/function recapStudioAdminPeople\(\)\{[^\n]+/)?.[0] || '', /status==='active'/, 'historical person selector must not drop departed people');
-assert.match(html, /DB\.tx\(RECAP_STUDIO_MIGRATION_PATH\+'\/lock'/, 'migration lock must use an exact-path transaction');
+assert.match(html, /DB\.set\(RECAP_STUDIO_MIGRATION_PATH\+'\/lock',lease\)/, 'migration lock must use an exact-path server-enforced write');
+assert.match(html, /DB\.set\(RECAP_STUDIO_MIGRATION_PATH\+'\/lock',next\)/, 'migration lease renewal must preserve the same lease id');
 assert.doesNotMatch(html, /DB\.tx\((?:null|''|""|'')/, 'root transaction is forbidden');
 assert.match(html, /backup=\{schemaVersion:RECAP_STUDIO_SECURITY_VERSION,leaseId:lease\.leaseId,createdAt:applyAt,configHash:plan\.configHash,legacyFrozenAt:applyAt,teamsExisted:/, 'backup metadata must bind schema, freeze time and prior root existence to the active lease');
 assert.match(html, /assignmentsExisted:!!\(snapshot\.assignments/, 'backup metadata must preserve whether the prior assignment root existed');
