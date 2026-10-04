@@ -35,7 +35,12 @@ const initial = await page.evaluate(() => {
   document.getElementById('m-profitrecap')?.classList.add('active');
   renderProfitRecap();
   const text = document.getElementById('profitRecapBody')?.textContent || '';
-  return { text, hasLiveStatus: !!document.querySelector('#profitRecapBody [role="status"][aria-live="polite"]') };
+  const firebaseSource = String(initFirebase);
+  return {
+    text,
+    hasLiveStatus: !!document.querySelector('#profitRecapBody [role="status"][aria-live="polite"]'),
+    privateFallbackWired: firebaseSource.includes("weeklyProfitRecapsPrivate/'+uid") && firebaseSource.includes("profitMonthlyBepPrivate/'+uid") && firebaseSource.includes('canonicalWeekly[pay]||legacyWeekly[pay]'),
+  };
 });
 
 const emptyMirror = await page.evaluate(() => {
@@ -149,7 +154,7 @@ for (const [name, width, height] of [['desktop', 1440, 900], ['tablet', 1024, 76
 }
 
 const failures = [];
-if (!initial.text.includes('팀 리캡 데이터를 불러오는 중이에요') || initial.text.includes('수정할 활성 리더가 없어요') || !initial.hasLiveStatus) failures.push('pending team snapshot is not represented as an accessible loading state');
+if (!initial.text.includes('팀 리캡 데이터를 불러오는 중이에요') || initial.text.includes('수정할 활성 리더가 없어요') || !initial.hasLiveStatus || !initial.privateFallbackWired) failures.push('pending team snapshot or private historical fallback is not represented safely');
 if (emptyMirror.selected !== 'umqn54ujf' || emptyMirror.stillEmpty || emptyMirror.stillLoading || !emptyMirror.text.includes('고윤경') || !emptyMirror.options.some((label) => label.includes('권영웅'))) failures.push('empty or partial FUSE mirror hid the reviewed weekly recap roster');
 if (partialLeaderMirror.selected !== 'umqn54ujf' || !partialLeaderMirror.options.some((label) => label.includes('고윤경')) || !partialLeaderMirror.options.some((label) => label.includes('권영웅')) || partialLeaderMirror.historyCount !== 1 || partialLeaderMirror.rangeCount !== 1 || !partialLeaderMirror.aggregateRows.includes('고윤경') || partialLeaderMirror.aggregateRecords !== 1) failures.push('partial leader mirror hid the TL or disconnected legacy recap history');
 if (after.selected !== 'umqn54ujf' || after.stillEmpty || after.stillLoading || !after.text.includes('고윤경') || !after.options.some((label) => label.includes('권영웅'))) failures.push('team snapshot arrival did not refresh the FUSE weekly recap editor');
