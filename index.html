@@ -6615,9 +6615,9 @@ function prcProductivityOf(data){
 }
 function prcProductivityInsights(data){
   const people=(data.rows||[]).map(function(row){const sales=Math.max(0,Number(row.sales)||0),rejects=Math.max(0,Number(row.rejects)||0),resubmits=Math.max(0,Number(row.resubmits)||0),netRejects=Math.max(0,rejects-resubmits);return {name:row.name||'—',role:row.role||'',sales:sales,rejects:rejects,resubmits:resubmits,netRejects:netRejects,rate:sales?netRejects/sales*100:0};});
-  const ranked=people.filter(function(x){return x.sales>0;}).sort(function(a,b){return b.rate-a.rate||b.netRejects-a.netRejects||String(a.name).localeCompare(String(b.name),'ko');}),recipients=people.filter(function(x){return x.resubmits>0;}).sort(function(a,b){return b.resubmits-a.resubmits||String(a.name).localeCompare(String(b.name),'ko');});
+  const ranked=people.filter(function(x){return x.sales>0;}).sort(function(a,b){return b.rate-a.rate||b.netRejects-a.netRejects||String(a.name).localeCompare(String(b.name),'ko');}),lowestCandidates=people.filter(function(x){return x.sales>=20;}).sort(function(a,b){return a.rate-b.rate||b.sales-a.sales||a.netRejects-b.netRejects||String(a.name).localeCompare(String(b.name),'ko');}),recipients=people.filter(function(x){return x.resubmits>0;}).sort(function(a,b){return b.resubmits-a.resubmits||String(a.name).localeCompare(String(b.name),'ko');});
   const recipientText=recipients.length?recipients.map(function(x){return x.name+' '+x.resubmits+'건';}).join(' · '):'해당 없음';
-  return {recipients:recipients,recipientText:recipientText,highest:ranked[0]||null,lowest:ranked.length?ranked[ranked.length-1]:null};
+  return {recipients:recipients,recipientText:recipientText,highest:ranked[0]||null,lowest:lowestCandidates[0]||null};
 }
 function prcProductivityHTMLComplexLegacy(data){
   const p=prcProductivityOf(data),cl=Math.max(0,p.clPctOfSales||0),sw=Math.max(0,p.swPctOfSales||0),retained=Math.max(0,p.retainedPctOfSales||0),warn=p.invalid?'<p class="pra-prod-note warn">⚠ 순리젝 건수가 총 세일즈보다 큽니다. 리캡 원본 건수를 확인해 주세요.</p>':'';
@@ -6682,7 +6682,7 @@ function prcProductivityHTML(data){
         <div class="pra-insight-small has-three">
           <div class="pra-insight-card resub"><span>리섭 현황</span><b>${prcFmt(p.resubmits)}건 · ${valid?prcPct(p.resubmitPctOfSales):'—'}</b><small>전체 세일즈 ${prcFmt(p.sales)}건 기준<br>${esc(insight.recipientText)}</small></div>
           <div class="pra-insight-card"><span>리젝률 최고</span><b>${highest?esc(highest.name)+' · '+prcPct(highest.rate):'—'}</b><small>${highest?prcFmt(highest.netRejects)+'건 / '+prcFmt(highest.sales)+'건':'분석 가능한 세일즈 없음'}</small></div>
-          <div class="pra-insight-card"><span>리젝률 최저</span><b>${lowest?esc(lowest.name)+' · '+prcPct(lowest.rate):'—'}</b><small>${lowest?prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건':'분석 가능한 세일즈 없음'}</small></div>
+          <div class="pra-insight-card"><span>리젝률 최저</span><b>${lowest?esc(lowest.name)+' · '+prcPct(lowest.rate):'—'}</b><small>${lowest?prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건 · 20건 이상 기준':'세일즈 20건 이상 대상자 없음'}</small></div>
         </div>${warn}
       </div>
     </div><div class="pra-page">3</div></article>`;
@@ -6704,7 +6704,7 @@ function prcPptProductivity(pptx,data,page){
   const x=6.56,w=5.78,card=function(y,h){slide.addShape(pptx.ShapeType.roundRect,{x:x,y:y,w:w,h:h,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});};
   card(2.02,1.25);prcPptText(slide,pptx,'실제 인컴',x+.25,2.18,w-.5,.22,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x+.25,2.47,w-.5,.35,23,PRC_DECK_BLUE,true,'center');prcPptText(slide,pptx,'Net 세일즈 '+prcFmt(p.retained)+'건 · 전체 세일즈의 '+(valid?prcPct(p.retainedPctOfSales):'—'),x+.25,2.91,w-.5,.17,8.5,'64748B',false,'center');
   card(3.5,1.42);prcPptText(slide,pptx,'리젝 손실액',x+.25,3.71,w-.5,.2,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.rejectValue),x+.25,4.02,w-.5,.38,23,'5F63C4',true,'center');prcPptText(slide,pptx,'순리젝 '+prcFmt(p.netRejects)+'건 × ₩110,000 · (본드에서 우선차감)',x+.35,4.55,w-.7,.17,8.5,'64748B',false,'center');
-  [{name:'리섭 현황',value:prcFmt(p.resubmits)+'건 · '+(valid?prcPct(p.resubmitPctOfSales):'—'),detail:'전체 세일즈 '+prcFmt(p.sales)+'건 기준\n'+insight.recipientText,color:'16B8A6',x:6.72},{name:'리젝률 최고',value:highest?(highest.name+' · '+prcPct(highest.rate)):'—',detail:highest?(prcFmt(highest.netRejects)+'건 / '+prcFmt(highest.sales)+'건'):'분석 가능한 세일즈 없음',color:'E54864',x:8.62},{name:'리젝률 최저',value:lowest?(lowest.name+' · '+prcPct(lowest.rate)):'—',detail:lowest?(prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건'):'분석 가능한 세일즈 없음',color:'3C439C',x:10.52}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:item.x,y:5.25,w:1.68,h:1.48,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,item.name,item.x+.1,5.43,1.48,.18,9.5,'475569',true,'center');prcPptText(slide,pptx,item.value,item.x+.08,5.74,1.52,.34,12,item.color,true,'center');prcPptText(slide,pptx,item.detail,item.x+.08,6.14,1.52,.4,6.8,'64748B',false,'center');});
+  [{name:'리섭 현황',value:prcFmt(p.resubmits)+'건 · '+(valid?prcPct(p.resubmitPctOfSales):'—'),detail:'전체 세일즈 '+prcFmt(p.sales)+'건 기준\n'+insight.recipientText,color:'16B8A6',x:6.72},{name:'리젝률 최고',value:highest?(highest.name+' · '+prcPct(highest.rate)):'—',detail:highest?(prcFmt(highest.netRejects)+'건 / '+prcFmt(highest.sales)+'건'):'분석 가능한 세일즈 없음',color:'E54864',x:8.62},{name:'리젝률 최저',value:lowest?(lowest.name+' · '+prcPct(lowest.rate)):'—',detail:lowest?(prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건 · 20건 이상 기준'):'세일즈 20건 이상 대상자 없음',color:'3C439C',x:10.52}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:item.x,y:5.25,w:1.68,h:1.48,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,item.name,item.x+.1,5.43,1.48,.18,9.5,'475569',true,'center');prcPptText(slide,pptx,item.value,item.x+.08,5.74,1.52,.34,12,item.color,true,'center');prcPptText(slide,pptx,item.detail,item.x+.08,6.14,1.52,.4,6.8,'64748B',false,'center');});
   if(p.invalid)prcPptText(slide,pptx,'순리젝이 전체 세일즈보다 많아 비중은 표시하지 않았습니다.',6.56,6.78,5.72,.18,8.5,'B45309',true,'center');
   return slide;
 }
@@ -13050,7 +13050,7 @@ function ftWkRollup(){
    BOOT
    ============================================================ */
 /* ===== 버전 · 자동 업데이트 (PWA 캐시 우회) ===== */
-const APP_VERSION='2026-10-04.recap-report-insights-v6-75';
+const APP_VERSION='2026-10-04.recap-report-insights-v6-76';
 let _updPrompted=false,_updBaseSig=null;
 function _updSig(t){ var h=5381,i=t.length; while(i){h=(h*33)^t.charCodeAt(--i);} return (h>>>0).toString(36)+'.'+t.length; }
 function showUpdateBanner(v){
