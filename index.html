@@ -2065,6 +2065,10 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-recap .pra-insight-small.has-three{grid-template-columns:repeat(3,minmax(0,1fr))}
 #m-recap .pra-insight-small.has-three .pra-insight-card b{font-size:18px}
 #m-recap .pra-insight-card.resub b{color:#0f9f91}
+#m-recap .pra-income-stack{display:flex;height:10px;margin:12px 0 7px;overflow:hidden;border-radius:999px;background:#e2e8f0}
+#m-recap .pra-income-stack i,#m-recap .pra-income-stack em{display:block;height:100%;flex:0 0 auto}
+#m-recap .pra-income-stack i{background:#2847a5}
+#m-recap .pra-income-stack em{background:#16b8a6}
 #m-recap .pra-table-wrap{margin-top:22px;border:1px solid #aeb8c1;border-radius:0;background:#fff}
 #m-recap .pra-table th{background:#0c75c8;color:#fff;padding:11px 7px}
 #m-recap .pra-table tr:nth-child(even) td{background:#f8fbfd}
@@ -6605,9 +6609,9 @@ function prcProductivityOf(data){
   const rejectCL=sum('rejectCLCount'),rejectSW=sum('rejectSWCount'),grossRejects=rejectCL+rejectSW,resubmits=records.reduce(function(total,record){return total+prcResubmitTotal(record);},0),netRejects=Math.max(0,grossRejects-resubmits);
   const netCL=grossRejects?Math.round(netRejects*rejectCL/grossRejects):0,netSW=Math.max(0,netRejects-netCL);
   const sales=Math.max(0,Number((data.totals||{}).sales)||0),effectiveSales=prcEffectiveSales(sales,resubmits),actualIncome=Math.max(0,Number((data.totals||{}).income)||0),grossValue=effectiveSales*PRC_SALE_PRODUCTIVITY;
-  const retained=Math.max(0,sales-netRejects),clValue=netCL*PRC_SALE_PRODUCTIVITY,swValue=netSW*PRC_SALE_PRODUCTIVITY,resubmitValue=resubmits*PRC_SALE_PRODUCTIVITY,rejectValue=clValue+swValue,retainedValue=retained*PRC_SALE_PRODUCTIVITY;
-  const rejectPctOfSales=effectiveSales?netRejects/effectiveSales*100:0,clPctOfSales=effectiveSales?netCL/effectiveSales*100:0,swPctOfSales=effectiveSales?netSW/effectiveSales*100:0,resubmitPctOfSales=effectiveSales?resubmits/effectiveSales*100:0,retainedPctOfSales=effectiveSales?retained/effectiveSales*100:0,actualIncomePctOfGross=grossValue?actualIncome/grossValue*100:0;
-  return {unit:PRC_SALE_PRODUCTIVITY,fieldDays:Number((data.totals||{}).fieldDays)||0,sales:sales,effectiveSales:effectiveSales,actualIncome:actualIncome,grossRejects:grossRejects,resubmits:resubmits,netCL:netCL,netSW:netSW,netRejects:netRejects,retained:retained,grossValue:grossValue,salesBenchmarkValue:grossValue,retainedValue:retainedValue,resubmitValue:resubmitValue,rejectValue:rejectValue,clValue:clValue,swValue:swValue,perFieldDay:(data.totals||{}).fieldDays?grossValue/(data.totals||{}).fieldDays:0,actualIncomePctOfGross:actualIncomePctOfGross,incomeRealizationPct:actualIncomePctOfGross,rejectPctOfSales:rejectPctOfSales,clPctOfSales:clPctOfSales,swPctOfSales:swPctOfSales,resubmitPctOfSales:resubmitPctOfSales,retainedPctOfSales:retainedPctOfSales,modelPctTotal:retainedPctOfSales+resubmitPctOfSales+clPctOfSales+swPctOfSales,clShare:netRejects?netCL/netRejects*100:0,swShare:netRejects?netSW/netRejects*100:0,invalid:netRejects>effectiveSales,incomeOverflow:actualIncomePctOfGross>100};
+  const retained=Math.max(0,sales-netRejects),earningUnits=retained+resubmits,clValue=netCL*PRC_SALE_PRODUCTIVITY,swValue=netSW*PRC_SALE_PRODUCTIVITY,resubmitValue=resubmits*PRC_SALE_PRODUCTIVITY,rejectValue=clValue+swValue,retainedValue=retained*PRC_SALE_PRODUCTIVITY,earningValue=earningUnits*PRC_SALE_PRODUCTIVITY;
+  const rejectPctOfSales=effectiveSales?netRejects/effectiveSales*100:0,clPctOfSales=effectiveSales?netCL/effectiveSales*100:0,swPctOfSales=effectiveSales?netSW/effectiveSales*100:0,resubmitPctOfSales=effectiveSales?resubmits/effectiveSales*100:0,retainedPctOfSales=effectiveSales?retained/effectiveSales*100:0,earningPctOfSales=effectiveSales?earningUnits/effectiveSales*100:0,actualIncomePctOfGross=grossValue?actualIncome/grossValue*100:0;
+  return {unit:PRC_SALE_PRODUCTIVITY,fieldDays:Number((data.totals||{}).fieldDays)||0,sales:sales,effectiveSales:effectiveSales,actualIncome:actualIncome,grossRejects:grossRejects,resubmits:resubmits,netCL:netCL,netSW:netSW,netRejects:netRejects,retained:retained,earningUnits:earningUnits,grossValue:grossValue,salesBenchmarkValue:grossValue,retainedValue:retainedValue,resubmitValue:resubmitValue,earningValue:earningValue,rejectValue:rejectValue,clValue:clValue,swValue:swValue,perFieldDay:(data.totals||{}).fieldDays?grossValue/(data.totals||{}).fieldDays:0,actualIncomePctOfGross:actualIncomePctOfGross,incomeRealizationPct:actualIncomePctOfGross,rejectPctOfSales:rejectPctOfSales,clPctOfSales:clPctOfSales,swPctOfSales:swPctOfSales,resubmitPctOfSales:resubmitPctOfSales,retainedPctOfSales:retainedPctOfSales,earningPctOfSales:earningPctOfSales,modelPctTotal:earningPctOfSales+rejectPctOfSales,clShare:netRejects?netCL/netRejects*100:0,swShare:netRejects?netSW/netRejects*100:0,invalid:netRejects>effectiveSales,incomeOverflow:actualIncomePctOfGross>100};
 }
 function prcProductivityHTMLComplexLegacy(data){
   const p=prcProductivityOf(data),cl=Math.max(0,p.clPctOfSales||0),sw=Math.max(0,p.swPctOfSales||0),retained=Math.max(0,p.retainedPctOfSales||0),warn=p.invalid?'<p class="pra-prod-note warn">⚠ 순리젝 건수가 총 세일즈보다 큽니다. 리캡 원본 건수를 확인해 주세요.</p>':'';
@@ -6641,41 +6645,33 @@ function prcPptProductivityComplexLegacy(pptx,data,page){
   prcPptText(slide,pptx,'원형은 Gross Sales Value 100%를 리젝 제외 Gross·CL Reject Loss·SW Reject Loss로 나눕니다. Actual Income은 팀원이 직접 입력한 실제 지급 급여이므로 원형 조각에 합산하지 않고 별도 금액으로 표시합니다.',6.62,6.49,5.55,.4,7.7,'64748B');if(p.invalid)prcPptText(slide,pptx,'⚠ 순리젝 건수가 총 세일즈보다 큽니다. 원본 건수를 확인해 주세요.',6.62,6.91,5.55,.17,8,'D97706',true);
   return slide;
 }
-// Only roomy slices receive short horizontal labels. Small slices stay exact in
-// the adjacent metric cards, avoiding rotated or overlapping ring typography.
-function prcRejectRingLabels(p){
-  if(!p.effectiveSales||p.invalid)return [];
-  return [{name:'CL',start:0,pct:p.clPctOfSales,color:'#ffffff'},
-    {name:'SW',start:p.clPctOfSales,pct:p.swPctOfSales,color:'#ffffff'},
-    {name:'리섭',start:p.rejectPctOfSales,pct:p.resubmitPctOfSales,color:'#ffffff'},
-    {name:'Net',start:p.rejectPctOfSales+p.resubmitPctOfSales,pct:p.retainedPctOfSales,color:'#ffffff'}]
-    .filter(function(item){return item.pct>=(item.name==='Net'?22:18);}).map(function(item){
-      const angle=(item.start+item.pct/2)*Math.PI/50;
-      return Object.assign({},item,{x:180+118*Math.sin(angle),y:165-118*Math.cos(angle),fontSize:11,text:item.name+' '+prcPct(item.pct)});
-    });
+function prcDonutLabelMarkup(name,start,pct,color){
+  if(!pct)return '';
+  const angle=(start+pct/2)*Math.PI/50,inside=pct>=9,r=118,x=180+r*Math.sin(angle),y=165-r*Math.cos(angle);
+  if(inside)return `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" dominant-baseline="central" fill="#fff" style="font:800 12px Arial,sans-serif;paint-order:stroke;stroke:rgba(0,0,0,.2);stroke-width:1px">${name} ${prcPct(pct)}</text>`;
+  const edgeX=180+151*Math.sin(angle),edgeY=165-151*Math.cos(angle),right=Math.sin(angle)>=0,labelX=right?edgeX+16:edgeX-16;
+  return `<g><line x1="${x.toFixed(2)}" y1="${y.toFixed(2)}" x2="${edgeX.toFixed(2)}" y2="${edgeY.toFixed(2)}" stroke="${color}" stroke-width="2"/><text x="${labelX.toFixed(2)}" y="${(edgeY+4).toFixed(2)}" text-anchor="${right?'start':'end'}" fill="${color}" style="font:800 11px Arial,sans-serif">${name} ${prcPct(pct)}</text></g>`;
 }
 function prcProductivityHTML(data){
-  const p=prcProductivityOf(data),valid=p.effectiveSales>0&&!p.invalid,cl=valid?p.clPctOfSales:0,sw=valid?p.swPctOfSales:0,resub=valid?p.resubmitPctOfSales:0;
+  const p=prcProductivityOf(data),valid=p.effectiveSales>0&&!p.invalid,reject=valid?p.rejectPctOfSales:0,earning=valid?p.earningPctOfSales:0;
   const rate=valid?prcPct(p.rejectPctOfSales):'—',warn=p.invalid?'<p class="pra-prod-note warn">순리젝이 유효 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.</p>':'';
   return `<article class="pra-slide pra-income-reject-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div>
     <div class="pra-kicker">세일즈 현황</div><h3 class="pra-title">실인컴과 리젝</h3>
     <div class="pra-sub">유효 세일즈 ${prcFmt(p.effectiveSales)}건 = 기존 ${prcFmt(p.sales)}건 + 리섭 ${prcFmt(p.resubmits)}건 · 순리젝 ${prcFmt(p.netRejects)}건</div>
     <div class="pra-productivity">
       <div class="pra-story-card"><div class="pra-story-donut">
-        <svg class="pra-ring-chart" viewBox="0 0 360 340" role="img" aria-label="유효 세일즈 ${p.effectiveSales}건 중 순리젝 ${p.netRejects}건, 리섭 ${p.resubmits}건, 리젝률 ${rate}">
-          <circle cx="180" cy="165" r="118" fill="none" stroke="#3c439c" stroke-width="64"/>
-          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#5aa4eb" stroke-width="64" stroke-dasharray="${cl} ${100-cl}" transform="rotate(-90 180 165)"/>
-          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#6d67c7" stroke-width="64" stroke-dasharray="${sw} ${100-sw}" stroke-dashoffset="-${cl}" transform="rotate(-90 180 165)"/>
-          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#16b8a6" stroke-width="64" stroke-dasharray="${resub} ${100-resub}" stroke-dashoffset="-${cl+sw}" transform="rotate(-90 180 165)"/>
+        <svg class="pra-ring-chart" viewBox="0 0 360 340" role="img" aria-label="유효 세일즈 ${p.effectiveSales}건 중 수익 발생 ${p.earningUnits}건, 순리젝 ${p.netRejects}건, 리젝률 ${rate}">
+          <circle cx="180" cy="165" r="118" fill="none" stroke="#2847a5" stroke-width="58"/>
+          <circle class="pra-ring-value" style="stroke-linecap:butt" cx="180" cy="165" r="118" pathLength="100" stroke="#e54864" stroke-width="58" stroke-dasharray="${reject} ${100-reject}" transform="rotate(-90 180 165)"/>
           <text x="180" y="133" font-size="14" font-weight="700" text-anchor="middle" fill="#64748b">순리젝률</text>
           <text x="180" y="180" font-size="39" font-weight="900" text-anchor="middle" fill="#1e293b">${rate}</text>
           <text x="180" y="210" font-size="14" font-weight="700" text-anchor="middle" fill="#475569">${prcFmt(p.netRejects)}건 / ${prcFmt(p.effectiveSales)}건</text>
-          ${prcRejectRingLabels(p).map(function(item){return `<text class="pra-slice-label" data-series="${item.name}" data-start="${item.start}" data-share="${item.pct}" x="${item.x.toFixed(3)}" y="${item.y.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${item.color}" style="font:700 ${item.fontSize}px Arial,sans-serif;white-space:nowrap">${item.text}</text>`;}).join('')}
+          ${valid?prcDonutLabelMarkup('리젝',0,reject,'#e54864')+prcDonutLabelMarkup('수익',reject,earning,'#2847a5'):''}
         </svg>
-        <div class="pra-ring-key"><span><i style="background:#5aa4eb"></i>CL ${valid?prcPct(p.clPctOfSales):'—'}</span><span><i style="background:#6d67c7"></i>SW ${valid?prcPct(p.swPctOfSales):'—'}</span><span><i style="background:#16b8a6"></i>리섭 ${valid?prcPct(p.resubmitPctOfSales):'—'}</span><span><i style="background:#3c439c"></i>Net ${valid?prcPct(p.retainedPctOfSales):'—'}</span></div>
+        <div class="pra-ring-key"><span><i style="background:#e54864"></i>순리젝 ${valid?prcPct(p.rejectPctOfSales):'—'}</span><span><i style="background:#2847a5"></i>전체 수익 ${valid?prcPct(p.earningPctOfSales):'—'}</span></div>
       </div></div>
       <div class="pra-insight-grid">
-        <div class="pra-insight-card"><span>실제 인컴</span><b>₩${prcFmt(p.actualIncome)}</b><small>Net ${prcFmt(p.retained)}건 · 전체의 ${valid?prcPct(p.retainedPctOfSales):'—'}</small></div>
+        <div class="pra-insight-card"><span>실제 인컴</span><b>₩${prcFmt(p.actualIncome)}</b><small>수익 발생 ${prcFmt(p.earningUnits)}건 · 전체의 ${valid?prcPct(p.earningPctOfSales):'—'}</small><div class="pra-income-stack" aria-label="기본 수익과 리섭 수익 구성"><i style="width:${valid?p.retainedPctOfSales:0}%"></i><em style="width:${valid?p.resubmitPctOfSales:0}%"></em></div><small>기본 수익 ${valid?prcPct(p.retainedPctOfSales):'—'} + 리섭 ${valid?prcPct(p.resubmitPctOfSales):'—'}</small></div>
         <div class="pra-insight-card loss"><span>리젝 손실액</span><b>₩${prcFmt(p.rejectValue)}</b><small>순리젝 ${prcFmt(p.netRejects)}건 × ₩110,000 · (본드에서 우선차감)</small></div>
         <div class="pra-insight-small has-three">
           <div class="pra-insight-card"><span>CL · 클라이언트</span><b>${prcFmt(p.netCL)}건</b><small>${valid?prcPct(p.clPctOfSales):'—'} · ₩${prcFmt(p.clValue)}</small></div>
@@ -6685,24 +6681,25 @@ function prcProductivityHTML(data){
       </div>
     </div><div class="pra-page">3</div></article>`;
 }
+function prcPptSvgData(svg){return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));}
+function prcPptRejectDonutData(p){
+  const reject=Math.max(0,Math.min(100,p.rejectPctOfSales||0)),earning=Math.max(0,100-reject),circumference=2*Math.PI*122,rejectArc=circumference*reject/100,label=function(name,start,pct){if(!pct)return '';const a=(start+pct/2)*Math.PI/50,r=122,x=180+r*Math.sin(a),y=180-r*Math.cos(a);if(pct>=9)return `<text x="${x.toFixed(2)}" y="${(y+5).toFixed(2)}" text-anchor="middle" fill="#fff" font-family="Arial" font-size="16" font-weight="700">${name} ${prcPct(pct)}</text>`;const ex=180+158*Math.sin(a),ey=180-158*Math.cos(a),right=Math.sin(a)>=0;return `<line x1="${x}" y1="${y}" x2="${ex}" y2="${ey}" stroke="#e54864" stroke-width="2"/><text x="${right?ex+9:ex-9}" y="${ey+5}" text-anchor="${right?'start':'end'}" fill="#e54864" font-family="Arial" font-size="14" font-weight="700">${name} ${prcPct(pct)}</text>`;};
+  return prcPptSvgData(`<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360"><circle cx="180" cy="180" r="122" fill="none" stroke="#2847a5" stroke-width="58"/><circle cx="180" cy="180" r="122" fill="none" stroke="#e54864" stroke-width="58" stroke-dasharray="${rejectArc.toFixed(3)} ${(circumference-rejectArc).toFixed(3)}" transform="rotate(-90 180 180)"/>${label('리젝',0,reject)}${label('수익',reject,earning)}</svg>`);
+}
 function prcPptProductivity(pptx,data,page){
   const slide=pptx.addSlide(),p=prcProductivityOf(data),valid=p.effectiveSales>0&&!p.invalid,rate=valid?prcPct(p.rejectPctOfSales):'—';
   slide.background={color:PRC_DECK_BG};
   prcPptHeader(slide,pptx,'세일즈 현황','실인컴과 리젝','유효 세일즈 '+prcFmt(p.effectiveSales)+'건 = 기존 '+prcFmt(p.sales)+'건 + 리섭 '+prcFmt(p.resubmits)+'건 · 순리젝 '+prcFmt(p.netRejects)+'건',page);
-  const values=valid?[p.netCL,p.netSW,p.resubmits,p.retained]:[0,0,0,1];
-  slide.addChart(pptx.ChartType.doughnut,[{name:'유효 세일즈 구성',labels:['CL','SW','리섭','Net'],values:values}],{
-    x:.72,y:1.94,w:5.02,h:4.77,holeSize:58,showLegend:false,showTitle:false,showPercent:false,showValue:false,showCatName:false,varyColors:true,
-    chartColors:['5AA4EB','6D67C7','16B8A6','3C439C'],chartArea:{fill:{color:PRC_DECK_BG},border:{color:PRC_DECK_BG,pt:0}},plotArea:{fill:{color:PRC_DECK_BG},border:{color:PRC_DECK_BG,pt:0}}
-  });
-  prcPptText(slide,pptx,'순리젝률',1.86,3.48,2.72,.24,12,'475569',true,'center');
-  prcPptText(slide,pptx,rate,1.76,3.84,2.92,.56,32,'172033',true,'center');
-  prcPptText(slide,pptx,prcFmt(p.netRejects)+'건 / '+prcFmt(p.effectiveSales)+'건',1.86,4.48,2.72,.24,11,'475569',true,'center');
-  [['CL','5AA4EB'],['SW','6D67C7'],['리섭','16B8A6'],['Net','3C439C']].forEach(function(item,i){const x=.73+i*1.25;slide.addShape(pptx.ShapeType.roundRect,{x:x,y:6.45,w:.14,h:.14,rectRadius:.04,fill:{color:item[1]},line:{color:item[1]}});prcPptText(slide,pptx,item[0],x+.19,6.42,1.0,.2,8.8,'334155',true);});
-  const x=6.56,w=5.78,card=function(y,h){slide.addShape(pptx.ShapeType.roundRect,{x:x,y:y,w:w,h:h,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});};
-  card(2.02,1.25);prcPptText(slide,pptx,'실제 인컴',x+.25,2.18,w-.5,.22,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x+.25,2.47,w-.5,.35,23,PRC_DECK_BLUE,true,'center');prcPptText(slide,pptx,'Net '+prcFmt(p.retained)+'건 · 전체의 '+(valid?prcPct(p.retainedPctOfSales):'—'),x+.25,2.91,w-.5,.17,8.5,'64748B',false,'center');
-  card(3.5,1.42);prcPptText(slide,pptx,'리젝 손실액',x+.25,3.71,w-.5,.2,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.rejectValue),x+.25,4.02,w-.5,.38,23,'5F63C4',true,'center');prcPptText(slide,pptx,'순리젝 '+prcFmt(p.netRejects)+'건 × ₩110,000 · (본드에서 우선차감)',x+.35,4.55,w-.7,.17,8.5,'64748B',false,'center');
-  [{name:'CL',count:p.netCL,pct:p.clPctOfSales,value:p.clValue,color:'5AA4EB',x:6.72},{name:'SW',count:p.netSW,pct:p.swPctOfSales,value:p.swValue,color:'6D67C7',x:8.62},{name:'리섭',count:p.resubmits,pct:p.resubmitPctOfSales,value:p.resubmitValue,color:'16B8A6',x:10.52}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:item.x,y:5.25,w:1.68,h:1.35,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,item.name,item.x+.1,5.46,1.48,.18,10.5,'475569',true,'center');prcPptText(slide,pptx,prcFmt(item.count)+'건',item.x+.1,5.77,1.48,.3,18,item.color,true,'center');prcPptText(slide,pptx,(valid?prcPct(item.pct):'—')+' · ₩'+prcFmt(item.value),item.x+.08,6.18,1.52,.16,7.2,'64748B',false,'center');});
-  if(p.invalid)prcPptText(slide,pptx,'순리젝이 유효 세일즈보다 많아 원형 비중은 표시하지 않았습니다.',6.56,6.75,5.78,.18,8.5,'B45309',true,'center');
+  slide.addShape(pptx.ShapeType.roundRect,{x:.68,y:1.94,w:5.55,h:4.82,rectRadius:.14,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});
+  prcPptText(slide,pptx,'취소율',.98,2.15,1.2,.2,11,'475569',true);slide.addImage({data:prcPptRejectDonutData(p),x:.88,y:2.33,w:3.62,h:3.62});
+  prcPptText(slide,pptx,'순리젝률',1.61,3.5,2.12,.2,11,'475569',true,'center');prcPptText(slide,pptx,rate,1.54,3.79,2.26,.5,29,'172033',true,'center');prcPptText(slide,pptx,prcFmt(p.netRejects)+' / '+prcFmt(p.effectiveSales)+'건',1.6,4.33,2.14,.2,10,'64748B',true,'center');
+  [{name:'CL',count:p.netCL,pct:p.clPctOfSales,color:'5AA4EB',y:2.66},{name:'SW',count:p.netSW,pct:p.swPctOfSales,color:'6D67C7',y:3.79}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:4.32,y:item.y,w:1.55,h:.88,rectRadius:.09,fill:{color:'F8FAFC'},line:{color:'E2E8F0',pt:.6}});prcPptText(slide,pptx,item.name,4.48,item.y+.11,1.2,.16,9,'475569',true);prcPptText(slide,pptx,prcFmt(item.count)+'건 · '+(valid?prcPct(item.pct):'—'),4.48,item.y+.39,1.2,.23,12,item.color,true);});
+  prcPptText(slide,pptx,'리섭 차감 후 순리젝 · CL/SW는 순리젝 구성',1.02,6.31,4.85,.17,8,'64748B',false,'center');
+  const x=6.52,w=5.82,card=function(y,h){slide.addShape(pptx.ShapeType.roundRect,{x:x,y:y,w:w,h:h,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});};
+  card(1.94,1.36);prcPptText(slide,pptx,'실제 인컴',x+.28,2.12,w-.56,.2,11,'475569',true);prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x+.28,2.43,3.0,.35,22,PRC_DECK_BLUE,true);prcPptText(slide,pptx,'수익 발생 '+prcFmt(p.earningUnits)+'건 · 전체의 '+(valid?prcPct(p.earningPctOfSales):'—'),x+3.05,2.49,2.45,.22,10,'2847A5',true,'right');
+  card(3.52,1.43);prcPptText(slide,pptx,'수익 구성',x+.28,3.72,2.2,.2,11,'475569',true);const barX=x+.3,barY=4.12,barW=w-.6,baseW=barW*(valid?p.retainedPctOfSales:0)/100,resubW=barW*(valid?p.resubmitPctOfSales:0)/100;slide.addShape(pptx.ShapeType.roundRect,{x:barX,y:barY,w:barW,h:.28,rectRadius:.08,fill:{color:'E2E8F0'},line:{color:'E2E8F0'}});if(baseW)slide.addShape(pptx.ShapeType.rect,{x:barX,y:barY,w:baseW,h:.28,fill:{color:'2847A5'},line:{color:'2847A5'}});if(resubW)slide.addShape(pptx.ShapeType.rect,{x:barX+baseW,y:barY,w:resubW,h:.28,fill:{color:'16B8A6'},line:{color:'16B8A6'}});prcPptText(slide,pptx,'기본 수익 '+prcFmt(p.retained)+'건 · '+(valid?prcPct(p.retainedPctOfSales):'—'),barX,4.48,2.45,.18,8.6,'2847A5',true);prcPptText(slide,pptx,'리섭 '+prcFmt(p.resubmits)+'건 · '+(valid?prcPct(p.resubmitPctOfSales):'—'),barX+2.5,4.48,2.55,.18,8.6,'0F9F91',true,'right');
+  card(5.18,1.28);prcPptText(slide,pptx,'리젝 손실액',x+.28,5.38,2.0,.2,11,'475569',true);prcPptText(slide,pptx,'₩'+prcFmt(p.rejectValue),x+.28,5.69,2.9,.35,21,'E54864',true);prcPptText(slide,pptx,'순리젝 '+prcFmt(p.netRejects)+'건 × ₩110,000\n(본드에서 우선차감)',x+3.05,5.55,2.43,.46,8.8,'64748B',false,'right');
+  if(p.invalid)prcPptText(slide,pptx,'순리젝이 유효 세일즈보다 많아 비중은 표시하지 않았습니다.',6.56,6.65,5.72,.18,8.5,'B45309',true,'center');
   return slide;
 }
 function prcPptCell(text,fill,color,bold,align){return {text:String(text),options:{fill:fill||'FFFFFF',color:color||'1E293B',bold:!!bold,align:align||'center',valign:'middle',fontFace:'Noto Sans KR'}};}
