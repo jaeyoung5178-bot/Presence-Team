@@ -38,6 +38,19 @@ const initial = await page.evaluate(() => {
   return { text, hasLiveStatus: !!document.querySelector('#profitRecapBody [role="status"][aria-live="polite"]') };
 });
 
+const emptyMirror = await page.evaluate(() => {
+  state.recapStudioTeam = { roster: {}, weekly: {}, bep: {} };
+  recapStudioRefresh();
+  const text = document.getElementById('profitRecapBody')?.textContent || '';
+  return {
+    text,
+    selected: document.getElementById('prcTargetUid')?.value || '',
+    options: [...document.querySelectorAll('#prcTargetUid option')].map((option) => option.textContent.trim()),
+    stillEmpty: text.includes('수정할 활성 리더가 없어요'),
+    stillLoading: text.includes('불러오는 중'),
+  };
+});
+
 const after = await page.evaluate(() => {
   const interval = (uid, name, role) => ({ uid, name, role, activeFrom: '2026-01-01', assignmentId: `qa-${uid}` });
   state.recapStudioTeam = {
@@ -75,10 +88,11 @@ for (const [name, width, height] of [['desktop', 1440, 900], ['tablet', 1024, 76
 
 const failures = [];
 if (!initial.text.includes('팀 리캡 데이터를 불러오는 중이에요') || initial.text.includes('수정할 활성 리더가 없어요') || !initial.hasLiveStatus) failures.push('pending team snapshot is not represented as an accessible loading state');
+if (emptyMirror.selected !== 'umqn54ujf' || emptyMirror.stillEmpty || emptyMirror.stillLoading || !emptyMirror.text.includes('고윤경') || !emptyMirror.options.some((label) => label.includes('권영웅'))) failures.push('empty or partial FUSE mirror hid the reviewed weekly recap roster');
 if (after.selected !== 'umqn54ujf' || after.stillEmpty || after.stillLoading || !after.text.includes('고윤경') || !after.options.some((label) => label.includes('권영웅'))) failures.push('team snapshot arrival did not refresh the FUSE weekly recap editor');
 for (const [name, result] of Object.entries(responsive)) if (result.overflow || result.undersized.length) failures.push(`${name} responsive gate failed`);
 if (errors.length) failures.push('browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ initial, after, responsive, errors, failures }, null, 2));
+console.log(JSON.stringify({ initial, emptyMirror, after, responsive, errors, failures }, null, 2));
 if (failures.length) process.exit(1);
