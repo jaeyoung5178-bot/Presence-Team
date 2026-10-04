@@ -71,9 +71,10 @@
   }
   function recordRejects(record) {
     if (!record || record.payType === 'hourly') return { rejects: 0, resubmits: 0 };
+    const single = Number(record.resubmitCount);
     return {
       rejects: number(record.rejectCLCount) + number(record.rejectSWCount),
-      resubmits: number(record.resubmitCLCount) + number(record.resubmitSWCount),
+      resubmits: Number.isFinite(single) && single >= 0 ? number(single) : number(record.resubmitCLCount) + number(record.resubmitSWCount),
     };
   }
   function rowTotals(rows, pays) {
@@ -87,9 +88,11 @@
       out.rejects += number(row.rejects); out.resubmits += number(row.resubmits); out.bond += number(row.bond);
       return out;
     }, { fieldDays: 0, sales: 0, income: 0, rejects: 0, resubmits: 0, bond: 0 });
+    totals.effectiveSales = totals.sales + totals.resubmits;
     totals.netSales = Math.max(0, totals.sales - totals.rejects + totals.resubmits);
+    totals.resubmitRate = totals.effectiveSales ? totals.resubmits / totals.effectiveSales * 100 : 0;
     totals.avg = totals.fieldDays ? totals.sales / totals.fieldDays : 0;
-    totals.rejectRate = totals.sales ? Math.max(0, totals.rejects - totals.resubmits) / totals.sales * 100 : 0;
+    totals.rejectRate = totals.effectiveSales ? Math.max(0, totals.rejects - totals.resubmits) / totals.effectiveSales * 100 : 0;
     return { totals: totals, weeklySales: weeklySales, weeklyIncome: weeklyIncome, weeklyRejects: weeklyRejects, weeklyNetSales: weeklySales.map(function (sales, index) { return Math.max(0, sales - weeklyRejects[index]); }) };
   }
   function filterAggregate(base, scope, personUid) {
@@ -112,7 +115,7 @@
       const days = typeof root.prcWeekSales === 'function' ? number(root.prcWeekSales(row.name, pay).days) : 0;
       return Object.assign({}, row, {
         fieldDays: days, sales: sales, income: number(record && record.netPayment), rejects: counts.rejects,
-        resubmits: counts.resubmits, rejectRate: sales ? Math.max(0, counts.rejects - counts.resubmits) / sales * 100 : 0,
+        resubmits: counts.resubmits, effectiveSales: sales + counts.resubmits, rejectRate: sales + counts.resubmits ? Math.max(0, counts.rejects - counts.resubmits) / (sales + counts.resubmits) * 100 : 0,
         weekly: [sales], records: [record], savedWeeks: record ? 1 : 0,
       });
     }).filter(function (row) { return row.fieldDays || row.sales || row.income || row.rejects || row.resubmits || row.savedWeeks; });
@@ -359,13 +362,13 @@
     const selected = store.scope === scope && store.scope !== 'person';
     const interactive = admin ? ' type="button" data-ers-action="scope-card" data-value="' + esc(scope) + '" aria-pressed="' + selected + '" aria-label="' + esc(label) + ' 상세 결과 보기"' : '';
     const dash = '<span aria-label="집계 준비 중">—</span>';
-    const sales = showValues ? number(totals.sales).toLocaleString('ko-KR') + '<small>건</small>' : dash;
+    const sales = showValues ? number(totals.effectiveSales != null ? totals.effectiveSales : number(totals.sales) + number(totals.resubmits)).toLocaleString('ko-KR') + '<small>건</small>' : dash;
     const fieldDays = showValues ? number(totals.fieldDays).toLocaleString('ko-KR') + '일' : '—';
     const avg = showValues ? number(totals.avg).toFixed(2) : '—';
     const income = showValues ? money(totals.income) : '—';
     const rejectRate = showValues ? percent(totals.rejectRate) : '—';
     const coverage = availability.coverage && availability.coverage.expected > 0 ? '<span class="ers-team-summary-progress">입력 ' + availability.coverage.actual + '/' + availability.coverage.expected + '</span>' : '';
-    return '<' + tag + ' class="ers-team-summary-card is-' + availability.key + (selected ? ' is-selected' : '') + '" data-scope="' + esc(scope) + '" data-status="' + availability.key + '"' + interactive + '><span class="ers-team-summary-top"><span><small>TEAM RESULT</small><b>' + esc(label) + '</b></span><span class="ers-team-summary-state"><em>' + esc(availability.label) + '</em>' + coverage + '</span></span><span class="ers-team-summary-sales"><small>세일즈</small><strong>' + sales + '</strong></span><span class="ers-team-summary-stats"><span><small>필드일</small><b>' + fieldDays + '</b></span><span><small>AVG</small><b>' + avg + '</b></span><span><small>Actual Income</small><b>' + income + '</b></span><span><small>Reject Rate</small><b>' + rejectRate + '</b></span></span>' + (admin ? '<span class="ers-team-summary-link">상세 보기 <i aria-hidden="true">→</i></span>' : '') + '</' + tag + '>';
+    return '<' + tag + ' class="ers-team-summary-card is-' + availability.key + (selected ? ' is-selected' : '') + '" data-scope="' + esc(scope) + '" data-status="' + availability.key + '"' + interactive + '><span class="ers-team-summary-top"><span><small>TEAM RESULT</small><b>' + esc(label) + '</b></span><span class="ers-team-summary-state"><em>' + esc(availability.label) + '</em>' + coverage + '</span></span><span class="ers-team-summary-sales"><small>유효 세일즈 · 리섭 포함</small><strong>' + sales + '</strong></span><span class="ers-team-summary-stats"><span><small>필드일</small><b>' + fieldDays + '</b></span><span><small>AVG</small><b>' + avg + '</b></span><span><small>Actual Income</small><b>' + income + '</b></span><span><small>Reject Rate</small><b>' + rejectRate + '</b></span></span>' + (admin ? '<span class="ers-team-summary-link">상세 보기 <i aria-hidden="true">→</i></span>' : '') + '</' + tag + '>';
   }
   function teamOverviewHTML(context, request, host, activeSnapshot, meta) {
     const admin = canAggregate(context.actor), scopes = admin ? ['presence', 'fuse', 'youngwave'] : [context.config.teamKey];
@@ -421,7 +424,8 @@
     if (!availability.safe || availability.key === 'empty') return guardedStateHTML(context, data, availability);
     const totals = data.totals || {}, productivity = typeof root.prcProductivityOf === 'function' ? root.prcProductivityOf(data) : { sales: number(totals.sales), actualIncome: number(totals.income), netRejects: 0, netCL: 0, netSW: 0, retained: number(totals.netSales), rejectPctOfSales: number(totals.rejectRate), clPctOfSales: 0, swPctOfSales: 0, retainedPctOfSales: 100, rejectValue: 0, clValue: 0, swValue: 0 };
     const label = scopeLabel(store.scope, store.personUid, data), periodText = meta.rangeLabel || store.anchor;
-    return '<div class="ers-dashboard">' + coverageNoticeHTML(availability) + '<div class="ers-dashboard-title"><div><span>EXECUTIVE RECAP</span><h2>' + esc(label) + '</h2><p>' + esc(periodText) + ' · 실제 리캡과 필드 기록 기준</p></div><span class="ers-live"><i></i>' + (availability.key === 'ready' ? 'VERIFIED' : 'LIVE DATA') + '</span></div><div class="ers-kpis">' + metricHTML('Actual Income', money(totals.income), (data.pays || []).length + '개 급여 주차', 'income') + metricHTML('Net Sales', number(totals.netSales).toLocaleString('ko-KR') + '건', '총 ' + number(totals.sales).toLocaleString('ko-KR') + '건 기준', 'net') + metricHTML('Reject Rate', percent(totals.rejectRate), '리섭 반영 후 순리젝', 'reject') + metricHTML('AVG', number(totals.avg).toFixed(2), number(totals.fieldDays).toLocaleString('ko-KR') + ' 필드일', 'avg') + '</div><div class="ers-visual-grid">' + performanceChartHTML(data) + donutHTML(productivity) + '</div><div class="ers-detail-grid">' + tableHTML(data) + insightHTML(data, productivity) + '</div></div>';
+    const effectiveSales = number(totals.effectiveSales != null ? totals.effectiveSales : number(totals.sales) + number(totals.resubmits));
+    return '<div class="ers-dashboard">' + coverageNoticeHTML(availability) + '<div class="ers-dashboard-title"><div><span>EXECUTIVE RECAP</span><h2>' + esc(label) + '</h2><p>' + esc(periodText) + ' · 실제 리캡과 필드 기록 기준</p></div><span class="ers-live"><i></i>' + (availability.key === 'ready' ? 'VERIFIED' : 'LIVE DATA') + '</span></div><div class="ers-kpis">' + metricHTML('Actual Income', money(totals.income), (data.pays || []).length + '개 급여 주차', 'income') + metricHTML('Net Sales', number(totals.netSales).toLocaleString('ko-KR') + '건', '유효 세일즈 ' + effectiveSales.toLocaleString('ko-KR') + '건 기준', 'net') + metricHTML('Reject Rate', percent(totals.rejectRate), '리섭 포함 분모 · 순리젝', 'reject') + metricHTML('AVG', number(totals.avg).toFixed(2), number(totals.fieldDays).toLocaleString('ko-KR') + ' 필드일', 'avg') + '</div><div class="ers-visual-grid">' + performanceChartHTML(data) + donutHTML(productivity) + '</div><div class="ers-detail-grid">' + tableHTML(data) + insightHTML(data, productivity) + '</div></div>';
   }
   function bodyHTML(context, host) {
     const range = periodRange(store.period, store.anchor), meta = reportMeta(range);
