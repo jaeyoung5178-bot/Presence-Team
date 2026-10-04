@@ -51,6 +51,35 @@ const emptyMirror = await page.evaluate(() => {
   };
 });
 
+const partialLeaderMirror = await page.evaluate(() => {
+  const leaderRecord = { uid: 'umqn54ujf', name: '고윤경', role: 'TL', payType: 'performance', payDate: '2026-09-25', incomeDate: '2026-09-25', weekEnding: '2026-09-20', activityFrom: '2026-09-14', activityTo: '2026-09-20', netPayment: 110000, rejectCLCount: 1, rejectSWCount: 0, resubmitCount: 0, bondBalance: 0, bep: 0 };
+  state.weeklyProfitRecaps = { '2026-09-25': { umqn54ujf: leaderRecord } };
+  state.recapStudioTeam = {
+    roster: {
+      umqn54ujf: { uid: 'umqn54ujf', name: '고윤경', role: 'TL', activeFrom: '2026-10-03' },
+      umqon3e0p: { uid: 'umqon3e0p', name: '권영웅', role: 'LR', activeFrom: '2026-06-10' },
+    },
+    weekly: {},
+    bep: {},
+  };
+  profitRecapPayDate = '2026-10-02';
+  profitRecapTargetUid = 'umqn54ujf';
+  recapStudioRefresh();
+  const text = document.getElementById('profitRecapBody')?.textContent || '';
+  const history = prcRecordsFor('umqn54ujf');
+  const range = prcRangeRecords('2026-09', '2026-10', 'umqn54ujf');
+  const aggregate = recapStudioMirrorAgg('fuse', '2026-09', '2026-10', 'umqn54ujf');
+  return {
+    selected: document.getElementById('prcTargetUid')?.value || '',
+    options: [...document.querySelectorAll('#prcTargetUid option')].map((option) => option.textContent.trim()),
+    text,
+    historyCount: history.length,
+    rangeCount: range.length,
+    aggregateRows: aggregate?.rows?.map((row) => row.name) || [],
+    aggregateRecords: aggregate?.records?.length || 0,
+  };
+});
+
 const after = await page.evaluate(() => {
   const interval = (uid, name, role) => ({ uid, name, role, activeFrom: '2026-01-01', assignmentId: `qa-${uid}` });
   state.recapStudioTeam = {
@@ -122,11 +151,12 @@ for (const [name, width, height] of [['desktop', 1440, 900], ['tablet', 1024, 76
 const failures = [];
 if (!initial.text.includes('팀 리캡 데이터를 불러오는 중이에요') || initial.text.includes('수정할 활성 리더가 없어요') || !initial.hasLiveStatus) failures.push('pending team snapshot is not represented as an accessible loading state');
 if (emptyMirror.selected !== 'umqn54ujf' || emptyMirror.stillEmpty || emptyMirror.stillLoading || !emptyMirror.text.includes('고윤경') || !emptyMirror.options.some((label) => label.includes('권영웅'))) failures.push('empty or partial FUSE mirror hid the reviewed weekly recap roster');
+if (partialLeaderMirror.selected !== 'umqn54ujf' || !partialLeaderMirror.options.some((label) => label.includes('고윤경')) || !partialLeaderMirror.options.some((label) => label.includes('권영웅')) || partialLeaderMirror.historyCount !== 1 || partialLeaderMirror.rangeCount !== 1 || !partialLeaderMirror.aggregateRows.includes('고윤경') || partialLeaderMirror.aggregateRecords !== 1) failures.push('partial leader mirror hid the TL or disconnected legacy recap history');
 if (after.selected !== 'umqn54ujf' || after.stillEmpty || after.stillLoading || !after.text.includes('고윤경') || !after.options.some((label) => label.includes('권영웅'))) failures.push('team snapshot arrival did not refresh the FUSE weekly recap editor');
 if (rankings.highCount !== 3 || rankings.lowCount !== 3 || JSON.stringify(rankings.high) !== JSON.stringify(['고경력A','고경력B','고경력C']) || JSON.stringify(rankings.low) !== JSON.stringify(['저경력A','저경력B','저경력C']) || !rankings.hasHighTitle || !rankings.hasLowTitle || !rankings.hasSimpleResub || rankings.leaksRecipientDetail) failures.push('three-month TOP 3 reject-rate ranking rules failed');
 for (const [name, result] of Object.entries(responsive)) if (result.overflow || result.undersized.length) failures.push(`${name} responsive gate failed`);
 if (errors.length) failures.push('browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ initial, emptyMirror, after, rankings, responsive, errors, failures }, null, 2));
+console.log(JSON.stringify({ initial, emptyMirror, partialLeaderMirror, after, rankings, responsive, errors, failures }, null, 2));
 if (failures.length) process.exit(1);
