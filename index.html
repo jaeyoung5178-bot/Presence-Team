@@ -5195,7 +5195,13 @@ let tlCalendarEditId='';
 let tlhResultDetailsOpen={};
 let tlhSubmissionDate='';
 const tlhPendingChecks=new Set();
-function recapStudioRefresh(){window.PresenceExecutiveRecap?.invalidate?.();if(typeof curTab!=='undefined'&&curTab==='tlhome')renderTLHome();}
+function recapStudioRefresh(){
+  window.PresenceExecutiveRecap?.invalidate?.();
+  if(typeof curTab==='undefined')return;
+  if(curTab==='tlhome')renderTLHome();
+  else if(curTab==='profitrecap')renderProfitRecap();
+  else if(curTab==='recap'&&me&&canManageTeamRecords(me))renderRecap();
+}
 function recapStudioClearSession(){
   while(recapStudioOff.length){try{recapStudioOff.pop()();}catch(e){}}
   if(recapStudioTeamOff){try{recapStudioTeamOff();}catch(e){}recapStudioTeamOff=null;}
@@ -6428,6 +6434,12 @@ function renderProfitRecap(){
   if(!canProfitRecap(me)){box.innerHTML='';return;}
   if(!profitRecapPayDate)profitRecapPayDate=prcFriday(TODAY);
   const info=prcWeekInfo(profitRecapPayDate);profitRecapPayDate=info.pay;
+  const scopedTeam=recapStudioScopedTeam(me);
+  if(scopedTeam&&!recapStudioTeamSnapshot(scopedTeam)){
+    const message=state.recapStudioError||'팀 리캡 데이터를 불러오는 중이에요.';
+    box.innerHTML='<div class="prc-empty" role="status" aria-live="polite">'+esc(message)+'</div>';
+    return;
+  }
   const target=prcTargetUser();if(!target){box.innerHTML='<div class="prc-empty">수정할 활성 리더가 없어요.</div>';return;}
   const r=prcMyRecord(info.pay,target.uid)||{},month=info.pay.slice(0,7),bep=prcBep(month,target.uid)||prcWon(r.bep),type=prcPayTypeOf(r);profitRecapPayType=type;
   const history=prcRecordsFor(target.uid).slice(0,10).map(function(x){const xt=prcPayTypeOf(x),detail=xt==='hourly'?'시급제 · 급여만 기록':'리젝 '+prcRejectTotal(x)+' · 리섭 '+prcResubmitTotal(x)+' · 본드 ₩'+prcFmt(x.bondBalance);return '<button class="prc-hrow" onclick="prcSetPayDate(\''+esc(x.payDate)+'\')"><div class="prc-hrow-top"><span>'+esc(x.activityFrom||'')+' ~ '+esc(x.weekEnding||'')+'</span><strong>'+(xt==='hourly'?'시급':'성과')+' '+esc((x.incomeDate||x.payDate||'').slice(5).replace('-','.'))+'</strong></div><div class="prc-hrow-val"><b>₩ '+prcFmt(x.netPayment)+'</b><span>'+detail+'</span></div></button>';}).join('');
