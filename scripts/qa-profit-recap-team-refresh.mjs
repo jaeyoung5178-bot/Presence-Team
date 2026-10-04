@@ -72,6 +72,39 @@ const after = await page.evaluate(() => {
   };
 });
 
+const rankings = await page.evaluate(() => {
+  const previous = state.memberInfo;
+  state.memberInfo = {
+    고경력A: { join: '2025-01-01' }, 고경력B: { join: '2025-02-01' }, 고경력C: { join: '2025-03-01' },
+    저경력A: { join: '2025-04-01' }, 저경력B: { join: '2025-05-01' }, 저경력C: { join: '2025-06-30' },
+    저표본: { join: '2025-01-01' }, 신입고리젝: { join: '2026-08-01' },
+  };
+  const rows = [
+    { name: '고경력A', sales: 40, rejects: 20, resubmits: 0 },
+    { name: '고경력B', sales: 30, rejects: 12, resubmits: 0 },
+    { name: '고경력C', sales: 25, rejects: 8, resubmits: 0 },
+    { name: '저경력A', sales: 40, rejects: 2, resubmits: 0 },
+    { name: '저경력B', sales: 22, rejects: 2, resubmits: 0 },
+    { name: '저경력C', sales: 20, rejects: 3, resubmits: 0 },
+    { name: '저표본', sales: 10, rejects: 0, resubmits: 0 },
+    { name: '신입고리젝', sales: 40, rejects: 40, resubmits: 0 },
+  ];
+  const data = { period: { from: '2026-09-01', to: '2026-09-30' }, rows, records: [], totals: { sales: 227, rejects: 87, resubmits: 11, income: 0, fieldDays: 0 } };
+  const result = prcProductivityInsights(data);
+  const html = prcProductivityHTML(data);
+  state.memberInfo = previous;
+  return {
+    high: result.highestRanks.map((row) => row.name),
+    low: result.lowestRanks.map((row) => row.name),
+    highCount: result.highestRanks.length,
+    lowCount: result.lowestRanks.length,
+    hasHighTitle: html.includes('리젝률 높은 TOP 3'),
+    hasLowTitle: html.includes('리젝률 낮은 TOP 3'),
+    hasSimpleResub: html.includes('리섭 비율') && !html.includes('리섭 현황'),
+    leaksRecipientDetail: html.includes('누가받은') || html.includes('해당 없음'),
+  };
+});
+
 const responsive = {};
 for (const [name, width, height] of [['desktop', 1440, 900], ['tablet', 1024, 768], ['phone', 390, 844]]) {
   await page.setViewportSize({ width, height });
@@ -90,9 +123,10 @@ const failures = [];
 if (!initial.text.includes('팀 리캡 데이터를 불러오는 중이에요') || initial.text.includes('수정할 활성 리더가 없어요') || !initial.hasLiveStatus) failures.push('pending team snapshot is not represented as an accessible loading state');
 if (emptyMirror.selected !== 'umqn54ujf' || emptyMirror.stillEmpty || emptyMirror.stillLoading || !emptyMirror.text.includes('고윤경') || !emptyMirror.options.some((label) => label.includes('권영웅'))) failures.push('empty or partial FUSE mirror hid the reviewed weekly recap roster');
 if (after.selected !== 'umqn54ujf' || after.stillEmpty || after.stillLoading || !after.text.includes('고윤경') || !after.options.some((label) => label.includes('권영웅'))) failures.push('team snapshot arrival did not refresh the FUSE weekly recap editor');
+if (rankings.highCount !== 3 || rankings.lowCount !== 3 || JSON.stringify(rankings.high) !== JSON.stringify(['고경력A','고경력B','고경력C']) || JSON.stringify(rankings.low) !== JSON.stringify(['저경력A','저경력B','저경력C']) || !rankings.hasHighTitle || !rankings.hasLowTitle || !rankings.hasSimpleResub || rankings.leaksRecipientDetail) failures.push('three-month TOP 3 reject-rate ranking rules failed');
 for (const [name, result] of Object.entries(responsive)) if (result.overflow || result.undersized.length) failures.push(`${name} responsive gate failed`);
 if (errors.length) failures.push('browser page errors occurred');
 
 await browser.close();
-console.log(JSON.stringify({ initial, emptyMirror, after, responsive, errors, failures }, null, 2));
+console.log(JSON.stringify({ initial, emptyMirror, after, rankings, responsive, errors, failures }, null, 2));
 if (failures.length) process.exit(1);

@@ -2065,6 +2065,20 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-recap .pra-insight-small.has-three{grid-template-columns:repeat(3,minmax(0,1fr))}
 #m-recap .pra-insight-small.has-three .pra-insight-card b{font-size:18px}
 #m-recap .pra-insight-card.resub b{color:#0f9f91}
+#m-recap .pra-insight-small.has-rankings{grid-template-columns:1fr 1fr;gap:12px}
+#m-recap .pra-insight-small.has-rankings .pra-insight-card.resub{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 18px;text-align:left}
+#m-recap .pra-insight-small.has-rankings .pra-insight-card.resub b{margin:0;font-size:20px;white-space:nowrap}
+#m-recap .pra-rank-card{text-align:left!important}
+#m-recap .pra-rank-card>span{padding-bottom:9px;border-bottom:1px solid #e7edf3}
+#m-recap .pra-rank-card>small{margin-top:8px!important;line-height:1.45!important}
+#m-recap .pra-rank-list{display:grid;gap:7px;margin:10px 0 0;padding:0;list-style:none}
+#m-recap .pra-rank-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;column-gap:7px;min-width:0}
+#m-recap .pra-rank-no{display:grid!important;place-items:center;width:22px;height:22px;border-radius:7px;background:#fff0f3;color:#d63453!important;font-size:10px!important;font-weight:900!important}
+#m-recap .pra-rank-card.low .pra-rank-no{background:#eef0ff;color:#4d55b8!important}
+#m-recap .pra-rank-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#263449;font-size:12px;font-weight:850}
+#m-recap .pra-rank-rate{color:#d63453;font-size:12px;font-weight:900;white-space:nowrap}
+#m-recap .pra-rank-card.low .pra-rank-rate{color:#4d55b8}
+#m-recap .pra-rank-detail{grid-column:2/-1;margin-top:1px;color:#7b8798;font-size:9.5px;line-height:1.35}
 #m-recap .pra-income-stack{display:flex;height:10px;margin:12px 0 7px;overflow:hidden;border-radius:999px;background:#e2e8f0}
 #m-recap .pra-income-stack i,#m-recap .pra-income-stack em{display:block;height:100%;flex:0 0 auto}
 #m-recap .pra-income-stack i{background:#2847a5}
@@ -2089,6 +2103,10 @@ body.can-mod #fxPanel #fxBar{display:grid}
   #m-recap .pra-insight-small{gap:8px}
   #m-recap .pra-insight-small.has-three{grid-template-columns:1fr 1fr}
   #m-recap .pra-insight-small.has-three .pra-insight-card.resub{grid-column:1/-1}
+  #m-recap .pra-insight-small.has-rankings{grid-template-columns:1fr}
+  #m-recap .pra-insight-small.has-rankings .pra-insight-card.resub{grid-column:auto;min-height:54px}
+  #m-recap .pra-rank-name,#m-recap .pra-rank-rate{font-size:13px}
+  #m-recap .pra-rank-detail{font-size:12px;line-height:1.45}
   #m-recap .pra-insight-card{padding:17px 12px}
   #m-recap .pra-insight-card b{font-size:22px}
 }
@@ -6631,11 +6649,12 @@ function prcProductivityOf(data){
   return {unit:PRC_SALE_PRODUCTIVITY,fieldDays:Number((data.totals||{}).fieldDays)||0,sales:sales,effectiveSales:effectiveSales,actualIncome:actualIncome,grossRejects:grossRejects,resubmits:resubmits,rejectCL:rejectCL,rejectSW:rejectSW,netCL:rejectCL,netSW:rejectSW,netRejects:netRejects,retained:retained,earningUnits:earningUnits,grossValue:grossValue,salesBenchmarkValue:grossValue,retainedValue:retainedValue,resubmitValue:resubmitValue,earningValue:earningValue,rejectValue:rejectValue,clValue:rejectCL*PRC_SALE_PRODUCTIVITY,swValue:rejectSW*PRC_SALE_PRODUCTIVITY,perFieldDay:(data.totals||{}).fieldDays?grossValue/(data.totals||{}).fieldDays:0,actualIncomePctOfGross:actualIncomePctOfGross,incomeRealizationPct:actualIncomePctOfGross,rejectPctOfSales:rejectPctOfSales,clPctOfSales:sales?rejectCL/sales*100:0,swPctOfSales:sales?rejectSW/sales*100:0,resubmitPctOfSales:resubmitPctOfSales,retainedPctOfSales:retainedPctOfSales,earningPctOfSales:earningPctOfSales,modelPctTotal:retainedPctOfSales+rejectPctOfSales,clShare:grossRejects?rejectCL/grossRejects*100:0,swShare:grossRejects?rejectSW/grossRejects*100:0,invalid:netRejects>sales,incomeOverflow:actualIncomePctOfGross>100};
 }
 function prcProductivityInsights(data){
-  const people=(data.rows||[]).map(function(row){const sales=Math.max(0,Number(row.sales)||0),rejects=Math.max(0,Number(row.rejects)||0),resubmits=Math.max(0,Number(row.resubmits)||0),netRejects=Math.max(0,rejects-resubmits);return {name:row.name||'—',role:row.role||'',sales:sales,rejects:rejects,resubmits:resubmits,netRejects:netRejects,rate:sales?netRejects/sales*100:0};});
-  const ranked=people.filter(function(x){return x.sales>0;}).sort(function(a,b){return b.rate-a.rate||b.netRejects-a.netRejects||String(a.name).localeCompare(String(b.name),'ko');}),lowestCandidates=people.filter(function(x){return x.sales>=20;}).sort(function(a,b){return a.rate-b.rate||b.sales-a.sales||a.netRejects-b.netRejects||String(a.name).localeCompare(String(b.name),'ko');}),recipients=people.filter(function(x){return x.resubmits>0;}).sort(function(a,b){return b.resubmits-a.resubmits||String(a.name).localeCompare(String(b.name),'ko');});
-  const recipientText=recipients.length?recipients.map(function(x){return x.name+' '+x.resubmits+'건';}).join(' · '):'해당 없음';
-  return {recipients:recipients,recipientText:recipientText,highest:ranked[0]||null,lowest:lowestCandidates[0]||null};
+  const asOf=String(((data.period||{}).to)||((data.meta||{}).period||{}).to||TODAY).slice(0,10),eligible=function(name){const joined=joinKey(name);if(joined==='0000-00-00')return true;if(!/^\d{4}-\d{2}-\d{2}$/.test(joined)||joined==='9999-12-31'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf))return false;const p=joined.split('-').map(Number),index=p[1]-1+3,y=p[0]+Math.floor(index/12),m=((index%12)+12)%12,last=new Date(y,m+1,0).getDate(),eligibleDate=ymd(new Date(y,m,Math.min(p[2],last),12));return eligibleDate<=asOf;};
+  const people=(data.rows||[]).map(function(row){const sales=Math.max(0,Number(row.sales)||0),rejects=Math.max(0,Number(row.rejects)||0),resubmits=Math.max(0,Number(row.resubmits)||0),netRejects=Math.max(0,rejects-resubmits),name=row.name||'—';return {name:name,role:row.role||'',sales:sales,rejects:rejects,resubmits:resubmits,netRejects:netRejects,rate:sales?netRejects/sales*100:0,tenureEligible:eligible(name)};});
+  const highestRanks=people.filter(function(x){return x.tenureEligible&&x.sales>0;}).sort(function(a,b){return b.rate-a.rate||b.netRejects-a.netRejects||b.sales-a.sales||String(a.name).localeCompare(String(b.name),'ko');}).slice(0,3),lowestRanks=people.filter(function(x){return x.tenureEligible&&x.sales>=20;}).sort(function(a,b){return a.rate-b.rate||b.sales-a.sales||a.netRejects-b.netRejects||String(a.name).localeCompare(String(b.name),'ko');}).slice(0,3);
+  return {highestRanks:highestRanks,lowestRanks:lowestRanks,highest:highestRanks[0]||null,lowest:lowestRanks[0]||null,asOf:asOf};
 }
+function prcRankingHTML(title,rows,low){const criteria=low?'근무 3개월 이상 · 세일즈 20건 이상':'근무 3개월 이상';return '<div class="pra-insight-card pra-rank-card '+(low?'low':'high')+'"><span>'+esc(title)+'</span>'+(rows.length?'<ol class="pra-rank-list">'+rows.map(function(row,i){return '<li class="pra-rank-row"><span class="pra-rank-no">'+(i+1)+'</span><span class="pra-rank-name">'+esc(row.name)+'</span><strong class="pra-rank-rate">'+prcPct(row.rate)+'</strong><small class="pra-rank-detail">순리젝 '+prcFmt(row.netRejects)+'건 / 세일즈 '+prcFmt(row.sales)+'건</small></li>';}).join('')+'</ol>':'<div class="pra-empty">조건을 충족한 대상자가 없어요.</div>')+'<small>'+criteria+'</small></div>';}
 function prcProductivityHTMLComplexLegacy(data){
   const p=prcProductivityOf(data),cl=Math.max(0,p.clPctOfSales||0),sw=Math.max(0,p.swPctOfSales||0),retained=Math.max(0,p.retainedPctOfSales||0),warn=p.invalid?'<p class="pra-prod-note warn">⚠ 순리젝 건수가 총 세일즈보다 큽니다. 리캡 원본 건수를 확인해 주세요.</p>':'';
   const title=p.sales?'Gross Sales의 '+prcPct(p.rejectPctOfSales)+'가 리젝 손실입니다':'Gross Sales와 Actual Income을 한눈에 비교합니다';
@@ -6677,7 +6696,7 @@ function prcDonutLabelMarkup(name,start,pct,color){
 }
 function prcProductivityHTML(data){
   const p=prcProductivityOf(data),insight=prcProductivityInsights(data),valid=p.sales>0&&!p.invalid,reject=valid?p.rejectPctOfSales:0,net=valid?p.retainedPctOfSales:0;
-  const rate=valid?prcPct(p.rejectPctOfSales):'—',highest=insight.highest,lowest=insight.lowest,warn=p.invalid?'<p class="pra-prod-note warn">순리젝이 전체 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.</p>':'';
+  const rate=valid?prcPct(p.rejectPctOfSales):'—',warn=p.invalid?'<p class="pra-prod-note warn">순리젝이 전체 세일즈보다 많아 원형 비중은 표시하지 않았습니다. 원본 건수를 확인해 주세요.</p>':'';
   return `<article class="pra-slide pra-income-reject-slide"><div class="pra-logo">Presence<small>머물고 싶은 팀</small></div>
     <div class="pra-kicker">세일즈 현황</div><h3 class="pra-title">실인컴과 리젝</h3>
     <div class="pra-sub">전체 세일즈 ${prcFmt(p.sales)}건 · 입력 리젝 ${prcFmt(p.grossRejects)}건 − 리섭 ${prcFmt(p.resubmits)}건 = 순리젝 ${prcFmt(p.netRejects)}건</div>
@@ -6696,10 +6715,10 @@ function prcProductivityHTML(data){
       <div class="pra-insight-grid">
         <div class="pra-insight-card"><span>실제 인컴</span><b>₩${prcFmt(p.actualIncome)}</b><small>Net 세일즈 ${prcFmt(p.retained)}건 · 전체 세일즈의 ${valid?prcPct(p.retainedPctOfSales):'—'}</small></div>
         <div class="pra-insight-card loss"><span>리젝 손실액</span><b>₩${prcFmt(p.rejectValue)}</b><small>순리젝 ${prcFmt(p.netRejects)}건 × ₩110,000 · (본드에서 우선차감)</small></div>
-        <div class="pra-insight-small has-three">
-          <div class="pra-insight-card resub"><span>리섭 현황</span><b>${prcFmt(p.resubmits)}건 · ${valid?prcPct(p.resubmitPctOfSales):'—'}</b><small>전체 세일즈 ${prcFmt(p.sales)}건 기준<br>${esc(insight.recipientText)}</small></div>
-          <div class="pra-insight-card"><span>리젝률 최고</span><b>${highest?esc(highest.name)+' · '+prcPct(highest.rate):'—'}</b><small>${highest?prcFmt(highest.netRejects)+'건 / '+prcFmt(highest.sales)+'건':'분석 가능한 세일즈 없음'}</small></div>
-          <div class="pra-insight-card"><span>리젝률 최저</span><b>${lowest?esc(lowest.name)+' · '+prcPct(lowest.rate):'—'}</b><small>${lowest?prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건 · 20건 이상 기준':'세일즈 20건 이상 대상자 없음'}</small></div>
+        <div class="pra-insight-small has-rankings">
+          <div class="pra-insight-card resub"><span>리섭 비율</span><b>${valid?prcPct(p.resubmitPctOfSales):'—'}</b></div>
+          ${prcRankingHTML('리젝률 높은 TOP 3',insight.highestRanks,false)}
+          ${prcRankingHTML('리젝률 낮은 TOP 3',insight.lowestRanks,true)}
         </div>${warn}
       </div>
     </div><div class="pra-page">3</div></article>`;
@@ -6712,7 +6731,7 @@ function prcPptRejectDonutData(p){
   return prcPptSvgData(`<svg xmlns="http://www.w3.org/2000/svg" width="460" height="390" viewBox="0 0 460 390"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#3c439c" stroke-width="62"/>${arc(reject,0,'#e54864')}${label('리젝',0,reject)}${label('Net',reject,net)}</svg>`);
 }
 function prcPptProductivity(pptx,data,page){
-  const slide=pptx.addSlide(),p=prcProductivityOf(data),insight=prcProductivityInsights(data),valid=p.sales>0&&!p.invalid,rate=valid?prcPct(p.rejectPctOfSales):'—',highest=insight.highest,lowest=insight.lowest;
+  const slide=pptx.addSlide(),p=prcProductivityOf(data),insight=prcProductivityInsights(data),valid=p.sales>0&&!p.invalid,rate=valid?prcPct(p.rejectPctOfSales):'—';
   slide.background={color:PRC_DECK_BG};
   prcPptHeader(slide,pptx,'세일즈 현황','실인컴과 리젝','전체 세일즈 '+prcFmt(p.sales)+'건 · 입력 리젝 '+prcFmt(p.grossRejects)+'건 − 리섭 '+prcFmt(p.resubmits)+'건 = 순리젝 '+prcFmt(p.netRejects)+'건',page);
   slide.addImage({data:prcPptRejectDonutData(p),x:.42,y:1.94,w:5.7,h:4.84});
@@ -6721,7 +6740,8 @@ function prcPptProductivity(pptx,data,page){
   const x=6.56,w=5.78,card=function(y,h){slide.addShape(pptx.ShapeType.roundRect,{x:x,y:y,w:w,h:h,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});};
   card(2.02,1.25);prcPptText(slide,pptx,'실제 인컴',x+.25,2.18,w-.5,.22,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.actualIncome),x+.25,2.47,w-.5,.35,23,PRC_DECK_BLUE,true,'center');prcPptText(slide,pptx,'Net 세일즈 '+prcFmt(p.retained)+'건 · 전체 세일즈의 '+(valid?prcPct(p.retainedPctOfSales):'—'),x+.25,2.91,w-.5,.17,8.5,'64748B',false,'center');
   card(3.5,1.42);prcPptText(slide,pptx,'리젝 손실액',x+.25,3.71,w-.5,.2,12,'475569',true,'center');prcPptText(slide,pptx,'₩'+prcFmt(p.rejectValue),x+.25,4.02,w-.5,.38,23,'5F63C4',true,'center');prcPptText(slide,pptx,'순리젝 '+prcFmt(p.netRejects)+'건 × ₩110,000 · (본드에서 우선차감)',x+.35,4.55,w-.7,.17,8.5,'64748B',false,'center');
-  [{name:'리섭 현황',value:prcFmt(p.resubmits)+'건 · '+(valid?prcPct(p.resubmitPctOfSales):'—'),detail:'전체 세일즈 '+prcFmt(p.sales)+'건 기준\n'+insight.recipientText,color:'16B8A6',x:6.72},{name:'리젝률 최고',value:highest?(highest.name+' · '+prcPct(highest.rate)):'—',detail:highest?(prcFmt(highest.netRejects)+'건 / '+prcFmt(highest.sales)+'건'):'분석 가능한 세일즈 없음',color:'E54864',x:8.62},{name:'리젝률 최저',value:lowest?(lowest.name+' · '+prcPct(lowest.rate)):'—',detail:lowest?(prcFmt(lowest.netRejects)+'건 / '+prcFmt(lowest.sales)+'건 · 20건 이상 기준'):'세일즈 20건 이상 대상자 없음',color:'3C439C',x:10.52}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:item.x,y:5.25,w:1.68,h:1.48,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,item.name,item.x+.1,5.43,1.48,.18,9.5,'475569',true,'center');prcPptText(slide,pptx,item.value,item.x+.08,5.74,1.52,.34,12,item.color,true,'center');prcPptText(slide,pptx,item.detail,item.x+.08,6.14,1.52,.4,6.8,'64748B',false,'center');});
+  slide.addShape(pptx.ShapeType.roundRect,{x:x,y:5.12,w:w,h:.5,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,'리섭 비율',x+.24,5.27,1.25,.17,9.2,'475569',true);prcPptText(slide,pptx,valid?prcPct(p.resubmitPctOfSales):'—',x+4.25,5.23,1.28,.24,14,'16B8A6',true,'right');
+  [{title:'리젝률 높은 TOP 3',criteria:'근무 3개월 이상',rows:insight.highestRanks,color:'E54864',x:6.56},{title:'리젝률 낮은 TOP 3',criteria:'근무 3개월 이상 · 세일즈 20건+',rows:insight.lowestRanks,color:'3C439C',x:9.52}].forEach(function(item){slide.addShape(pptx.ShapeType.roundRect,{x:item.x,y:5.78,w:2.82,h:1.1,rectRadius:.13,fill:{color:'FFFFFF'},line:{color:'FFFFFF',transparency:100}});prcPptText(slide,pptx,item.title,item.x+.14,5.91,2.54,.16,9.1,item.color,true);prcPptText(slide,pptx,item.criteria,item.x+.14,6.11,2.54,.14,6.7,'64748B');const lines=item.rows.length?item.rows.map(function(row,i){return (i+1)+'위  '+row.name+'  '+prcPct(row.rate)+'  ·  '+prcFmt(row.netRejects)+'/'+prcFmt(row.sales)+'건';}).join('\n'):'조건 충족 대상자 없음';prcPptText(slide,pptx,lines,item.x+.14,6.31,2.54,.47,7.4,'334155',true);});
   if(p.invalid)prcPptText(slide,pptx,'순리젝이 전체 세일즈보다 많아 비중은 표시하지 않았습니다.',6.56,6.78,5.72,.18,8.5,'B45309',true,'center');
   return slide;
 }
