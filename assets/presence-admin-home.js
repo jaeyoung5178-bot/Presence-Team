@@ -191,6 +191,26 @@
   function runAction(action) {
     var actor = currentActor();
     if (!isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return;
+    if (action === 'recap-repair') {
+      if (typeof global.recapStudioMigrateV3 !== 'function') {
+        if (typeof global.toast === 'function') global.toast('리캡 복구 도구를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+        return;
+      }
+      if (typeof global.toast === 'function') global.toast('리캡 기간 배정을 검증하고 복구하고 있어요…');
+      global.recapStudioMigrateV3().then(function (report) {
+        var conflicts = (report && report.conflicts || []).length;
+        var unresolved = (report && report.unresolved || []).length;
+        if (report && report.blocked) {
+          if (typeof global.toast === 'function') global.toast('복구 전 검수가 필요한 항목이 ' + (conflicts + unresolved) + '건 있습니다.');
+          return;
+        }
+        if (typeof global.toast === 'function') global.toast('✅ 리캡 기간 배정 복구 완료 · ' + Number(report && report.written || 0) + '건 반영');
+      }).catch(function (error) {
+        console.error('[Admin Home recap repair]', error);
+        if (typeof global.toast === 'function') global.toast('리캡 복구에 실패했습니다. 연결 상태를 확인해 주세요.');
+      });
+      return;
+    }
     if (action === 'survey') { navigate('survey'); return; }
     if (action === 'new-member') { afterAdmin('#newMemberIn', true); return; }
     if (action === 'permissions') { afterAdmin('.mem-rows', false); return; }
@@ -317,6 +337,7 @@
       '</div>' +
       '<div class="pah-section-head"><div><span>QUICK OPERATIONS</span><h3>자주 쓰는 관리 업무</h3></div><p>한 번의 클릭으로 기존 관리 화면을 엽니다.</p></div>' +
       '<div class="pah-actions" aria-label="관리자 빠른 실행">' +
+        actionCard('recap-repair', 'RX', '리캡 배정 복구', '8·9·10월 팀 배정과 저장 경로를 검증하고 복구합니다.', '<span class="pah-status">REPAIR</span>') +
         actionCard('survey', 'SV', '설문 보기', '팀원 설문과 승진 응답을 확인합니다.', badge(surveys.length, '대기 설문')) +
         actionCard('new-member', '+', '신입 등록', '새 팀원을 등록하는 입력창으로 이동합니다.', '<span class="pah-status">CREATE</span>') +
         actionCard('permissions', 'AC', '권한 관리', '직급·매니저·섹터 권한을 관리합니다.', '<span class="pah-status">ACCESS</span>') +
