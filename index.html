@@ -5194,7 +5194,9 @@ function recapStudioClearSession(){
 }
 function tlhClearSubscriptions(){while(tlHomeOff.length){try{tlHomeOff.pop()();}catch(e){}}tlHomeSubscribed=false;recapStudioClearSession();}
 let recapStudioReviewedMigrationTask=null;
-function recapStudioLeaseMutation(current,candidate,now){if(current&&current.leaseId!==candidate.leaseId&&Number(current.expiresAt)>Number(now))return undefined;return candidate;}
+/* A reloaded admin may reclaim their own stale lease. The old tab then fails its
+   next owned update because the leaseId changed, preventing concurrent writes. */
+function recapStudioLeaseMutation(current,candidate,now){if(!current||current.leaseId===candidate.leaseId||Number(current.expiresAt)<=Number(now))return candidate;if(current.ownerUid&&candidate.ownerUid&&current.ownerUid===candidate.ownerUid)return candidate;return undefined;}
 function recapStudioMigrationStatus(plan,state,runId,stamp,lease,extra){return Object.assign({state:state,runId:runId,leaseId:(lease&&lease.leaseId)||'',version:RECAP_STUDIO_SECURITY_VERSION,configHash:plan.configHash||'',desiredHash:plan.desiredHash||'',updatedAt:stamp,coverage:plan.coverage||{expectedWeekly:0,actualWeekly:0,expectedBep:0,actualBep:0},conflictCount:(plan.conflicts||[]).length,unresolvedCount:(plan.unresolved||[]).length},extra||{});}
 function recapStudioPublicComplete(plan,verifiedHash,completedAt){return {status:'complete',version:RECAP_STUDIO_SECURITY_VERSION,configHash:plan.configHash,verifiedHash:verifiedHash,completedAt:completedAt};}
 async function recapStudioReadMigrationSnapshot(){const values=await Promise.all([DB.get('recapStudioTeams'),DB.get('recapStudioAssignments'),DB.get('weeklyProfitRecaps'),DB.get('profitMonthlyBep'),DB.get('users'),DB.get('dossier'),DB.get('memberInfo'),DB.get('removedMembers'),DB.get(RECAP_STUDIO_MIGRATION_PATH)]);return {teams:values[0]||{},assignments:values[1]||{},weekly:values[2]||{},bep:values[3]||{},users:values[4]||{},dossier:values[5]||{},memberInfo:values[6]||{},removedMembers:Array.isArray(values[7])?values[7]:(values[7]?Object.values(values[7]):[]),migration:values[8]||{}};}
