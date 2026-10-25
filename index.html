@@ -5612,6 +5612,7 @@ function sendSurveyToSheet(user,key,rec){
 /* enter / leave */
 function enterApp(){
   const tlFast=isTlHomeUser(me);
+  const setupManagerRequested=new URLSearchParams(location.search).get('open')==='setup-manager'&&typeof canSetupKit==='function'&&canSetupKit(me);
   if(me&&!window.__presenceEntryPass&&!tlFast){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
   if(tlFast){const lobby=document.getElementById('presenceEntryLobby');if(lobby){lobby.classList.remove('show');lobby.setAttribute('aria-hidden','true');}try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}}
   window.__presenceEntryPass=false;
@@ -5631,14 +5632,15 @@ function enterApp(){
   // prefill name fields
   
   if(tlFast){
-    window.__booting=false;buildRail();tlhSubscribe();goTab(isFounder(me)?'adminhome':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
+    window.__booting=false;buildRail();tlhSubscribe();goTab(setupManagerRequested?'setupkit':(isFounder(me)?'adminhome':(window.PresenceWorkspace?'home':'tlhome')));renderTLHome();startAutoPull();subCbjournal();
     try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
     setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();}catch(e){console.warn('[deferred app render]',e);}},80);
   }else{
     window.__booting=true; try{loadBarStart();}catch(e){}
-    buildRail();renderAll();goTab(isFounder(me)?'adminhome':'home');startAutoPull();subCbjournal();
+    buildRail();renderAll();goTab(setupManagerRequested?'setupkit':(isFounder(me)?'adminhome':'home'));startAutoPull();subCbjournal();
     setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
   }
+  if(setupManagerRequested)setTimeout(function(){const byday=document.querySelector('#m-setupkit [data-sk="byday"]');if(byday)byday.click();},80);
   try{logLogin();}catch(e){}
   requestAnimationFrame(syncTopOffset);setTimeout(syncTopOffset,300);
   if(!window._topSyncBound){window._topSyncBound=1;window.addEventListener('resize',syncTopOffset,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncTopOffset,250));}
