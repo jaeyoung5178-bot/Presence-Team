@@ -19,3 +19,139 @@ body:has(.modal.on,dialog[open]) #presenceBgmQuick,body:has(.modal.on,dialog[ope
 .presence-christmas #tlHomeRoot .tlh-quick-status>div{border-color:#486b5e;background:#192e29}.presence-christmas #tlHomeRoot .tlh-view-tabs button[aria-pressed=true]{background:#e6d5ac;border-color:#e6d5ac;color:#233d32}.presence-christmas #tlHomeRoot .tlh-view-tabs{border-color:#426256}
 @media(max-width:600px){.presence-season-control{padding:16px;gap:12px}.presence-season-control button{width:100%}#presenceBgmQuick{left:16px;right:auto}#presenceMusicPanel{right:12px;width:calc(100vw - 24px)}#presenceMusicPanel button,#presenceMusicPanel a{font-size:14px}#presenceMusicPanel [data-video]{height:200px}}
 @media(prefers-reduced-motion:reduce){.presence-christmas *,#presenceBgmQuick{animation:none!important;transition:none!important}}
+
+/* Christmas workbook: paper workspaces, evergreen architecture, velvet actions.
+   Every override is seasonal; removing the class restores the original owners. */
+body.presence-workspace-v2.presence-christmas{
+ --bg:#f5f0e6;--ink:#f5f0e6;--surface:#fffdf7;--card:#fffdf8;--card-2:#eee8db;
+ --cream:#243d34;--text:#243d34;--muted:#606c60;--faint:#73796e;--line:#d7cdbb;--line-soft:#e8dfd0;
+ --green:#245e48;--green-soft:#245e48;--green-ink:#fffdf6;--amber:#80602b;--danger:#a64224;
+ --grad:linear-gradient(135deg,#9d3048,#81253b);--grad-soft:linear-gradient(135deg,#ad3b53,#912c41);
+ --season-pine:#173d30;--season-gold:#d6bb80;--season-berry:#963047;
+ --winter-paper:#fffdf8;--winter-surface:#f0e9dc;--winter-forest:#173d30;--winter-ink:#243d34;--winter-muted:#606c60;--winter-line:#d7cdbb;--winter-red:#963047;
+ color-scheme:light;background:#f5f0e6!important;color:var(--winter-ink);
+}
+body.presence-christmas #app{background:var(--bg)}
+body.presence-workspace-v2.presence-christmas :is(#workspaceHome,#workspaceProfit){--surface:#fffdf7;--card:#fffdf8;--card-2:#eee8db;--cream:#243d34;--text:#243d34;--muted:#606c60;--faint:#73796e;--line:#d7cdbb;--line-soft:#e8dfd0;--green:#245e48;--green-soft:#245e48;--amber:#80602b}
+body.presence-christmas #workspaceHome .pw-home-primary>button,body.presence-christmas #workspaceProfit>.pw-head button{background:#963047;border-color:#963047;color:#fff8ed}
+body.presence-christmas #workspaceProfit .pw-period-jump input{color-scheme:light}
+body.presence-christmas #app :is(header.top,nav.rail,.botbar){--card:#173d30;--surface:#234b3b;--card-2:#315845;--cream:#fff7e8;--muted:#dddcc9;--line:#45624b;--green:#ead6a6;--green-soft:#ead6a6}
+body.presence-christmas #app .top .logo-chip{background:#173d30;border-color:#a09268}
+body.presence-christmas #app .top .logo .nm b{color:#e4c991}
+body.presence-christmas #app .tl-home-entry{background:#254e3c;border-color:#66816a;color:#fff4dc;box-shadow:none}
+body.presence-christmas #app .tl-home-entry.active{background:#e7d4a8;border-color:#e7d4a8;color:#173d30;box-shadow:none}
+body.presence-christmas #app :is(.pw-home-intro,.pw-head.pw-hero){--cream:#fff8ea;--muted:#d9dfcc;--green:#ead5a0;background:linear-gradient(115deg,#173d30,#234c39);color:#fff8ea;padding:24px;border-radius:18px;border:1px solid #577155}
+body.presence-christmas .pw-home-intro .pw-kicker{color:#ead5a0}
+body.presence-christmas .pw-home-intro :is(.pw-home-value,.pw-value){--cream:#243d34;--muted:#606c60;--green:#245e48;background:#fff9ec;color:#243d34;border-color:#d7cdbb;padding:12px 14px;border-radius:10px}
+body.presence-christmas :is(.pw-home-primary,.pw-home-results,.pw-home-result-details,.pw-home-value,.pw-row,.pw-table,.pw-pledge,.pw-person,.pw-learning-card){background:var(--winter-paper);border-color:var(--winter-line);color:#243d34}
+body.presence-christmas .pw-home-primary{border-left:4px solid var(--winter-red);box-shadow:0 4px 18px #5b3c1710}
+body.presence-christmas :is(.pw-kicker,.pw-home-goal,.pw-progress-label){color:#345b42}
+body.presence-christmas .pw-home-garden{--muted:#e1e4d5;--green:#e5d2a0;background:#1c4031;color:#fff8ea;border-color:#77815f}
+body.presence-christmas .pw-garden-copy{color:#fff8ea}
+body.presence-christmas .pw-garden-copy .pw-kicker{color:#e9d3a0}
+body.presence-christmas :is(.pw-page,.pw-dialog) .pw-primary,body.presence-christmas .pw-home-primary>button{background:var(--winter-red);border-color:var(--winter-red);color:#fffaf1}
+body.presence-christmas .pw-page button[aria-pressed=true]{background:#e8eadd;border-color:#53765b;color:#214c37}
+body.presence-christmas :is(.pw-tag,.pw-note,.pw-sub){color:var(--winter-muted)}
+body.presence-christmas .pw-panel{box-shadow:0 5px 20px #5a3e1910}
+body.presence-christmas :is(.pw-table th,.pw-table thead,.pw-person-head,.pw-metrics){background:#eee8db;color:#3d4d3f}
+body.presence-christmas .pw-progress{background:#e7dfd0}
+body.presence-christmas .pw-progress span{background:#315f45}
+body.presence-christmas :is(.pw-empty,.pw-message,.pw-message-card,.pw-learning-item){background:#f1ebdf;border-color:#d7cdbb;color:#53634f}
+
+/* Team management, surveys, registration and weekly operations share paper surfaces. */
+body.presence-christmas #tlHomeRoot{--tlh-card:#fffdf8;--tlh-soft:#eee8db;--tlh-border:#d7cdbb;--tlh-accent:#963047;--tlh-cyan:#53765b;--tlh-green:#245e48;color:#243d34}
+body.presence-christmas #tlHomeRoot .ptw-tl-header{border-color:#d7cdbb}
+body.presence-christmas #tlHomeRoot .ptw-tl-header :is(small,h1 span){color:#5b715f}
+body.presence-christmas #tlHomeRoot .tlh-view-tabs{border-color:#d7cdbb}
+body.presence-christmas #tlHomeRoot .tlh-view-tabs button{background:#fffaf0;border-color:#cfc2aa;color:#3e5746}
+body.presence-christmas #tlHomeRoot .tlh-view-tabs button[aria-pressed=true]{background:#173d30;border-color:#173d30;color:#fff6e3}
+body.presence-christmas #tlHomeRoot .tlh-quick-status>div{background:#eee8db;border-color:#d7cdbb}
+body.presence-christmas #tlHomeRoot .tlh-quick-status :is(span,small){color:#5c6d5b}
+body.presence-christmas #tlHomeRoot .tlh-quick-status strong{color:#244e3b}
+body.presence-christmas #tlHomeRoot .ptw .ptw-entry{background:#fffdf8;border-color:#d2c7b2;color:#253f33;box-shadow:0 4px 14px #6447210b}
+body.presence-christmas #tlHomeRoot .ptw-entry.is-open:hover{border-color:#78835a;box-shadow:0 6px 20px #64472117}
+body.presence-christmas .ptw :is(.ptw-state,.ptw-entry p,.ptw-note,.ptw-entry-foot,.ptw-actions span,.ptw-record p,.ptw-person small,.ptw-person span,.ptw-survey-context p){color:#5c6d5a}
+body.presence-christmas .ptw .ptw-mark{background:#e8eddf;color:#2d5941;border-color:#a8bba5}
+body.presence-christmas .ptw :is(.ptw-panel,.ptw-record,.ptw-person,.ptw-admin){background:#fffdf8;border-color:#d2c7b2;color:#243d34}
+body.presence-christmas .ptw.ptw-admin{background:#fffdf8;border-color:#d2c7b2;color:#243d34}
+body.presence-christmas .ptw-scope{background:#eee8db;border-color:#cbbd9f;color:#34533e}
+body.presence-christmas .ptw-scope select{background:#fffdf8;border-color:#cbbd9f;color:#243d34;color-scheme:light}
+body.presence-christmas .ptw .ptw-entry.is-locked{background:#eee9df;border-color:#d7cdbb;opacity:1;color:#71796b}
+body.presence-christmas .ptw button:not(.ptw-entry){background:#f4eddf;color:#344c3c;border-color:#cfc1a5}
+body.presence-christmas .ptw .ptw-primary{background:#963047!important;border-color:#963047!important;color:#fffaf1!important}
+body.presence-christmas .ptw :is(label,.ptw-answer h5){color:#344c3c}
+body.presence-christmas .ptw .ptw-answer p{color:#4b5c4a}
+body.presence-christmas .ptw :is(.ptw-capability,.ptw-confirm,.ptw-feedback){background:#eeeadd;border-color:#bfc8af;color:#3a5943}
+body.presence-christmas .ptw :is(input:not([type=checkbox]),select){background:#fffefb;border-color:#c7bba4;color:#263c30}
+body.presence-christmas #tlHomeRoot :is(.tlh-performance-card,.tlh-kpi,.tlh-submit-card,.tlh-card,.tlh-month-card,.tlh-agenda,.tlh-event-card,.tlh-event-form,.tlh-pending-card){background:#fffdf8;border-color:#d7cdbb;color:#243d34}
+body.presence-christmas #tlHomeRoot :is(.tlh-section-head p,.tlh-card-head span,.tlh-performance-top span,.tlh-performance-top small,.tlh-performance-foot small,.tlh-current-row span,.tlh-plan-note,.tlh-event-owner,.tlh-event-meta,.tlh-event-meta b,.tlh-agenda-empty,.tlh-calendar-legend,.tlh-member small,.tlh-event-field label){color:#62705f}
+body.presence-christmas #tlHomeRoot :is(.tlh-performance-metrics strong,.tlh-performance-metrics .avg strong,.tlh-current-row strong,.tlh-kpi strong,.tlh-event-title,.tlh-plan-metric strong,.tlh-live-row b){color:#244e3b}
+body.presence-christmas #tlHomeRoot :is(.tlh-plan-metric,.tlh-sentence,.tlh-cal-week,.tlh-cal-toolbar,.tlh-card-head,.tlh-srow.head){background:#eee8db;color:#3b503d;border-color:#d7cdbb}
+body.presence-christmas #tlHomeRoot :is(.tlh-cal-day,.tlh-day,.tlh-week-nav button,.tlh-import,.tlh-event-edit,.tlh-event-cancel,.tlh-cal-download){background:#fffaf0;border-color:#d7cdbb;color:#3f5743}
+body.presence-christmas #tlHomeRoot :is(.tlh-cal-day.selected,.tlh-cal-day.on,.tlh-day.on){background:#e7eada;border-color:#657d55;color:#234e35}
+body.presence-christmas #tlHomeRoot :is(.tlh-action,.tlh-event-form-actions .tlh-action){background:#963047;border-color:#963047;color:#fffaf1;box-shadow:none}
+body.presence-christmas #tlHomeRoot :is(.tlh-event-field input,.tlh-event-field select,.tlh-field input){background:#fffefb;border-color:#c8bba5;color:#243d34;color-scheme:light}
+body.presence-christmas #tlHomeRoot :is(.tlh-kpi-detail-btn,.tlh-result-toggle,.tlh-result-drill){background:#f4eddf;border-color:#cbbd9f;color:#344e3a}
+body.presence-christmas #tlHomeRoot :is(.tlh-kpi-detail-btn.live,.tlh-performance-top i,.tlh-status){background:#e9efdf;border-color:#b6c7a3;color:#315e40}
+body.presence-christmas #tlHomeRoot :is(.tlh-kpi-detail-btn .state,.tlh-result-toggle .state,.tlh-result-person small,.tlh-result-head,.tlh-result-member,.tlh-plan-metric span,.tlh-field label){color:#62705d}
+body.presence-christmas #tlHomeRoot :is(.tlh-result-person b,.tlh-result-value b,.tlh-cal-num,.tlh-cal-top b,.tlh-member b,.tlh-sentence em){color:#294f38}
+body.presence-christmas #tlHomeRoot .tlh-status.wait{background:#fff0d8;color:#855b1b}
+body.presence-christmas #tlHomeRoot .tlh-performance-metrics span{font-size:12px;color:#62705d}
+
+/* Founder console owns explicit tokens; its cards retain their semantic states. */
+body.presence-christmas .pah-shell{--pah-bg:#faf5e9;--pah-panel:#fffdf8;--pah-panel-2:#eee8db;--pah-line:#d7cdbb;--pah-text:#243d34;--pah-muted:#626e5d;--pah-accent:#315f45;--pah-blue:#3c6e63;--pah-alert:#8d5d20;background:#faf5e9;border-color:#d2c4aa;box-shadow:0 8px 30px #60431b12}
+body.presence-christmas .pah-shell:before{background:none}
+body.presence-christmas .pah-hero{--pah-text:#fff7e8;--pah-muted:#e0e0cc;--pah-accent:#ead6a2;--pah-alert:#f2dba2;background:linear-gradient(120deg,#173d30,#29503b);padding:24px;border-radius:16px;border-color:#687650}
+body.presence-christmas .pah-hero .pah-kicker{color:#ead6a2}
+body.presence-christmas .pah-hero .pah-summary dt{color:#dce4d3}
+body.presence-christmas .pah-mode-row>span{color:#5d705d}
+body.presence-christmas .pah-mode-switch{background:#e9e1d1;border-color:#d0bea0}
+body.presence-christmas .pah-mode-switch button{color:#5d6755}
+body.presence-christmas .pah-mode-switch button.is-active{background:#963047;color:#fff8ed;box-shadow:none}
+body.presence-christmas .pah-summary>div{background:#ffffff0b;border-color:#a1b09166}
+body.presence-christmas .pah-action{background:#fffdf8;border-color:#d7cdbb;color:#243d34;box-shadow:0 4px 14px #60431b0b}
+body.presence-christmas .pah-action-code{background:#e8ecdf;border-color:#b5c2a5;color:#315d42}
+body.presence-christmas :is(.pah-action-copy p,.pah-action-copy span,.pah-action-go,.pah-ready,.pah-status){color:#5d705a}
+body.presence-christmas .presence-season-control{background:#e8ecdd;border-color:#acb998;color:#284634}
+body.presence-christmas .presence-season-control p{color:#5c6e54}
+body.presence-christmas .presence-season-control button{background:#173d30;border-color:#173d30;color:#fff6e3}
+body.presence-christmas .presence-season-control button[aria-checked=true]{background:#e8d5a4;border-color:#b49b65;color:#34462f}
+
+/* Details: native dialogs, search, weekly recap, executive tables and feedback. */
+body.presence-christmas :is(.pw-dialog,.hqd-dialog,.modal .box,.hs-box,#moreMenu){background:#fffdf8;border-color:#cbbd9f;color:#243d34;box-shadow:0 20px 70px #173d3029;color-scheme:light}
+body.presence-christmas :is(.hqd-dialog,.pw-dialog) :is(button,input,select,textarea){background:#faf5eb;border-color:#cbbd9f;color:#294635}
+body.presence-christmas :is(.hqd-dialog-head,.hqd-dialog #hqdSaved,.pw-dialog .pw-section){border-color:#d7cdbb}
+body.presence-christmas #moreMenu button{color:#294635}
+body.presence-christmas #moreMenu :is(.mm-cap,button:hover){color:#315e43;background:#edf0e2}
+body.presence-christmas .modal{background:#0d2c2582}
+body.presence-christmas .btn:not(.ghost){background:#963047;color:#fff8ed;box-shadow:0 4px 12px #96304720}
+body.presence-workspace-v2.presence-christmas #app .btn:not(.ghost){background:#963047!important;border-color:#963047!important;color:#fff8ed!important}
+body.presence-christmas .pw-garden .pw-primary{background:#963047!important;color:#fff8ed!important}
+body.presence-christmas .btn.ghost{background:#fffaf0;color:#3f5745;border-color:#cbbd9f}
+body.presence-christmas #m-profitrecap :is(.prc-card,.prc-bep-card,.prc-money,.prc-in,.prc-input-wrap,.prc-hrow,.prc-target,.prc-period,.prc-paytype){background:#fffdf8;border-color:#d7cdbb;color:#294635;box-shadow:none}
+body.presence-christmas #m-profitrecap :is(.prc-field label,.prc-paytype-note,.prc-side-title span,.prc-hrow-top span,.prc-cap,.prc-period span){color:#626e5d}
+body.presence-christmas #m-profitrecap :is(.prc-save,.prc-paytype button.on){background:#963047;border-color:#963047;color:#fff8ed}
+body.presence-christmas .ers-shell{--ers-bg:#faf5e9;--ers-panel:#fffdf8;--ers-panel-2:#eee8db;--ers-line:#d7cdbb;--ers-text:#263e32;--ers-muted:#66715f;background:#faf5e9;border-color:#cbbd9f;box-shadow:0 10px 30px #60431b12}
+body.presence-christmas .ers-shell :is(.ers-live,.ers-launch-copy small,.ers-card-head span,.ers-dashboard-title>div>span,.ers-insight>span,.ers-launch-mark b){color:#315f45}
+body.presence-christmas .ers-shell :is(.ers-launcher,.ers-toolbar,.ers-team-summary-card,.ers-month-nav button,.ers-fixed-scope b,.ers-secure-state,.ers-migration-diagnostics,.ers-history-row,.ers-chart-card){background:#fffdf8;border-color:#d7cdbb;color:var(--ers-text)}
+body.presence-christmas .ers-shell :is(.ers-field select,.ers-month-nav input){background:#fffdf8!important;border-color:#cbbd9f!important;color:#263e32!important;color-scheme:light}
+body.presence-christmas .ers-shell :is(.ers-launch-mark,.ers-period.is-active,.ers-team-summary-card.is-selected){background:#e8ecdd;border-color:#98ad88;color:#315f45}
+body.presence-christmas .ers-shell :is(th,td){border-color:#ddd3c1}
+body.presence-christmas .ers-shell th{background:#eee8db;color:#55634e}
+body.presence-christmas :is(.pah-repair,.pah-repair-item,.pah-repair-confirm){background:#fffdf8;border-color:#cbbd9f;color:#243d34}
+body.presence-christmas .pah-repair :is(p,small,label,.pah-repair-facts b){color:#606c58}
+body.presence-christmas .pah-repair :is(input,button){background:#fffaf0;border-color:#cbbd9f;color:#294635;color-scheme:light}
+body.presence-christmas .pah-repair [role=status]{background:#eee8db;color:#455b42}
+body.presence-christmas :is(.ptw-feedback.is-error,.ers-migration-result.is-error,.pw-error){background:#fff0e5;border-color:#c8896b;color:#963f23}
+body.presence-christmas :is(.ptw-feedback.is-error,.ers-migration-result.is-error)::before{content:'!';display:inline-grid;place-items:center;width:20px;height:20px;margin-right:7px;border:1px solid currentColor;border-radius:50%;font-weight:800}
+body.presence-christmas :is(.pw-head,.ptw-entry strong,.pah-heading h2,.pah-action-copy,.tlh-section-head){word-break:keep-all}
+@media(max-width:600px){body.presence-christmas #app .pw-home-intro{padding:20px 18px}body.presence-christmas .pah-hero{padding:20px 18px}body.presence-christmas .pah-shell{padding:18px}}
+.pah-action-icon,.pah-label-season{display:none}
+body.presence-christmas .pah-action-letter,body.presence-christmas .pah-label-default{display:none}
+body.presence-christmas .pah-label-season{display:block}
+body.presence-christmas .pah-summary dt{font-size:12px;letter-spacing:0;white-space:normal;word-break:keep-all;overflow:visible}
+body.presence-christmas .pah-action-icon{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+body.presence-christmas .pah-action-code{position:relative;border-color:#c7ae76;border-radius:9px 9px 9px 2px;background:#f2ebdc;color:#315b41}
+body.presence-christmas .pah-action-code:after{content:'';position:absolute;right:3px;top:3px;width:3px;height:3px;border-radius:50%;background:#b18b47}
+body.presence-christmas .pah-action:after{border-color:#d9c48f;opacity:.45}
+body.presence-christmas :is(.pah-hero .pah-kicker,.pw-home-intro .pw-kicker):after{content:'';display:inline-block;width:35px;height:16px;vertical-align:middle;margin-left:12px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 20' fill='none' stroke='%23d7bf85' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='m2 16 38-10M10 14 7 8m7 5-1-8m7 6 2-8m4 7 5-7M15 13l5 5m4-7 7 4m-1-6 8 2'/%3E%3C/svg%3E")}

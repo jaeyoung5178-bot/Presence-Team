@@ -1,6 +1,7 @@
 (function(){
   'use strict';
   var video='w2rSZ90PoZE',label='Presence 음악',frame=null,root=null,opened=false,playing=false,starting=false,muted=false,failure='',loadTimer=null;
+  var volume=50,actualMuted=null,actualVolume=null,audioSynced=false,handshakeTimers=[];
   function stopMood(){
     try{
       if(typeof SND!=='undefined')SND.stop();
@@ -28,6 +29,30 @@
     }
     ),'https://www.youtube-nocookie.com');
   }
+  function saveAudioPreference(){
+    try{
+      localStorage.setItem('presence_music_muted',String(muted));
+      localStorage.setItem('presence_music_volume',String(volume));
+    }catch(ignore){}
+  }
+  function applyAudio(){
+    command('setVolume',[volume]);
+    command(muted?'mute':'unMute');
+  }
+  function handshake(){
+    if(!frame)return;
+    frame.contentWindow.postMessage(JSON.stringify({event:'listening',id:'presenceBgmPlayer'}),'https://www.youtube-nocookie.com');
+    command('addEventListener',['onReady']);
+    command('addEventListener',['onStateChange']);
+    command('addEventListener',['onError']);
+    command('addEventListener',['onAutoplayBlocked']);
+  }
+  function playWithSound(){
+    muted=false;
+    if(volume===0)volume=50;
+    saveAudioPreference();
+    play();
+  }
   function mountMood(){
     document.body.classList.add('presence-music-ready');
     if(typeof toggleFxDock!=='function')return;
@@ -51,22 +76,35 @@
   }
   function state(){
     if(!root)return;
+    var activeActor=typeof me!=='undefined'&&me&&me.status==='active';
+    document.body.classList.toggle('presence-music-authenticated',!!activeActor);
     mountMood();
     root.hidden=!opened;
     var b=document.getElementById('presenceBgmQuick');
     b.setAttribute('aria-expanded',String(opened));
+    b.setAttribute('aria-label',starting?'캐롤 연결 취소':playing?'캐롤 끄기':'캐롤 켜기');
+    b.title=starting?'캐롤 연결 취소':playing?'캐롤 끄기':'캐롤 켜기';
+    b.querySelector('.presence-music-quick-label').textContent=starting?'연결 중':playing?'캐롤 끄기':'캐롤 켜기';
     root.querySelector('[data-title]').textContent=label;
-    root.querySelector('[data-play]').textContent=starting?'연결 취소':playing?'일시정지':'재생';
-    root.querySelector('[data-mute]').textContent=muted?'소리 켜기':'음소거';
+    root.querySelector('[data-play]').textContent=starting?'연결 취소':playing?'일시정지':'소리 켜고 재생';
+    root.querySelector('[data-mute]').textContent=(actualMuted===null?muted:actualMuted)?'소리 켜기':'음소거';
+    root.querySelector('[data-mute]').setAttribute('aria-pressed',String(actualMuted===null?muted:actualMuted));
+    root.querySelector('[data-volume]').textContent=volume+'%';
     root.querySelector('a').href='https://youtu.be/'+video;
-    root.querySelector('p').textContent=failure||(starting?'YouTube에 연결하고 있어요.':playing?'재생 중 · 소리를 켜거나 끌 수 있어요.':'재생되지 않으면 YouTube에서 열어 주세요.');
+    var soundStatus=actualMuted===true||actualVolume===0?'재생 중 · 음소거 상태예요. 소리를 켜주세요.':actualMuted===false&&actualVolume>0?'캐롤 재생 중 · 볼륨 '+actualVolume+'%':'재생 중 · 소리 상태 확인 중…';
+    root.querySelector('p').textContent=failure||(starting?'YouTube에 연결하고 있어요.':playing?soundStatus:'소리 켜고 재생을 누르면 캐롤이 시작됩니다.');
   }
   function destroy(){
     clearTimeout(loadTimer);
+    handshakeTimers.forEach(clearTimeout);
+    handshakeTimers=[];
     if(frame)frame.remove();
     frame=null;
     playing=false;
     starting=false;
+    actualMuted=null;
+    actualVolume=null;
+    audioSynced=false;
     state();
   }
   function pause(){
@@ -95,6 +133,9 @@
     opened=true;
     failure='';
     starting=true;
+    actualMuted=null;
+    actualVolume=null;
+    audioSynced=false;
     stopMood();
     if(!frame){
       frame=document.createElement('iframe');
@@ -105,22 +146,19 @@
       frame.src='https://www.youtube-nocookie.com/embed/'+video+'?enablejsapi=1&playsinline=1&controls=1&rel=0&autoplay=1&origin='+encodeURIComponent(location.origin);
       frame.onload=function(){
         if(!starting)return;
-        frame.contentWindow.postMessage(JSON.stringify({
-          event:'listening',id:'presenceBgmPlayer'
-        }
-        ),'https://www.youtube-nocookie.com');
-        command('setVolume',[22]);
-        command(muted?'mute':'unMute');
-        command('addEventListener',['onStateChange']);
-        command('addEventListener',['onError']);
-        command('addEventListener',['onAutoplayBlocked']);
+        handshake();
         command('playVideo');
       }
       ;
       frame.onerror=fail;
       root.querySelector('[data-video]').appendChild(frame);
     }
-    else command('playVideo');
+    else{
+      applyAudio();
+      command('playVideo');
+    }
+    handshakeTimers.forEach(clearTimeout);
+    handshakeTimers=[250,800,1800].map(function(delay){return setTimeout(handshake,delay);});
     clearTimeout(loadTimer);
     loadTimer=setTimeout(function(){
       if(starting)fail();
@@ -141,6 +179,17 @@
     if(d.event==='onError'||d.event==='onAutoplayBlocked'){
       fail();
       return;
+    }
+    if(d.event==='onReady'||d.event==='initialDelivery'||d.event==='infoDelivery'){
+      if(!audioSynced){
+        audioSynced=true;
+        applyAudio();
+      }
+      if(d.info&&typeof d.info==='object'){
+        if(typeof d.info.muted==='boolean')actualMuted=d.info.muted;
+        if(typeof d.info.volume==='number')actualVolume=Math.max(0,Math.min(100,Math.round(d.info.volume)));
+      }
+      state();
     }
     var n=d.event==='onStateChange'?d.info:d.event==='infoDelivery'&&d.info?d.info.playerState:null;
     if(typeof n==='number'){
@@ -163,46 +212,55 @@
     var b=document.createElement('button');
     b.id='presenceBgmQuick';
     b.type='button';
-    b.textContent='♫';
-    b.setAttribute('aria-label','음악 플레이어 열기·닫기');
+    b.innerHTML='<span aria-hidden="true">♫</span><span class="presence-music-quick-label">캐롤 켜기</span>';
+    b.setAttribute('aria-label','캐롤 켜기');
     b.setAttribute('aria-controls','presenceMusicPanel');
     b.onclick=function(){
-      if(opened)close();
-      else{
-        opened=true;
-        state();
-      }
+      if(starting||playing)close();
+      else playWithSound();
     }
     ;
     document.body.appendChild(b);
     root=document.createElement('section');
     root.id='presenceMusicPanel';
     root.setAttribute('aria-label','음악 플레이어');
-    root.innerHTML='<header><strong data-title></strong><button type="button" data-close aria-label="음악 플레이어 닫기">×</button></header><div data-video><span>재생 버튼을 눌러 음악을 시작하세요.</span></div><div class="presence-music-actions"><button type="button" data-play>재생</button><button type="button" data-mute>음소거</button><a target="_blank" rel="noopener noreferrer">YouTube ↗</a></div><p role="status">재생되지 않으면 YouTube에서 열어 주세요.</p>';
+    root.innerHTML='<header><strong data-title></strong><button type="button" data-close aria-label="음악 플레이어 닫기">×</button></header><div data-video><span>소리 켜고 재생을 눌러 주세요.</span></div><div class="presence-music-actions"><button type="button" data-play>소리 켜고 재생</button><button type="button" data-mute>음소거</button><a target="_blank" rel="noopener noreferrer">YouTube ↗</a></div><div class="presence-music-volume" role="group" aria-label="음악 볼륨"><span>볼륨</span><button type="button" data-volume-down aria-label="음악 볼륨 낮추기">−</button><output data-volume>50%</output><button type="button" data-volume-up aria-label="음악 볼륨 높이기">+</button></div><p role="status">소리 켜고 재생을 누르면 캐롤이 시작됩니다.</p>';
     document.body.appendChild(root);
     root.querySelector('[data-close]').onclick=close;
     root.querySelector('[data-play]').onclick=function(){
       if(starting)destroy();
       else if(playing)pause();
-      else play();
+      else playWithSound();
     }
     ;
     root.querySelector('[data-mute]').onclick=function(){
-      muted=!muted;
-      try{
-        localStorage.setItem('presence_music_muted',String(muted));
-      }
-      catch(e){
-      }
-      command(muted?'mute':'unMute');
+      muted=!(actualMuted===null?muted:actualMuted);
+      if(!muted&&volume===0)volume=50;
+      saveAudioPreference();
+      actualMuted=null;
+      applyAudio();
       state();
     }
     ;
     try{
       muted=localStorage.getItem('presence_music_muted')==='true';
+      var savedVolume=Number(localStorage.getItem('presence_music_volume'));
+      if(localStorage.getItem('presence_music_volume')!==null&&Number.isFinite(savedVolume))volume=Math.max(0,Math.min(100,savedVolume));
     }
     catch(e){
     }
+    function changeVolume(delta){
+      volume=Math.max(0,Math.min(100,volume+delta));
+      if(delta>0)muted=false;
+      if(volume===0)muted=true;
+      actualMuted=null;
+      actualVolume=null;
+      saveAudioPreference();
+      applyAudio();
+      state();
+    }
+    root.querySelector('[data-volume-down]').onclick=function(){changeVolume(-10);};
+    root.querySelector('[data-volume-up]').onclick=function(){changeVolume(10);};
     document.addEventListener('keydown',function(e){
       if(e.key==='Escape'&&opened){
         close();
@@ -240,6 +298,9 @@
     }
     ,get playing(){
       return playing;
+    }
+    ,get audioStatus(){
+      return Object.freeze({muted:actualMuted,volume:actualVolume,wantedMuted:muted,wantedVolume:volume});
     }
   }
   );

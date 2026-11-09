@@ -1,0 +1,93 @@
+/* Gift atelier: a short reveal, followed by a quiet real-connection state. */
+.pci-scene,.pci-wordmark{display:none}
+body.presence-christmas #presenceGameLoader.cinematic{
+  align-items:center;padding:24px;background:#f7f0e5;color:#5e2527;
+}
+body.presence-christmas #presenceGameLoader .pgl-cinema{
+  display:flex;flex-direction:column;width:min(780px,100%);min-height:0;
+  max-height:calc(100dvh - 48px);overflow:auto;gap:0;
+  border:1px solid #ddc7a7;border-radius:26px;background:#fcf7ef;
+  box-shadow:0 28px 80px #72502a1c,inset 0 1px #fff;
+}
+body.presence-christmas #presenceGameLoader .pgl-world{
+  order:0;position:relative;flex:0 0 auto;width:100%;height:400px;min-height:0;
+  overflow:hidden;border:0;border-radius:25px 25px 0 0;background:#f7eddf;
+}
+body.presence-christmas #presenceGameLoader .pgl-world:before,
+body.presence-christmas #presenceGameLoader .pgl-console:after{content:none}
+body.presence-christmas #presenceGameLoader .pgl-stage{display:none}
+body.presence-christmas #presenceGameLoader .pgl-console{
+  order:1;display:flex;flex:0 0 auto;flex-direction:column;align-items:center;
+  min-height:0;padding:8px 30px 30px;background:#fcf7ef;text-align:center;
+}
+body.presence-christmas #presenceGameLoader .pgl-brandline,
+body.presence-christmas #presenceGameLoader .pgl-kicker,
+body.presence-christmas #presenceGameLoader .pgl-cinema-title,
+body.presence-christmas #presenceGameLoader .pgl-cinema-sub,
+body.presence-christmas #presenceGameLoader .pgl-percent{display:none!important}
+body.presence-christmas #presenceGameLoader .pci-wordmark{
+  display:grid;position:relative;color:#6e202c;font-family:Georgia,'Times New Roman',serif;
+  font-size:37px;line-height:1.3;font-weight:500;letter-spacing:-.035em;min-height:49px;
+}
+.pci-copy-first,.pci-copy-last{grid-area:1/1;display:block;white-space:nowrap}.pci-copy-first{opacity:0}.pci-copy-last{opacity:1}
+body.presence-christmas #presenceGameLoader .pgl-loadbox{
+  width:min(360px,100%);margin:15px 0 0;min-height:44px;
+}
+body.presence-christmas #presenceGameLoader .pgl-loadmeta{display:block;min-height:23px}
+body.presence-christmas #presenceGameLoader .pgl-dynamic-msg{
+  color:#6d645c;font-size:13px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere;
+}
+body.presence-christmas #presenceGameLoader .pgl-track{
+  width:68px;height:2px;margin:12px auto 0;overflow:hidden;border:0;background:#decbb0;
+}
+body.presence-christmas #presenceGameLoader .pgl-track i{
+  width:25px!important;height:2px;background:#8b2432;box-shadow:none;
+  animation:pciConnection 2.4s ease-in-out infinite;
+}
+body.presence-christmas #presenceGameLoader .pci-scene{
+  display:block;position:absolute;inset:0;overflow:hidden;isolation:isolate;
+}
+.pci-atelier{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%;transform-origin:50% 72%;mix-blend-mode:multiply;opacity:0}
+.pci-portal{position:absolute;left:50%;top:50%;width:min(570px,calc(100% - 32px));aspect-ratio:3/2;transform:translate(-50%,-50%);border-radius:18px;overflow:hidden;border:1px solid #b58c48;box-shadow:0 12px 30px #7e582622;background:#e9ddc5;perspective:1000px;isolation:isolate}
+.pci-party{display:block;width:100%;height:100%;object-fit:contain}
+.pci-door{position:absolute;z-index:2;top:0;bottom:0;width:50%;box-sizing:border-box;border:7px solid #b99459;background:linear-gradient(110deg,#1d4035,#2a5747 45%,#193b31);box-shadow:inset 0 0 0 1px #ead2a1,inset 0 0 35px #091c1444;backface-visibility:hidden}
+.pci-door:before{content:'';position:absolute;inset:18px;border:1px solid #d8b676;box-shadow:inset 0 0 0 5px #214335,inset 0 0 0 6px #9d7945}
+.pci-door:after{content:'';position:absolute;left:35%;right:35%;top:-7px;bottom:-7px;background:linear-gradient(90deg,#641c2d,#9e3345 48%,#6b1b2b);box-shadow:inset 2px 0 2px #e5867a44}
+.pci-door i{position:absolute;z-index:1;width:5px;height:28px;top:54%;border-radius:3px;background:linear-gradient(90deg,#a97835,#edd49d,#a97835);box-shadow:0 1px 4px #0004}
+.pci-door-left{left:0;transform-origin:left center;transform:perspective(1000px) rotateY(-105deg)}.pci-door-right{right:0;transform-origin:right center;transform:perspective(1000px) rotateY(105deg)}.pci-door-left i{right:13px}.pci-door-right i{left:13px}
+.pci-light{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 67%,#f6d69c44,transparent 66%)}
+.pci-glasslight{position:absolute;inset:0;pointer-events:none;background:linear-gradient(112deg,transparent 28%,#fff9d344 40%,#fff9d31a 48%,transparent 58%);opacity:0;transform:translateX(-80%)}
+.pci-snow{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.pci-snow i{position:absolute;left:14%;top:10%;width:3px;height:3px;border-radius:50%;background:#fffefa;box-shadow:0 0 3px #fff;animation:pciSnow 5.5s linear infinite}
+.pci-snow i:nth-child(2){left:31%;top:4%;animation-delay:-3s;width:2px;height:2px}.pci-snow i:nth-child(3){left:72%;top:14%;animation-delay:-1s}.pci-snow i:nth-child(4){left:88%;top:9%;animation-delay:-4s;width:2px;height:2px}.pci-snow i:nth-child(5){left:51%;top:3%;animation-delay:-2s;width:2px;height:2px}.pci-snow i:nth-child(6){left:61%;top:7%;animation-delay:-.8s}
+.pci-art-unavailable .pci-atelier{display:none}
+.pci-party-unavailable .pci-portal{display:none}.pci-party-unavailable .pci-atelier{opacity:1!important;animation:none!important}
+.pci-art-unavailable.pci-party-unavailable:after{content:'✦';position:absolute;inset:0;display:grid;place-items:center;color:#b9914e;font-size:72px}
+.pci-film{position:absolute;z-index:5;inset:0;display:block;width:100%;height:100%;object-fit:contain;background:#f7eddf;opacity:0}
+.pci-skip{display:none;min-height:44px;margin-top:10px;padding:8px 14px;border:1px solid #bd9b64;border-radius:22px;background:transparent;color:#6b3c36;font:inherit;font-size:12px;cursor:pointer}
+body.presence-christmas #presenceGameLoader.pci-film-ready .pci-film{opacity:1}
+body.presence-christmas #presenceGameLoader.pci-film-ready .pci-skip{display:inline-flex;align-items:center;justify-content:center}
+body.presence-christmas #presenceGameLoader.pci-film-ready .pci-copy-first{animation:none;opacity:1;transform:none}
+body.presence-christmas #presenceGameLoader.pci-film-ready .pci-copy-last{animation:none;opacity:0;transform:none}
+body.presence-christmas #presenceGameLoader.pci-film-ready.pci-film-late .pci-copy-first{opacity:0}
+body.presence-christmas #presenceGameLoader.pci-film-ready.pci-film-late .pci-copy-last{opacity:1}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-atelier{animation:pciAtelierReveal 1.8s cubic-bezier(.2,.6,.2,1) both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-portal{animation:pciPortalReveal 1.8s ease-out both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-door-left{animation:pciDoorLeft 1.8s cubic-bezier(.25,.55,.25,1) both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-door-right{animation:pciDoorRight 1.8s cubic-bezier(.25,.55,.25,1) both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-glasslight{animation:pciGlassReveal 1.8s ease-out both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-copy-first{animation:pciCopyFirst 1.8s ease-out both}
+body.presence-christmas #presenceGameLoader.pci-reveal .pci-copy-last{animation:pciCopyLast 1.8s ease-out both}
+@keyframes pciAtelierReveal{0%{opacity:1;transform:scale(1)}28%{opacity:1;transform:scale(1.025)}48%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes pciPortalReveal{0%,20%{opacity:0}40%,100%{opacity:1}}
+@keyframes pciDoorLeft{0%,32%{transform:perspective(1000px) rotateY(0)}100%{transform:perspective(1000px) rotateY(-105deg)}}
+@keyframes pciDoorRight{0%,32%{transform:perspective(1000px) rotateY(0)}100%{transform:perspective(1000px) rotateY(105deg)}}
+@keyframes pciCopyFirst{0%,43%{opacity:1;transform:none}60%,100%{opacity:0;transform:translateY(-3px)}}
+@keyframes pciCopyLast{0%,43%{opacity:0;transform:translateY(3px)}64%,100%{opacity:1;transform:none}}
+@keyframes pciGlassReveal{0%{opacity:0;transform:translateX(-80%)}25%{opacity:.75}100%{opacity:0;transform:translateX(80%)}}
+@keyframes pciConnection{0%,100%{transform:translateX(-26px);opacity:.4}50%{transform:translateX(70px);opacity:1}}
+@keyframes pciSnow{from{transform:translate(0,0);opacity:0}15%{opacity:.75}to{transform:translate(-14px,190px);opacity:0}}
+@media(max-width:840px){body.presence-christmas #presenceGameLoader.cinematic{padding:22px}body.presence-christmas #presenceGameLoader .pgl-cinema{width:min(680px,100%)}body.presence-christmas #presenceGameLoader .pgl-world{height:350px}body.presence-christmas #presenceGameLoader .pci-wordmark{font-size:34px}}
+@media(max-width:600px){body.presence-christmas #presenceGameLoader.cinematic{padding:18px}body.presence-christmas #presenceGameLoader .pgl-cinema{border-radius:23px;max-height:calc(100dvh - 36px)}body.presence-christmas #presenceGameLoader .pgl-world{height:250px;border-radius:22px 22px 0 0}body.presence-christmas #presenceGameLoader .pgl-console{padding:8px 22px 26px}body.presence-christmas #presenceGameLoader .pci-wordmark{font-size:31px;min-height:41px}body.presence-christmas #presenceGameLoader .pgl-dynamic-msg{font-size:12px}.pci-portal{width:calc(100% - 22px);border-radius:13px}}
+@media(max-height:620px) and (min-width:601px){body.presence-christmas #presenceGameLoader .pgl-world{height:260px}body.presence-christmas #presenceGameLoader .pgl-console{padding:4px 22px 20px}body.presence-christmas #presenceGameLoader .pci-wordmark{font-size:36px}}
+@media(prefers-reduced-motion:reduce){body.presence-christmas #presenceGameLoader *,body.presence-christmas #presenceGameLoader *:before,body.presence-christmas #presenceGameLoader *:after{animation:none!important;transition:none!important}.pci-glasslight,.pci-snow{display:none}body.presence-christmas #presenceGameLoader .pgl-track i{transform:none;width:100%!important}}

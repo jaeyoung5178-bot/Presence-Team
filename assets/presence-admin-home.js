@@ -107,9 +107,13 @@
       : '<span class="pah-ready" aria-label="' + esc(label) + ' 없음">READY</span>';
   }
 
+  function actionIcon(action){
+    var paths={'recap-repair':'<path d="M5 8a7 7 0 1 1-1 8M5 3v5h5"/><path d="m9 13 2 2 4-4"/>','survey':'<path d="M8 4H5v17h14V4h-3M9 2h6v4H9zM8 11h8M8 15h6"/>','new-member':'<circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 12-5m5-1v8m-4-4h8"/>','permissions':'<path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6z"/><path d="m8 11 3 3 5-6"/>','departed':'<path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h14"/>','approvals':'<circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 11-6m2 5 3 3 5-6"/>'};
+    return '<svg class="pah-action-icon" viewBox="0 0 24 24" aria-hidden="true">'+(paths[action]||paths.permissions)+'</svg>';
+  }
   function actionCard(action, code, title, description, meta) {
     return '<button type="button" class="pah-action" data-pah-action="' + action + '">' +
-      '<span class="pah-action-top"><span class="pah-action-code" aria-hidden="true">' + code + '</span>' + meta + '</span>' +
+      '<span class="pah-action-top"><span class="pah-action-code" aria-hidden="true"><span class="pah-action-letter">' + code + '</span>'+actionIcon(action)+'</span>' + meta + '</span>' +
       '<span class="pah-action-copy"><strong>' + title + '</strong><small>' + description + '</small></span>' +
       '<span class="pah-action-go" aria-hidden="true">→</span>' +
       '</button>';
@@ -433,9 +437,9 @@ function bindRepair(root){
           '<p>' + summary + '</p>' +
         '</div>' +
         '<dl class="pah-summary" aria-label="관리 운영 현황">' +
-          '<div><dt>ACTIVE TEAM</dt><dd>' + active.length + '<small>명</small></dd></div>' +
-          '<div class="' + (approvals.length ? 'is-alert' : '') + '"><dt>JOIN APPROVAL</dt><dd>' + approvals.length + '<small>건</small></dd></div>' +
-          '<div class="' + (surveys.length ? 'is-alert' : '') + '"><dt>SURVEY QUEUE</dt><dd>' + surveys.length + '<small>건</small></dd></div>' +
+          '<div><dt><span class="pah-label-default">ACTIVE TEAM</span><span class="pah-label-season">운영 팀</span></dt><dd>' + active.length + '<small>명</small></dd></div>' +
+          '<div class="' + (approvals.length ? 'is-alert' : '') + '"><dt><span class="pah-label-default">JOIN APPROVAL</span><span class="pah-label-season">가입 승인</span></dt><dd>' + approvals.length + '<small>건</small></dd></div>' +
+          '<div class="' + (surveys.length ? 'is-alert' : '') + '"><dt><span class="pah-label-default">SURVEY QUEUE</span><span class="pah-label-season">설문 대기</span></dt><dd>' + surveys.length + '<small>건</small></dd></div>' +
         '</dl>' +
       '</div>' +
       '<div class="pah-section-head"><div><span>QUICK OPERATIONS</span><h3>자주 쓰는 관리 업무</h3></div><p>한 번의 클릭으로 기존 관리 화면을 엽니다.</p></div>' +
