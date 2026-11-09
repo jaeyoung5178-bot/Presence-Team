@@ -447,9 +447,10 @@ function bindRepair(root){
         actionCard('departed', 'DP', '퇴사자 관리', '퇴사 기록과 재입사 대상을 관리합니다.', departed ? '<span class="pah-badge" aria-label="퇴사자 ' + departed + '명">' + departed + '</span>' : '<span class="pah-ready">CLEAR</span>') +
         actionCard('approvals', 'OK', '가입 승인', '가입 신청자를 검토하고 승인합니다.', badge(approvals.length, '가입 승인 대기')) +
       '</div>' +
-    repairPanelHTML(actor) + '</section>';
+    repairPanelHTML(actor) + '<div id="pahTLWorkspacePermissions"></div></section>';
     bind(root);
     bindRepair(root);
+    if(global.PresenceTLWorkspace)global.PresenceTLWorkspace.renderAdmin('pahTLWorkspacePermissions',{actor:actor,state:snapshot,leaders:typeof presenceTLWorkspaceLeaders==='function'?presenceTLWorkspaceLeaders():[],onOpenRegistration:typeof presenceTLWorkspaceOpenRegistration==='function'?presenceTLWorkspaceOpenRegistration:null});
     emitMode(root);
     return true;
   }
