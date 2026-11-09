@@ -1,0 +1,60 @@
+{
+  "package": "heic-to",
+  "version": "1.6.7",
+  "upstreamCommit": "78345a3fcdb4a1d70d513fce2646aeff0127f7ba",
+  "upstream": "https://github.com/hoppergee/heic-to",
+  "distribution": "dist/csp/heic-to.js",
+  "modified": false,
+  "runtime": "local ESM + in-memory blob Worker; no external WASM/CDN/API",
+  "upstreamBuildRecipe": {
+    "libheif": "1.23.7",
+    "libde265": "1.0.16",
+    "USE_WASM": 0,
+    "USE_UNSAFE_EVAL": 0
+  },
+  "fixture": {
+    "source": "https://github.com/strukturag/libheif/blob/v1.23.7/examples/example.heic",
+    "sha256": "7f8b363e4936c0666a25f64f3a92fda10bd8e5453be4592530b65a55dd98f3f2",
+    "bytes": 718114,
+    "decodedWidth": 1280,
+    "decodedHeight": 854
+  },
+  "files": {
+    "LICENSE-heic-to": {
+      "bytes": 8177,
+      "sha256": "dbd7222d8026e5d6ca6991d1e6a205de927f300840433c2e90a60644a9980c75"
+    },
+    "LICENSE-libde265": {
+      "bytes": 44339,
+      "sha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020"
+    },
+    "LICENSE-libheif": {
+      "bytes": 44366,
+      "sha256": "fa81ce652315b013359d6e8e4744335f31a50c7c192907176d3632f78a3b4596"
+    },
+    "LICENSE-libheif-examples": {
+      "bytes": 1066,
+      "sha256": "278ee9bbb13ecb080a131c68927bd589a6a56fd5449ce25e8e594c858864830d"
+    },
+    "NOTICE.txt": {
+      "bytes": 2955,
+      "sha256": "d64c218ae50440b623c2c6d0a03c7c12d7e896bbfc32a903f6d6b7c3bffff777"
+    },
+    "heic-to.js": {
+      "bytes": 3224697,
+      "sha256": "e0a515585872c319c601c33551925c9d5fee31746caf0311291ed7e6364c592c"
+    },
+    "source/heic-to-78345a3.tar.gz": {
+      "bytes": 6417179,
+      "sha256": "af478f6a0b6141879d93c9d295b46c0f70b016f97b939a08a4f3a3b498d71a83"
+    },
+    "source/libde265-1.0.16.tar.gz": {
+      "bytes": 439639,
+      "sha256": "ed12c931759c1575848832f70db5071a001ac813db4e4f568ee08aef6e234d4e"
+    },
+    "source/libheif-1.23.7.tar.gz": {
+      "bytes": 2372569,
+      "sha256": "90e389caad285ca4946461d56d1c115e56bcbb5141d9038050282af91064fbc7"
+    }
+  }
+}
