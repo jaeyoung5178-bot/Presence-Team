@@ -2,7 +2,7 @@
  'use strict';
  const FEATURES=[['recap','팀 리캡 관리','RC','승인된 우리 팀의 기간별 리캡을 확인합니다.'],['icManager','IC Manager','IC','우리 팀 IC의 성장과 코칭을 관리합니다.'],['surveys','설문 결과 보기','SV','공유가 허용된 우리 팀의 코칭 설문을 확인합니다.'],['icRegistration','IC 등록 요청','+','팀과 상위 리더를 선택해 관리자 검토를 요청합니다.']];
  function featureIcon(key){const paths={recap:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 16v-3m3 3V9m3 7v-5"/>',icManager:'<path d="M4 4v16h16M8 15l4-5 4 2 4-7M17 5h3v3"/>',surveys:'<path d="M20 11a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 17-5Z"/><path d="m8 10 3 3 5-5"/>',icRegistration:'<circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 13-3m4-3v8m-4-4h8"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[key]+'</svg>';}
- const view={host:null,context:null,identity:'',off:null,panel:'',loading:false,error:'',surveys:[],members:[],registration:{name:'',uplineUid:'',note:''},notice:'',sequence:0};
+ const view={host:null,context:null,identity:'',off:null,panel:'',loading:false,error:'',surveys:[],members:[],surveyPerson:'',surveyKey:'',registration:{name:'',uplineUid:'',note:''},notice:'',sequence:0};
  const admin={host:null,context:null,identity:'',leaderUid:'',grants:{},loading:false,busy:false,error:'',notice:'',draft:null,pending:null,sequence:0,requests:[],requestLoading:false,requestError:'',requestSequence:0};
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const api=()=>global.PresenceTLWorkspaceAccess;
@@ -12,29 +12,54 @@
  function valid(context){if(preview(context))return true;const actor=context&&context.actor,cfg=context&&context.config,current=currentActor();return !!actor&&actor.status==='active'&&['TL','AOP','OP','O','OWNER'].includes(String(actor.role).toUpperCase())&&!!cfg&&actor.uid===cfg.uid&&current&&current.uid===actor.uid&&current.status==='active'&&['TL','AOP','OP','O','OWNER'].includes(String(current.role).toUpperCase());}
  function permitted(key){if(!valid(view.context)||!api())return false;if(preview(view.context))return true;const {actor,config}=view.context,grant=api().get(actor,config);return !!grant&&grant.active!==false&&grant.uid===actor.uid&&grant.teamKey===config.teamKey&&grant.capabilities&&grant.capabilities[key]===true;}
  function allowedPanel(){return view.panel==='surveys'?permitted('surveys'):view.panel==='icRegistration'?permitted('icRegistration'):true;}
- function clearView(){view.sequence++;if(view.off)view.off();view.off=null;view.identity='';view.context=null;view.panel='';view.registration={name:'',uplineUid:'',note:''};view.surveys=[];view.members=[];view.error='';view.notice='';if(view.host)view.host.replaceChildren();}
+ function clearView(){view.sequence++;if(view.off)view.off();view.off=null;view.identity='';view.context=null;view.panel='';view.registration={name:'',uplineUid:'',note:''};view.surveys=[];view.members=[];view.surveyPerson='';view.surveyKey='';view.error='';view.notice='';if(view.host)view.host.replaceChildren();}
+ const surveyId=record=>String(record.uid||'');
+ const surveyTime=value=>value?new Date(value).getTime()||0:0;
+ const surveyDate=value=>surveyTime(value)?new Date(value).toLocaleDateString('ko-KR'):'제출일 없음';
+ const surveyNavigation={people:{index:0,scroll:0},person:{index:0,scroll:0}};
+ function surveyPeople(){const people=new Map();view.members.forEach(member=>{if(member.uid)people.set(String(member.uid),{...member});});view.surveys.forEach(record=>{const uid=surveyId(record);if(uid&&!people.has(uid))people.set(uid,{uid,name:record.name,role:record.role});});return [...people.values()].map(person=>({...person,records:view.surveys.filter(record=>surveyId(record)===String(person.uid))}));}
+ function surveyHTML(){
+  const people=surveyPeople(),person=people.find(row=>String(row.uid)===view.surveyPerson);
+  if(!person)return '<p class="ptw-note">팀원을 선택하면 제출한 설문 목록을 확인할 수 있습니다.</p><div class="ptw-survey-people">'+(people.length?people.map((row,index)=>'<button type="button" class="ptw-person" data-ptw-person="'+index+'"><strong>'+esc(row.name||'이름 없음')+'</strong><span>'+esc(row.role||'팀원')+' · 설문 '+row.records.length+'개</span><small>'+(row.records.length?'최근 제출 '+esc(surveyDate(Math.max(...row.records.map(r=>surveyTime(r.submittedAt))))):'아직 공유된 설문이 없습니다.')+'</small><b aria-hidden="true">→</b></button>').join(''):'<p class="ptw-empty">이 팀에 표시할 팀원이 없습니다.</p>')+'</div>';
+  const record=person.records.find(row=>String(row.surveyKey)===view.surveyKey);
+  const header='<div class="ptw-survey-context"><button type="button" data-ptw-survey-back="'+(record?'person':'people')+'">← '+(record?'설문 목록':'팀원 목록')+'</button><div><h4>'+esc(person.name||'이름 없음')+'</h4><p>'+esc(person.role||'팀원')+' · 설문 '+person.records.length+'개</p></div></div>';
+  if(record)return header+'<article class="ptw-record ptw-survey-answer" tabindex="-1"><h4>'+esc(record.title||record.surveyKey)+'</h4><p>'+esc(surveyDate(record.submittedAt))+'</p>'+(Array.isArray(record.answers)&&record.answers.length?record.answers.map(answer=>'<div class="ptw-answer"><h5>'+esc(answer.label)+'</h5><p>'+esc(answer.value)+'</p></div>').join(''):'<p class="ptw-empty">공유된 응답이 없습니다.</p>')+'</article>';
+  return header+'<div class="ptw-list">'+(person.records.length?person.records.map((row,index)=>'<article class="ptw-record ptw-survey-card"><div><h4>'+esc(row.title||row.surveyKey)+'</h4><p>'+esc(surveyDate(row.submittedAt))+'</p></div><button type="button" data-ptw-survey-open="'+index+'">열람하기</button></article>').join(''):'<p class="ptw-empty">아직 공유된 설문이 없습니다.</p>')+'</div>';
+ }
+ async function selectSurvey(personIndex,recordIndex){
+  if(view.loading||view.panel!=='surveys'||!permitted('surveys'))return;
+  const person=personIndex==null?surveyPeople().find(row=>String(row.uid)===view.surveyPerson):surveyPeople()[personIndex],record=recordIndex==null?null:person?.records[recordIndex];if(!person||recordIndex!=null&&!record)return;
+  surveyNavigation[record?'person':'people']={index:record?recordIndex:personIndex,scroll:global.scrollY||0};
+  const uid=String(person.uid),key=record?String(record.surveyKey):'',sequence=++view.sequence;view.loading=true;view.error='';paint();
+  try{await api().authorize({teamKey:view.context.config.teamKey,capability:'surveys'});if(sequence!==view.sequence||!permitted('surveys'))return;view.surveyPerson=uid;view.surveyKey=key;}
+  catch(error){if(sequence===view.sequence){view.surveyPerson='';view.surveyKey='';view.surveys=[];view.members=[];view.error='설문 열람 권한을 확인하지 못했습니다. 다시 열어 주세요.';}}
+  finally{if(sequence===view.sequence){view.loading=false;paint();view.host.querySelector('.ptw-survey-answer, [data-ptw-survey-back]')?.focus();}}
+ }
  function panelHTML(){
   if(!view.panel||!allowedPanel())return '';
   const title=view.panel==='surveys'?'우리 팀 설문 결과':'IC 등록 요청';
   let body=view.loading?'<p class="ptw-empty" role="status">팀 범위를 확인하고 있습니다…</p>':'';
-  if(!view.loading&&view.panel==='surveys')body='<div class="ptw-list">'+(view.surveys.length?view.surveys.map(record=>'<article class="ptw-record"><h4>'+esc(record.name)+' · '+esc(record.title||record.surveyKey)+'</h4><p>'+esc(record.role||'')+(record.submittedAt?' · '+esc(new Date(record.submittedAt).toLocaleDateString('ko-KR')):'')+'</p>'+(Array.isArray(record.answers)?record.answers:[]).map(answer=>'<p><b>'+esc(answer.label)+'</b><br>'+esc(answer.value)+'</p>').join('')+'</article>').join(''):'<p class="ptw-empty">이 팀에 공유된 설문 결과가 없습니다.</p>')+'</div>';
+  if(!view.loading&&view.panel==='surveys')body=surveyHTML();
   if(!view.loading&&view.panel==='icRegistration')body='<form id="ptwRegistration" class="ptw-form"><label>팀원 이름<input id="ptwName" maxlength="40" required autocomplete="off" value="'+esc(view.registration.name)+'"></label><label>소속 팀<select id="ptwTeam" aria-label="소속 팀"><option value="'+esc(view.context.config.teamKey)+'">'+esc(view.context.config.teamName)+'</option></select></label><label class="ptw-full">상위 리더<select id="ptwUpline" required><option value="">상위 리더 선택</option>'+view.members.filter(member=>['LR','TL','AOP','OP','O','OWNER'].includes(member.role)).map(member=>'<option value="'+esc(member.uid)+'"'+(view.registration.uplineUid===member.uid?' selected':'')+'>'+esc(member.name)+' · '+esc(member.role)+'</option>').join('')+'</select></label><label class="ptw-full">관리자에게 전달할 메모 · 선택<input id="ptwNote" maxlength="500" value="'+esc(view.registration.note)+'"></label><div class="ptw-full"><p class="ptw-note">등록 요청은 승인 대기로 접수됩니다. 계정 생성과 최종 직급·접근 권한은 관리자가 확인합니다.</p></div><div class="ptw-actions ptw-full"><button class="ptw-primary" type="submit"'+(preview(view.context)?' disabled':'')+'>관리자 검토 요청</button></div></form>';
   return '<section class="ptw-panel" aria-label="'+title+'"><div class="ptw-panel-head"><h3>'+title+'</h3><button type="button" data-ptw-close>닫기</button></div>'+(view.error?'<p class="ptw-feedback is-error" role="alert">'+esc(view.error)+'</p>':'')+(view.notice?'<p class="ptw-feedback" role="status">'+esc(view.notice)+'</p>':'')+body+'</section>';
  }
  function paint(){
   if(!view.host)return;if(!valid(view.context)){clearView();return;}
-  if(!allowedPanel()){view.panel='';view.surveys=[];view.members=[];view.sequence++;}
+  if(!allowedPanel()){view.panel='';view.surveys=[];view.members=[];view.surveyPerson='';view.surveyKey='';view.sequence++;}
   const cfg=view.context.config;
   view.host.innerHTML='<section class="ptw" aria-label="팀 리더 업무"><div class="ptw-head"><div><small>TEAM WORKSPACE</small><h2>'+(preview(view.context)?'팀 리더 화면 미리보기':'우리 팀 관리')+'</h2><p>'+(preview(view.context)?'관리자 계정으로 확인 중 · 등록 요청은 전송하지 않습니다.':'관리자가 허용한 업무를 한곳에서 엽니다.')+'</p></div><span class="ptw-scope">'+esc(cfg.teamName)+' · 팀 범위</span></div><div class="ptw-grid">'+FEATURES.map(([key,title,mark,description])=>{const enabled=permitted(key),tag=enabled&&key!=='recap'?'button':'article';return '<'+tag+(enabled&&key!=='recap'?' type="button" data-ptw-entry="'+key+'"':'')+' class="ptw-entry '+(enabled?'is-open':'is-locked')+'"><span class="ptw-entry-top"><span class="ptw-mark" aria-hidden="true">'+featureIcon(key)+'</span><span class="ptw-state">'+(enabled?'사용 가능':'권한 필요')+'</span></span><strong>'+title+'</strong><p>'+description+'</p>'+(enabled&&key==='recap'?'<div class="ptw-recap-actions"><button type="button" data-ptw-entry="recap">리캡 현황 보기</button><button type="button" data-ptw-entry="recapWrite">팀원 주간 리캡 작성</button></div>':'<span class="ptw-entry-foot"><span>'+(enabled?'열기':'관리자 승인 후 사용')+'</span><b aria-hidden="true">'+(enabled?'→':'·')+'</b></span>')+'</'+tag+'>';}).join('')+'</div>'+panelHTML()+'</section>';
   view.host.querySelectorAll('[data-ptw-entry]').forEach(button=>button.onclick=()=>open(button.dataset.ptwEntry));
-  const close=view.host.querySelector('[data-ptw-close]');if(close)close.onclick=()=>{view.panel='';paint();};
+  const close=view.host.querySelector('[data-ptw-close]');if(close)close.onclick=()=>{view.sequence++;view.loading=false;view.panel='';view.surveyPerson='';view.surveyKey='';view.surveys=[];paint();};
+  view.host.querySelectorAll('[data-ptw-person]').forEach(button=>button.onclick=()=>selectSurvey(Number(button.dataset.ptwPerson),null));
+  view.host.querySelectorAll('[data-ptw-survey-open]').forEach(button=>button.onclick=()=>selectSurvey(null,Number(button.dataset.ptwSurveyOpen)));
+  const back=view.host.querySelector('[data-ptw-survey-back]');if(back)back.onclick=()=>{const destination=back.dataset.ptwSurveyBack,saved=surveyNavigation[destination];if(destination==='people')view.surveyPerson='';view.surveyKey='';paint();view.host.querySelector('['+(destination==='people'?'data-ptw-person':'data-ptw-survey-open')+'="'+saved.index+'"]')?.focus({preventScroll:true});global.scrollTo?.({top:saved.scroll,behavior:'instant'});};
   const form=view.host.querySelector('#ptwRegistration');if(form){const name=form.querySelector('#ptwName'),upline=form.querySelector('#ptwUpline'),note=form.querySelector('#ptwNote');name.oninput=()=>view.registration.name=name.value;upline.onchange=()=>view.registration.uplineUid=upline.value;note.oninput=()=>view.registration.note=note.value;form.onsubmit=submitRegistration;}
  }
  async function open(key){
   if(!permitted(key==='recapWrite'?'recap':key))return;
   if(key==='recap'||key==='recapWrite'||key==='icManager'){if(typeof view.context.onNavigate==='function')view.context.onNavigate(key);return;}
-  view.panel=key;view.loading=true;view.error='';view.notice='';const sequence=++view.sequence;paint();
-  try{const result=key==='surveys'?await api().readSurveys({teamKey:view.context.config.teamKey}):await api().listMembers({teamKey:view.context.config.teamKey});if(sequence!==view.sequence||!permitted(key))return;if(key==='surveys')view.surveys=Array.isArray(result)?result:[];else view.members=Array.isArray(result)?result:[];}
+  view.panel=key;view.surveyPerson='';view.surveyKey='';if(key==='surveys'){view.surveys=[];view.members=[];}view.loading=true;view.error='';view.notice='';const sequence=++view.sequence;paint();
+  try{const input={teamKey:view.context.config.teamKey};if(key==='surveys')await api().authorize({...input,capability:'surveys'});if(sequence!==view.sequence||!permitted(key))return;const result=key==='surveys'?await Promise.all([api().readSurveys(input),api().listMembers(input)]):await api().listMembers(input);if(sequence!==view.sequence||!permitted(key))return;if(key==='surveys'){view.surveys=Array.isArray(result[0])?result[0]:[];view.members=Array.isArray(result[1])?result[1]:[];}else view.members=Array.isArray(result)?result:[];}
   catch(error){if(sequence===view.sequence)view.error=String(error&&error.message||'팀 데이터를 확인하지 못했습니다.').slice(0,200);}
   finally{if(sequence===view.sequence){view.loading=false;paint();}}
  }
