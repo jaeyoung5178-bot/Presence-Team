@@ -1,0 +1,68 @@
+{
+  "artKey": "presence-birthday-plush-cake-v1",
+  "asset": "assets/celebrations/birthday-body-v1.webp",
+  "source": "assets/celebrations/birthday-body-v1-source.png",
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "face": {
+    "owner": "one real photo DOM behind costume; no baked face",
+    "openingBounds": {
+      "left": 276,
+      "top": 371,
+      "right": 720,
+      "bottom": 802
+    },
+    "photoCenter": {
+      "x": 498,
+      "y": 586
+    },
+    "photoRadius": 230,
+    "photoBox": {
+      "left": 268,
+      "top": 356,
+      "width": 460,
+      "height": 460
+    },
+    "normalized": {
+      "centerX": 0.486328125,
+      "centerY": 0.3815104166666667,
+      "width": 0.44921875,
+      "height": 0.2994791666666667
+    },
+    "crop": "circle; object-fit:cover; object-position:50% 50%; costume paints above photo",
+    "alphaCenter": 0
+  },
+  "ground": {
+    "x": 512,
+    "y": 1528,
+    "normalizedX": 0.5,
+    "normalizedY": 0.9947916666666666
+  },
+  "cake": {
+    "centerX": 512,
+    "centerY": 1040
+  },
+  "layers": [
+    "photo-or-honest-neutral-fallback",
+    "costume-body-with-cake",
+    "HTML birthday text outside costume"
+  ],
+  "invariants": [
+    "Do not alter existing personal avatar/tree/background",
+    "No generated human identity, eyes, or beak",
+    "One face owner only, behind alpha aperture",
+    "No background plate; feet baseline must meet scene ground"
+  ],
+  "generator": "built-in image_gen",
+  "sourceSha256": "8135ed355ecf72c42ac2c581e34be34151ec709ebcfaca47644ecbfffcceb0c0",
+  "qa": {
+    "alphaHoleInteriorZero": true,
+    "optimizedAlphaIdentical": true,
+    "bothFeetVisible": true,
+    "physicalCakeGrip": true,
+    "bakedFace": false,
+    "sourcePreserved": true
+  }
+}

@@ -5667,6 +5667,7 @@ async function reconcileAuthProfiles(){
   else window.__authProfileRetryCount=0;
 }
 async function logout(){
+  window.PresenceBirthday?.dispose();
   window.PresenceWorkspace?.dispose();
   window.PresencePromotionJourney?.dispose?.();
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');window.PresenceAdminHome?.reset?.('adminHomeMount');window.PresenceTLWorkspace?.reset?.();tlhClearSubscriptions();me=null;window.__presenceEntryPass=false;
@@ -8390,6 +8391,7 @@ function renderEvents(){
   if(wb){const up=upcomingBdays(7);wb.innerHTML=up.length?up.map(x=>`<div class="ev-row"><span class="ev-d ${x.in<=1?'soon':''}">${x.in===0?'오늘':x.in===1?'내일':'D-'+x.in}</span><span class="ev-md">${x.md}</span><span class="ev-nm">🎂 ${esc(x.name)}님 생일</span></div>`).join(''):'<div class="empty-row">다음 7일간 생일인 팀원이 없어요</div>';}
   const el=document.getElementById('evList');
   if(el){const evs=(state.events||[]).slice().sort((a,b)=>a.md.localeCompare(b.md));el.innerHTML=evs.length?evs.map(e=>`<div class="ev-row"><span class="ev-md">${e.md}</span><span class="ev-nm">📌 ${esc(e.title)}</span><button class="ev-del" onclick="delEvent('${e.id}')">✕</button></div>`).join(''):'<div class="empty-row">등록한 기념일이 없어요</div>';}
+  window.PresenceBirthday?.mountAdmin(document.getElementById('m-events'));
 }
 let gnPhotos=[];
 function onGnFiles(files){const room=5-gnPhotos.length;if(room<=0){toast('최대 5장까지 올릴 수 있어요');const i=document.getElementById('gnFiles');if(i)i.value='';return}const arr=[...files].slice(0,Math.max(0,room));if([...files].length>room)toast('최대 5장까지 올릴 수 있어요');let pend=arr.length;if(!pend)return;arr.forEach(f=>compressImg(f,d=>{gnPhotos.push(d);if(--pend===0)renderGnPreview();}));const i=document.getElementById('gnFiles');if(i)i.value='';}
@@ -17952,18 +17954,21 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
 <link rel="stylesheet" href="assets/presence-holiday-home.css?v=20261109-sales-home1">
+<link rel="stylesheet" href="assets/presence-birthday.css?v=20261110-birthday1">
 <link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261110-sales-visible2">
 <script src="assets/presence-sales-holiday.js?v=20261110-sales-visible2"></script>
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261109-sales-home1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261110-birthday1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
-<script src="assets/presence-admin-home.js?v=20261109-christmas-campaign1"></script>
+<script src="assets/presence-admin-home.js?v=20261110-birthday1"></script>
 <script src="assets/presence-promotion-journey.js?v=20260929-journey-label-15"></script>
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
 <script src="assets/presence-season.js?v=20261109-winter-finish1"></script>
+<script src="assets/presence-birthday-cloud.js?v=20261110-birthday1"></script>
+<script src="assets/presence-birthday.js?v=20261110-birthday1"></script>
 </body>
 </html>

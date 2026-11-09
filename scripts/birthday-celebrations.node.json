@@ -1,0 +1,111 @@
+{
+  ".read": false,
+  ".write": false,
+  "private": {
+    ".read": false,
+    "admin": {
+      ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+      "$eventId": {
+        ".validate": "newData.hasChildren([\"version\", \"revision\", \"date\", \"targetUid\", \"displayName\", \"enabled\", \"updatedAt\", \"updatedBy\"]) && ((newData.child('enabled').val() == true ? newData.parent().parent().parent().child('public').child(newData.child('date').val()).child('events').child($eventId).exists() : !newData.parent().parent().parent().child('public').child(newData.child('date').val()).child('events').child($eventId).exists()) && (!data.exists() || data.child('date').val() == newData.child('date').val() || !newData.parent().parent().parent().child('public').child(data.child('date').val()).child('events').child($eventId).exists())) && (newData.child('enabled').val() != true || newData.child('faceDataUrl').isString())",
+        "version": {
+          ".validate": "newData.val() == 1"
+        },
+        "revision": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+        },
+        "date": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)"
+        },
+        "targetUid": {
+          ".validate": "newData.isString() && root.child('users').child(newData.val()).child('status').val() == 'active'"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100 && newData.val() == root.child('users').child(newData.parent().child('targetUid').val()).child('name').val()"
+        },
+        "enabled": {
+          ".validate": "newData.isBoolean()"
+        },
+        "faceDataUrl": {
+          ".validate": "newData.isString() && newData.val().length <= 205000 && newData.val().matches(/^data:image\\/webp;base64,UklGR[A-Za-z0-9+\\/]*={0,2}$/)"
+        },
+        "crop": {
+          ".validate": "newData.hasChildren([\"zoom\", \"x\", \"y\"]) && (true)",
+          "zoom": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 3"
+          },
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+          },
+          "y": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+        },
+        "updatedBy": {
+          ".validate": "newData.val() == 'admin'"
+        },
+        "$other": {
+          ".validate": false
+        },
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') && newData.exists()",
+        ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')"
+      }
+    },
+    "$other": {
+      ".validate": false
+    }
+  },
+  "public": {
+    ".read": false,
+    "$date": {
+      ".validate": "newData.hasChildren([\"startsAt\", \"endsAt\"]) && ($date.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/))",
+      "startsAt": {
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+        ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000"
+      },
+      "endsAt": {
+        ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+        ".validate": "newData.isNumber() && newData.val() - newData.parent().child('startsAt').val() == 86400000"
+      },
+      "events": {
+        "$eventId": {
+          ".validate": "newData.hasChildren([\"version\", \"targetUid\", \"displayName\", \"date\", \"updatedAt\", \"faceDataUrl\"]) && (newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('enabled').val() == true && newData.child('date').val() == $date && newData.child('version').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('version').val() && newData.child('targetUid').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('targetUid').val() && newData.child('displayName').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('displayName').val() && newData.child('date').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('date').val() && newData.child('faceDataUrl').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('faceDataUrl').val() && newData.child('updatedAt').val() == newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('updatedAt').val())",
+          "version": {
+            ".validate": "newData.val() == 1"
+          },
+          "targetUid": {
+            ".validate": "newData.isString() && root.child('users').child(newData.val()).child('status').val() == 'active'"
+          },
+          "displayName": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100 && newData.val() == root.child('users').child(newData.parent().child('targetUid').val()).child('name').val()"
+          },
+          "date": {
+            ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)"
+          },
+          "faceDataUrl": {
+            ".validate": "newData.isString() && newData.val().length <= 205000 && newData.val().matches(/^data:image\\/webp;base64,UklGR[A-Za-z0-9+\\/]*={0,2}$/)"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+          },
+          "$other": {
+            ".validate": false
+          },
+          ".write": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') && (newData.exists() || !newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).exists() || newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('enabled').val() == false || newData.parent().parent().parent().parent().child('private').child('admin').child($eventId).child('date').val() != $date)"
+        }
+      },
+      "$other": {
+        ".validate": false
+      },
+      ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active') && (!data.exists() || (data.child('startsAt').isNumber() && data.child('endsAt').isNumber() && now >= data.child('startsAt').val() && now < data.child('endsAt').val()))"
+    }
+  },
+  "$other": {
+    ".validate": false
+  }
+}
