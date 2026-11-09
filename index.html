@@ -7308,7 +7308,8 @@ function selectGroup(gk){
   const now=Date.now();if(window.__presenceNavBusy&&now-window.__presenceNavBusy<180)return;window.__presenceNavBusy=now;
   curGroup=gk;subRailExpanded=false;const g=NAV.find(x=>x.k===gk),tabs=g?g.tabs.filter(tabVisible):[];
   document.querySelectorAll('#rail .gtab').forEach(t=>t.classList.toggle('active',t.dataset.group===curGroup));buildBotbar();
-  if(tabs.length)goTab(tabs[0]);
+  if(gk==='profit'&&tabs.includes('sale')){saleView='daily';goTab('sale');}
+  else if(tabs.length)goTab(tabs[0]);
 }
 function goTab(name){
   const requestedTab=name;
@@ -8439,7 +8440,7 @@ function sumMonth(name,mk){const m=mk||monthOf(TODAY);let s=0;for(const k in sta
 function activeDays(name,mk){const m=mk||monthOf(TODAY);const days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&e.name===name&&saleEntryCountsAsWork(e))days.add(e.date)}return days.size||1}
 let saleEditDate=TODAY,saleCalMonth=TODAY.slice(0,7),saleDraft=0,saleDraftNA=false,saleEditing=false,saleSaveBusy=false,saleAdminTargetName='',saleView='daily';
 function saleRecordFor(name,date){return name&&state.sales[`${date}|${name}`]||null}
-function setSaleView(view){saleView=['daily','weekly','monthly'].includes(view)?view:'daily';renderSales();}
+function setSaleView(view){window.PresenceSalesHoliday?.cancel();saleView=['daily','weekly','monthly'].includes(view)?view:'daily';renderSales();}
 function saleGoalMonthChange(value){if(!/^\d{4}-\d{2}$/.test(value||''))return;saleCalMonth=value;renderSales();}
 function saleGoalRecord(uid,mk){return ((((state.salesGoals||{})[uid]||{})[mk])||{});}
 function saleGoalValue(uid,mk){return Math.max(0,Math.round(Number(saleGoalRecord(uid,mk).goal)||0));}
@@ -8479,9 +8480,9 @@ function saleNAFutureLimit(){const d=new Date(TODAY+'T12:00:00');d.setDate(d.get
 function saleCanSave(){const target=saleTargetUser();return !!(target&&!saleBeforeFirstField(target.name,saleEditDate)&&(saleEditDate<=TODAY||(saleDraftNA&&saleEditDate<=saleNAFutureLimit())))}
 function saleLoadDraft(){const e=saleEditorRecord(saleEditDate);saleDraft=(e&&!e.na&&!e.rally)?Math.max(0,+e.count||0):0;saleDraftNA=!!(e&&e.na);saleEditing=false;}
 function initSaleEditor(){if(me){saleAdminTargetName=saleAdminTargetName||me.name;saleEditDate=TODAY;saleCalMonth=TODAY.slice(0,7);saleLoadDraft();renderSales();}}
-function salePickDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;saleEditDate=ds;saleCalMonth=ds.slice(0,7);const dt=document.getElementById('aseDate');if(me&&canManageTeamRecords(me)&&dt)dt.value=ds;saleLoadDraft();renderSales();if(me&&canManageTeamRecords(me))aseLoad();}
+function salePickDate(ds){window.PresenceSalesHoliday?.cancel();if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;saleEditDate=ds;saleCalMonth=ds.slice(0,7);const dt=document.getElementById('aseDate');if(me&&canManageTeamRecords(me)&&dt)dt.value=ds;saleLoadDraft();renderSales();if(me&&canManageTeamRecords(me))aseLoad();}
 function saleMoveDate(n){const d=new Date(saleEditDate+'T12:00:00');d.setDate(d.getDate()+n);salePickDate(d.toISOString().slice(0,10));}
-function saleMonthMove(n){const d=new Date(saleCalMonth+'-01T12:00:00');d.setMonth(d.getMonth()+n);saleCalMonth=d.toISOString().slice(0,7);saleEditing=false;renderSales();}
+function saleMonthMove(n){window.PresenceSalesHoliday?.cancel();const d=new Date(saleCalMonth+'-01T12:00:00');d.setMonth(d.getMonth()+n);saleCalMonth=d.toISOString().slice(0,7);saleEditing=false;renderSales();}
 function saleCalendarHTML(){
   const target=saleTargetUser(),targetName=target?target.name:'',targetRole=target?target.role:'',first=new Date(saleCalMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
   for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
@@ -8490,7 +8491,7 @@ function saleCalendarHTML(){
     days+='<button class="'+(ds===saleEditDate?'sel ':'')+(ds===TODAY?'today ':'')+(before?'pre-field ':'')+(firstField?'first-field-day ':'')+(recorded?'has ':'')+(recorded&&count===0?'zero ':'')+(na?'na ':'')+'" '+(before?'disabled':'onclick="salePickDate(\''+ds+'\')"')+' aria-label="'+ds+aria+'"><span>'+n+'</span>'+(firstField?'<em class="first-field-label">첫필드!</em>':'')+(label?'<em>'+label+'</em>':'')+'</button>';
   }
   const adminEditing=me&&canManageTeamRecords(me)&&target&&target.uid!==me.uid;
-  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(adminEditing?'매니저 편집 중':'내 기록')+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-legend"><span><b>●</b> 1건 이상</span><span class="zero">● 0건</span><span class="na">● NA</span><span class="first">● 첫필드!</span><span>무표시: 미입력</span></div>';
+  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(adminEditing?'매니저 편집 중':'내 기록')+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-controls">'+(window.PresenceSalesHoliday?.buttonHTML()||'')+'</div><div class="sale-cal-legend"><span><b>●</b> 1건 이상</span><span class="zero">● 0건</span><span class="na">● NA</span><span class="first">● 첫필드!</span><span>무표시: 미입력</span></div>';
 }
 function adjSale(delta){
   if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
@@ -8498,10 +8499,11 @@ function adjSale(delta){
   const prev=saleDraft;
   saleDraft=Math.max(0,saleDraft+delta);
   saleEditing=true;
-  if(delta>0 && saleDraft>=2 && saleDraft!==prev){const t=saleTier(saleDraft);if(t)animateTier(t)}
+  if(delta!==0&&saleDraft!==prev&&target){const meta={actorUid:me.uid,targetUid:target.uid||target.name,date:saleEditDate,from:prev,to:saleDraft};window.PresenceSalesHoliday?.context(meta);window.PresenceSalesHoliday?.adjust(meta);}
   renderSaleEditor();
 }
 function toggleSaleNA(){
+  window.PresenceSalesHoliday?.cancel();
   if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}if(saleEditDate>TODAY&&saleEditDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}
   saleDraftNA=!saleDraftNA;if(saleDraftNA)saleDraft=0;else saleDraft=saleEditorCount(saleEditDate);saleEditing=true;renderSaleEditor();
 }
@@ -8511,19 +8513,22 @@ async function commitSale(){
   if(isTestBot(target)){saleEditing=false;renderSales();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
   const date=saleEditDate,key=`${date}|${target.name}`,t=Date.now(),prior=state.sales[key],prevCount=(prior&&!prior.na&&!prior.rally)?(+prior.count||0):0;
   const entry=saleDraftNA?{name:target.name,role:target.role,date,count:0,na:true,checked:true,t}:{name:target.name,role:target.role,date,count:Math.max(0,+saleDraft||0),checked:true,t};
+  const holidayActorUid=me.uid,holidayToken=window.PresenceSalesHoliday?.capture({actorUid:me.uid,targetUid:target.uid||target.name,date});let holidaySaved=false,holidaySuccessMessage='';
   saleSaveBusy=true;state.sales[key]=entry;renderSales();renderPerfGauge();renderScores();renderComp();renderDaisoCompetition();
   try{
     if(LIVE)await DB.set(`sales/${date}/${nk(target.name)}`,{name:target.name,role:target.role,count:entry.count,na:!!entry.na,checked:true,t});
+    holidaySaved=!!LIVE;
     autoSyncCell(date,target.name);
     sendSaleToSheet({date,name:target.name,uid:target.uid||target.name,role:target.role,count:entry?entry.count:0,na:!!(entry&&entry.na),t});
     const newNoZero=date===TODAY&&prevCount===0&&entry&&!entry.na&&entry.count>0;
     if(newNoZero&&document.getElementById('m-comp')&&document.getElementById('m-comp').classList.contains('active'))feedAnimalAnim();
     const who=target.uid!==me.uid?target.name+'님 · ':'';
-    toast(entry.na?`${who}${date}을 NA로 저장했어요 · 일일결과와 시트에 반영됩니다`:entry.count===0?`${who}${date} 세일즈 0건 입력 완료 · 달력과 시트에 반영됩니다`:`${who}${date} 세일즈 ${entry.count}건 저장 · 컴페티션 순위에 즉시 반영됩니다`);
-  }catch(e){if(prior)state.sales[key]=prior;else delete state.sales[key];console.warn('[sale-save]',e);toast('저장하지 못했어요. 연결을 확인한 뒤 다시 눌러 주세요');}
-  finally{saleSaveBusy=false;saleLoadDraft();renderSales();renderPerfGauge();renderComp();renderScores();renderDaisoCompetition();aseLoad();}
+    holidaySuccessMessage=entry.na?`${who}${date}을 NA로 저장했어요 · 일일결과와 시트에 반영됩니다`:entry.count===0?`${who}${date} 세일즈 0건 입력 완료 · 달력과 시트에 반영됩니다`:`${who}${date} 세일즈 ${entry.count}건 저장 · 컴페티션 순위에 즉시 반영됩니다`;
+  }catch(e){holidaySaved=false;if(prior)state.sales[key]=prior;else delete state.sales[key];console.warn('[sale-save]',e);toast('저장하지 못했어요. 연결을 확인한 뒤 다시 눌러 주세요');}
+  finally{saleSaveBusy=false;saleLoadDraft();renderSales();renderPerfGauge();renderComp();renderScores();renderDaisoCompetition();aseLoad();if(holidaySuccessMessage&&me&&me.uid===holidayActorUid&&saleEditDate===date&&saleTargetUser()?.uid===target.uid&&curTab==='sale'){const status=document.getElementById('saleStatus');if(status){status.textContent=holidaySuccessMessage;status.setAttribute('role','status');}}if(holidaySaved&&me&&me.uid===holidayActorUid&&curTab==='sale')window.PresenceSalesHoliday?.confirmed(holidayToken,{actorUid:holidayActorUid,targetUid:target.uid||target.name,date,count:entry.count,previous:prevCount,na:!!entry.na,cleared:!!entry.cleared,live:true});window.PresenceSalesHoliday?.cancel();}
 }
 async function clearSaleRecord(){
+  window.PresenceSalesHoliday?.cancel();
   if(!me||saleSaveBusy)return;
   const target=saleTargetUser(),date=saleEditDate;
   if(!target||target.uid!==me.uid&&!canManageTeamRecords(me))return;
@@ -8584,6 +8589,7 @@ function setGauge(fillId,pctId,valId,tgtId,cur,target){
 function renderSales(){
   if(!me)return;
   const target=saleTargetUser()||me,cal=document.getElementById('saleCalendar');if(cal){cal.innerHTML=saleCalendarHTML();cal.setAttribute('aria-label',target.name+' '+target.role+' 날짜별 세일즈 달력');}
+  window.PresenceSalesHoliday?.context({actorUid:me.uid,targetUid:target.uid||target.name,date:saleEditDate});
   document.getElementById('saleDate').textContent=new Date(saleEditDate+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
   document.getElementById('saleWho').textContent=target.name+' · '+target.role+(target.uid!==me.uid&&isFounder(me)?' · 관리자 편집':'');
   if(!saleEditing)saleLoadDraft();
@@ -8618,7 +8624,7 @@ function fillAseUsers(){const sel=document.getElementById('aseUser');if(!sel)ret
 function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate'),count=document.getElementById('aseCount');if(!u||!dt||!count||!u.value||!dt.value)return;const e=state.sales[`${dt.value}|${u.value}`];count.value=e&&!e.na?e.count:0;const title=document.getElementById('aseTitle'),target=rosterMembers().find(x=>x.name===u.value);if(title)title.textContent='✏️ '+u.value+(target?' · '+target.role:'')+' 세일즈 수정'}
 function aseSelectUser(){if(!me||!canManageTeamRecords(me))return;const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!u.value)return;saleAdminTargetName=u.value;if(dt&&dt.value){saleEditDate=dt.value;saleCalMonth=dt.value.slice(0,7);}saleLoadDraft();aseLoad();renderSales()}
 function aseSelectDate(){if(!me||!canManageTeamRecords(me))return;const dt=document.getElementById('aseDate');if(dt&&dt.value)salePickDate(dt.value)}
-function aseAdj(d){const i=document.getElementById('aseCount');i.value=Math.max(0,(parseInt(i.value,10)||0)+d)}
+function aseAdj(d){const i=document.getElementById('aseCount'),prior=Math.max(0,parseInt(i.value,10)||0);i.value=Math.max(0,prior+d);if(d!==0&&Number(i.value)!==prior&&me){const target=saleTargetUser(),date=document.getElementById('aseDate')?.value||saleEditDate;if(target){const meta={actorUid:me.uid,targetUid:target.uid||target.name,date,from:prior,to:Number(i.value)};window.PresenceSalesHoliday?.context(meta);window.PresenceSalesHoliday?.adjust(meta);}}}
 async function aseSave(){if(!me||!canManageTeamRecords(me))return;const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate'),count=document.getElementById('aseCount'),name=u&&u.value,date=dt&&dt.value,cnt=Math.max(0,parseInt(count&&count.value,10)||0);if(!name||!date){toast('팀원과 날짜를 선택하세요');return}saleAdminTargetName=name;saleEditDate=date;saleCalMonth=date.slice(0,7);saleDraft=cnt;saleDraftNA=false;saleEditing=true;await commitSale()}
 function renderAdminSaleEdit(){const card=document.getElementById('adminSaleEdit');if(!card)return;if(!(me&&canManageTeamRecords(me))){card.style.display='none';return}card.style.display='';fillAseUsers();const dt=document.getElementById('aseDate');if(dt&&!dt.value)dt.value=saleEditDate||TODAY;aseLoad()}
 function renderPrevMonth(){
@@ -17944,10 +17950,13 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-winter-icons.css?v=20261109-winter-ia1">
 <link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
+<link rel="stylesheet" href="assets/presence-holiday-home.css?v=20261109-sales-home1">
+<link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261109-sales-home1">
+<script src="assets/presence-sales-holiday.js?v=20261109-sales-home1"></script>
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261109-core-values1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261109-sales-home1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>

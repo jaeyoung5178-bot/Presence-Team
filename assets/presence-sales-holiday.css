@@ -1,0 +1,80 @@
+/* Calendar owns a bright readable surface in every appearance mode. */
+body #m-sale #saleCalendar{background:#fffdf6;border:1px solid #d4c5a9;border-radius:18px;padding:16px;color:#254735;box-shadow:none}
+#m-sale #saleCalendar .sale-cal-context{color:#31533f;font-size:14px;gap:8px}
+#m-sale #saleCalendar .sale-cal-context small{color:#5c6c59;font-size:12px}
+#m-sale #saleCalendar .sale-cal-context{background:#edf1e2;border:1px solid #c9ba94;border-radius:10px;padding:10px 12px}
+#m-sale #saleCalendar .sale-cal-head b{color:#254735;font-size:18px}
+body.presence-christmas #m-sale #saleCalendar .sale-cal-head{background:#214a37;border-top:3px solid #96384b;border-radius:11px;padding:8px;gap:4px}
+body.presence-christmas #m-sale #saleCalendar .sale-cal-head b{display:flex;align-items:center;justify-content:center;gap:7px;color:#efdbab;font-size:18px;font-weight:800;white-space:nowrap}
+body.presence-christmas #m-sale #saleCalendar .sale-cal-head b::before{content:'';flex:0 0 17px;width:17px;height:21px;background:url('winter-icons/gold-bell.svg') center/contain no-repeat}
+body.presence-christmas #m-sale #saleCalendar .sale-cal-head{position:relative;overflow:hidden}
+body.presence-christmas #m-sale #saleCalendar .sale-cal-head::after{content:'';position:absolute;left:8px;right:8px;top:0;height:8px;pointer-events:none;background:center top/160px 8px repeat-x url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='8' viewBox='0 0 160 8'%3E%3Cpath d='M0 1Q20 8 40 1T80 1T120 1T160 1' fill='none' stroke='%23c4a56c' stroke-width='.7'/%3E%3Cg fill='%23ffe5a3' stroke='%23d6b465' stroke-width='.5'%3E%3Ccircle cx='10' cy='4' r='2'/%3E%3Ccircle cx='30' cy='4' r='2'/%3E%3Ccircle cx='50' cy='3' r='2'/%3E%3Ccircle cx='70' cy='3' r='2'/%3E%3Ccircle cx='90' cy='4' r='2'/%3E%3Ccircle cx='110' cy='4' r='2'/%3E%3Ccircle cx='130' cy='3' r='2'/%3E%3Ccircle cx='150' cy='3' r='2'/%3E%3C/g%3E%3C/svg%3E")}
+#m-sale #saleCalendar .sale-cal-head button{background:#f5eedf;border:1px solid #c7b794;color:#31543d;min-width:44px;min-height:44px;box-shadow:none}
+#m-sale #saleCalendar .sale-cal-week{color:#52684f;font-size:12px;margin-top:14px}
+#m-sale #saleCalendar .sale-cal-days{gap:4px}
+#m-sale #saleCalendar .sale-cal-days button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:56px;padding:5px 2px;gap:4px;background:#f5f1e7;border:1px solid #ded4c0;border-radius:9px;color:#4e604e;box-shadow:none}
+#m-sale #saleCalendar .sale-cal-days button>span{font-size:16px;color:inherit;line-height:1.2}
+#m-sale #saleCalendar .sale-cal-days button em{font-size:12px;line-height:1.15;color:inherit;max-width:100%;white-space:nowrap}
+#m-sale #saleCalendar .sale-cal-days button.has{background:#e5eee0;border-color:#b4c6a7;color:#26543a}
+#m-sale #saleCalendar .sale-cal-days button.zero{background:#fff0e9;border-color:#d9b7a2;color:#943d31}
+#m-sale #saleCalendar .sale-cal-days button.na{background:#fff2ce;border-color:#d9c17d;color:#795817}
+#m-sale #saleCalendar .sale-cal-days button.sel{background:#28563e;border:2px solid #b39759;color:#fff9e9}
+#m-sale #saleCalendar .sale-cal-days button.sel em{color:#fff9e9}
+#m-sale #saleCalendar .sale-cal-days button.today:not(.sel){outline:2px solid #9e3849;outline-offset:-2px}
+#m-sale #saleCalendar .sale-cal-days button.pre-field{background:#eeeae2;border-style:dashed;color:#8a8c80;opacity:1}
+#m-sale #saleCalendar .sale-cal-days button.first-field-day:not(.sel){border-color:#a48b51}
+#m-sale #saleCalendar .sale-cal-days .first-field-label{font-size:12px;color:#795d25}
+#m-sale #saleCalendar .sale-cal-days button.blank{visibility:hidden;pointer-events:none}
+#m-sale #saleCalendar .sale-cal-legend{font-size:12px;color:#52624f;gap:8px 14px;line-height:1.6}
+#m-sale #saleCalendar .sale-cal-legend b{color:#2d6040}
+#m-sale #saleCalendar .sale-cal-legend .zero{color:#943d31}
+#m-sale #saleCalendar .sale-cal-legend .na{color:#795817}
+#m-sale #saleCalendar .sale-cal-legend .first{color:#795d25}
+.sale-cal-controls{display:flex;align-items:center;gap:12px;min-height:52px;margin-top:12px;flex-wrap:wrap}
+#m-sale #saleCalendar .sale-sfx-toggle{min-height:44px;padding:9px 13px;border:1px solid #c6b58e;border-radius:10px;background:#f2e9d6;color:#31543d;font-size:12px;font-weight:700}
+.sale-cal-celebration{flex:1;min-height:48px;min-width:128px;pointer-events:none}
+.sale-holiday-fx{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-height:48px;color:#8f3345;font-size:13px;font-weight:700;animation:saleHolidayConfirm 2.4s ease both;pointer-events:none}
+.sale-holiday-fx svg{width:48px;height:48px;fill:#f4e4b5;stroke:#976f32;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.sale-holiday-3 svg{fill:#a74251;stroke:#804b32}.sale-holiday-5 svg{fill:#d9b96c;stroke:#7d5e2b}.sale-holiday-10 svg{fill:#ebcc72;stroke:#2c6248}
+@keyframes saleHolidayConfirm{0%{opacity:0;transform:translateY(6px)}14%,82%{opacity:1;transform:none}100%{opacity:0;transform:none}}
+@media(max-width:600px){body #m-sale #saleCalendar{padding:10px}.sale-cal-days{gap:3px!important}#m-sale #saleCalendar .sale-cal-days button{min-height:48px}#m-sale #saleCalendar .sale-cal-days button>span{font-size:16px}#m-sale #saleCalendar .sale-cal-head b{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.sale-holiday-fx{animation:none}}
+@media(max-width:600px){
+ body.presence-workspace-v2 #app main>#m-sale>.wrap{padding-left:12px;padding-right:12px}
+ #m-sale>.wrap>.sec{padding-left:0;padding-right:0}
+ #m-sale .sales-hero{padding-left:0;padding-right:0}
+}
+/* Successful saved milestones play behind the counter, never over its controls. */
+#m-sale .sales-hero{position:relative;isolation:isolate}
+#m-sale .sales-hero>:not(.sale-counter-burst){position:relative;z-index:2}
+#m-sale .sales-hero>.sale-counter-burst{position:absolute;z-index:1;width:min(360px,94%);height:180px;transform:translate(-50%,-50%);pointer-events:none;overflow:visible}
+.sale-counter-burst *{pointer-events:none}
+.sale-burst-symbol{position:absolute;top:62px;width:48px;height:48px;animation:saleBurstSymbol 1.6s ease both}
+.sale-burst-symbol svg,.sale-burst-wire svg{width:100%;height:100%;fill:#efce79;stroke:#a17830;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.sale-burst-left{left:20px}.sale-burst-right{right:20px;transform:scaleX(-1)}.sale-burst-top{top:0;left:calc(50% - 24px)}
+.sale-burst-3 .sale-burst-symbol svg{fill:#a9374d;stroke:#e5c989}.sale-burst-3 .sale-burst-right svg{fill:#356846}
+.sale-burst-wire{position:absolute;left:8%;top:0;width:84%;height:34px}.sale-burst-wire svg{fill:#ffe4a0;stroke:#c09a48}
+.sale-burst-ring{position:absolute;top:55px;width:64px;height:64px;border:2px solid #e6c166;border-radius:50%;animation:saleBurstRing 1.5s ease-out both}.sale-burst-ring.left{left:12px}.sale-burst-ring.right{right:12px}
+.sale-burst-particle{position:absolute;left:50%;top:50%;width:7px;height:7px;background:#e8c36a;transform:translate(var(--x),var(--y)) rotate(var(--spin));animation:saleBurstParticle 1.6s ease-out var(--delay) both;border-radius:2px}
+.sale-burst-particle:nth-child(3n){background:#a83950}.sale-burst-particle:nth-child(3n + 1){background:#78a47a}
+.sale-burst-3 .sale-burst-particle{width:9px;height:12px;border-radius:50%;border-top:2px solid #ddc27f}
+.sale-burst-5 .sale-burst-particle{width:10px;height:14px;background:#eac96f;clip-path:polygon(50% 0,100% 0,100% 70%,65% 100%,15% 100%,0 70%,40% 55%)}
+.sale-burst-5::before,.sale-burst-5::after{content:'';position:absolute;top:53px;width:38px;height:68px;border-radius:50%;border:2px solid transparent;animation:saleBurstRing 1.5s ease-out both}
+.sale-burst-5::before{left:57px;border-right-color:#ebca70}.sale-burst-5::after{right:57px;border-left-color:#ebca70}
+.sale-burst-10 .sale-burst-particle{width:12px;height:12px;background:#f1d17b;clip-path:polygon(50% 0,60% 35%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 35%)}
+@keyframes saleBurstSymbol{0%{opacity:0;scale:.6}18%,70%{opacity:1;scale:1}100%{opacity:0;scale:1.1}}
+@keyframes saleBurstRing{0%{opacity:0;scale:.6}20%{opacity:.9}100%{opacity:0;scale:1.8}}
+@keyframes saleBurstParticle{0%{opacity:0;translate:0 12px;scale:.5}18%,68%{opacity:1}100%{opacity:0;translate:0 -15px;scale:1.15}}
+@media(prefers-reduced-motion:reduce){.sale-counter-burst{display:none}}
+/* Sales feedback stays above the bottom navigation and personal atmosphere controls. */
+body:has(#m-sale.active) #toast{bottom:calc(136px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);box-sizing:border-box;pointer-events:none}
+body.presence-christmas #m-sale .sale-mini-tabs{background:#f1eadb;border-color:#d2bd94}
+body.presence-christmas #m-sale .sale-mini-tabs button{color:#456047}
+body.presence-christmas #m-sale .sale-mini-tabs button.on{background:#28553e;color:#fff9e8;box-shadow:0 3px 12px #284a3020}
+body.presence-christmas #m-sale .sale-personal-goal{background:#fff8e7;border-color:#d1bb8d}
+body.presence-christmas #m-sale .sale-personal-goal-top,body.presence-christmas #m-sale .sale-personal-goal-top b{color:#2e523b}
+body.presence-christmas #m-sale .sale-personal-goal-sub{color:#5b6b53;font-size:12px}
+body.presence-christmas #m-sale .sale-personal-goal-sub strong{color:#315e42}
+body.presence-christmas #m-sale .sale-personal-goal .gauge-track{background:#e8dfcb}
+body.presence-christmas #m-sale .sale-personal-goal .gauge-fill{background:#48724d}
+body.presence-christmas #m-sale .sales-hero::before{background:radial-gradient(80% 60% at 50% 0%,#caa34f14,transparent 65%)}
