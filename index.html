@@ -7231,7 +7231,7 @@ const TABMETA={
 let curGroup='home',curTab='home';
 function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' Admin';return g&&g.l||'';}
 function tabVisible(k){const t=TABMETA[k];return !!t&&(!t.g||t.g());}
-function groupFor(tab){if(tab==='home'||tab==='tlhome')return 'home';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
+function groupFor(tab){if(tab==='home'||tab==='tlhome')return 'home';if(tab==='peoplehub'||tab==='corevalues')return 'people';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
 function syncTopOffset(){
   const h=document.querySelector('header.top'),n=document.querySelector('nav.rail'),m=document.querySelector('#app main');
   if(!h||!n||!m)return;
@@ -17943,10 +17943,11 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-season.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-winter-icons.css?v=20261109-winter-ia1">
 <link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
+<link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261109-winter-finish1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261109-core-values1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
