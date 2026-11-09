@@ -8508,6 +8508,7 @@ function toggleSaleNA(){
   saleDraftNA=!saleDraftNA;if(saleDraftNA)saleDraft=0;else saleDraft=saleEditorCount(saleEditDate);saleEditing=true;renderSaleEditor();
 }
 async function commitSale(){
+  const holidaySource=arguments[0];
   if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(!saleCanSave()){toast(saleEditDate>TODAY?'미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요':'저장할 수 없는 날짜예요');return;}
   if(!target)return;if(target.uid!==me.uid&&!canManageTeamRecords(me)){toast('다른 팀원의 기록은 관리자 또는 매니저만 수정할 수 있어요');return;}
   if(isTestBot(target)){saleEditing=false;renderSales();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
@@ -8525,7 +8526,7 @@ async function commitSale(){
     const who=target.uid!==me.uid?target.name+'님 · ':'';
     holidaySuccessMessage=entry.na?`${who}${date}을 NA로 저장했어요 · 일일결과와 시트에 반영됩니다`:entry.count===0?`${who}${date} 세일즈 0건 입력 완료 · 달력과 시트에 반영됩니다`:`${who}${date} 세일즈 ${entry.count}건 저장 · 컴페티션 순위에 즉시 반영됩니다`;
   }catch(e){holidaySaved=false;if(prior)state.sales[key]=prior;else delete state.sales[key];console.warn('[sale-save]',e);toast('저장하지 못했어요. 연결을 확인한 뒤 다시 눌러 주세요');}
-  finally{saleSaveBusy=false;saleLoadDraft();renderSales();renderPerfGauge();renderComp();renderScores();renderDaisoCompetition();aseLoad();if(holidaySuccessMessage&&me&&me.uid===holidayActorUid&&saleEditDate===date&&saleTargetUser()?.uid===target.uid&&curTab==='sale'){const status=document.getElementById('saleStatus');if(status){status.textContent=holidaySuccessMessage;status.setAttribute('role','status');}}if(holidaySaved&&me&&me.uid===holidayActorUid&&curTab==='sale')window.PresenceSalesHoliday?.confirmed(holidayToken,{actorUid:holidayActorUid,targetUid:target.uid||target.name,date,count:entry.count,previous:prevCount,na:!!entry.na,cleared:!!entry.cleared,live:true});window.PresenceSalesHoliday?.cancel();}
+  finally{saleSaveBusy=false;saleLoadDraft();renderSales();renderPerfGauge();renderComp();renderScores();renderDaisoCompetition();aseLoad();if(holidaySuccessMessage&&me&&me.uid===holidayActorUid&&saleEditDate===date&&saleTargetUser()?.uid===target.uid&&curTab==='sale'){const status=document.getElementById('saleStatus');if(status){status.textContent=holidaySuccessMessage;status.setAttribute('role','status');}}if(holidaySaved&&me&&me.uid===holidayActorUid&&curTab==='sale')window.PresenceSalesHoliday?.confirmed(holidayToken,{actorUid:holidayActorUid,targetUid:target.uid||target.name,date,source:holidaySource==='admin'?'admin':'primary',count:entry.count,previous:prevCount,na:!!entry.na,cleared:!!entry.cleared,live:true});window.PresenceSalesHoliday?.cancel(true);}
 }
 async function clearSaleRecord(){
   window.PresenceSalesHoliday?.cancel();
@@ -8598,7 +8599,7 @@ function renderSales(){
   const rows=Object.values(state.sales).filter(e=>e.date===TODAY&&e.count>0&&saleEntryCountsAsWork(e)).sort((a,b)=>b.count-a.count);
   document.getElementById('saleFeed').innerHTML=rows.length?rows.map(e=>{const t=saleTier(e.count);return `<div class="sf-row"><span class="av" style="background:${avColor(e.name)}">${avInner(e.name)}</span><span class="nm">${esc(e.name)}</span>${t?`<span class="tier">${t.label}</span>`:''}<span class="cnt">${e.count}</span></div>`}).join(''):'<div style="color:var(--faint);font-size:13px;padding:6px 2px">아직 오늘 세일즈가 없어요. +로 세고 완료를 누르세요!</div>';
   document.getElementById('saleSync').textContent=LIVE?'실시간':'데모';
-  renderSaleGoalPanels();
+  renderSaleGoalPanels();window.PresenceSalesHoliday?.rehydrate();
 }
 function activeTeamDays(){const m=curMonthKey(),days=new Set();for(const k in state.sales){const e=state.sales[k];if(e&&e.date.startsWith(m)&&saleEntryCountsAsWork(e))days.add(e.date)}return days.size||1}
 /* ══ 성과 세그먼트 (세일즈·컴페티션·목표 통합 전환) ══ */
@@ -8625,7 +8626,7 @@ function aseLoad(){const u=document.getElementById('aseUser'),dt=document.getEle
 function aseSelectUser(){if(!me||!canManageTeamRecords(me))return;const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate');if(!u||!u.value)return;saleAdminTargetName=u.value;if(dt&&dt.value){saleEditDate=dt.value;saleCalMonth=dt.value.slice(0,7);}saleLoadDraft();aseLoad();renderSales()}
 function aseSelectDate(){if(!me||!canManageTeamRecords(me))return;const dt=document.getElementById('aseDate');if(dt&&dt.value)salePickDate(dt.value)}
 function aseAdj(d){const i=document.getElementById('aseCount'),prior=Math.max(0,parseInt(i.value,10)||0);i.value=Math.max(0,prior+d);if(d!==0&&Number(i.value)!==prior&&me){const target=saleTargetUser(),date=document.getElementById('aseDate')?.value||saleEditDate;if(target){const meta={actorUid:me.uid,targetUid:target.uid||target.name,date,from:prior,to:Number(i.value)};window.PresenceSalesHoliday?.context(meta);window.PresenceSalesHoliday?.adjust(meta);}}}
-async function aseSave(){if(!me||!canManageTeamRecords(me))return;const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate'),count=document.getElementById('aseCount'),name=u&&u.value,date=dt&&dt.value,cnt=Math.max(0,parseInt(count&&count.value,10)||0);if(!name||!date){toast('팀원과 날짜를 선택하세요');return}saleAdminTargetName=name;saleEditDate=date;saleCalMonth=date.slice(0,7);saleDraft=cnt;saleDraftNA=false;saleEditing=true;await commitSale()}
+async function aseSave(){if(!me||!canManageTeamRecords(me))return;const u=document.getElementById('aseUser'),dt=document.getElementById('aseDate'),count=document.getElementById('aseCount'),name=u&&u.value,date=dt&&dt.value,cnt=Math.max(0,parseInt(count&&count.value,10)||0);if(!name||!date){toast('팀원과 날짜를 선택하세요');return}saleAdminTargetName=name;saleEditDate=date;saleCalMonth=date.slice(0,7);saleDraft=cnt;saleDraftNA=false;saleEditing=true;await commitSale('admin')}
 function renderAdminSaleEdit(){const card=document.getElementById('adminSaleEdit');if(!card)return;if(!(me&&canManageTeamRecords(me))){card.style.display='none';return}card.style.display='';fillAseUsers();const dt=document.getElementById('aseDate');if(dt&&!dt.value)dt.value=saleEditDate||TODAY;aseLoad()}
 function renderPrevMonth(){
   const box=document.getElementById('prevMonthCard');if(!box)return;
@@ -17951,8 +17952,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
 <link rel="stylesheet" href="assets/presence-holiday-home.css?v=20261109-sales-home1">
-<link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261109-sales-home1">
-<script src="assets/presence-sales-holiday.js?v=20261109-sales-home1"></script>
+<link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261110-sales-visible2">
+<script src="assets/presence-sales-holiday.js?v=20261110-sales-visible2"></script>
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
