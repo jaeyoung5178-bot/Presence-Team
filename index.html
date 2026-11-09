@@ -4627,7 +4627,8 @@ function recapStudioIntervalsFromSnapshot(assignments){const out=[],byUid=(assig
 function recapStudioGraphPreflight(snapshot){
   snapshot=snapshot||{};const users=snapshot.users||{},dossier=snapshot.dossier||{},memberInfo=snapshot.memberInfo||{},removed=Array.isArray(snapshot.removedMembers)?snapshot.removedMembers:[],weekly=snapshot.weekly||{},people={},duplicates=[],unresolved=[],cycles=[],rootByName={};
   Object.keys(RECAP_STUDIO_TEAM_ROOTS).forEach(function(teamKey){rootByName[recapStudioNormName(RECAP_STUDIO_TEAM_ROOTS[teamKey].name)]=teamKey;});
-  const addPerson=function(name,uid,role,declared){const key=recapStudioNormName(name);if(!key)return;people[key]=people[key]||{key:key,name:name||key,uids:[],role:role||'IC',declared:false};if(uid&&!people[key].uids.includes(uid))people[key].uids.push(uid);if(role)people[key].role=role;if(declared)people[key].declared=true;};
+  const userRoles={};Object.keys(users).forEach(function(uid){const u=users[uid]||{},key=recapStudioNormName(u.name);if(key&&u.role)userRoles[key]=u.role;});
+  const addPerson=function(name,uid,role,declared){const key=recapStudioNormName(name);if(!key)return;people[key]=people[key]||{key:key,name:name||key,uids:[],role:userRoles[key]||role||'IC',declared:false};if(uid&&!people[key].uids.includes(uid))people[key].uids.push(uid);if(userRoles[key]||role)people[key].role=userRoles[key]||role;if(declared)people[key].declared=true;};
   Object.keys(users).forEach(function(uid){const u=users[uid]||{};addPerson(u.name,uid,u.role,true);});Object.keys(memberInfo).forEach(function(name){addPerson(name,'','IC',true);});removed.forEach(function(name){addPerson(name,'','IC',true);});
   Object.keys(weekly).forEach(function(pay){Object.keys(weekly[pay]||{}).forEach(function(uid){const r=weekly[pay][uid]||{};addPerson(r.name,uid,r.role,true);});});
   Object.keys(dossier).forEach(function(key){const d=dossier[key]||{};addPerson(d.name||key,'','IC',true);if(d.upline)addPerson(d.upline,'','IC',false);});
@@ -17923,7 +17924,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
 <script src="assets/presence-workspace-v2.js?v=20261004-values-1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
-<script src="assets/presence-admin-home.js?v=20261003-3"></script>
+<script src="assets/presence-admin-home.js?v=20261109-recap-review1"></script>
 <script src="assets/presence-promotion-journey.js?v=20260929-journey-label-15"></script>
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
 </body>
