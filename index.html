@@ -10194,7 +10194,7 @@ const FX=(function(){
     if(t==='beach'){parts.push({k:'cstamp',e:'🐚',x,y,sc:R(28,40),life:0,max:74,rise:0});parts.push({k:'cspark',x,y:y-4,vx:R(-.4,.4),vy:-R(1.1,2),c:'#fffdf3',size:R(2,3),life:0,max:R(40,58),g:0.03});for(let i=0;i<5;i++){const a=R(-1.2,-1.9),sp=R(1,2.4);parts.push({k:'cspark',x,y:y-6,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,c:'#ffe9c0',size:R(1,2),life:0,max:R(24,40),g:0.04});}return;}
     if(t==='rain'){parts.push({k:'ccloud',x,y:y-20,life:0,max:62,sc:R(30,42)});for(let i=0;i<5;i++)parts.push({k:'cdrop',x:x+R(-16,16),y:y-8,vy:R(4,7.5),len:R(8,16),life:0,max:R(22,42),op:R(.4,.7)});return;}
   }
-  function resize(){if(!cv||!ctx)return;W=window.innerWidth;H=window.innerHeight;DPR=Math.min(W<560?1:1.4,window.devicePixelRatio||1);cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+  function resize(){if(!cv||!ctx)return;const garden=cv.dataset.sceneHost==='garden'?cv.parentElement:null;W=garden?garden.clientWidth:window.innerWidth;H=garden?garden.clientHeight:window.innerHeight;DPR=Math.min(W<560?1:1.4,window.devicePixelRatio||1);cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
   function appVisible(){const a=document.getElementById('app');return a&&!a.classList.contains('hidden')&&!document.hidden;}
   function contKind(){return (type==='snow'||type==='xmas')?'snow':type==='rain'?'rain':type==='leaves'?'leaf':type==='sakura'?'petal':type==='sun'?'mote':null;}
   function contTarget(){const a=W*H,k=contKind(),m=1;let v=0;if(k==='snow')v=Math.min(W<600?18:38,Math.round(a/42000));else if(k==='rain')v=Math.min(230,Math.round(a/9000));else if(k==='leaf')v=Math.min(18,Math.round(W/75));else if(k==='petal')v=Math.min(25,Math.round(W/50));else if(k==='mote')v=Math.min(25,Math.round(a/50000));return Math.round(v*m);}
@@ -10209,21 +10209,21 @@ const FX=(function(){
   function buildScene(){
     if(type==='xmas'){
       // 🎄 트리 (크게, 1~2그루)
-      const nt=1,edgeY=H-(W<600?130:42);
-      for(let i=0;i<nt;i++){parts.push({k:'stand',e:'🎄',x:32,y:edgeY,sc:38,ph:R(0,6.28),sw:.12});}
+      const garden=cv.dataset.sceneHost==='garden',nt=1,edgeY=garden?H*.88:H-(W<600?130:42);
+      for(let i=0;i<nt;i++){parts.push({k:'stand',e:'🎄',x:32,y:edgeY,sc:garden?44:38,ph:R(0,6.28),sw:.12});}
       // ⛄ 눈사람
       const ns=1;
-      for(let i=0;i<ns;i++){parts.push({k:'stand',e:'⛄',x:W-30,y:edgeY,sc:34,ph:R(0,6.28),sw:.15});}
+      for(let i=0;i<ns;i++){parts.push({k:'stand',e:'⛄',x:W-36,y:edgeY,sc:garden?44:34,ph:R(0,6.28),sw:.15});}
       // ✨ 반짝이는 별 (하늘)
       const stars=W<600?3:6;
-      for(let i=0;i<stars;i++){parts.push({k:'twinkle',x:i%2?R(W-18,W-6):R(6,18),y:R(110,H-150),r:R(1,1.8),c:'#d7af59',base:.2,amp:.22,ph:R(0,6.28),sp:.025,cross:1});}
+      for(let i=0;i<stars;i++){parts.push({k:'twinkle',x:i%2?R(W-18,W-6):R(6,18),y:garden?R(14,H*.5):R(110,H-150),r:R(1,1.8),c:'#d7af59',base:.2,amp:.22,ph:R(0,6.28),sp:.025,cross:1});}
       // 🔴🟢🟡 컬러 조명 (아래·트리 주변 반짝임)
       const LCOL=['#ff5a5a','#5ccb6e','#ffd166','#46b6dd','#b98be6'];
       const lights=0;
       for(let i=0;i<lights;i++){parts.push({k:'twinkle',x:R(0,W),y:R(H*0.5,H-26),r:R(1.7,3.1),c:LCOL[(Math.random()*LCOL.length)|0],base:R(.3,.6),amp:R(.4,.5),ph:R(0,6.28),sp:R(.06,.13),cross:0});}
       // 🦌🛷🎁🎅 더 많이, 더 천천히
       const roam=['🎅','🦌','🛷'],nr=3;
-      for(let i=0;i<nr;i++){const dir=i%2?-1:1;parts.push({k:'roam',e:roam[i],x:i%2?W-50:48,y:i===2?Math.min(128,H*.19):edgeY-12,vx:dir*.32,sc:i===2?30:28,ph:R(0,6.28),bob:2});}
+      for(let i=0;i<nr;i++){const dir=i%2?-1:1;parts.push({k:'roam',e:roam[i],x:i%2?W-58:54,y:i===2?Math.min(128,H*.19):edgeY-12,vx:dir*.32,sc:garden?42:i===2?30:28,ph:R(0,6.28),bob:2});}
     }else if(type==='beach'){
       parts.push({k:'stand',e:'🌴',x:R(42,92),y:H-R(58,80),sc:R(52,66),ph:R(0,6.28),sw:.5});
       parts.push({k:'stand',e:'🌴',x:W-R(42,92),y:H-R(58,80),sc:R(52,66),ph:R(0,6.28),sw:.5});
@@ -10263,11 +10263,17 @@ const FX=(function(){
     ctx.restore();
   }
   const _emojiCache={};
+  const _winterSprites={'🎅':'fx-santa','🦌':'fx-reindeer','⛄':'fx-snowman','🛷':'fx-sleigh','🎄':'winter','🎁':'admin'};
   function emojiSprite(e,sc){
     const s=Math.max(8,Math.round(sc/4)*4);          // 크기를 4px 단위로 묶어 캐시 개수를 줄임
     const key=e+'@'+s, hit=_emojiCache[key];
     if(hit)return hit;
-    const c=document.createElement('canvas'),pad=Math.ceil(s*0.4),dim=s+pad*2;
+    const c=document.createElement('canvas'),pad=Math.ceil(s*0.4),ratio=e==='🛷'?112/64:1,dim=s+pad*2;
+    if(_winterSprites[e]){
+      c.width=Math.ceil(s*ratio)+pad*2;c.height=dim;c._dim=dim;c._width=c.width;c._height=c.height;
+      const image=new Image();image.decoding='async';image.onload=function(){c.getContext('2d').drawImage(image,pad,pad,s*ratio,s);if(reduce&&type)set(type);};
+      image.src='assets/winter-icons/'+_winterSprites[e]+'.svg';_emojiCache[key]=c;return c;
+    }
     c.width=dim;c.height=dim;c._dim=dim;
     const g=c.getContext('2d');
     g.font=s+'px serif';g.textAlign='center';g.textBaseline='middle';
@@ -10277,7 +10283,8 @@ const FX=(function(){
   function drawEmoji(e,x,y,sc,flip,rot){
     const spr=emojiSprite(e,sc),d=spr._dim;           // 매 프레임 fillText 대신 캐시 이미지를 그림(모바일 대폭 개선)
     ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot);if(flip===-1)ctx.scale(-1,1);ctx.globalAlpha=1;
-    ctx.drawImage(spr,-d/2,-d/2,d,d);
+    const width=spr._width||d,height=spr._height||d;
+    ctx.drawImage(spr,-width/2,-height/2,width,height);
     ctx.restore();
   }
   function drawLeaf(p){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=.92;ctx.fillStyle=p.c;ctx.beginPath();ctx.moveTo(0,-p.s);ctx.quadraticCurveTo(p.s*.8,0,0,p.s);ctx.quadraticCurveTo(-p.s*.8,0,0,-p.s);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,-p.s*.8);ctx.lineTo(0,p.s*.8);ctx.stroke();ctx.restore();}
@@ -10289,7 +10296,7 @@ const FX=(function(){
     if(type==='beach')drawSea();
     const next=[];
     for(const p of parts){
-      if(p.k==='snow'){p.ph+=p.sp;p.x+=Math.sin(p.ph)*p.sw*0.5;p.y+=p.vy;if(p.y<H+6){next.push(p);ctx.globalAlpha=p.op;ctx.fillStyle='#eaf2ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();}}
+      if(p.k==='snow'){p.ph+=p.sp;p.x+=Math.sin(p.ph)*p.sw*0.5;p.y+=p.vy;if(p.y<H+6){next.push(p);ctx.globalAlpha=p.op;ctx.fillStyle=cv.dataset.sceneHost==='garden'?'#fffaf0':'#cbb88e';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();}}
       else if(p.k==='rain'){p.x+=p.vx;p.y+=p.vy;if(p.y<H+12){next.push(p);ctx.globalAlpha=p.op;ctx.strokeStyle='#bcd2ff';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*1.3,p.y-p.len);ctx.stroke();}}
       else if(p.k==='leaf'){p.ph+=p.sp;p.rot+=p.vr;p.x+=p.vx+Math.sin(p.ph)*p.sw;p.y+=p.vy;if(p.y<H+22){next.push(p);drawLeaf(p);}}
       else if(p.k==='petal'){p.ph+=p.sp;p.rot+=p.vr;p.x+=p.vx+Math.sin(p.ph)*p.sw;p.y+=p.vy;if(p.y<H+18){next.push(p);drawPetal(p);}}
@@ -10323,12 +10330,12 @@ const FX=(function(){
     if(!started)init();if(!ctx)return;
     type=t||null;parts=[];lastBurst=0;ctx.clearRect(0,0,W,H);
     if(!type){if(raf){cancelAnimationFrame(raf);raf=null;}return;}
-    if(reduce){buildScene();if(type==='beach')drawSea();parts.forEach(p=>{if(p.k==='stand'||p.k==='float')drawEmoji(p.e,p.x,p.y,p.sc,1);else if(p.k==='gull')drawGull(p.x,p.y,p.sc,1.2,p.vx<0?-1:1);else if(p.k==='twinkle'){ctx.globalAlpha=p.base+p.amp;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();ctx.globalAlpha=1;}});return;}
+    if(reduce){buildScene();if(type==='beach')drawSea();parts.forEach(p=>{if(p.k==='stand'||p.k==='float'||p.k==='roam')drawEmoji(p.e,p.x,p.y,p.sc,p.vx<0?-1:1);else if(p.k==='gull')drawGull(p.x,p.y,p.sc,1.2,p.vx<0?-1:1);else if(p.k==='twinkle'){ctx.globalAlpha=p.base+p.amp;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();ctx.globalAlpha=1;}});return;}
     const ck=contKind();if(ck){const tg=contTarget();for(let i=0;i<tg;i++)spawnCont(true);}
     buildScene();
     if(!raf)loop();
   }
-  return {set,init};
+  return {set,init,resize};
 })();
 /* ===== 효과음 (음원은 레포 audio/ 폴더에 업로드 → 효과별 재생) ===== */
 const FX_AUDIO={
@@ -17908,14 +17915,14 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20260809-login-2">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-season-effects1">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-winter-ia1">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261109-winter-polish1"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261109-season-effects1"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261109-winter-ia1"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261109-winter-ia1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
-<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20260928-recap-pending-12">
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-ia1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
 <link rel="stylesheet" href="assets/presence-promotion-journey.css?v=20260928-promotion-journey-14">
 <link rel="stylesheet" href="assets/presence-recap-pending.css?v=20260928-recap-pending-12">
@@ -17925,11 +17932,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-season.css?v=20261109-season-effects1">
+<link rel="stylesheet" href="assets/presence-winter-icons.css?v=20261109-winter-ia1">
 <link rel="stylesheet" href="assets/presence-christmas-intro.css?v=20261109-christmas-campaign1">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261109-season-effects1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261109-winter-ia1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>

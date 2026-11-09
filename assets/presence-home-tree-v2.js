@@ -246,7 +246,7 @@
     var period = timePeriod();
     var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
     var christmas = !!window.PresenceSeason?.isChristmas?.();
-    var url = christmas ? 'assets/season/2026/winter-garden.webp' : BACKGROUNDS[season][mode];
+    var url = christmas ? 'assets/season/2026/winter-garden-v2.webp' : BACKGROUNDS[season][mode];
     var image = ensureBackground(stage);
     loadInto(image, url, christmas ? BACKGROUNDS[season][mode] : BACKGROUNDS.spring.day);
     var atmosphere = ensureAtmosphere(stage, image);

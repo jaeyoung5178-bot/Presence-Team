@@ -1,0 +1,47 @@
+/* Illustrated winter navigation. Background art is decorative; existing labels and hit targets remain. */
+body.presence-christmas :is(#rail,#botbar) [data-group]> .em,
+body.presence-christmas #subRail [data-tab]>.em,
+body.presence-christmas :is(#homeEntryBtn,#tlHomeEntryBtn,#adminHomeEntryBtn)>span:first-child{
+  display:inline-block!important;flex:0 0 27px;width:27px!important;height:27px!important;
+  color:transparent!important;font-size:0!important;line-height:0!important;
+  background-image:var(--winter-nav-icon);background-position:center;background-repeat:no-repeat;background-size:contain;
+}
+body.presence-christmas [data-group=home],body.presence-christmas #homeEntryBtn{--winter-nav-icon:url('winter-icons/home.svg')}
+body.presence-christmas [data-group=today],body.presence-christmas [data-tab=today]{--winter-nav-icon:url('winter-icons/today.svg')}
+body.presence-christmas [data-group=people],body.presence-christmas [data-tab=peoplehub]{--winter-nav-icon:url('winter-icons/people.svg')}
+body.presence-christmas [data-group=progress],body.presence-christmas [data-tab=learnhub]{--winter-nav-icon:url('winter-icons/progress.svg')}
+body.presence-christmas [data-group=profit],body.presence-christmas [data-tab=profithub]{--winter-nav-icon:url('winter-icons/profit.svg')}
+body.presence-christmas [data-group=admin],body.presence-christmas #adminHomeEntryBtn{--winter-nav-icon:url('winter-icons/admin.svg')}
+body.presence-christmas [data-tab=teamtree],body.presence-christmas #tlHomeEntryBtn{--winter-nav-icon:url('winter-icons/teamtree.svg')}
+body.presence-christmas [data-tab=oneonone]{--winter-nav-icon:url('winter-icons/chat.svg')}
+body.presence-christmas [data-tab=contacts]{--winter-nav-icon:url('winter-icons/contacts.svg')}
+body.presence-christmas #botbar [data-group]>.em{display:block!important;margin:0 auto 3px}
+/* Unknown legacy sub-tabs retain their original icons rather than showing empty art. */
+body.presence-christmas #subRail [data-tab]:not(:is([data-tab=today],[data-tab=peoplehub],[data-tab=learnhub],[data-tab=profithub],[data-tab=teamtree],[data-tab=oneonone],[data-tab=contacts]))>.em{color:inherit!important;font-size:inherit!important;line-height:inherit!important;background-image:none}
+body.presence-christmas .pw-people-canonical [data-action=goto]{display:flex;align-items:center;gap:12px;min-height:64px;text-align:left;word-break:keep-all}
+body.presence-christmas .pw-people-canonical [data-action=goto]:before{content:'';width:34px;height:34px;flex:0 0 34px;background:var(--winter-people-icon) center/contain no-repeat}
+body.presence-christmas .pw-people-canonical [data-value=peoplehub]{--winter-people-icon:url('winter-icons/people.svg')}
+body.presence-christmas .pw-people-canonical [data-value=teamtree]{--winter-people-icon:url('winter-icons/teamtree.svg')}
+body.presence-christmas .pw-people-canonical [data-value=oneonone]{--winter-people-icon:url('winter-icons/chat.svg')}
+body.presence-christmas .pw-people-canonical [data-value=contacts]{--winter-people-icon:url('winter-icons/contacts.svg')}
+body.presence-christmas .pw-people-canonical .pw-people-locked{position:relative;padding-left:58px}
+body.presence-christmas .pw-people-canonical .pw-people-locked:before{content:'';position:absolute;left:14px;top:50%;transform:translateY(-50%);width:30px;height:30px;background:url('winter-icons/contacts.svg') center/contain no-repeat}
+body.presence-christmas .pah-action-code{background-image:var(--winter-admin-icon,url('winter-icons/admin.svg'))!important;background-repeat:no-repeat!important;background-position:center!important;background-size:34px 34px!important}
+body.presence-christmas [data-pah-action=survey]{--winter-admin-icon:url('winter-icons/today.svg')}
+body.presence-christmas [data-pah-action=new-member],body.presence-christmas [data-pah-action=approvals]{--winter-admin-icon:url('winter-icons/people.svg')}
+body.presence-christmas [data-pah-action=departed]{--winter-admin-icon:url('winter-icons/contacts.svg')}
+body.presence-christmas [data-pah-action=recap-repair]{--winter-admin-icon:url('winter-icons/profit.svg')}
+body.presence-christmas .pah-action-code>svg,body.presence-christmas .pah-action-letter{visibility:hidden}
+body.presence-christmas .ptw-mark{background:var(--winter-task-icon,url('winter-icons/progress.svg')) center/30px 30px no-repeat!important}
+body.presence-christmas .ptw-mark>svg{visibility:hidden}
+body.presence-christmas .ptw-entry:has([data-ptw-entry=recap]),body.presence-christmas .ptw-entry[data-ptw-entry=recap]{--winter-task-icon:url('winter-icons/today.svg')}
+body.presence-christmas .ptw-entry[data-ptw-entry=icManager]{--winter-task-icon:url('winter-icons/progress.svg')}
+body.presence-christmas .ptw-entry[data-ptw-entry=surveys]{--winter-task-icon:url('winter-icons/people.svg')}
+body.presence-christmas .ptw-entry[data-ptw-entry=icRegistration]{--winter-task-icon:url('winter-icons/contacts.svg')}
+body.presence-christmas [data-season-choice]{display:flex;align-items:center;justify-content:flex-start;gap:10px}
+body.presence-christmas [data-season-choice]:before{content:'';display:block;flex:0 0 32px;width:32px;height:32px;background:var(--winter-season-icon) center/contain no-repeat}
+body.presence-christmas [data-season-choice=spring]{--winter-season-icon:url('winter-icons/spring.svg')}
+body.presence-christmas [data-season-choice=summer]{--winter-season-icon:url('winter-icons/summer.svg')}
+body.presence-christmas [data-season-choice=autumn]{--winter-season-icon:url('winter-icons/autumn.svg')}
+body.presence-christmas [data-season-choice=winter]{--winter-season-icon:url('winter-icons/winter.svg')}
+@media(max-width:600px){body.presence-christmas #botbar [data-group]>.em{width:25px!important;height:25px!important;flex-basis:25px}body.presence-christmas .pw-people-canonical [data-action=goto]:before{width:30px;height:30px;flex-basis:30px}}

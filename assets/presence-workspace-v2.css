@@ -311,3 +311,45 @@ body.presence-workspace-v2[data-workspace-theme=light] :is(#workspaceHome,#works
 @media(max-width:760px){#workspaceHome .pw-home-garden{height:175px;min-height:175px}#workspaceHome .pw-home-garden .pw-garden-copy{max-width:67%;padding:14px 16px}#workspaceHome .pw-home-garden .pw-garden-copy h2{font-size:17px}#workspaceProfit .pw-three{grid-template-columns:repeat(3,minmax(0,1fr))}#workspaceProfit .pw-three .pw-panel{padding:12px}#workspaceProfit .pw-three .pw-panel h3{font-size:13px}#workspaceProfit .pw-three .pw-metric{font-size:27px}}
 @media(max-width:600px){#workspaceHome .pw-home-intro{margin-bottom:13px}#workspaceHome .pw-home-intro h1{font-size:23px}#workspaceHome .pw-home-primary{padding:14px;gap:8px}#workspaceHome .pw-home-primary h2{font-size:16px}#workspaceHome .pw-home-primary p{font-size:12px}#workspaceHome .pw-home-primary>button{font-size:13px;padding:10px 11px;white-space:nowrap}#workspaceHome .pw-home-results{padding:13px 14px}#workspaceHome .pw-week-comparison [data-week-summary=current] dd{font-size:27px}#workspaceHome .pw-week-comparison [data-week-summary=current] dd small{font-size:11px;margin-left:2px}#workspaceHome .pw-week-comparison [data-week-summary=last] dl{gap:4px 10px}#workspaceHome .pw-week-comparison [data-week-summary=last] .pw-week-summary-head span{display:none}#workspaceProfit>.pw-head .pw-sub{display:none}#workspaceProfit .pw-period-picker{padding:12px;gap:8px}#workspaceProfit .pw-period-toolbar{flex-wrap:wrap;gap:8px}#workspaceProfit .pw-period-tabs{gap:8px}#workspaceProfit .pw-period-tabs button{padding:9px 11px}#workspaceProfit .pw-period-toolbar select{width:112px}#workspaceProfit .pw-period-navigation{width:100%;min-width:0;grid-template-columns:44px minmax(0,1fr) 44px}#workspaceProfit .pw-period-jump{width:100%;justify-content:flex-start}#workspaceProfit .pw-period-jump label{flex:1;min-width:0}#workspaceProfit .pw-period-jump input{width:100%;max-width:180px}#workspaceProfit .pw-period-picker>.pw-note{display:none}#workspaceProfit .pw-profit-person-picker{display:flex;flex-wrap:wrap;gap:8px}#workspaceProfit .pw-profit-person-picker>label{flex:1 1 100%}#workspaceProfit .pw-profit-person-picker>.pw-note{margin:0}#workspaceProfit .pw-three{gap:8px}#workspaceProfit .pw-three .pw-panel{padding:10px 8px;border-radius:13px}#workspaceProfit .pw-three .pw-panel h3{font-size:12px}#workspaceProfit .pw-three .pw-metric{font-size:24px;letter-spacing:-.8px}#workspaceProfit .pw-three .pw-metric small{font-size:11px}#workspaceProfit .pw-three .pw-sub{font-size:12px;line-height:1.35}#workspaceProfit .pw-three .pw-actions{gap:8px}#workspaceProfit .pw-three .pw-actions button{font-size:12px;padding:7px 5px}}
 @media(max-width:380px){#workspaceProfit>.pw-head{flex-wrap:nowrap;align-items:center}#workspaceProfit>.pw-head>div:first-child{flex:1;min-width:0}#workspaceProfit>.pw-head>.pw-actions{width:auto;flex:none}#workspaceProfit .pw-period-toolbar select{width:96px;padding-left:8px;padding-right:6px}}
+
+/* The same canonical garden scene can live in Home or its dedicated route. */
+body.presence-workspace-v2 #workspaceHomeGarden #treeSecHome{margin:0;padding:0;overflow:hidden}
+#workspaceHomeGarden #treeSecHome>.sec-head,#workspaceHomeGarden :is(#compLabelHome,#compDescHome,#previewBtn,#treeResetBtn,#waterFeed,#waterAdmin){display:none!important}
+#workspaceHomeGarden #treeSecHome .tree-wrap{display:grid!important;border:0;border-radius:12px;background:var(--card)}
+#workspaceHomeGarden #treeSecHome .tree-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 32px;padding:24px}
+#workspaceHomeGarden #workspaceGardenGrowth{grid-column:1;grid-row:1}#workspaceHomeGarden #waterBtn{grid-column:1;grid-row:2;align-self:start;min-height:48px;min-width:44px;border:0;border-radius:8px;margin:0;background:var(--green);color:#172110;font-size:15px;box-shadow:none}
+#workspaceHomeGarden #waterBtn:disabled{opacity:.65;cursor:default}#workspaceHomeGarden #workspaceGardenLeaders{grid-column:2;grid-row:1 / span 4}
+#workspaceHomeGarden #homeDaisoTrophy{grid-column:1;position:static;margin:0;justify-self:start;min-width:44px;min-height:44px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+#workspaceHomeGarden #giftHunt{grid-column:1 / -1}#workspaceHomeGarden #giftHunt:empty{display:none}
+#workspaceHomeGarden #treeSecHome .tree-v2-anchor #treeMain{width:calc(var(--tree-canvas-width) * var(--workspace-growth-scale,1))!important;transition:width .8s ease,opacity .24s ease!important}
+#workspaceHomeGarden .tree-counter{padding:8px 12px;border-radius:10px;background:#111317b8;top:14px;left:14px}#workspaceHomeGarden .tree-counter .n{font-size:28px;color:#e4efcf}#workspaceHomeGarden .tree-counter .l{color:#d2d8df;font-size:11px}#workspaceHomeGarden .stage-tag{top:14px;right:14px;max-width:55%;font-family:var(--body);background:#111317bf;color:#e4efcf;border-color:#b7d88d66}
+@media(max-width:760px){#workspaceHomeGarden #treeSecHome .tree-side{grid-template-columns:minmax(0,1fr);padding:18px;gap:14px}#workspaceHomeGarden #workspaceGardenLeaders{grid-column:1;grid-row:auto}#workspaceHomeGarden #homeDaisoTrophy{grid-row:4}#workspaceHomeGarden .tree-counter{top:10px;left:10px;padding:6px 9px}#workspaceHomeGarden .tree-counter .n{font-size:20px}#workspaceHomeGarden .stage-tag{top:10px;right:10px;font-size:10px;padding:4px 8px}#workspaceHomeGarden #workspaceGardenLeaders>.pw-row{padding-top:6px}.pw-week-comparison section{padding:12px 14px}.pw-week-comparison dd{font-size:22px}}
+@media(min-width:1101px){#workspaceHomeGarden #treeSecHome .tree-wrap{grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr)!important;gap:16px 28px;padding:22px;align-items:start}#workspaceHomeGarden #treeSecHome .tree-stage{grid-column:1;grid-row:1;border-radius:10px}#workspaceHomeGarden #treeSecHome .tree-side{display:contents}#workspaceHomeGarden #workspaceGardenGrowth{grid-row:2}#workspaceHomeGarden #waterBtn{grid-row:3}#workspaceHomeGarden #workspaceGardenLeaders{grid-row:1 / span 4}#workspaceHomeGarden #homeDaisoTrophy{grid-row:4}#workspaceHomeGarden #giftHunt{grid-row:5}}
+
+.pw-home-inline-garden{margin-bottom:24px}
+body.presence-workspace-v2 #workspaceHomeGarden{order:-20}
+#workspacePeople .pw-value-card{background:var(--card);color:var(--cream);border:1px solid var(--line);border-radius:12px;padding:20px;min-height:0}
+#workspacePeople .pw-value-card p{color:var(--muted)}
+#workspacePeople .pw-value-card h3{color:inherit}
+#pwHomeGardenToggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:12px 16px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+#pwHomeGardenToggle span{font-size:14px;font-weight:500}
+#workspaceHomeGarden :is(.stage-tag,.tree-counter .l){font-size:12px}
+#workspaceHomeGarden .tree-counter{display:none}
+#workspaceHomeGarden .stage-tag{white-space:nowrap;word-break:keep-all;max-width:calc(100% - 24px)}
+body.presence-christmas #workspaceHomeGarden #waterBtn{background:#315f45;color:#fffaf1}
+body.presence-christmas #workspaceHomeGarden .tree-wrap{background:#fffdf8;color:#243d34}
+#workspaceHomeGarden #treeSecHome[hidden]{display:none!important}
+.pw-people-canonical{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+.pw-people-canonical button{min-height:56px;font-size:16px;word-break:keep-all}
+.pw-people-locked{display:grid;gap:5px;padding:12px;border:1px solid var(--line);border-radius:10px;color:var(--muted)}
+.pw-people-locked span{font-size:12px}
+.pw-presence-about>h2:not(:first-child){margin-top:24px}
+@media(max-width:767px){body.presence-people-intro #subRail{display:none!important}}
+@media(min-width:1101px){
+ #workspaceHomeGarden #treeSecHome .tree-stage{grid-column:1;grid-row:1 / span 4;align-self:start}
+ #workspaceHomeGarden #workspaceGardenGrowth{grid-column:2;grid-row:1}
+ #workspaceHomeGarden #waterBtn{grid-column:2;grid-row:2}
+ #workspaceHomeGarden #workspaceGardenLeaders{grid-column:2;grid-row:3}
+ #workspaceHomeGarden #homeDaisoTrophy{grid-column:2;grid-row:4}
+}
+@media(max-width:700px){.pw-people-canonical{grid-template-columns:repeat(2,minmax(0,1fr))}.pw-home-inline-garden{margin-bottom:18px}}

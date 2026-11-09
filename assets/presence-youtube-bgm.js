@@ -1,13 +1,20 @@
 /* Compatibility filename; the user control is visual effects only. No audio or YouTube. */
 (function () {
   'use strict';
-  var KEY = 'presence_local_season_effects';
+  var KEY = 'presence_local_season_effects.';
   var enabled = false;
   var button = null;
   var originalSet = null;
   var installed = false;
   var seasonHint = '';
-  try { enabled = localStorage.getItem(KEY) === 'on'; } catch (ignore) {}
+  var preferenceUid = '';
+  function readPreference() {
+    var uid = active() ? String(actor().uid || '') : '';
+    if (uid === preferenceUid) return;
+    preferenceUid = uid;
+    enabled = false;
+    try { if (uid) enabled = localStorage.getItem(KEY + uid) === 'on'; } catch (ignore) {}
+  }
 
   function actor() { return typeof me !== 'undefined' ? me : null; }
   function active() { var u = actor(); return !!(u && u.status === 'active'); }
@@ -44,6 +51,7 @@
   }
   function apply() {
     silence();
+    placeCanvas();
     if (originalSet) originalSet(active() && enabled && !document.hidden ? mode() : null);
     renderButton();
   }
@@ -53,17 +61,32 @@
     FX.set = function () { apply(); };
     installed = true;
   }
-  function sync() { installRenderer(); apply(); }
+  function placeCanvas() {
+    var canvas = document.getElementById('fxCanvas');
+    if (!canvas) return;
+    var stage = active() && enabled ? document.querySelector('#m-home.active #treeSecHome:not([hidden]) .tree-stage') : null;
+    var host = stage && stage.getClientRects().length ? stage : document.body;
+    var kind = host === document.body ? 'page' : 'garden';
+    if (canvas.parentNode !== host || canvas.dataset.sceneHost !== kind) {
+      canvas.dataset.sceneHost = kind;
+      host.appendChild(canvas);
+      if (typeof FX !== 'undefined' && typeof FX.resize === 'function') FX.resize();
+    }
+  }
+  function sync() { readPreference(); installRenderer(); apply(); }
   function setEnabled(value) {
     if (!active()) return false;
+    readPreference();
     enabled = value === true;
-    try { localStorage.setItem(KEY, enabled ? 'on' : 'off'); } catch (ignore) {}
+    try { if (preferenceUid) localStorage.setItem(KEY + preferenceUid, enabled ? 'on' : 'off'); } catch (ignore) {}
     sync();
     return enabled;
   }
-  function toggle() { return setEnabled(!enabled); }
+  function toggle() { readPreference(); return setEnabled(!enabled); }
   function suspend() {
     silence();
+    readPreference();
+    placeCanvas();
     if (originalSet) originalSet(null);
     renderButton();
   }

@@ -10,5 +10,6 @@ body.presence-music-authenticated.presence-effects-ready:has(.modal.on,dialog[op
 body.presence-effects-ready #fxCanvas{z-index:1;pointer-events:none}
 body.presence-effects-ready #fxTint{z-index:0;opacity:0!important;pointer-events:none}
 body.presence-effects-ready #app{position:relative;z-index:2;background:transparent!important}
+body.presence-effects-ready #treeSecHome .tree-stage>#fxCanvas[data-scene-host=garden]{position:absolute;inset:0;z-index:2;pointer-events:none}
 @media(min-width:980px){#presenceBgmQuick{left:auto;right:18px;bottom:18px}}
 @media(prefers-reduced-motion:reduce){#presenceBgmQuick{animation:none!important;transition:none!important}}
