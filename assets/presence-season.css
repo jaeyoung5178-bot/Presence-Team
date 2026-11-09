@@ -147,6 +147,14 @@ body.presence-christmas :is(.ptw-feedback.is-error,.ers-migration-result.is-erro
 body.presence-christmas :is(.pw-head,.ptw-entry strong,.pah-heading h2,.pah-action-copy,.tlh-section-head){word-break:keep-all}
 @media(max-width:600px){body.presence-christmas #app .pw-home-intro{padding:20px 18px}body.presence-christmas .pah-hero{padding:20px 18px}body.presence-christmas .pah-shell{padding:18px}}
 .pah-action-icon,.pah-label-season{display:none}
+.presence-season-control [data-season-expand]{min-height:44px;min-width:120px}
+.presence-season-control p{font-size:14px}
+.presence-season-control [data-season-choices]{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+.presence-season-control [data-season-choices][hidden]{display:none}
+.presence-season-control [data-season-choice]{min-height:52px;padding:10px;font-size:14px;word-break:keep-all}
+.presence-season-control [data-season-choice][aria-pressed=true]{outline:2px solid #b89d63;outline-offset:2px}
+.presence-season-control button:focus-visible{outline:3px solid #b89d63;outline-offset:3px}
+@media(max-width:600px){.presence-season-control [data-season-choices]{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.presence-christmas .pah-action-letter,body.presence-christmas .pah-label-default{display:none}
 body.presence-christmas .pah-label-season{display:block}
 body.presence-christmas .pah-summary dt{font-size:12px;letter-spacing:0;white-space:normal;word-break:keep-all;overflow:visible}

@@ -18,8 +18,8 @@
   }
   function apply(){
     var on=enabled(),known=!!settings;
+    document.querySelectorAll('[data-season-choice]').forEach(function(b){b.disabled=busy||!known||settingsError;b.setAttribute('aria-pressed',String(known&&settings.season===b.dataset.seasonChoice));});
     document.body.classList.toggle('presence-christmas',on);
-    if(window.PresenceBgm)window.PresenceBgm.setTrack(on?'pOIGQ2Zu7a4':'w2rSZ90PoZE',on?'Presence · Christmas Carol':'Presence 음악');
     document.querySelectorAll('[data-christmas-toggle]').forEach(function(b){
       b.disabled=busy||!known||settingsError;
       b.setAttribute('aria-busy',String(!known&&!settingsError));
@@ -30,18 +30,23 @@
     }
     );
     document.querySelectorAll('[data-season-status]').forEach(function(p){
-      p.textContent=settingsError?(known?'마지막으로 확인된 설정입니다. 연결 후 새로고침해 주세요.':'설정을 읽지 못했습니다. 연결 후 새로고침해 주세요.'):!known?'저장된 계절 설정을 확인하고 있어요.':busy?'계절 설정을 저장하고 있어요.':on?'겨울 테마 적용 중 · 음악은 직접 켜주세요.':'기본 계절이 적용되어 있어요.';
+      p.textContent=settingsError?(known?'마지막으로 확인된 설정입니다. 연결 후 새로고침해 주세요.':'설정을 읽지 못했습니다. 연결 후 새로고침해 주세요.'):!known?'저장된 계절 설정을 확인하고 있어요.':busy?'계절 설정을 저장하고 있어요.':({spring:'벚꽃',summer:'햇빛',autumn:'낙엽',winter:'크리스마스'}[settings.season]||'자동 계절')+' 분위기 적용 중 · 모든 팀원에게 적용됩니다.';
     }
     );
     window.dispatchEvent(new CustomEvent('presence:seasonchange',{
       detail:{
-        christmas:on
+        christmas:on,season:settings&&settings.season||'auto'
       }
     }
     ));
   }
   async function toggle(){
-    if(!admin())throw Error('관리자만 크리스마스 모드를 변경할 수 있습니다.');
+    if(enabled())try{previousSeason=localStorage.getItem('presence_pre_christmas_season')||previousSeason;}catch(ignore){}
+    return selectSeason(enabled()?previousSeason:'winter');
+  }
+  async function selectSeason(season){
+    if(!/^(auto|spring|summer|autumn|winter)$/.test(season))throw Error('올바른 계절을 선택해 주세요.');
+    if(!admin())throw Error('관리자만 분위기를 변경할 수 있습니다.');
     if(busy)return;
     if(!settings)throw Error('정원 설정을 불러오는 중입니다.');
     if(settingsError)throw Error('계절 설정을 다시 확인한 뒤 변경해 주세요.');
@@ -58,7 +63,7 @@
     apply();
     try{
       var next={
-        season:enabled()?previousSeason:'winter',updatedAt:Date.now(),updatedBy:'admin'
+        season:season,updatedAt:Date.now(),updatedBy:'admin'
       }
       ;
       await DB.set('workspaceSettings',next);
@@ -77,18 +82,20 @@
     var section=document.createElement('section');
     section.dataset.presenceSeasonControl='';
     section.className='presence-season-control';
-    section.innerHTML='<div><strong>겨울의 Presence</strong></div><button type="button" role="switch" data-christmas-toggle></button><p role="status" data-season-status>모든 팀원의 정원에 적용됩니다.</p>';
-    section.querySelector('button').onclick=async function(){
+    section.innerHTML='<button type="button" data-season-expand aria-expanded="false">분위기 설정</button><div data-season-choices hidden>'+[['spring','벚꽃'],['summer','햇빛'],['autumn','낙엽'],['winter','크리스마스']].map(function(s){return '<button type="button" data-season-choice="'+s[0]+'" aria-pressed="false">'+s[1]+'</button>';}).join('')+'</div><p role="status" data-season-status></p>';
+    var expand=section.querySelector('[data-season-expand]'),choices=section.querySelector('[data-season-choices]');
+    expand.onclick=function(){var open=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(open));choices.hidden=!open;};
+    section.onkeydown=function(e){if(e.key==='Escape'){choices.hidden=true;expand.setAttribute('aria-expanded','false');expand.focus();}};
+    section.querySelectorAll('[data-season-choice]').forEach(function(button){button.onclick=async function(){
       var msg=section.querySelector('p');
       try{
-        await toggle();
-        msg.textContent=enabled()?'크리스마스 모드를 저장했습니다.':'기본 계절로 돌아왔습니다.';
+        await selectSeason(button.dataset.seasonChoice);
+        msg.textContent='분위기 설정을 저장했습니다.';
       }
       catch(e){
         msg.textContent=e.message;
       }
-    }
-    ;
+    };});
     var hero=container.querySelector('.pah-hero');
     if(hero)hero.insertAdjacentElement('afterend',section);
     else container.prepend(section);
@@ -139,7 +146,7 @@
     );
   }
   window.PresenceSeason=Object.freeze({
-    isChristmas:enabled,toggle:toggle,mountAdmin:mountAdmin,sync:sync
+    isChristmas:enabled,toggle:toggle,selectSeason:selectSeason,mountAdmin:mountAdmin,sync:sync
   }
   );
   setInterval(sync,1000);
