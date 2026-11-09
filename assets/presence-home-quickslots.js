@@ -157,7 +157,7 @@
     const dialog=$('hqdDialog');if(dialog?.open)dialog.close();
     pickerOpen=false;editing=false;document.body.style.overflow=previousOverflow;
     $('hqdLaunch')?.setAttribute('aria-expanded','false');
-    if(restore){const target=returnFocus?.isConnected&&returnFocus.getClientRects().length?returnFocus:$('hqdLaunch');target?.focus({preventScroll:true});}
+    if(restore){const target=[returnFocus,$('hqdLaunch'),$('moreBtn')].find(node=>node?.isConnected&&node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden');target?.focus({preventScroll:true});}
     returnFocus=null;
   }
   function clearDialog(){

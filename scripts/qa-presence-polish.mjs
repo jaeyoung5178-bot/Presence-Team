@@ -1,10 +1,12 @@
 import {createRequire} from 'node:module';import {readFile,mkdir} from 'node:fs/promises';import assert from 'node:assert/strict';
 const require=createRequire(import.meta.url),{chromium}=require('/Users/jaeyoung5178/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const base=new URL('../',import.meta.url),out='/tmp/presence-polish-qa';await mkdir(out,{recursive:true});
-const css=await readFile(new URL('assets/presence-polish.css',base),'utf8'),workspace=await readFile(new URL('assets/presence-tl-workspace.css',base),'utf8');
+const base=process.env.PRESENCE_QA_BASE?new URL(process.env.PRESENCE_QA_BASE):new URL('../',import.meta.url),out=process.env.PRESENCE_QA_OUT||'/tmp/presence-polish-qa';await mkdir(out,{recursive:true});
+const readAsset=async path=>base.protocol==='file:'?readFile(new URL(path,base),'utf8'):(await fetch(new URL(path+'?qa=3d33637',base))).text();
+const css=await readAsset('assets/presence-polish.css'),workspace=await readAsset('assets/presence-tl-workspace.css');
+const staticOnly=route=>{const url=new URL(route.request().url());return base.protocol!=='file:'&&url.origin===base.origin&&(url.pathname==='/'||url.pathname.endsWith('/index.html')||url.pathname.startsWith('/assets/'))?route.continue():route.abort();};
 const browser=await chromium.launch({headless:true,channel:'chrome'});
 for(const [width,height] of [[390,844],[1024,768],[1440,900]]){
- const page=await browser.newPage({viewport:{width,height}});await page.route(/^https?:/,r=>r.abort());await page.goto(new URL('index.html',base).href,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>typeof showPresenceLoader==='function');
+ const page=await browser.newPage({viewport:{width,height}});await page.route(/^https?:/,staticOnly);await page.goto(new URL('index.html',base).href,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>typeof showPresenceLoader==='function');
  await page.evaluate(()=>{showPresenceLoader('워크북 연결을 기다리고 있어요.');clearInterval(__pglTimer);});await page.addStyleTag({content:css+'#presenceGameLoader{display:flex!important;z-index:2147483647!important}'});
  await page.locator('#pglHeroPet').evaluate(img=>img.decode());assert.equal(await page.locator('#pglHeroPet').evaluate(img=>img.naturalWidth>0),true);
  assert.equal(await page.locator('#pglPercent').isVisible(),false);assert.equal(await page.locator('#pglMissions').count(),0);assert.equal(await page.locator('.pgl-console').evaluate(el=>getComputedStyle(el,':after').content),'none');
@@ -13,7 +15,7 @@ for(const [width,height] of [[390,844],[1024,768],[1440,900]]){
 }
 console.log('Loader3 screenshots ready '+out);
 for(const [width,height] of [[390,844],[1024,768],[1440,900]])for(const role of ['IC','TL','admin']){
- const page=await browser.newPage({viewport:{width,height}});await page.route(/^https?:/,r=>r.abort());await page.goto(new URL('index.html',base).href,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>typeof renderTLHome==='function');
+ const page=await browser.newPage({viewport:{width,height}});await page.route(/^https?:/,staticOnly);await page.goto(new URL('index.html',base).href,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>typeof renderTLHome==='function');
  await page.evaluate(({role})=>{me={uid:role==='admin'?'admin':role==='TL'?'umqn54ujf':'guideIC',name:role==='admin'?'가이드 관리자':role==='TL'?'가이드 팀 리더':'가이드 팀원',role:role==='admin'?'AOP':role,status:'active'};state.users={admin:{uid:'admin',name:'가이드 관리자',role:'AOP',status:'active'},umqn54ujf:{uid:'umqn54ujf',name:'가이드 팀 리더',role:'TL',status:'active'},guideIC:{uid:'guideIC',name:'가이드 팀원',role:'IC',status:'active'}};state.dossier={'가이드 팀 리더':{teamName:'FUSE'},'가이드 팀원':{teamName:'FUSE',upline:'가이드 팀 리더'}};state.memberInfo={'가이드 팀원':{join:'2026-10-01'}};window.__booting=false;state.sales={};state.teamWeeklyOps={};window.PresenceTLWorkspaceAccess={get:(actor,cfg)=>({uid:actor.uid,teamKey:cfg.teamKey,capabilities:{recap:true,icManager:true,surveys:true,icRegistration:true}}),subscribe:()=>()=>{}};renderTLHome();if(role==='IC')renderHomeDash();}, {role});
  if(role!=='IC'){
   await page.evaluate(()=>{window.__adminOff=false;window.__previewRole=null;tlhSubscribe=()=>{};goTab('tlhome');});assert.equal(await page.evaluate(()=>curTab),'tlhome');assert.equal(await page.locator('#tlHomeEntryBtn').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#adminHomeEntryBtn').evaluate(e=>e.classList.contains('show')),role==='admin');

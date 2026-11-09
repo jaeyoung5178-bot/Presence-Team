@@ -2629,7 +2629,7 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   @media(max-height:690px) and (min-width:841px){.pgl-cinema{min-height:620px}.pgl-console{padding:36px 42px}.pgl-cinema-title{font-size:45px}.pgl-missions{margin-top:24px}.pgl-stage{inset:58px 18px 20px}.pgl-hero{height:330px}}
   @media(prefers-reduced-motion:reduce){#presenceGameLoader.cinematic:before,#presenceGameLoader.cinematic:after,.pgl-track:after,.pgl-stage:before,.pgl-stage:after,.pgl-scanbeam,.pgl-hero{animation:none!important}}
 </style>
-<link rel="stylesheet" href="assets/presence-polish.css?v=20261109-winter-polish1">
+<link rel="stylesheet" href="assets/presence-polish.css?v=20261109-header-polish2">
 <script id="presence-cinematic-loader-compose">
 (function(){
   var el=document.getElementById('presenceGameLoader');if(!el)return;el.classList.add('cinematic');
@@ -2700,7 +2700,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         <span><span class="nm">Presence<b>.</b></span><span class="tag">머물고 싶은 팀</span></span>
       </div>
       <button class="home-entry-btn active" id="homeEntryBtn" onclick="openGeneralHome()" aria-label="Home으로 이동"><span>⌂</span><b>Home</b></button>
-      <button class="tl-home-entry" id="tlHomeEntryBtn" onclick="goTab(curTab==='tlhome'?'home':'tlhome')" aria-label="TL Home과 일반 Home 전환" aria-pressed="false"><span>▣</span><b>TL Home</b></button>
+      <button class="tl-home-entry" id="tlHomeEntryBtn" onclick="goTab(curTab==='tlhome'?'home':'tlhome')" aria-label="TL Home과 일반 Home 전환" title="TL Home" aria-pressed="false"><span aria-hidden="true">▣</span><b><span class="tl-label-wide">TL Home</span><span class="tl-label-short">TL</span></b></button>
       <button class="tl-home-entry admin-home-entry" id="adminHomeEntryBtn" onclick="goTab('adminhome')" aria-label="관리자 전용 홈 열기" aria-pressed="false"><span>⚙</span><b>Admin Home</b></button>
       <span class="spacer"></span>
       <button class="conn-dot off" id="connDot" onclick="showConnInfo()" aria-label="연결 상태"></button>
@@ -2708,7 +2708,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
       <button class="adm-toggle eye-toggle" id="eyeToggle" onclick="openRolePreview()" style="display:none" aria-label="역할 미리보기" title="👀 역할 미리보기 — 직급별로 화면 점검">👀</button>
       <button class="hdr-install" id="installBtn" onclick="installApp()" style="display:none" aria-label="앱 설치" title="앱으로 설치 · 바탕화면에 추가"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="9.5 10 12 12.5 14.5 10"/><line x1="12" y1="7" x2="12" y2="12.5"/></svg></button>
       <button class="bell-btn" id="bellBtn" onclick="openNotifs()" aria-label="알림">🔔<span class="bell-badge" id="bellBadge"></span></button>
-      <button class="me-pill" onclick="openMe()">
+      <button class="me-pill" onclick="openMe()" aria-label="내 정보와 계정">
         <span class="mnm" id="mePillNm">—</span>
         <span class="mrole" id="mePillRole">IC</span>
         <span class="mav" id="mePillAv">?</span>
@@ -15754,6 +15754,7 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     bell.parentNode.insertBefore(btn,bell);
     var m=document.createElement('div'); m.id='moreMenu';
     var cap=document.createElement('div'); cap.className='mm-cap'; cap.textContent='더보기'; m.appendChild(cap);
+    var search=item('⌕','기능 검색',function(){if(typeof window.toggleHomeQuickDock==='function')window.toggleHomeQuickDock();});search.className='mm-mobile';search.dataset.mmSearch='';m.appendChild(search);
     m.appendChild(item('✨','배경 효과 켜기/끄기',function(){ toggleFxLocal(); }));
     m.appendChild(item('🔈','효과음 켜기/끄기',function(){ toggleSound(); }));
     m.appendChild(item('📲','앱으로 설치',function(){ if(typeof installApp==='function')installApp(); }));
@@ -15767,6 +15768,8 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
   /* 관리자 항목 — 로그인 시점과 무관하게 정확히 반영 (한 벌만, 로그아웃 시 제거) */
   function syncAdmin(){
     var m=document.getElementById('moreMenu'); if(!m)return;
+    var sourceSupport=document.getElementById('pwSupportEntry'),support=m.querySelector('[data-mm-support]');
+    if(sourceSupport&&!support){support=item('▣',sourceSupport.getAttribute('aria-label')||'팀 지원함',function(){document.getElementById('pwSupportEntry')?.click();});support.className='mm-mobile';support.dataset.mmSupport='';m.appendChild(support);}else if(!sourceSupport&&support)support.remove();
     var admin=rf(window.me||(typeof me!=='undefined'?me:null));
     var have=m.querySelector('[data-mm-admin]');
     if(admin&&!have){
@@ -17925,7 +17928,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20260727-2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
-<script src="assets/presence-home-quickslots.js?v=20260928-mobile-focus-10"></script>
+<script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20261109-winter-polish1"></script>
 <script src="assets/presence-youtube-bgm.js?v=20261109-winter-polish1"></script>
