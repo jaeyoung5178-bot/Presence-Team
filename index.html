@@ -8354,10 +8354,11 @@ function renderNoticePreview(){const el=document.getElementById('ntcPreview');if
 function viewImg(src){const el=document.getElementById('imgLightboxImg');if(el){el.src=src;openModal('imgLightbox');}}
 /* ===== 기념일 · 굳뉴스 ===== */
 function bdayMD(u){if(!u||!u.surveys)return null;for(const k in u.surveys){const a=u.surveys[k]&&u.surveys[k].answers;if(a&&a.birth6&&/^\d{4}-\d{2}-\d{2}/.test(a.birth6))return a.birth6.slice(5,10);}return null;}
-function todayMD(){return TODAY.slice(5,10);}
-function tomorrowMD(){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+1);return d.toISOString().slice(5,10);}
+function birthdayKstDateKey(daysAhead=0){const stamp=Date.now()+daysAhead*86400000;return window.PresenceBirthdayCloud?.dateKey(stamp)||new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date(stamp));}
+function todayMD(){return birthdayKstDateKey().slice(5,10);}
+function tomorrowMD(){return birthdayKstDateKey(1).slice(5,10);}
 function birthdaysOn(md){return Object.values(state.users).filter(u=>u.status==='active'&&bdayMD(u)===md).map(u=>u.name);}
-function upcomingBdays(days){const out=[];for(let i=0;i<days;i++){const d=new Date(TODAY+'T00:00:00');d.setDate(d.getDate()+i);const md=d.toISOString().slice(5,10);birthdaysOn(md).forEach(nm=>out.push({name:nm,md,in:i}));}return out;}
+function upcomingBdays(days){const out=[];for(let i=0;i<days;i++){const md=birthdayKstDateKey(i).slice(5,10);birthdaysOn(md).forEach(nm=>out.push({name:nm,md,in:i}));}return out;}
 function confettiBurst(){const host=document.getElementById('app')||document.body;const colors=['#E8473C','#F5D061','#5CBC2E','#46B6DD','#7c3aed','#ff8ad0','#fff'];for(let i=0;i<64;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=colors[i%colors.length];c.style.animationDelay=(Math.random()*0.7)+'s';c.style.animationDuration=(1.8+Math.random()*1.5)+'s';if(Math.random()<0.3)c.style.borderRadius='50%';host.appendChild(c);setTimeout(()=>c.remove(),3800);}}
 function gnCard(g){const photos=(g.photos||[]);const thumbs=photoSlides(photos);const cm=isFounder(me);return `<div class="gn-card">${cm?`<button class="gn-del" onclick="delGoodnews('${g.id}')">✕</button>`:''}<div class="gn-title">🎉 ${esc(g.title||'굳뉴스')}</div>${g.body?`<p class="gn-body">${fmtMentions(g.body)}</p>`:''}${thumbs}<div class="gn-by">by ${esc(g.by||'관리자')} · ${ago(g.t)}</div></div>`;}
 function renderCelebrations(){
@@ -17969,6 +17970,6 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
 <script src="assets/presence-season.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-birthday-cloud.js?v=20261110-birthday1"></script>
-<script src="assets/presence-birthday.js?v=20261110-birthday1"></script>
+<script src="assets/presence-birthday.js?v=20261110-birthday2"></script>
 </body>
 </html>
