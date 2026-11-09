@@ -451,6 +451,7 @@ function bindRepair(root){
     bind(root);
     bindRepair(root);
     if(global.PresenceTLWorkspace)global.PresenceTLWorkspace.renderAdmin('pahTLWorkspacePermissions',{actor:actor,state:snapshot,leaders:typeof presenceTLWorkspaceLeaders==='function'?presenceTLWorkspaceLeaders():[],onOpenRegistration:typeof presenceTLWorkspaceOpenRegistration==='function'?presenceTLWorkspaceOpenRegistration:null});
+    if(isAuthorized(actor)&&global.PresenceSeason)global.PresenceSeason.mountAdmin(root);
     emitMode(root);
     return true;
   }

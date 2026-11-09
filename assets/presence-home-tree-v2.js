@@ -245,9 +245,10 @@
     var season = seasonNow();
     var period = timePeriod();
     var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
-    var url = BACKGROUNDS[season][mode];
+    var christmas = !!window.PresenceSeason?.isChristmas?.();
+    var url = christmas ? 'assets/season/2026/winter-garden.webp' : BACKGROUNDS[season][mode];
     var image = ensureBackground(stage);
-    loadInto(image, url, BACKGROUNDS.spring.day);
+    loadInto(image, url, christmas ? BACKGROUNDS[season][mode] : BACKGROUNDS.spring.day);
     var atmosphere = ensureAtmosphere(stage, image);
     loadInto(atmosphere, ATMOSPHERES[period.key], ATMOSPHERES.noon);
     stage.dataset.treeSeason = season;
@@ -454,10 +455,12 @@
     tree.style.height = '';
     tree.style.animation = '';
     var key = treeKeyFor(context, season);
-    if (tree.dataset.treeV2Key === key) return;
-    tree.dataset.treeV2Key = key;
+    var christmas = !!window.PresenceSeason?.isChristmas?.() && ['spring','summer','autumn','winter'].indexOf(key) !== -1;
+    var spriteKey = christmas ? key + '-christmas' : key;
+    if (tree.dataset.treeV2Key === spriteKey) return;
+    tree.dataset.treeV2Key = spriteKey;
     tree.style.opacity = '0';
-    loadInto(tree, TREES[key], TREES.stage1);
+    loadInto(tree, christmas ? 'assets/season/2026/christmas-tree.webp' : TREES[key], christmas ? TREES[key] : TREES.stage1);
     tree.classList.remove('tree-v2-changing');
     void tree.offsetWidth;
     tree.classList.add('tree-v2-changing');
@@ -796,6 +799,7 @@
       document.documentElement.classList.toggle('tree-v2-debug', enabled !== false);
     }
   });
+  window.addEventListener('presence:seasonchange',function(){upgradeScene();});
 
   if (new URLSearchParams(window.location.search).get('treeAnchorDebug') === '1') {
     document.documentElement.classList.add('tree-v2-debug');

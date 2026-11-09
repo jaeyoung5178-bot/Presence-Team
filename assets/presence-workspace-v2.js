@@ -65,7 +65,7 @@
   function schedule(){clearTimeout(timer);timer=setTimeout(()=>render(),70);}
   function rangeStats(names,range){return C.aggregate(state.sales,names,range.start,range.cutoff,saleEntryCountsAsWork);}
   function goal(uid,start){return (((data.weeks[uid]||{})[start||C.monday(C.dateKey())]||{}).entry||{}).target||0;}
-  function currentSeason(){return seasons[data.settings.season]?data.settings.season:C.season();}
+  function currentSeason(){return window.PresenceSeason?.isChristmas?.()?'winter':seasons[data.settings.season]?data.settings.season:C.season();}
   function isWatered(uid){return (data.garden[uid]?.lastWateredAt&&C.dateKey(new Date(data.garden[uid].lastWateredAt))===C.dateKey())||(state.waters||{})[uid]?.last===C.dateKey();}
   function gardenTotal(){return C.gardenTotal(state.pr,state.waters,data.garden);}
   async function water(){
@@ -117,7 +117,7 @@
     const primaryTitle=cfg?!baseReady?'오늘 제출 현황을 불러오는 중이에요':!teamMembers.length?'오늘 제출 대상이 없어요':pending.length?pending.length+'명 결과 제출대기':'오늘 결과 모두 제출했어요':beforeFirst?'근무 시작 전이에요':submitted?'오늘 기록을 남겼어요':'오늘 결과가 아직 미입력이에요';
     const primaryHint=cfg?!baseReady?'팀원과 결과 기록을 확인하고 있어요.':!teamMembers.length?'현재 집계할 팀원이 없습니다.':pending.length?'0건·NA·랠리 저장도 제출 완료로 봅니다.':'대상 '+teamMembers.length+'명 모두 오늘 결과를 입력했어요.':beforeFirst?'첫 필드일부터 결과를 기록할 수 있어요.':submitted?'저장한 오늘 기록을 확인할 수 있어요.':'0건 또는 NA도 직접 저장하면 완료로 표시돼요.';
     const primaryAction=cfg?linkButton(baseReady&&pending.length?'제출 현황 보기':'팀 운영 보기','tlhome'):linkButton(submitted?'오늘 기록 확인':'결과 입력','sale');
-    const gardenImage=season==='autumn'?'assets/workspace/gardens/autumn-home-20260928.webp':'assets/workspace/gardens/'+season+'.jpg';
+    const gardenFallback=season==='autumn'?'assets/workspace/gardens/autumn-home-20260928.webp':'assets/workspace/gardens/'+season+'.jpg',gardenImage=window.PresenceSeason?.isChristmas?.()?'assets/season/2026/winter-garden.webp':gardenFallback;
     if($('pwPledgeDetails'))pledgeExpanded=$('pwPledgeDetails').open;
     if($('pwHomePendingMore'))homePendingExpanded=$('pwHomePendingMore').open;
     if(!cfg||!pending.length)homePendingExpanded=false;
@@ -128,6 +128,7 @@
       '<section class="pw-panel pw-garden pw-home-garden"><span class="pw-floral-corner pw-floral-tl" aria-hidden="true"></span><span class="pw-floral-corner pw-floral-br" aria-hidden="true"></span><img class="pw-garden-image" src="'+gardenImage+'" alt="'+E(seasons[season])+'의 우리 팀 정원"><div class="pw-garden-copy"><span class="pw-kicker">'+E(seasons[season])+'</span><h2>우리 팀의 작은 정원</h2><p>성장 Lv. '+(Math.floor(gardenTotal()/100)+1)+' · 오늘 '+participated+'명 참여</p>'+button('정원 열기','garden')+'</div></section>'+
       '<div class="pw-two pw-section"><section><div class="pw-row" style="padding-top:0"><h2>오늘의 우선 행동</h2>'+linkButton('전체 보기','today')+'</div>'+(rows||empty('오늘 할 일을 Today에서 적어보세요.'))+'<div class="pw-actions" style="margin-top:14px">'+linkButton('결과 입력','sale')+linkButton('배움 이어가기','learnhub')+'</div></section><section id="pwPledgeRegion">'+pledgeHTML(a.uid,true)+'</section></div>'+
       '<div class="pw-section pw-actions">'+button('화면 설정','preferences')+button('기존 홈 도구 펼치기','legacy-tools')+linkButton('팀 운영 홈','tlhome')+linkButton('나의 아바타','petshop')+'</div><p id="pwGlobalStatus" class="pw-note" aria-live="polite"></p>');
+    const gardenElement=$('workspaceHome')?.querySelector('.pw-garden-image');if(gardenElement&&gardenImage!==gardenFallback)gardenElement.onerror=function(){this.onerror=null;this.src=gardenFallback;};
     const promotionHome=window.PresencePromotionPlanner?.homeHTML?.();
     if(promotionHome)$('workspaceHome')?.querySelector('.pw-home-results')?.insertAdjacentHTML('afterend',promotionHome);
     window.PresenceQuickAccess?.refresh?.();
@@ -294,4 +295,5 @@
   window.PresenceWorkspace={init,render,schedule,dispose,nav,canCoach,water,currentSeason,syncGardenScene,beforeNavigate,data,core:C,promotionEnv,promotionSave,openPromotionPlanner};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   window.addEventListener('presence:firebase-ready',schedule);
+  window.addEventListener('presence:seasonchange',schedule);
 })();
