@@ -225,7 +225,7 @@ function repairRepaint(){
 async function reviewRecapRepair(message){
  var actor=currentActor();if(!isAuthorized(actor)||!session.actor||actor.uid!==session.actor.uid||repair.busy)return;
  var uid=actor.uid,token=++repairSerial;
- repair.open=true;repair.busy=true;repair.ready=false;repair.message='원본을 변경하지 않고 기간 배정과 조직 연결을 확인하고 있습니다.';repairRepaint();
+ repair.pending=null;repair.open=true;repair.busy=true;repair.ready=false;repair.message='원본을 변경하지 않고 기간 배정과 조직 연결을 확인하고 있습니다.';repairRepaint();
  try{
   if(typeof global.recapStudioPreflightV3!=='function')throw new Error('사전 검증 도구를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
   var plan=await global.recapStudioPreflightV3();
@@ -236,14 +236,17 @@ async function reviewRecapRepair(message){
  finally{if(token===repairSerial&&repairActorIsCurrent(uid)){repair.busy=false;repairRepaint();}}
 }
 
-async function approveRecapRepair(index){
+async function approveRecapRepair(index,confirmed){
  var actor=currentActor(),row=repair.rows[index];if(!isAuthorized(actor)||!session.actor||actor.uid!==session.actor.uid||repair.busy||!row||!row.canApprove)return;
  var form=session.root.querySelector('[data-pah-review="'+index+'"]');if(!form)return;
  var start=form.querySelector('[data-pah-from]'),end=form.querySelector('[data-pah-to]');
  end.setCustomValidity(end.value&&end.value<start.value?'종료일은 시작일 이후여야 합니다.':'');
  if(!start.reportValidity()||!end.reportValidity()||!repairDate(start.value)||end.value&&!repairDate(end.value))return;
  var input={uid:row.uid,teamKey:row.teamKey,activeFrom:start.value};if(end.value)input.activeTo=end.value;
- if(!global.confirm(row.name+' · '+row.uid+'\n팀: '+row.teamKey+'\n적용 기간: '+input.activeFrom+' ~ '+(input.activeTo||'종료일 없음')+'\n\n이 기간의 팀 배정을 승인할까요? 이후 복구 시 과거 리캡의 포함 범위에 영향을 줍니다. 현재 직급은 참고 정보이며 기존 주간 금액·직급 기록은 이 화면에서 변경하지 않습니다.'))return;
+ if(!confirmed){stageRepairConfirmation({kind:'approve',actorUid:actor.uid,serial:repairSerial,index:index,input:input,row:{name:row.name,role:row.role}});return;}
+ var pending=repair.pending,account=(liveState({}).users||{})[row.uid];
+ if(!pending||pending.kind!=='approve'||pending.actorUid!==actor.uid||pending.index!==index||pending.serial!==repairSerial||JSON.stringify(pending.input)!==JSON.stringify(input)||account&&String(account.role||'미확인')!==pending.row.role){repair.pending=null;repair.message='승인 정보가 변경되었습니다. 대상과 기간을 다시 검토해 주세요.';repairRepaint();return;}
+ repair.pending=null;
  if(!repairActorIsCurrent(actor.uid))return;
  repair.busy=true;repair.ready=false;repair.message='선택한 기간 배정을 승인하고 있습니다.';repairRepaint();
  try{
@@ -254,9 +257,11 @@ async function approveRecapRepair(index){
  }catch(error){if(repairActorIsCurrent(actor.uid)){repair.busy=false;repair.message=String(error&&error.message||'배정 승인에 실패했습니다.').slice(0,220);repairRepaint();}}
 }
 
-async function executeRecapRepair(){
+async function executeRecapRepair(confirmed){
  var actor=currentActor();if(!isAuthorized(actor)||!session.actor||actor.uid!==session.actor.uid||repair.busy||!repair.ready)return;
- if(!global.confirm('사전 검증을 통과한 배정을 기준으로 리캡 복구를 실행할까요? 기존 복구 API의 검증·잠금·감사 기록 절차를 사용합니다.'))return;
+ if(!confirmed){stageRepairConfirmation({kind:'migrate',actorUid:actor.uid,serial:repairSerial});return;}
+ if(!repair.pending||repair.pending.kind!=='migrate'||repair.pending.actorUid!==actor.uid||repair.pending.serial!==repairSerial)return;
+ repair.pending=null;
  if(!repairActorIsCurrent(actor.uid))return;
  repair.busy=true;repair.ready=false;repair.message='승인된 배정의 리캡 복구를 실행하고 있습니다.';repairRepaint();
  try{
@@ -268,23 +273,41 @@ async function executeRecapRepair(){
  finally{if(repairActorIsCurrent(actor.uid)){repair.busy=false;repairRepaint();}}
 }
 
+function repairConfirmationHTML(){
+ var pending=repair.pending;if(!pending)return '';
+ var subject=pending.kind==='approve'?'<div class="pah-repair-facts"><div><b>승인 대상 / UID</b>'+esc(pending.row.name)+' / '+esc(pending.input.uid)+'</div><div><b>팀 / 현재 직급</b>'+esc(pending.input.teamKey)+' / '+esc(pending.row.role)+'</div><div><b>적용 시작일</b>'+esc(pending.input.activeFrom)+'</div><div><b>적용 종료일</b>'+esc(pending.input.activeTo||'종료일 없음')+'</div></div><p>이 기간의 팀 배정을 승인하면 이후 복구 시 과거 리캡의 포함 범위에 영향을 줍니다. 기존 주간 금액·직급 기록은 이 승인 화면에서 변경하지 않습니다.</p>':'<p>검증을 통과한 배정으로 리캡 복구를 실행합니다. 기존 복구 API의 검증·잠금·감사 기록 절차를 사용합니다.</p>';
+ return '<section class="pah-repair-confirm" role="alertdialog" aria-modal="false" aria-labelledby="pahRepairConfirmTitle" tabindex="-1"><h3 id="pahRepairConfirmTitle">'+(pending.kind==='approve'?'기간 배정 최종 확인':'리캡 복구 최종 확인')+'</h3>'+subject+'<div class="pah-repair-controls"><button type="button" data-pah-final>'+(pending.kind==='approve'?'이 기간으로 승인':'복구 실행 확정')+'</button><button type="button" data-pah-cancel>취소</button></div></section>';
+}
+
+function stageRepairConfirmation(pending){
+ repair.pending=pending;repairRepaint();var button=session.root&&session.root.querySelector('[data-pah-final]');if(button)button.focus();
+}
+
+function confirmRecapRepair(){
+ var pending=repair.pending;if(!pending||!repairActorIsCurrent(pending.actorUid)||pending.serial!==repairSerial){repair.pending=null;repairRepaint();return;}
+ if(pending.kind==='approve')approveRecapRepair(pending.index,true);else executeRecapRepair(true);
+}
+
 function repairPanelHTML(actor){
  if(!isAuthorized(actor)||!repair.open)return '';
  var labels={'unapproved-descendant':'기간 배정 승인 필요','descendant-without-uid':'계정 UID 확인 필요','unresolved-upline':'상위 리더 확인 필요','duplicate-name-uid':'이름·UID 중복','ancestry-cycle':'조직 연결 순환','assignment-overlap':'승인 기간 중복'};
- var styles='<style>.pah-repair{margin-top:24px;padding:22px;border:1px solid #42516b;border-radius:16px;background:#141e2d;color:#e3ebf7;min-width:0}.pah-repair h3{font-size:19px;margin:0 0 8px}.pah-repair p{font-size:13px;line-height:1.65;color:#aebdd3;overflow-wrap:anywhere}.pah-repair-controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.pah-repair button{min-height:44px;padding:10px 14px;border:1px solid #627493;border-radius:9px;background:#25354c;color:#e5eefc;font:inherit;cursor:pointer}.pah-repair button:disabled{opacity:.5;cursor:wait}.pah-repair button:focus-visible,.pah-repair input:focus-visible{outline:2px solid #a6c8ff;outline-offset:3px}.pah-repair-list{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:14px}.pah-repair-item{padding:16px;border:1px solid #36455e;border-radius:12px;background:#101925;min-width:0}.pah-repair-item strong{font-size:15px;overflow-wrap:anywhere}.pah-repair-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.pah-repair-facts div{min-width:0;font-size:13px;line-height:1.6;overflow-wrap:anywhere}.pah-repair-facts b{display:block;color:#8095b5;font-size:11px}.pah-repair-dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.pah-repair label{display:block;font-size:12px;color:#aabbd5}.pah-repair input{display:block;width:100%;min-width:0;min-height:44px;padding:10px;margin-top:7px;box-sizing:border-box;border:1px solid #50617e;border-radius:8px;color:#e3ebf7;background:#0d1522;font:inherit}.pah-repair small{display:block;font-size:12px;line-height:1.65;color:#94a9c7;margin:10px 0}.pah-repair [role=status]{padding:12px;background:#233149;border-radius:9px}@media(max-width:600px){.pah-repair{padding:16px}.pah-repair-facts,.pah-repair-dates{grid-template-columns:1fr}.pah-repair input{font-size:16px}.pah-repair-controls button{flex:1;min-width:0}}</style>';
+ var styles='<style>.pah-repair-confirm{margin:16px 0;padding:18px;border:2px solid #a3c4ed;border-radius:12px;background:#1d2c43}.pah-repair-confirm:focus{outline:2px solid #b7d3f5;outline-offset:3px}.pah-repair{margin-top:24px;padding:22px;border:1px solid #42516b;border-radius:16px;background:#141e2d;color:#e3ebf7;min-width:0}.pah-repair h3{font-size:19px;margin:0 0 8px}.pah-repair p{font-size:13px;line-height:1.65;color:#aebdd3;overflow-wrap:anywhere}.pah-repair-controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.pah-repair button{min-height:44px;padding:10px 14px;border:1px solid #627493;border-radius:9px;background:#25354c;color:#e5eefc;font:inherit;cursor:pointer}.pah-repair button:disabled{opacity:.5;cursor:wait}.pah-repair button:focus-visible,.pah-repair input:focus-visible{outline:2px solid #a6c8ff;outline-offset:3px}.pah-repair-list{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:14px}.pah-repair-item{padding:16px;border:1px solid #36455e;border-radius:12px;background:#101925;min-width:0}.pah-repair-item strong{font-size:15px;overflow-wrap:anywhere}.pah-repair-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.pah-repair-facts div{min-width:0;font-size:13px;line-height:1.6;overflow-wrap:anywhere}.pah-repair-facts b{display:block;color:#8095b5;font-size:11px}.pah-repair-dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.pah-repair label{display:block;font-size:12px;color:#aabbd5}.pah-repair input{display:block;width:100%;min-width:0;min-height:44px;padding:10px;margin-top:7px;box-sizing:border-box;border:1px solid #50617e;border-radius:8px;color:#e3ebf7;background:#0d1522;font:inherit}.pah-repair small{display:block;font-size:12px;line-height:1.65;color:#94a9c7;margin:10px 0}.pah-repair [role=status]{padding:12px;background:#233149;border-radius:9px}@media(max-width:600px){.pah-repair{padding:16px}.pah-repair-facts,.pah-repair-dates{grid-template-columns:1fr}.pah-repair input{font-size:16px}.pah-repair-controls button{flex:1;min-width:0}}</style>';
  var items=repair.rows.map(function(row,index){
   var dates=repair.inputs[row.uid]||{from:row.join,to:''};
   var form=row.canApprove?'<div class="pah-repair-dates"><label>적용 시작일<input type="date" required data-pah-from value="'+esc(dates.from)+'"></label><label>적용 종료일 · 선택<input type="date" data-pah-to value="'+esc(dates.to)+'"></label></div><small>시작일은 회원정보의 입사일 제안입니다. 실제 팀 배정 시작일을 확인하세요. 현재 직급을 과거 승급일로 간주하지 않습니다.</small><button type="button" data-pah-approve="'+index+'"'+(repair.busy?' disabled':'')+'>검토한 기간 배정 승인</button>':'<small>이 항목은 기간 승인으로 해결할 수 없습니다. 원본 계정·조직 연결 또는 충돌한 기간을 먼저 확인해 주세요.</small>';
   return '<li class="pah-repair-item" data-pah-review="'+index+'"><strong>'+esc(labels[row.type]||row.type)+'</strong><div class="pah-repair-facts"><div><b>팀원 / UID</b>'+esc(row.name||'미확인')+' / '+esc(row.uid||'미확인')+'</div><div><b>팀</b>'+esc(row.teamKey||'미확인')+'</div><div><b>현재 직급 · 과거 직급 아님</b>'+esc(row.role)+'</div><div><b>현재 상위 리더</b>'+esc(row.upline)+'</div></div>'+form+'</li>';
  }).join('');
- return styles+'<section class="pah-repair" aria-label="리캡 기간 배정 검토"><h3>리캡 배정 복구 · 검토</h3><p>먼저 읽기 전용 검증으로 막힌 항목을 확인합니다. 배정 승인과 복구 실행은 각각 버튼을 눌러 확정해야 합니다.</p><p role="status" aria-live="polite">'+esc(repair.message)+'</p><div class="pah-repair-controls"><button type="button" data-pah-recheck'+(repair.busy?' disabled':'')+'>변경 없이 다시 검증</button>'+(repair.ready?'<button type="button" data-pah-execute'+(repair.busy?' disabled':'')+'>검증 완료 · 복구 실행</button>':'')+'</div><ol class="pah-repair-list">'+items+'</ol></section>';
+ return styles+'<section class="pah-repair" aria-label="리캡 기간 배정 검토"><h3>리캡 배정 복구 · 검토</h3><p>먼저 읽기 전용 검증으로 막힌 항목을 확인합니다. 배정 승인과 복구 실행은 각각 버튼을 눌러 확정해야 합니다.</p><p role="status" aria-live="polite">'+esc(repair.message)+'</p><div class="pah-repair-controls"><button type="button" data-pah-recheck'+(repair.busy?' disabled':'')+'>변경 없이 다시 검증</button>'+(repair.ready?'<button type="button" data-pah-execute'+(repair.busy?' disabled':'')+'>검증 완료 · 복구 실행</button>':'')+'</div>'+repairConfirmationHTML()+'<ol class="pah-repair-list">'+items+'</ol></section>';
 }
 
 function bindRepair(root){
+ root.querySelectorAll('[data-pah-final]').forEach(function(button){button.onclick=confirmRecapRepair;});
+ root.querySelectorAll('[data-pah-cancel]').forEach(function(button){button.onclick=function(){repair.pending=null;repairRepaint();};});
+ var dialog=root.querySelector('.pah-repair-confirm');if(dialog)dialog.onkeydown=function(event){if(event.key==='Escape'){repair.pending=null;repairRepaint();}};
  root.querySelectorAll('[data-pah-recheck]').forEach(function(button){button.onclick=function(){reviewRecapRepair();};});
- root.querySelectorAll('[data-pah-execute]').forEach(function(button){button.onclick=executeRecapRepair;});
+ root.querySelectorAll('[data-pah-execute]').forEach(function(button){button.onclick=function(){executeRecapRepair(false);};});
  root.querySelectorAll('[data-pah-approve]').forEach(function(button){button.onclick=function(){approveRecapRepair(Number(button.dataset.pahApprove));};});
- root.querySelectorAll('[data-pah-review]').forEach(function(form){var row=repair.rows[Number(form.dataset.pahReview)];if(!row||!row.canApprove)return;var from=form.querySelector('[data-pah-from]'),to=form.querySelector('[data-pah-to]');function update(){to.setCustomValidity('');repair.inputs[row.uid]={from:from.value,to:to.value};}from.oninput=update;to.oninput=update;});
+ root.querySelectorAll('[data-pah-review]').forEach(function(form){var row=repair.rows[Number(form.dataset.pahReview)];if(!row||!row.canApprove)return;var from=form.querySelector('[data-pah-from]'),to=form.querySelector('[data-pah-to]');function update(){to.setCustomValidity('');repair.inputs[row.uid]={from:from.value,to:to.value};if(repair.pending){repair.pending=null;var confirmation=root.querySelector('.pah-repair-confirm');if(confirmation)confirmation.remove();}}from.oninput=update;to.oninput=update;});
 }
 
   function runAction(action) {
@@ -375,7 +398,7 @@ function bindRepair(root){
     session.actorUid = nextUid;
     session.onModeChange = options && typeof options.onModeChange === 'function' ? options.onModeChange : session.onModeChange;
     session.onNavigate = options && typeof options.onNavigate === 'function' ? options.onNavigate : session.onNavigate;
-    if (!isAuthorized(actor)) { clear(root); return false; }
+    if (!isAuthorized(actor)) { repairSerial++;repair.pending=null;clear(root); return false; }
     if (changedActor) {session.mode = 'admin';repairSerial++;repair={open:false,busy:false,ready:false,message:'',rows:[],inputs:{}};}
     if (options && (options.mode === 'admin' || options.mode === 'general')) session.mode = options.mode;
 
