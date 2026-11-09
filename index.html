@@ -4701,7 +4701,7 @@ function recapStudioRollbackLeafMap(teams,assignments){
   return {leaves:leaves,unsupported:unsupported};
 }
 function recapStudioBuildRollbackPatch(snapshot,backup){const current=recapStudioRollbackLeafMap((snapshot||{}).teams,(snapshot||{}).assignments),prior=recapStudioRollbackLeafMap((backup||{}).teams,(backup||{}).assignments),patch={};Object.keys(Object.assign({},current.leaves,prior.leaves)).sort().forEach(function(path){const before=prior.leaves[path],now=current.leaves[path];if(before===undefined){if(now!==undefined)patch[path]=null;}else if(!recapStudioSameValue(now,before))patch[path]=before;});return {patch:patch,unsupported:current.unsupported.concat(prior.unsupported)};}
-function tlHomeConfig(u){if(!u)return null;const c=TL_HOME_CONFIGS[u.uid]||TL_HOME_BY_NAME[String(u.name||'').replace(/\s/g,'')];return c&&u.status==='active'&&ri(u.role)>=ri('TL')?{...c,uid:u.uid,leaderName:u.name||c.leaderName}:null;}
+function tlHomeConfig(u){if(!u)return null;if(u.status==='active'&&isFounder(u))return {...TL_HOME_CONFIGS.admin,uid:u.uid,leaderName:u.name||TL_HOME_CONFIGS.admin.leaderName};const c=TL_HOME_CONFIGS[u.uid]||TL_HOME_BY_NAME[String(u.name||'').replace(/\s/g,'')];return c&&u.status==='active'&&ri(u.role)>=ri('TL')?{...c,uid:u.uid,leaderName:u.name||c.leaderName}:null;}
 function isTlHomeUser(u){return !!tlHomeConfig(u);}
 function recapStudioAccessOf(u){if(!u)return null;const current=state&&state.recapStudioAccess;if(current&&current.uid===u.uid)return current;return window.__recapStudioAuthAccess&&window.__recapStudioAuthAccess.uid===u.uid?window.__recapStudioAuthAccess:null;}
 function recapStudioIsAdmin(u){const access=recapStudioAccessOf(u);return !!u&&(isFounder(u)||!!(access&&access.active!==false&&access.scope==='all'));}
@@ -7325,7 +7325,7 @@ function goTab(name){
   curTab=name;subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
   var _adminHomeActive=requestedTab==='adminhome'||requestedTab==='admin-home';
   var _homeEntry=document.getElementById('homeEntryBtn');if(_homeEntry)_homeEntry.classList.toggle('active',name==='home'&&!_adminHomeActive);
-  var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
+  var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('show',!!(me&&isTlHomeUser(me)));_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
   var _adminHomeEntry=document.getElementById('adminHomeEntryBtn');if(_adminHomeEntry){var _adminHomeAllowed=!!(me&&isFounder(me));_adminHomeEntry.classList.toggle('show',_adminHomeAllowed);_adminHomeEntry.classList.toggle('active',_adminHomeActive&&_adminHomeAllowed);_adminHomeEntry.setAttribute('aria-pressed',_adminHomeActive&&_adminHomeAllowed?'true':'false');}
   if(gk!==curGroup){curGroup=gk;subRailExpanded=false;buildRail();}else buildSubRail();
   document.querySelectorAll('#rail .gtab').forEach(t=>t.classList.toggle('active',t.dataset.group===curGroup));
@@ -17930,7 +17930,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-recap-pending.css?v=20260928-recap-pending-12">
 <link rel="stylesheet" href="assets/presence-executive-recap.css?v=20261003-3">
 <link rel="stylesheet" href="assets/presence-admin-home.css?v=20261003-3">
-<link rel="stylesheet" href="assets/presence-tl-workspace.css?v=20261109-tl-workspace2">
+<link rel="stylesheet" href="assets/presence-tl-workspace.css?v=20261109-tl-workspace3">
 <link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-10">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
@@ -17938,9 +17938,9 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
 <script src="assets/presence-workspace-v2.js?v=20261004-values-1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
-<script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace2"></script>
-<script src="assets/presence-tl-workspace.js?v=20261109-tl-workspace2"></script>
-<script src="assets/presence-admin-home.js?v=20261109-tl-workspace2"></script>
+<script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
+<script src="assets/presence-tl-workspace.js?v=20261109-tl-workspace3"></script>
+<script src="assets/presence-admin-home.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-promotion-journey.js?v=20260929-journey-label-15"></script>
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
 </body>
