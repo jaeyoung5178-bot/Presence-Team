@@ -63,6 +63,7 @@
   var giftVisible = false;
   var waterTimer = 0;
   var booted = false;
+  var sceneRequest=0;
 
   function versioned(url) {
     return url + '?v=' + VERSION;
@@ -193,7 +194,9 @@
   }
 
   function loadInto(image, url, fallback) {
-    if (!image || image.dataset.requested === url) return;
+    if (!image) return;
+    if(image.dataset.requested===url){if(image.dataset.loaded===url&&image.src!==new URL(versioned(url),document.baseURI).href)image.src=versioned(url);return;}
+    delete image.dataset.failed;
     image.dataset.requested = url;
     if (image.classList.contains('tree-v2-atmosphere')) image.style.opacity = '0';
     var loader = new Image();
@@ -205,11 +208,8 @@
       requestAnimationFrame(function () { image.style.opacity = '1'; });
     };
     loader.onerror = function () {
-      if (!fallback || image.dataset.requested !== url) return;
-      image.dataset.requested = fallback;
-      image.src = versioned(fallback);
-      image.dataset.loaded = fallback;
-      image.style.opacity = '1';
+      if(image.dataset.requested!==url)return;
+      image.dataset.failed=url;
     };
     loader.src = versioned(url);
   }
@@ -245,7 +245,7 @@
     var season = seasonNow();
     var period = timePeriod();
     var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
-    var christmas = !!window.PresenceSeason?.isChristmas?.();
+    var christmas = season === 'winter';
     var url = christmas ? 'assets/season/2026/winter-garden-v2.webp' : BACKGROUNDS[season][mode];
     var image = ensureBackground(stage);
     loadInto(image, url, christmas ? BACKGROUNDS[season][mode] : BACKGROUNDS.spring.day);
@@ -455,11 +455,10 @@
     tree.style.height = '';
     tree.style.animation = '';
     var key = treeKeyFor(context, season);
-    var christmas = !!window.PresenceSeason?.isChristmas?.() && ['spring','summer','autumn','winter'].indexOf(key) !== -1;
+    var christmas = season === 'winter' && ['spring','summer','autumn','winter'].indexOf(key) !== -1;
     var spriteKey = christmas ? key + '-christmas' : key;
-    if (tree.dataset.treeV2Key === spriteKey) return;
+    if(tree.dataset.treeV2Key!==spriteKey)tree.style.opacity='0';
     tree.dataset.treeV2Key = spriteKey;
-    tree.style.opacity = '0';
     loadInto(tree, christmas ? 'assets/season/2026/christmas-tree.webp' : TREES[key], christmas ? TREES[key] : TREES.stage1);
     tree.classList.remove('tree-v2-changing');
     void tree.offsetWidth;
@@ -515,10 +514,13 @@
   function upgradeScene(weekOverride) {
     var stage = document.querySelector('#treeSecHome .tree-stage');
     if (!stage) return;
+    var section=document.getElementById('treeSecHome'),snapshot=window.PresenceWorkspace?.gardenSnapshot?.(),request=++sceneRequest;
+    if(!snapshot?.ready){if(section){section.dataset.gardenState=snapshot?.error?'failed':'pending';section.setAttribute('aria-busy','true');}return;}
+    if(section.dataset.gardenVersion!==String(snapshot.version))section.dataset.gardenState='pending';
     stage.classList.add('tree-v2-stage');
     stage.setAttribute('role', 'group');
     renderBackground(stage);
-    var season = seasonNow();
+    var season = snapshot.season;
     var context = treeContext(weekOverride);
     renderTreeSprite(stage, context, season);
     ensureWaterer(stage);
@@ -526,6 +528,17 @@
     stage.querySelectorAll('.tree-chick').forEach(function (node) { node.remove(); });
     if (context.ended || context.frac >= 0.6 || giftVisible) renderGiftLayer(true);
     if (window.PresenceWorkspace) window.PresenceWorkspace.syncGardenScene();
+    var images=[...stage.querySelectorAll('.tree-v2-background,.tree-v2-atmosphere,#treeMain,.tree-v2-gifts img,.tree-v2-waterer img')];
+    function failed(){return images.some(img=>img.dataset.failed||img.complete&&img.src&&!img.naturalWidth&&(!img.dataset.requested||img.dataset.loaded===img.dataset.requested));}
+    function settled(){return images.every(img=>img.complete&&img.naturalWidth>0&&(!img.dataset.requested||img.dataset.loaded===img.dataset.requested));}
+    if(!settled())section.dataset.gardenState='pending';
+    section.setAttribute('aria-busy',String(section.dataset.gardenState!=='ready'));
+    function commit(){if(request!==sceneRequest||window.PresenceWorkspace?.gardenSnapshot?.().version!==snapshot.version)return;
+      if(failed()){section.dataset.gardenState='failed';section.setAttribute('aria-busy','false');return;}
+      if(!settled()){setTimeout(commit,40);return;}
+      Promise.all(images.map(img=>img.decode?img.decode():Promise.resolve())).then(function(){if(request!==sceneRequest||window.PresenceWorkspace?.gardenSnapshot?.().version!==snapshot.version)return;section.dataset.gardenVersion=String(snapshot.version);section.dataset.gardenSeason=snapshot.season;section.dataset.gardenTotal=String(snapshot.total);section.dataset.gardenState='ready';section.setAttribute('aria-busy','false');}).catch(function(){if(request===sceneRequest){section.dataset.gardenState='failed';section.setAttribute('aria-busy','false');}});
+    }
+    commit();
   }
 
   function teamProfiles() {
@@ -673,7 +686,7 @@
       window.renderTreeBg = function () {
         var result = original.renderTreeBg.apply(this, arguments);
         var stage = document.querySelector('#treeSecHome .tree-stage');
-        if (stage) renderBackground(stage);
+        if (stage) upgradeScene();
         return result;
       };
       window.renderTreeBg.__presenceTreeV2 = true;
@@ -816,8 +829,7 @@
     hookFunctions();
     var stage = document.querySelector('#treeSecHome .tree-stage');
     if (stage) {
-      renderBackground(stage);
-      ensureWaterer(stage);
+      upgradeScene();
     }
   }, 60000);
 })();

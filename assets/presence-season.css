@@ -155,6 +155,17 @@ body.presence-christmas :is(.pw-head,.ptw-entry strong,.pah-heading h2,.pah-acti
 .presence-season-control [data-season-choice][aria-pressed=true]{outline:2px solid #b89d63;outline-offset:2px}
 .presence-season-control button:focus-visible{outline:3px solid #b89d63;outline-offset:3px}
 @media(max-width:600px){.presence-season-control [data-season-choices]{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body .presence-season-control.presence-season-floating{position:fixed;right:18px;bottom:72px;z-index:299;display:block;width:auto;margin:0;padding:0;border:0;background:transparent;color:#244638}
+.presence-season-floating>[data-season-expand]{display:flex;align-items:center;justify-content:center;width:88px;min-width:88px;min-height:44px;margin:0;background:#fff9ed;color:#244638;border:1px solid #bca06d;border-radius:24px;font-size:14px;box-shadow:0 5px 18px #302b201c}
+.presence-season-floating [data-season-panel]{position:absolute;right:0;bottom:56px;width:min(344px,calc(100vw - 32px));box-sizing:border-box;max-height:calc(100dvh - 190px);overflow:auto;padding:18px;border:1px solid #c6b48d;border-radius:20px;background:#fffaf0;color:#244638;box-shadow:0 16px 45px #172e2533}
+.presence-season-floating [data-season-panel][hidden]{display:none}
+.presence-season-floating .presence-season-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.presence-season-floating .presence-season-heading>button{width:44px;min-width:44px;min-height:44px;padding:6px;font-size:24px}
+.presence-season-floating [data-season-choices]{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 0}
+.presence-season-floating [data-season-local]{width:100%;margin-bottom:12px;min-height:48px}
+body .presence-season-floating p{color:#526558;font-size:14px;line-height:1.6}
+body:has(.modal.on,dialog[open]) .presence-season-floating{display:none}
+@media(max-width:979px){body .presence-season-control.presence-season-floating{right:16px;bottom:calc(78px + env(safe-area-inset-bottom))}}
 body.presence-christmas .pah-action-letter,body.presence-christmas .pah-label-default{display:none}
 body.presence-christmas .pah-label-season{display:block}
 body.presence-christmas .pah-summary dt{font-size:12px;letter-spacing:0;white-space:normal;word-break:keep-all;overflow:visible}

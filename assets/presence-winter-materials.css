@@ -1,0 +1,13 @@
+/* Real painted-wood material stays on navigation and hero surfaces; reading panels remain cream. */
+body.presence-workspace-v2.presence-christmas #app :is(header.top,nav.rail,#botbar){background-color:#224b3d!important;background-image:linear-gradient(#183d2e24,#183d2e24),url('season/2026/evergreen-painted-wood.webp')!important;background-size:auto,480px 480px!important;border-color:#b99858!important;color:#fff4dc}
+body.presence-workspace-v2.presence-christmas #app header.top{border-bottom:3px solid #8e2e40!important;box-shadow:0 2px 0 #cfaf69,0 6px 18px #18342c24}
+body.presence-christmas #rail .gtab.active,
+body.presence-christmas #botbar .grp-btn.active{background:linear-gradient(110deg,#702536,#a73f4b)!important;color:#fff6df!important;box-shadow:inset 0 0 0 1px #d5af6c!important}
+body.presence-christmas .pah-hero,
+body.presence-christmas .pw-home-intro{background-color:#244f3e!important;background-image:linear-gradient(90deg,#173b2e55,#173b2e11),url('season/2026/evergreen-painted-wood.webp')!important;background-size:auto,540px 540px!important;color:#fff5df!important;border-color:#c6a56a!important;border-top:4px solid #943448!important}
+body.presence-christmas .pah-hero h1,
+body.presence-christmas .pw-home-intro h1{color:#fff5df!important}
+body.presence-christmas .pah-hero{position:relative}
+body.presence-christmas .pah-hero:after{content:'';position:absolute;right:16px;top:10px;width:20px;height:24px;background:url('winter-icons/gold-bell.svg') center/contain no-repeat;pointer-events:none}
+body.presence-christmas #rail:before{content:'';display:block;width:44px;height:34px;margin:5px auto 9px;background:url('winter-icons/velvet-bow.svg') center/contain no-repeat;pointer-events:none}
+@media(max-width:600px){body.presence-christmas .pah-hero:after{right:10px;top:10px;width:18px;height:22px}}

@@ -4,6 +4,7 @@
   const $=id=>document.getElementById(id);
   const E=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const data={access:{},profiles:{},weeks:{},learning:{},promotions:{},selfPromotions:{},messages:{},dm:{},garden:{},settings:{},teamGoals:{}};
+  const gardenErrors=new Set();let gardenVersion=0,gardenSignature='';
   const loaded=new Set(),subscriptions=new Map(),drafts=new Map();
   const seasons={spring:'봄 · 벚꽃',summer:'여름 · 상록수',autumn:'가을 · 단풍',winter:'겨울 · 크리스마스'};
   const channels={team:'팀 이야기',cod:'COD 질문',learning:'오늘의 배움',praise:'칭찬·굿뉴스',network:'네트워킹'};
@@ -43,13 +44,15 @@
   function paint(el,html){if(!el)return;const focus=document.activeElement,active=focus&&el.contains(focus)?focus.id:'',start=focus&&focus.selectionStart,end=focus&&focus.selectionEnd;el.innerHTML=html;if(active&&$(active)){const next=$(active);next.focus({preventScroll:true});if(typeof next.setSelectionRange==='function'&&start!=null)try{next.setSelectionRange(start,end);}catch(e){}}}
   function setStatus(text,error){const el=$('pwGlobalStatus');if(el){el.textContent=text;el.classList.toggle('pw-error',!!error);}if(error){const gardenStatus=$('pwGardenStatus');if(gardenStatus)gardenStatus.textContent=text;toast(text);}}
   async function write(path,value){if(!actor()||actor().status!=='active')throw new Error('로그인을 확인해 주세요.');if(!LIVE||!window.__firebaseReady)throw new Error('서버에 연결된 뒤 다시 저장해 주세요.');const writerUid=actor().uid;await DB.set(path,value);if(!actor()||actor().uid!==writerUid)throw new Error('계정이 변경되었습니다. 현재 계정의 기록을 다시 확인해 주세요.');}
-  function watch(path,cb){if(subscriptions.has(path))return;let active=true,off;const stop=()=>{active=false;if(typeof off==='function')off();};subscriptions.set(path,stop);off=DB.on(path,v=>{if(!active||!actor()||actor().uid!==sessionUid)return;loaded.add(path);cb(v||{});schedule();},()=>{if(active)setStatus('일부 기록을 읽지 못했습니다. 연결과 열람 권한을 확인해 주세요.',true);});}
+  function watch(path,cb){if(subscriptions.has(path))return;let active=true,off;const stop=()=>{active=false;if(typeof off==='function')off();};subscriptions.set(path,stop);off=DB.on(path,v=>{if(!active||!actor()||actor().uid!==sessionUid)return;loaded.add(path);gardenErrors.delete(path);cb(v==null?{}:v);schedule();},()=>{if(active){gardenErrors.add(path);schedule();}if(active)setStatus('일부 기록을 읽지 못했습니다. 연결과 열람 권한을 확인해 주세요.',true);});}
   function syncSubscriptions(){
     if(!actor()||!window.__firebaseReady)return;
     if(sessionUid!==actor().uid){dispose();sessionUid=actor().uid;document.body.dataset.workspaceTheme='dark';}
     watch('workspaceAccess',v=>{data.access=v;syncPrivate();});
     watch('workspaceProfiles',v=>{data.profiles=v;});
     watch('workspaceGarden',v=>{data.garden=v;});
+    watch('pr',v=>{state.pr=typeof v==='number'?v:0;});
+    watch('waters',v=>{state.waters=v||{};});
     watch('workspaceSettings',v=>{data.settings=v;});
     watch('workspaceTeamGoals',v=>{data.teamGoals=v;});
     watch('workspaceChannels/'+channel,v=>{data.messages[channel]=v;});
@@ -61,15 +64,17 @@
     for(const [path,off] of subscriptions){const match=path.match(/^(workspaceWeeks|workspaceLearning|workspacePromotions|workspaceSelfPromotions)\/([^/]+)$/);if(match&&!ids.has(match[2])){off();subscriptions.delete(path);loaded.delete(path);const store={workspaceWeeks:'weeks',workspaceLearning:'learning',workspacePromotions:'promotions',workspaceSelfPromotions:'selfPromotions'}[match[1]];delete data[store][match[2]];$('workspaceSupport')?.replaceChildren();if($('pwDialog')?.querySelector('[data-form=promotion],[data-form=coach]'))$('pwDialog').close();}}
     for(const uid of ids){watch('workspaceWeeks/'+uid,v=>data.weeks[uid]=v);watch('workspaceLearning/'+uid,v=>data.learning[uid]=v);watch('workspacePromotions/'+uid,v=>data.promotions[uid]=v);watch('workspaceSelfPromotions/'+uid,v=>data.selfPromotions[uid]=v);}
   }
-  function dispose(){window.PresenceQuickAccess?.dispose();window.PresencePromotionPlanner?.dispose?.();for(const off of subscriptions.values())try{off();}catch(e){}subscriptions.clear();loaded.clear();drafts.clear();Object.keys(data).forEach(k=>data[k]={});sessionUid='';dmUid='';replyTo='';supportUid='';profitDate='';profitKind='week';profitScope='self';profitUid='';pledgeExpanded=false;homePendingExpanded=false;const dialog=$('pwDialog');if(dialog){dialog.close();dialog.remove();}document.querySelectorAll('.pw-private-root').forEach(el=>el.replaceChildren());}
+  function dispose(){window.PresenceQuickAccess?.dispose();window.PresencePromotionPlanner?.dispose?.();for(const off of subscriptions.values())try{off();}catch(e){}subscriptions.clear();loaded.clear();gardenErrors.clear();gardenSignature='';gardenVersion++;const gardenSection=$('treeSecHome');if(gardenSection){gardenSection.dataset.gardenState='pending';delete gardenSection.dataset.gardenVersion;}drafts.clear();Object.keys(data).forEach(k=>data[k]={});sessionUid='';dmUid='';replyTo='';supportUid='';profitDate='';profitKind='week';profitScope='self';profitUid='';pledgeExpanded=false;homePendingExpanded=false;const dialog=$('pwDialog');if(dialog){dialog.close();dialog.remove();}document.querySelectorAll('.pw-private-root').forEach(el=>el.replaceChildren());}
   function schedule(){clearTimeout(timer);timer=setTimeout(()=>render(),70);}
   function rangeStats(names,range){return C.aggregate(state.sales,names,range.start,range.cutoff,saleEntryCountsAsWork);}
   function goal(uid,start){return (((data.weeks[uid]||{})[start||C.monday(C.dateKey())]||{}).entry||{}).target||0;}
-  function currentSeason(){return window.PresenceSeason?.isChristmas?.()?'winter':seasons[data.settings.season]?data.settings.season:C.season();}
+  function currentSeason(){return loaded.has('workspaceSettings')?(seasons[data.settings.season]?data.settings.season:C.season()):'pending';}
+  function gardenSnapshot(){const paths=['workspaceSettings','workspaceGarden','pr','waters'],error=paths.some(p=>gardenErrors.has(p));if(!actor()||error||!paths.every(p=>loaded.has(p)))return {ready:false,error,version:gardenVersion};const season=currentSeason(),total=gardenTotal(),participated=users().filter(u=>isWatered(u.uid)).length,signature=JSON.stringify([actor().uid,season,state.pr,state.waters,data.garden]);if(signature!==gardenSignature){gardenSignature=signature;gardenVersion++;}return {ready:true,error:false,version:gardenVersion,season,total,participated};}
   function isWatered(uid){return (data.garden[uid]?.lastWateredAt&&C.dateKey(new Date(data.garden[uid].lastWateredAt))===C.dateKey())||(state.waters||{})[uid]?.last===C.dateKey();}
   function gardenTotal(){return C.gardenTotal(state.pr,state.waters,data.garden);}
   async function water(){
     const a=actor();if(!a||wateringUid)return;
+    if(!gardenSnapshot().ready)throw new Error('정원 연결 상태를 확인한 뒤 다시 시도해 주세요.');
     if(isWatered(a.uid)){toast('오늘의 물주기를 마쳤어요. 내일 또 함께해요.');return;}
     if(curTab!=='garden')openGarden();
     wateringUid=a.uid;syncGardenScene();
@@ -300,7 +305,7 @@
   function promotionEnv(){const a=actor(),normalize=window.PresencePromotionCore?.normalizedName;const dossiers={};if(normalize)Object.entries(state.dossier||{}).forEach(([name,record])=>{dossiers[normalize(name)]=record;});return {actor:a,users:a?users():[],dossiers,record:a?(data.selfPromotions[a.uid]||{}):{},loaded:!!a&&loaded.has('workspaceSelfPromotions/'+a.uid),preview:!!window.__previewRole};}
   async function promotionSave(kind,value,recordWeek){const a=actor();if(!a||a.status!=='active'||!window.PresencePromotionCore?.isEligibleRole(a.role)||window.__previewRole)throw new Error('이 계정에서는 개인 승진 플랜을 저장할 수 없습니다.');if(kind!=='plan'&&kind!=='week')throw new Error('저장할 기록을 확인해 주세요.');if(kind==='plan'){if(!window.PresencePromotionCore.validatePlan(value).valid||value.updatedBy!==a.uid)throw new Error('승진 플랜 내용을 다시 확인해 주세요.');if(!LIVE||!window.__firebaseReady)throw new Error('서버에 연결된 뒤 다시 저장해 주세요.');const uid=a.uid,publicPlan={version:1,targetRole:value.targetRole,due:value.due,updatedBy:uid,updatedAt:value.updatedAt};await DB.update(null,{['workspaceSelfPromotions/'+uid+'/plan']:value,['workspacePromotionPlans/'+uid]:publicPlan});if(!actor()||actor().uid!==uid)throw new Error('계정이 변경되었습니다. 현재 계정의 기록을 다시 확인해 주세요.');}else await write('workspaceSelfPromotions/'+a.uid+'/weeks/'+recordWeek,value);const own=data.selfPromotions[a.uid]||(data.selfPromotions[a.uid]={});if(kind==='plan')own.plan=value;else{own.weeks=own.weeks||{};own.weeks[recordWeek]=value;}schedule();}
   function openPromotionPlanner(){goTab('learnhub');requestAnimationFrame(()=>{$('ppWeekForm')?.scrollIntoView({behavior:'instant',block:'start'});if(!$('ppWeekForm'))$('pwPersonalPromotion')?.scrollIntoView({behavior:'instant',block:'start'});});}
-  window.PresenceWorkspace={init,render,schedule,dispose,nav,canCoach,water,currentSeason,syncGardenScene,beforeNavigate,data,core:C,promotionEnv,promotionSave,openPromotionPlanner};
+  window.PresenceWorkspace={init,render,schedule,dispose,nav,canCoach,water,currentSeason,syncGardenScene,beforeNavigate,data,core:C,promotionEnv,promotionSave,openPromotionPlanner,gardenSnapshot};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   window.addEventListener('presence:firebase-ready',schedule);
   window.addEventListener('presence:seasonchange',schedule);

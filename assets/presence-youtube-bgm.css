@@ -7,9 +7,11 @@ body.presence-music-authenticated.presence-effects-ready #presenceBgmQuick{displ
 #presenceBgmQuick:focus-visible{outline:3px solid #a98448;outline-offset:3px}
 body.presence-music-authenticated.presence-effects-ready:has(.modal.on,dialog[open]) #presenceBgmQuick{display:none!important}
 /* Decorations belong behind the workbook's readable surfaces, never over forms. */
-body.presence-effects-ready #fxCanvas{z-index:1;pointer-events:none}
+body.presence-effects-ready #fxCanvas{position:fixed!important;inset:0!important;z-index:120!important;pointer-events:none!important;opacity:.72}
 body.presence-effects-ready #fxTint{z-index:0;opacity:0!important;pointer-events:none}
 body.presence-effects-ready #app{position:relative;z-index:2;background:transparent!important}
-body.presence-effects-ready #treeSecHome .tree-stage>#fxCanvas[data-scene-host=garden]{position:absolute;inset:0;z-index:2;pointer-events:none}
-@media(min-width:980px){#presenceBgmQuick{left:auto;right:18px;bottom:18px}}
+
+@media(min-width:980px){body.presence-music-authenticated.presence-effects-ready #presenceBgmQuick{left:auto;right:18px;bottom:18px}}
 @media(prefers-reduced-motion:reduce){#presenceBgmQuick{animation:none!important;transition:none!important}}
+
+body.presence-effects-ready:has(.modal.on,dialog[open]) #fxCanvas{visibility:hidden}

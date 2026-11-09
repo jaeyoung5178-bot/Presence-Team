@@ -1,168 +1,129 @@
+/* One Christmas intro owner. Network readiness and the explicit skip button always remain authoritative. */
 (function () {
   'use strict';
-
+  var DURATION = 4500;
   var ART = 'assets/season/2026/christmas-gift-atelier-v2.webp';
   var PARTY = 'assets/season/2026/christmas-party-atelier-v2.webp';
-  var root = null;
-  var installed = false;
-  var videoSource = '';
-  var video = null;
-  var skipped = false;
+  var root = null, shell = null, legacy = null, message = null, messageHome = null;
+  var installed = false, sequenceStart = 0, running = false, ready = false, skipped = false;
+  var finishTimer = null, knownStandard = false;
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var originalShow = null, originalHide = null;
 
-  function christmas() {
-    return document.body.classList.contains('presence-christmas');
+  function christmas() { return document.body.classList.contains('presence-christmas'); }
+  function elapsed() { return sequenceStart ? performance.now() - sequenceStart : 0; }
+
+  function finish() {
+    clearTimeout(finishTimer);
+    running = false;
+    if (root) root.classList.remove('show', 'complete', 'pci-reveal');
+  }
+  function skip() {
+    skipped = true;
+    clearTimeout(finishTimer);
+    if (root) root.classList.add('pci-quiet');
+    if (ready) finish();
   }
 
   function mount() {
     root = document.getElementById('presenceGameLoader');
     if (!root) return;
-    var world = root.querySelector('.pgl-world');
-    var console = root.querySelector('.pgl-console');
-    if (!world || !console) return;
-
-    if (!world.querySelector('.pci-scene')) {
-      var scene = document.createElement('div');
-      scene.className = 'pci-scene';
-      scene.setAttribute('aria-hidden', 'true');
-      scene.innerHTML = '<div class="pci-light"></div>' +
-        '<img class="pci-atelier" alt="" width="1536" height="1024">' +
+    legacy = root.querySelector('.pgl-cinema');
+    if (legacy) legacy.classList.add('pci-legacy');
+    message = document.getElementById('presenceGameLoaderMsg');
+    if (message && !messageHome && !message.closest('.pci-shell')) messageHome = message.parentNode;
+    shell = root.querySelector('.pci-shell');
+    if (!shell) {
+      shell = document.createElement('div');
+      shell.className = 'pci-shell';
+      shell.innerHTML = '<section class="pci-world" aria-hidden="true"><div class="pci-scene">' +
+        '<div class="pci-light"></div><img class="pci-atelier" alt="" width="1536" height="1024">' +
         '<div class="pci-portal"><img class="pci-party" alt="" width="1536" height="1024">' +
         '<div class="pci-door pci-door-left"><i></i></div><div class="pci-door pci-door-right"><i></i></div></div>' +
-        '<div class="pci-glasslight"></div>' +
-        '<div class="pci-snow"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
-      var art = scene.querySelector('img');
-      art.src = ART;
-      art.decoding = 'async';
-      art.onload = function () { scene.classList.add('pci-art-ready'); };
+        '<div class="pci-glasslight"></div><div class="pci-snow"><i></i><i></i><i></i><i></i><i></i><i></i></div>' +
+        '</div></section><section class="pci-console"><div class="pci-wordmark" aria-hidden="true">' +
+        '<span class="pci-copy-first">Ready for winter?</span><span class="pci-copy-last">Let’s go, Presence!</span>' +
+        '</div><div class="pci-loadbox"><div class="pci-message-slot"></div><div class="pci-connection" aria-hidden="true"><i></i></div></div>' +
+        '<button class="pci-skip" type="button">건너뛰기</button></section>';
+      var scene = shell.querySelector('.pci-scene');
+      var art = shell.querySelector('.pci-atelier');
+      art.decoding = 'async'; art.src = ART;
       art.onerror = function () { scene.classList.add('pci-art-unavailable'); };
-      var party = scene.querySelector('.pci-party');
-      party.src = PARTY;
-      party.decoding = 'async';
+      var party = shell.querySelector('.pci-party');
+      party.decoding = 'async'; party.src = PARTY;
       party.onerror = function () { scene.classList.add('pci-party-unavailable'); };
-      world.appendChild(scene);
+      shell.querySelector('.pci-skip').onclick = skip;
+      root.appendChild(shell);
     }
-
-    if (!console.querySelector('.pci-wordmark')) {
-      var wordmark = document.createElement('div');
-      wordmark.className = 'pci-wordmark';
-      wordmark.setAttribute('aria-hidden', 'true');
-      wordmark.innerHTML = '<span class="pci-copy-first">Ready for winter?</span>' +
-        '<span class="pci-copy-last">Let’s go, Presence!</span>';
-      console.prepend(wordmark);
+    if (christmas()) {
+      if (message) shell.querySelector('.pci-message-slot').appendChild(message);
+      root.classList.remove('pci-standard');
+      root.classList.add('pci-owned');
+    } else if (knownStandard) {
+      if (message && messageHome) messageHome.appendChild(message);
+      root.classList.remove('pci-owned', 'pci-reveal');
+      root.classList.add('pci-standard');
     }
   }
 
-  function showScene() {
+  function startSequence() {
     mount();
     if (!root || !christmas()) return;
-    // Network readiness owns the duration. The decoration never delays entry.
     clearInterval(window.__pglTimer);
-    var fill = document.getElementById('pglFill');
     var percent = document.getElementById('pglPercent');
-    if (fill) fill.removeAttribute('style');
     if (percent) percent.textContent = '';
-    root.classList.remove('pci-reveal');
+    if (running) return;
+    running = true; ready = false; skipped = false;
+    sequenceStart = performance.now();
+    root.classList.remove('complete', 'pci-quiet', 'pci-reveal');
     void root.offsetWidth;
-    root.classList.add('pci-reveal');
-    skipped = false;
-    playVideo();
+    root.classList.add('show', 'pci-reveal');
+    clearTimeout(finishTimer);
+    finishTimer = setTimeout(function () {
+      if (root) root.classList.add('pci-quiet');
+      if (ready) finish();
+    }, DURATION);
   }
 
-  function stopVideo() {
-    if (video) video.pause();
-  }
-
-  function playVideo() {
-    if (!videoSource || !root || !christmas() || motion.matches || skipped) return;
-    var scene = root.querySelector('.pci-scene');
-    if (!scene) return;
-    if (!video) {
-      video = document.createElement('video');
-      video.className = 'pci-film';
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      video.preload = 'metadata';
-      video.poster = ART;
-      video.setAttribute('aria-hidden', 'true');
-      video.src = videoSource;
-      video.addEventListener('playing', function () { root.classList.add('pci-film-ready'); });
-      video.addEventListener('error', function () { root.classList.remove('pci-film-ready'); });
-      video.addEventListener('timeupdate', function () {
-        root.classList.toggle('pci-film-late', video.currentTime >= 1.2);
-      });
-      scene.appendChild(video);
-      var skip = document.createElement('button');
-      skip.className = 'pci-skip';
-      skip.type = 'button';
-      skip.textContent = '애니메이션 건너뛰기';
-      skip.onclick = function () {
-        skipped = true;
-        stopVideo();
-        root.classList.remove('pci-film-ready', 'pci-reveal');
-      };
-      root.querySelector('.pgl-console').appendChild(skip);
-    }
-    video.currentTime = 0;
-    root.classList.remove('pci-film-late');
-    var playing = video.play();
-    if (playing && typeof playing.catch === 'function') {
-      playing.catch(function () { root.classList.remove('pci-film-ready'); });
-    }
+  function requestHide() {
+    if (!root || !christmas()) { ready = true; finish(); return; }
+    clearInterval(window.__pglTimer);
+    ready = true;
+    // User-requested readable sequence, never longer than 4.5 seconds after it began.
+    if (!running || skipped || motion.matches || elapsed() >= DURATION) finish();
   }
 
   function install() {
     if (installed) return;
     installed = true;
+    try { knownStandard = localStorage.getItem('presence_christmas_visual_hint') === 'off'; } catch (ignore) {}
     mount();
-    if (typeof window.showPresenceLoader === 'function') {
-      var originalShow = window.showPresenceLoader;
+    originalShow = window.showPresenceLoader;
+    originalHide = window.hidePresenceLoader;
+    if (typeof originalShow === 'function') {
       window.showPresenceLoader = function () {
         var result = originalShow.apply(this, arguments);
-        showScene();
+        if (christmas()) startSequence();
+        else mount();
         return result;
       };
     }
-    if (typeof window.hidePresenceLoader === 'function') {
-      var originalHide = window.hidePresenceLoader;
-      window.hidePresenceLoader = function () {
-        var result = originalHide.apply(this, arguments);
-        if (root && christmas()) {
-          stopVideo();
-          root.classList.remove('show', 'complete', 'pci-reveal');
-        }
-        return result;
-      };
-    }
-    if (root && root.classList.contains('show')) showScene();
-    window.addEventListener('presence:seasonchange', function () {
-      if (!christmas()) stopVideo();
-      if (root && root.classList.contains('show')) showScene();
+    if (typeof originalHide === 'function') window.hidePresenceLoader = requestHide;
+    if (root?.classList.contains('show') && christmas()) startSequence();
+    window.addEventListener('presence:seasonchange', function (event) {
+      if (event.detail && typeof event.detail.christmas === 'boolean') knownStandard = !event.detail.christmas;
+      mount();
+      if (christmas() && root?.classList.contains('show')) startSequence();
+      else if (!christmas() && ready) finish();
     });
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stopVideo();
-    });
-    motion.addEventListener('change', function () {
-      if (motion.matches) {
-        stopVideo();
-        if (root) root.classList.remove('pci-film-ready');
-      }
-    });
+    motion.addEventListener('change', function () { if (motion.matches && ready) finish(); });
   }
 
   window.PresenceChristmasIntro = Object.freeze({
     mount: mount,
-    replay: showScene,
-    setVideo: function (source) {
-      if (!/^assets\/season\/2026\/[a-z0-9-]+\.mp4$/.test(source)) throw Error('검수된 시즌 영상 경로를 사용해 주세요.');
-      stopVideo();
-      if (video) video.remove();
-      video = null;
-      root?.querySelector('.pci-skip')?.remove();
-      videoSource = source;
-      if (root && root.classList.contains('show')) playVideo();
-    }
+    replay: function () { running = false; startSequence(); },
+    skip: skip,
+    get state() { return {running: running, ready: ready, skipped: skipped, elapsed: elapsed(), duration: DURATION}; }
   });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
   else install();

@@ -2524,6 +2524,13 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
      mounted only inside the authenticated founder admin screen. -->
 
 <!-- ===================== GAME LOADING + ENTRY LOBBY ===================== -->
+<script>try{if(localStorage.getItem('presence_christmas_visual_hint')==='winter')document.body.classList.add('presence-christmas');}catch(ignore){}</script>
+<style id="presence-loader-owner-bootstrap">
+  #presenceGameLoader:not(.pci-owned):not(.pci-standard){background:#f6f0e5!important;color:#244638!important}
+  #presenceGameLoader:not(.pci-owned):not(.pci-standard)>*{visibility:hidden!important}
+  #presenceGameLoader:not(.pci-owned):not(.pci-standard)::before{display:none!important}
+  #presenceGameLoader:not(.pci-owned):not(.pci-standard)::after{content:'Presence를 불러오는 중…'!important;display:grid!important;place-items:center;position:absolute;inset:0;width:auto;height:auto;border-radius:0;background:none!important;filter:none;animation:none!important;color:#244638;font:600 16px/1.6 var(--font,system-ui);letter-spacing:0;mask-image:none}
+</style>
 <style id="presence-game-entry-css">
   #presenceGameLoader{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 18%,rgba(255,255,255,.22),transparent 38%),linear-gradient(145deg,#7453ee 0%,#526fea 46%,#36b7e2 100%);color:#fff;font-family:var(--font,inherit)}
   #presenceGameLoader.show{display:flex}
@@ -2610,7 +2617,6 @@ body{-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
   @media(prefers-reduced-motion:reduce){#presenceGameLoader.cinematic:before,#presenceGameLoader.cinematic:after,.pgl-track:after,.pgl-stage:before,.pgl-stage:after,.pgl-scanbeam,.pgl-hero{animation:none!important}}
 </style>
 <link rel="stylesheet" href="assets/presence-polish.css?v=20261109-header-polish2">
-<script>try{if(localStorage.getItem('presence_christmas_visual_hint')==='winter')document.body.classList.add('presence-christmas');}catch(ignore){}</script>
 <script id="presence-cinematic-loader-compose">
 (function(){
   var el=document.getElementById('presenceGameLoader');if(!el)return;el.classList.add('cinematic');
@@ -2661,6 +2667,8 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
 </script>
 
 <!-- ===================== AUTH GATE ===================== -->
+<link rel="stylesheet" href="assets/presence-christmas-intro.css?v=20261109-winter-finish1">
+<script src="assets/presence-christmas-intro.js?v=20261109-winter-finish1"></script>
 <div id="authGate" class="hidden" aria-hidden="true">
   <div class="auth-card">
     <div class="auth-logo">
@@ -5630,12 +5638,12 @@ function enterApp(){
   // prefill name fields
   
   if(tlFast){
-    window.__booting=false;buildRail();tlhSubscribe();goTab(setupManagerRequested?'setupkit':(isFounder(me)?'adminhome':(window.PresenceWorkspace?'home':'tlhome')));renderTLHome();startAutoPull();subCbjournal();
+    window.__booting=false;buildRail();tlhSubscribe();goTab(setupManagerRequested?'setupkit':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
     try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
     setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();}catch(e){console.warn('[deferred app render]',e);}},80);
   }else{
     window.__booting=true; try{loadBarStart();}catch(e){}
-    buildRail();renderAll();goTab(setupManagerRequested?'setupkit':(isFounder(me)?'adminhome':'home'));startAutoPull();subCbjournal();
+    buildRail();renderAll();goTab(setupManagerRequested?'setupkit':'home');startAutoPull();subCbjournal();
     setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
   }
   if(setupManagerRequested)setTimeout(function(){const byday=document.querySelector('#m-setupkit [data-sk="byday"]');if(byday)byday.click();},80);
@@ -7304,6 +7312,7 @@ function selectGroup(gk){
 }
 function goTab(name){
   const requestedTab=name;
+  if(requestedTab==='home'&&window.PresenceAdminHome)window.PresenceAdminHome.reset('adminHomeMount');
   if(window.PresenceAdminHome)name=window.PresenceAdminHome.guardRoute(name,me,'adminHomeMount')||name;
   /* 권한 가드 단일 출처 — TABMETA[].g 만 보면 됨 (기존 12줄 하드코딩 제거).
      보이지 않아야 할 탭이면 홈으로. 정의 안 된 탭 이름도 안전하게 홈 처리. */
@@ -10194,7 +10203,7 @@ const FX=(function(){
     if(t==='beach'){parts.push({k:'cstamp',e:'🐚',x,y,sc:R(28,40),life:0,max:74,rise:0});parts.push({k:'cspark',x,y:y-4,vx:R(-.4,.4),vy:-R(1.1,2),c:'#fffdf3',size:R(2,3),life:0,max:R(40,58),g:0.03});for(let i=0;i<5;i++){const a=R(-1.2,-1.9),sp=R(1,2.4);parts.push({k:'cspark',x,y:y-6,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,c:'#ffe9c0',size:R(1,2),life:0,max:R(24,40),g:0.04});}return;}
     if(t==='rain'){parts.push({k:'ccloud',x,y:y-20,life:0,max:62,sc:R(30,42)});for(let i=0;i<5;i++)parts.push({k:'cdrop',x:x+R(-16,16),y:y-8,vy:R(4,7.5),len:R(8,16),life:0,max:R(22,42),op:R(.4,.7)});return;}
   }
-  function resize(){if(!cv||!ctx)return;const garden=cv.dataset.sceneHost==='garden'?cv.parentElement:null;W=garden?garden.clientWidth:window.innerWidth;H=garden?garden.clientHeight:window.innerHeight;DPR=Math.min(W<560?1:1.4,window.devicePixelRatio||1);cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+  function resize(){if(!cv||!ctx)return;W=window.innerWidth;H=window.innerHeight;DPR=Math.min(W<560?1:1.4,window.devicePixelRatio||1);cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
   function appVisible(){const a=document.getElementById('app');return a&&!a.classList.contains('hidden')&&!document.hidden;}
   function contKind(){return (type==='snow'||type==='xmas')?'snow':type==='rain'?'rain':type==='leaves'?'leaf':type==='sakura'?'petal':type==='sun'?'mote':null;}
   function contTarget(){const a=W*H,k=contKind(),m=1;let v=0;if(k==='snow')v=Math.min(W<600?18:38,Math.round(a/42000));else if(k==='rain')v=Math.min(230,Math.round(a/9000));else if(k==='leaf')v=Math.min(18,Math.round(W/75));else if(k==='petal')v=Math.min(25,Math.round(W/50));else if(k==='mote')v=Math.min(25,Math.round(a/50000));return Math.round(v*m);}
@@ -10222,8 +10231,8 @@ const FX=(function(){
       const lights=0;
       for(let i=0;i<lights;i++){parts.push({k:'twinkle',x:R(0,W),y:R(H*0.5,H-26),r:R(1.7,3.1),c:LCOL[(Math.random()*LCOL.length)|0],base:R(.3,.6),amp:R(.4,.5),ph:R(0,6.28),sp:R(.06,.13),cross:0});}
       // 🦌🛷🎁🎅 더 많이, 더 천천히
-      const roam=['🎅','🦌','🛷'],nr=3;
-      for(let i=0;i<nr;i++){const dir=i%2?-1:1;parts.push({k:'roam',e:roam[i],x:i%2?W-58:54,y:i===2?Math.min(128,H*.19):edgeY-12,vx:dir*.32,sc:garden?42:i===2?30:28,ph:R(0,6.28),bob:2});}
+      const roam=['🎅','🦌','🛷','🎁','🔔'],nr=5;
+      for(let i=0;i<nr;i++){const dir=i%2?-1:1;parts.push({k:'roam',e:roam[i],x:i%2?W-58:54,y:i===2?Math.min(128,H*.19):i>2?Math.max(160,H*(i===3?.32:.58)):edgeY-12,vx:dir*.32,sc:garden?42:i===2?30:28,ph:R(0,6.28),bob:2});}
     }else if(type==='beach'){
       parts.push({k:'stand',e:'🌴',x:R(42,92),y:H-R(58,80),sc:R(52,66),ph:R(0,6.28),sw:.5});
       parts.push({k:'stand',e:'🌴',x:W-R(42,92),y:H-R(58,80),sc:R(52,66),ph:R(0,6.28),sw:.5});
@@ -10263,7 +10272,7 @@ const FX=(function(){
     ctx.restore();
   }
   const _emojiCache={};
-  const _winterSprites={'🎅':'fx-santa','🦌':'fx-reindeer','⛄':'fx-snowman','🛷':'fx-sleigh','🎄':'winter','🎁':'admin'};
+  const _winterSprites={'🎅':'fx-santa','🦌':'fx-reindeer','⛄':'fx-snowman','🛷':'fx-sleigh','🎄':'winter','🎁':'admin','🔔':'gold-bell'};
   function emojiSprite(e,sc){
     const s=Math.max(8,Math.round(sc/4)*4);          // 크기를 4px 단위로 묶어 캐시 개수를 줄임
     const key=e+'@'+s, hit=_emojiCache[key];
@@ -17915,14 +17924,14 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20260809-login-2">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-winter-ia1">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-winter-finish1">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261109-winter-ia1"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261109-winter-ia1"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261109-winter-finish1"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
-<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-ia1">
+<link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
 <link rel="stylesheet" href="assets/presence-promotion-journey.css?v=20260928-promotion-journey-14">
 <link rel="stylesheet" href="assets/presence-recap-pending.css?v=20260928-recap-pending-12">
@@ -17931,20 +17940,19 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-tl-workspace.css?v=20261109-survey-people1">
 <link rel="stylesheet" href="assets/presence-quick-access.css?v=20260928-mobile-focus-10">
 <link rel="stylesheet" href="assets/presence-sites.css?v=20260928-mobile-focus-10">
-<link rel="stylesheet" href="assets/presence-season.css?v=20261109-season-effects1">
+<link rel="stylesheet" href="assets/presence-season.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-winter-icons.css?v=20261109-winter-ia1">
-<link rel="stylesheet" href="assets/presence-christmas-intro.css?v=20261109-christmas-campaign1">
+<link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261109-winter-ia1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
 <script src="assets/presence-admin-home.js?v=20261109-christmas-campaign1"></script>
 <script src="assets/presence-promotion-journey.js?v=20260929-journey-label-15"></script>
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
-<script src="assets/presence-season.js?v=20261109-season-effects1"></script>
-<script src="assets/presence-christmas-intro.js?v=20261109-christmas-campaign1"></script>
+<script src="assets/presence-season.js?v=20261109-winter-finish1"></script>
 </body>
 </html>

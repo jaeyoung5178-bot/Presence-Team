@@ -18,6 +18,8 @@
   }
   function apply(){
     var on=enabled(),known=!!settings;
+    if(admin()&&typeof document.body.appendChild==='function')mountAdmin(document.body);
+    updateLocalSwitch();
     document.querySelectorAll('[data-season-choice]').forEach(function(b){b.disabled=busy||!known||settingsError;b.setAttribute('aria-pressed',String(known&&settings.season===b.dataset.seasonChoice));});
     document.body.classList.toggle('presence-christmas',on);
     document.querySelectorAll('[data-christmas-toggle]').forEach(function(b){
@@ -39,6 +41,14 @@
       }
     }
     ));
+  }
+  function updateLocalSwitch(){
+    document.querySelectorAll('[data-season-local]').forEach(function(b){
+      var effects=window.PresenceChristmasEffects,on=!!(effects&&effects.enabled);
+      b.disabled=!effects;
+      b.setAttribute('aria-checked',String(on));
+      b.textContent='내 배경 효과 · '+(on?'ON':'OFF');
+    });
   }
   async function toggle(){
     if(enabled())try{previousSeason=localStorage.getItem('presence_pre_christmas_season')||previousSeason;}catch(ignore){}
@@ -78,16 +88,19 @@
     }
   }
   function mountAdmin(container){
-    if(!container||!admin()||container.querySelector('[data-presence-season-control]'))return;
+    if(!container||!admin()||document.querySelector('[data-presence-season-control]'))return;
     var section=document.createElement('section');
     section.dataset.presenceSeasonControl='';
-    section.className='presence-season-control';
-    section.innerHTML='<button type="button" data-season-expand aria-expanded="false">분위기 설정</button><div data-season-choices hidden>'+[['spring','벚꽃'],['summer','햇빛'],['autumn','낙엽'],['winter','크리스마스']].map(function(s){return '<button type="button" data-season-choice="'+s[0]+'" aria-pressed="false">'+s[1]+'</button>';}).join('')+'</div><p role="status" data-season-status></p>';
-    var expand=section.querySelector('[data-season-expand]'),choices=section.querySelector('[data-season-choices]');
-    expand.onclick=function(){var open=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(open));choices.hidden=!open;};
-    section.onkeydown=function(e){if(e.key==='Escape'){choices.hidden=true;expand.setAttribute('aria-expanded','false');expand.focus();}};
+    section.className='presence-season-control presence-season-floating';
+    section.innerHTML='<button type="button" data-season-expand aria-label="관리자 분위기 설정" aria-controls="presenceSeasonPanel" aria-expanded="false">분위기</button><div id="presenceSeasonPanel" data-season-panel role="dialog" aria-label="관리자 분위기 설정" hidden><div class="presence-season-heading"><strong>분위기 설정</strong><button type="button" data-season-close aria-label="분위기 설정 닫기">×</button></div><p>계절은 모든 팀원에게 적용됩니다.</p><div data-season-choices>'+[['spring','벚꽃'],['summer','햇빛'],['autumn','낙엽'],['winter','크리스마스']].map(function(s){return '<button type="button" data-season-choice="'+s[0]+'" aria-pressed="false">'+s[1]+'</button>';}).join('')+'</div><button type="button" data-season-local role="switch" aria-checked="false">내 배경 효과 · OFF</button><p role="status" data-season-status></p></div>';
+    var expand=section.querySelector('[data-season-expand]'),panel=section.querySelector('[data-season-panel]');
+    function close(){panel.hidden=true;expand.setAttribute('aria-expanded','false');expand.focus({preventScroll:true});}
+    expand.onclick=function(){if(!admin())return;var open=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(open));panel.hidden=!open;updateLocalSwitch();};
+    section.querySelector('[data-season-close]').onclick=close;
+    section.onkeydown=function(e){if(e.key==='Escape'){e.preventDefault();close();}};
+    section.querySelector('[data-season-local]').onclick=function(){if(!admin())return;window.PresenceChristmasEffects?.toggle();updateLocalSwitch();};
     section.querySelectorAll('[data-season-choice]').forEach(function(button){button.onclick=async function(){
-      var msg=section.querySelector('p');
+      var msg=section.querySelector('[data-season-status]');
       try{
         await selectSeason(button.dataset.seasonChoice);
         msg.textContent='분위기 설정을 저장했습니다.';
@@ -96,10 +109,10 @@
         msg.textContent=e.message;
       }
     };});
-    var hero=container.querySelector('.pah-hero');
-    if(hero)hero.insertAdjacentElement('afterend',section);
-    else container.prepend(section);
-    apply();
+    document.body.appendChild(section);
+    updateLocalSwitch();
+    section.querySelector('[data-season-status]').textContent=settings?'현재 계절 설정을 확인했습니다.':'계절 설정을 불러오는 중입니다.';
+    section.querySelectorAll('[data-season-choice]').forEach(function(b){b.disabled=busy||!settings||settingsError;b.setAttribute('aria-pressed',String(!!settings&&settings.season===b.dataset.seasonChoice));});
   }
   function sync(){
     var u=actor();
@@ -149,6 +162,7 @@
     isChristmas:enabled,toggle:toggle,selectSeason:selectSeason,mountAdmin:mountAdmin,sync:sync
   }
   );
+  window.addEventListener?.('presence:effectchange',updateLocalSwitch);
   setInterval(sync,1000);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync);
   else sync();

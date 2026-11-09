@@ -327,7 +327,12 @@ body.presence-workspace-v2 #workspaceHomeGarden #treeSecHome{margin:0;padding:0;
 @media(min-width:1101px){#workspaceHomeGarden #treeSecHome .tree-wrap{grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr)!important;gap:16px 28px;padding:22px;align-items:start}#workspaceHomeGarden #treeSecHome .tree-stage{grid-column:1;grid-row:1;border-radius:10px}#workspaceHomeGarden #treeSecHome .tree-side{display:contents}#workspaceHomeGarden #workspaceGardenGrowth{grid-row:2}#workspaceHomeGarden #waterBtn{grid-row:3}#workspaceHomeGarden #workspaceGardenLeaders{grid-row:1 / span 4}#workspaceHomeGarden #homeDaisoTrophy{grid-row:4}#workspaceHomeGarden #giftHunt{grid-row:5}}
 
 .pw-home-inline-garden{margin-bottom:24px}
+#treeSecHome:not([data-garden-state=ready]){position:relative;min-height:320px}
+#treeSecHome:not([data-garden-state=ready]) .tree-wrap{visibility:hidden}
+#treeSecHome:not([data-garden-state=ready])::after{content:'정원 연결 중…';position:absolute;inset:0;display:grid;place-items:center;background:#f3f0e8;color:#345044;border:1px solid #d7cdbb;border-radius:12px;font:500 16px/1.6 var(--font,system-ui)}
+#treeSecHome[data-garden-state=failed]::after{content:'정원을 불러오지 못했습니다. 연결을 확인하고 새로고침해 주세요.';padding:24px;text-align:center;word-break:keep-all}
 body.presence-workspace-v2 #workspaceHomeGarden{order:-20}
+#m-home.pah-admin-active #workspaceHomeGarden{display:none!important}
 #workspacePeople .pw-value-card{background:var(--card);color:var(--cream);border:1px solid var(--line);border-radius:12px;padding:20px;min-height:0}
 #workspacePeople .pw-value-card p{color:var(--muted)}
 #workspacePeople .pw-value-card h3{color:inherit}

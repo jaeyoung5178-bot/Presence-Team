@@ -1,4 +1,4 @@
-/* Compatibility filename; the user control is visual effects only. No audio or YouTube. */
+/* One seasonal effects owner and one gesture-started local carol. No YouTube. */
 (function () {
   'use strict';
   var KEY = 'presence_local_season_effects.';
@@ -8,9 +8,19 @@
   var installed = false;
   var seasonHint = '';
   var preferenceUid = '';
+  var audio = null, audioIssue = '', audioWanted = false;
+  function stopCarol() { audioWanted = false; if (audio) { audio.pause(); audio.currentTime = 0; } }
+  function playCarol() {
+    if (!active() || !enabled || season() !== 'winter') return;
+    if (!audio) { audio = document.createElement('audio'); audio.id = 'presenceCarolAudio'; audio.src = 'audio/carol.mp3'; audio.loop = true; audio.preload = 'none'; document.body.appendChild(audio); }
+    audioWanted = true; audioIssue = ''; audio.muted = false; audio.volume = .55;
+    var attempt = audio.play();
+    if (attempt && attempt.then) attempt.then(function () { if (!audioWanted) audio.pause(); renderButton(); }).catch(function () { if (audioWanted) { audioIssue = '음악 재시도'; renderButton(); } });
+  }
   function readPreference() {
     var uid = active() ? String(actor().uid || '') : '';
     if (uid === preferenceUid) return;
+    stopCarol();
     preferenceUid = uid;
     enabled = false;
     try { if (uid) enabled = localStorage.getItem(KEY + uid) === 'on'; } catch (ignore) {}
@@ -44,8 +54,9 @@
     var label = (season() === 'winter' ? '크리스마스 효과 ' : '분위기 효과 ') + (enabled ? '끄기' : '켜기');
     button.setAttribute('aria-label', label);
     button.setAttribute('aria-checked', String(enabled));
-    button.title = label;
-    button.querySelector('[data-effect-label]').textContent = label;
+    button.title = audioIssue || label;
+    button.dataset.audioState = audioIssue ? 'blocked' : audio && !audio.paused ? 'playing' : 'off';
+    button.querySelector('[data-effect-label]').textContent = audioIssue || (enabled && season() === 'winter' && (!audio || audio.paused) ? '크리스마스 음악 켜기' : label);
     button.querySelector('[data-effect-icon]').textContent = season() === 'winter' ? '❄' : '✧';
     button.classList.toggle('is-on', enabled);
   }
@@ -54,6 +65,7 @@
     placeCanvas();
     if (originalSet) originalSet(active() && enabled && !document.hidden ? mode() : null);
     renderButton();
+    window.dispatchEvent(new CustomEvent('presence:effectchange', {detail: {enabled: enabled, mode: mode()}}));
   }
   function installRenderer() {
     if (installed || typeof FX === 'undefined' || !FX || typeof FX.set !== 'function') return;
@@ -64,12 +76,8 @@
   function placeCanvas() {
     var canvas = document.getElementById('fxCanvas');
     if (!canvas) return;
-    var stage = active() && enabled ? document.querySelector('#m-home.active #treeSecHome:not([hidden]) .tree-stage') : null;
-    var host = stage && stage.getClientRects().length ? stage : document.body;
-    var kind = host === document.body ? 'page' : 'garden';
-    if (canvas.parentNode !== host || canvas.dataset.sceneHost !== kind) {
-      canvas.dataset.sceneHost = kind;
-      host.appendChild(canvas);
+    if (canvas.parentNode !== document.body || canvas.dataset.sceneHost !== 'page') {
+      canvas.dataset.sceneHost = 'page'; document.body.appendChild(canvas);
       if (typeof FX !== 'undefined' && typeof FX.resize === 'function') FX.resize();
     }
   }
@@ -80,11 +88,13 @@
     enabled = value === true;
     try { if (preferenceUid) localStorage.setItem(KEY + preferenceUid, enabled ? 'on' : 'off'); } catch (ignore) {}
     sync();
+    if (enabled) playCarol(); else stopCarol();
     return enabled;
   }
-  function toggle() { readPreference(); return setEnabled(!enabled); }
+  function toggle() { readPreference(); if (enabled && season() === 'winter' && (audioIssue || !audio || audio.paused)) { playCarol(); renderButton(); return true; } return setEnabled(!enabled); }
   function suspend() {
     silence();
+    stopCarol();
     readPreference();
     placeCanvas();
     if (originalSet) originalSet(null);
@@ -106,11 +116,12 @@
     sync();
     window.addEventListener('presence:seasonchange', function (event) {
       if (event.detail && /^(auto|winter|spring|summer|autumn)$/.test(event.detail.season || '')) seasonHint = event.detail.season;
+      if (season() !== 'winter') stopCarol();
       sync();
     });
     document.addEventListener('visibilitychange', apply);
   }
-  window.PresenceChristmasEffects = Object.freeze({toggle: toggle, setEnabled: setEnabled, sync: sync, get enabled() { return enabled; }, get mode() { return mode(); }});
+  window.PresenceChristmasEffects = Object.freeze({toggle: toggle, setEnabled: setEnabled, sync: sync, get enabled() { return enabled; }, get mode() { return mode(); }, get audioState() { return audioIssue ? 'blocked' : audio && !audio.paused ? 'playing' : 'off'; }});
   // Kept for older workspace callers. These methods never create media or play sound.
   window.PresenceBgm = Object.freeze({play: function () { setEnabled(true); }, pause: function () { setEnabled(false); }, stop: suspend, toggle: toggle, togglePanel: toggle, setTrack: sync, get playing() { return false; }, get videoId() { return null; }});
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
