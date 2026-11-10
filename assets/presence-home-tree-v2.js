@@ -195,20 +195,22 @@
 
   function loadInto(image, url, fallback) {
     if (!image) return;
-    if(image.dataset.requested===url){if(image.dataset.loaded===url&&image.src!==new URL(versioned(url),document.baseURI).href)image.src=versioned(url);return;}
+    if(image.dataset.requested===url){if(image.dataset.loaded===url){if(image.dataset.failed&&image.dataset.failed!==url)delete image.dataset.failed;if(image.src!==new URL(versioned(url),document.baseURI).href)image.src=versioned(url);}return;}
     delete image.dataset.failed;
     image.dataset.requested = url;
+    var loadToken=(image.__presenceLoadToken||0)+1;image.__presenceLoadToken=loadToken;
     if (image.classList.contains('tree-v2-atmosphere')) image.style.opacity = '0';
     var loader = new Image();
     loader.decoding = 'async';
     loader.onload = function () {
-      if (image.dataset.requested !== url) return;
+      if (image.dataset.requested !== url || image.__presenceLoadToken !== loadToken) return;
+      delete image.dataset.failed;
       image.src = versioned(url);
       image.dataset.loaded = url;
-      requestAnimationFrame(function () { image.style.opacity = '1'; });
+      requestAnimationFrame(function () { if(image.dataset.requested===url&&image.__presenceLoadToken===loadToken)image.style.opacity = '1'; });
     };
     loader.onerror = function () {
-      if(image.dataset.requested!==url)return;
+      if(image.dataset.requested!==url||image.__presenceLoadToken!==loadToken)return;
       image.dataset.failed=url;
     };
     loader.src = versioned(url);
@@ -529,7 +531,7 @@
     if (context.ended || context.frac >= 0.6 || giftVisible) renderGiftLayer(true);
     if (window.PresenceWorkspace) window.PresenceWorkspace.syncGardenScene();
     var images=[...stage.querySelectorAll('.tree-v2-background,.tree-v2-atmosphere,#treeMain,.tree-v2-gifts img,.tree-v2-waterer img')];
-    function failed(){return images.some(img=>img.dataset.failed||img.complete&&img.src&&!img.naturalWidth&&(!img.dataset.requested||img.dataset.loaded===img.dataset.requested));}
+    function failed(){return images.some(img=>(img.dataset.failed&&img.dataset.failed===img.dataset.requested)||img.complete&&img.src&&!img.naturalWidth&&(!img.dataset.requested||img.dataset.loaded===img.dataset.requested));}
     function settled(){return images.every(img=>img.complete&&img.naturalWidth>0&&(!img.dataset.requested||img.dataset.loaded===img.dataset.requested));}
     if(!settled())section.dataset.gardenState='pending';
     section.setAttribute('aria-busy',String(section.dataset.gardenState!=='ready'));
