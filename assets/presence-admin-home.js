@@ -318,6 +318,7 @@ function bindRepair(root){
     var actor = currentActor();
     if (!isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return;
     if (action === 'birthday') { navigate('events'); return; }
+    if (action === 'promotion-campaign') { window.PresencePromotionCampaignController?.openAdmin(); return; }
     if (action === 'recap-repair') { reviewRecapRepair(); return; }
     if (action === 'survey') { navigate('survey'); return; }
     if (action === 'new-member') { afterAdmin('#newMemberIn', true); return; }
@@ -446,6 +447,7 @@ function bindRepair(root){
       '<div class="pah-section-head"><div><span>QUICK OPERATIONS</span><h3>자주 쓰는 관리 업무</h3></div><p>한 번의 클릭으로 기존 관리 화면을 엽니다.</p></div>' +
       '<div class="pah-actions" aria-label="관리자 빠른 실행">' +
         actionCard('birthday', 'BD', '기념일 관리', '생일 날짜와 사진을 미리 확인하고 당일 표시를 관리합니다.', '<span class="pah-status">BIRTHDAY</span>') +
+        actionCard('promotion-campaign', 'GOAL', '프로모션 관리', '주간 목표와 일별 모금액을 관리합니다.', '<span class="pah-status">AOP</span>') +
         actionCard('recap-repair', 'RX', '리캡 배정 복구', '기간 배정을 변경 없이 검토하고, 확인한 항목만 승인합니다.', '<span class="pah-status">REPAIR</span>') +
         actionCard('survey', 'SV', '설문 보기', '팀원 설문과 승진 응답을 확인합니다.', badge(surveys.length, '대기 설문')) +
         actionCard('new-member', '+', '신입 등록', '새 팀원을 등록하는 입력창으로 이동합니다.', '<span class="pah-status">CREATE</span>') +

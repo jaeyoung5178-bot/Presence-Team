@@ -5463,6 +5463,7 @@ function renderTLHome(){
   <section class="tlh-section"><div class="tlh-section-head"><div><h2>${cfg.kind==='aop'?'Presence 필드 일정':'팀 필드 일정'}</h2><p>차주 필드 인원을 먼저 체크하면 HC와 목표 AVG가 자동 계산됩니다.</p></div><div class="tlh-week-nav"><button type="button" onclick="tlhSetWeek(-1)" aria-label="이전 주">‹</button><b>${tlhWeekLabel(planSd)}</b><button type="button" onclick="tlhSetWeek(1)" aria-label="다음 주">›</button></div></div><div class="tlh-grid"><article class="tlh-card"><div class="tlh-card-head"><h3>필드 인원 · 날짜</h3><span>${pc.hc}명 · 총 ${pc.fieldDays} 필드일</span></div><div class="tlh-schedule">${tlhScheduleHTML(cfg,planSd,draft)}</div></article><aside class="tlh-card"><div class="tlh-card-head"><h3>다음 주 운영 목표</h3><span>양방향 자동 계산</span></div><div class="tlh-plan"><div class="tlh-plan-metrics"><div class="tlh-plan-metric"><span>주간 HC</span><strong>${pc.hc}명</strong></div><div class="tlh-plan-metric"><span>예정 필드일</span><strong>${pc.fieldDays}일</strong></div></div><div class="tlh-field"><label for="tlhTargetSales"><span>타겟 세일즈</span><small>정수</small></label><input id="tlhTargetSales" type="number" min="0" step="1" value="${Math.round(draft.targetSales||0)}" oninput="tlhTargetInput('sales',this.value)" inputmode="numeric"></div><div class="tlh-field"><label for="tlhTargetAvg"><span>타겟 AVG</span><small>세일즈 ÷ 필드일</small></label><input id="tlhTargetAvg" type="number" min="0" step="0.01" value="${(draft.targetAvg||0).toFixed(2)}" oninput="tlhTargetInput('avg',this.value)" inputmode="decimal"></div><div class="tlh-sentence">${summary}</div><button class="tlh-action" id="tlhSaveBtn" type="button" onclick="tlhSave()" ${pc.fieldDays?'':'disabled'}>${cfg.kind==='aop'?'Presence 필드 일정 확정':'팀 필드 계획 저장'}</button>${cfg.kind==='aop'?'<button class="tlh-import" type="button" onclick="tlhImportTeams()">팀 제출 필드 일정 불러오기</button>':''}<p class="tlh-plan-note">저장 즉시 팀장 화면과 Presence 취합 화면에 반영됩니다. 팀원별 0건 기록도 필드일에 포함하고 NA는 제외합니다.</p></div></aside></div></section>`:''}`;
   if(window.PresenceTLWorkspace&&tlHomeView==='manage')window.PresenceTLWorkspace.render('tlWorkspaceMount',{actor:me,config:presenceTLWorkspaceConfig(),compact:true,previewTeam:isFounder(me)?presenceTLPreviewTeam:null,onNavigate:presenceTLWorkspaceNavigate,onAccessChange:presenceTLWorkspaceUpdateRecap});
   presenceTLWorkspaceUpdateRecap();
+  window.PresencePromotionCampaignController?.sync();
 }
 function needsFirstField(u){if(!u)return false;if(typeof isAdminName==='function'&&isAdminName(u.name))return false;if(typeof isTestBot==='function'&&isTestBot(u))return false;if(u.status&&u.status!=='active')return false;return !firstFieldOf(u);}
 var _ffCont=null;
@@ -5670,6 +5671,7 @@ async function reconcileAuthProfiles(){
 }
 async function logout(){
   window.PresenceBirthday?.dispose();
+  window.PresencePromotionCampaignController?.dispose();
   window.PresenceWorkspace?.dispose();
   window.PresencePromotionJourney?.dispose?.();
   if(window.__logoutBusy)return;window.__logoutBusy=true;loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');window.PresenceAdminHome?.reset?.('adminHomeMount');window.PresenceTLWorkspace?.reset?.();tlhClearSubscriptions();me=null;window.__presenceEntryPass=false;
@@ -17958,20 +17960,24 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
 <link rel="stylesheet" href="assets/presence-holiday-home.css?v=20261109-sales-home1">
 <link rel="stylesheet" href="assets/presence-birthday.css?v=20261110-birthday1">
+<link rel="stylesheet" href="assets/presence-promotion-campaign.css?v=20261110-campaign1">
 <link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261110-sales-visible2">
 <script src="assets/presence-sales-holiday.js?v=20261110-sales-visible2"></script>
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261110-sites1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261110-campaign1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
-<script src="assets/presence-admin-home.js?v=20261110-birthday1"></script>
+<script src="assets/presence-admin-home.js?v=20261110-campaign1"></script>
 <script src="assets/presence-promotion-journey.js?v=20260929-journey-label-15"></script>
 <script src="assets/presence-public-roster.js?v=20260928-ko1"></script>
 <script src="assets/presence-season.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-birthday-cloud.js?v=20261110-birthday1"></script>
 <script src="assets/presence-birthday.js?v=20261110-birthday-heic1"></script>
+<script src="assets/presence-promotion-campaign-cloud.js?v=20261110-campaign1"></script>
+<script src="assets/presence-promotion-campaign.js?v=20261110-campaign1"></script>
+<script src="assets/presence-promotion-campaign-controller.js?v=20261110-campaign1"></script>
 </body>
 </html>

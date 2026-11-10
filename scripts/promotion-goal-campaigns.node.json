@@ -1,0 +1,566 @@
+{
+  ".read": false,
+  ".write": false,
+  "private": {
+    ".read": false,
+    "admin": {
+      ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+      "$campaignId": {
+        ".read": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('role').val() == 'TL' && data.exists() && data.child('targetUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() && data.child('teamKey').val() == 'youngwave' && root.child('recapStudioTeams').child('youngwave').child('roster').child(root.child('authSessions').child(auth.uid).child('userUid').val()).exists()))",
+        ".write": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('role').val() == 'TL' && data.exists() && data.child('targetUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() && data.child('teamKey').val() == 'youngwave' && root.child('recapStudioTeams').child('youngwave').child('roster').child(root.child('authSessions').child(auth.uid).child('userUid').val()).exists())) && newData.exists() && $campaignId.matches(/^[-A-Za-z0-9_]{1,100}$/)",
+        ".validate": "newData.hasChildren([\"version\", \"revision\", \"targetUid\", \"displayName\", \"goalRoleLabel\", \"teamKey\", \"week1Start\", \"weeklyTarget\", \"weekCount\", \"displayFrom\", \"currency\", \"bondDeductionBps\", \"multiplierBps\", \"calcBasis\", \"calculationMode\", \"thresholdBasis\", \"enabled\", \"updatedAt\", \"updatedBy\", \"ledger\"]) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (newData.child('version').val() == data.child('version').val() && newData.child('targetUid').val() == data.child('targetUid').val() && newData.child('displayName').val() == data.child('displayName').val() && newData.child('goalRoleLabel').val() == data.child('goalRoleLabel').val() && newData.child('teamKey').val() == data.child('teamKey').val() && newData.child('week1Start').val() == data.child('week1Start').val() && newData.child('weeklyTarget').val() == data.child('weeklyTarget').val() && newData.child('weekCount').val() == data.child('weekCount').val() && newData.child('displayFrom').val() == data.child('displayFrom').val() && newData.child('currency').val() == data.child('currency').val() && newData.child('bondDeductionBps').val() == data.child('bondDeductionBps').val() && newData.child('multiplierBps').val() == data.child('multiplierBps').val() && newData.child('calcBasis').val() == data.child('calcBasis').val() && newData.child('calculationMode').val() == data.child('calculationMode').val() && newData.child('thresholdBasis').val() == data.child('thresholdBasis').val() && newData.child('enabled').val() == data.child('enabled').val())) && (!data.exists() || newData.child('week1Start').val() == data.child('week1Start').val() || !(data.child('ledger').child('d0').child('amount').exists() || data.child('ledger').child('d1').child('amount').exists() || data.child('ledger').child('d2').child('amount').exists() || data.child('ledger').child('d3').child('amount').exists() || data.child('ledger').child('d4').child('amount').exists() || data.child('ledger').child('d5').child('amount').exists() || data.child('ledger').child('d6').child('amount').exists() || data.child('ledger').child('d7').child('amount').exists() || data.child('ledger').child('d8').child('amount').exists() || data.child('ledger').child('d9').child('amount').exists() || data.child('ledger').child('d10').child('amount').exists() || data.child('ledger').child('d11').child('amount').exists() || data.child('ledger').child('d12').child('amount').exists() || data.child('ledger').child('d13').child('amount').exists())) && newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && (newData.child('enabled').val() == true ? (newData.parent().parent().parent().child('public').child($campaignId).exists() && newData.parent().parent().parent().child('public').child($campaignId).child('revision').val() == newData.child('revision').val() && newData.parent().parent().parent().child('public').child($campaignId).child('sourceUpdatedAt').val() == newData.child('updatedAt').val()) : !newData.parent().parent().parent().child('public').child($campaignId).exists())",
+        "version": {
+          ".validate": "newData.val() == 1"
+        },
+        "revision": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+        },
+        "targetUid": {
+          ".validate": "newData.isString() && root.child('users').child(newData.val()).child('status').val() == 'active' && root.child('recapStudioTeams').child(newData.parent().child('teamKey').val()).child('roster').child(newData.val()).exists() && root.child('users').child(newData.val()).child('role').val() == 'TL'"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100 && newData.val() == root.child('users').child(newData.parent().child('targetUid').val()).child('name').val()"
+        },
+        "goalRoleLabel": {
+          ".validate": "newData.val() == 'AOP'"
+        },
+        "teamKey": {
+          ".validate": "newData.val() == 'youngwave'"
+        },
+        "week1Start": {
+          ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && newData.val() == newData.parent().child('ledger').child('d0').child('date').val()"
+        },
+        "weeklyTarget": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1 && newData.val() <= 1000000000000"
+        },
+        "weekCount": {
+          ".validate": "newData.val() == 2"
+        },
+        "displayFrom": {
+          ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && newData.val() >= newData.parent().child('week1Start').val() && newData.val() <= newData.parent().child('ledger').child('d13').child('date').val()"
+        },
+        "currency": {
+          ".validate": "newData.val() == 'KRW'"
+        },
+        "bondDeductionBps": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 10000"
+        },
+        "multiplierBps": {
+          ".validate": "newData.isNumber() && newData.val() == 10000 - newData.parent().child('bondDeductionBps').val()"
+        },
+        "calcBasis": {
+          ".validate": "newData.val() == 'dailyFundraising'"
+        },
+        "calculationMode": {
+          ".validate": "newData.val() == 'bondDeduction'"
+        },
+        "thresholdBasis": {
+          ".validate": "newData.val() == 'net'"
+        },
+        "enabled": {
+          ".validate": "newData.isBoolean()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+        },
+        "updatedBy": {
+          ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+        },
+        "ledger": {
+          ".validate": "newData.hasChildren([\"d0\", \"d1\", \"d2\", \"d3\", \"d4\", \"d5\", \"d6\", \"d7\", \"d8\", \"d9\", \"d10\", \"d11\", \"d12\", \"d13\"])",
+          "$other": {
+            ".validate": false
+          },
+          "d0": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val())"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() % 604800000 == 313200000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d1": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d0').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 86400000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d2": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d1').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 172800000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d3": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d2').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 259200000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d4": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d3').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 345600000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d5": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d4').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 432000000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d6": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d5').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 518400000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d7": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d6').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 604800000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d8": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d7').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 691200000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d9": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d8').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 777600000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d10": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d9').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 864000000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d11": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d10').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 950400000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d12": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d11').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 1036800000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "d13": {
+            ".validate": "newData.hasChildren(['date','startsAt','revision','updatedAt','updatedBy']) && ((data.exists() && newData.child('date').val() == data.child('date').val() && newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('amount').val() == data.child('amount').val() && newData.child('revision').val() == data.child('revision').val() && newData.child('updatedAt').val() == data.child('updatedAt').val() && newData.child('updatedBy').val() == data.child('updatedBy').val()) || (newData.child('revision').val() == (data.exists() ? data.child('revision').val() + 1 : 1) && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedBy').val() == root.child('authSessions').child(auth.uid).child('userUid').val()))",
+            "date": {
+              ".validate": "newData.isString() && newData.val().matches(/^([0-9]{4}-(0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01])|[0-9]{4}-(0[469]|11)-(0[1-9]|[12][0-9]|30)|[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|([0-9]{2}(0[48]|[2468][048]|[13579][26])|(0[48]|[2468][048]|[13579][26])00)-02-29)$/) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() > newData.parent().parent().child('d12').child('date').val()"
+            },
+            "startsAt": {
+              ".validate": "newData.isNumber() && newData.val() % 86400000 == 54000000 && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || newData.val() == data.val()) && newData.val() == newData.parent().parent().child('d0').child('startsAt').val() + 1123200000"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= 1000000000 && now >= newData.parent().child('startsAt').val()"
+            },
+            "revision": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= newData.parent().parent().parent().child('updatedAt').val()"
+            },
+            "updatedBy": {
+              ".validate": "newData.isString() && (newData.val() == data.val() || newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "$other": {
+      ".validate": false
+    }
+  },
+  "public": {
+    ".read": false,
+    "$campaignId": {
+      ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active') && (!data.exists() || (now >= data.child('startsAt').val() && now < data.child('endsAt').val()))",
+      ".write": "((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('role').val() == 'TL' && root.child('promotionGoalCampaigns').child('private').child('admin').child($campaignId).exists() && root.child('promotionGoalCampaigns').child('private').child('admin').child($campaignId).child('targetUid').val() == root.child('authSessions').child(auth.uid).child('userUid').val() && root.child('promotionGoalCampaigns').child('private').child('admin').child($campaignId).child('teamKey').val() == 'youngwave' && root.child('recapStudioTeams').child('youngwave').child('roster').child(root.child('authSessions').child(auth.uid).child('userUid').val()).exists())) && (newData.exists() || newData.parent().parent().child('private').child('admin').child($campaignId).child('enabled').val() != true)",
+      ".validate": "newData.hasChildren([\"version\", \"revision\", \"targetUid\", \"displayName\", \"goalRoleLabel\", \"teamKey\", \"week1Start\", \"weeklyTarget\", \"weekCount\", \"displayFrom\", \"currency\", \"bondDeductionBps\", \"multiplierBps\", \"calcBasis\", \"calculationMode\", \"thresholdBasis\", \"startsAt\", \"endsAt\", \"weeks\", \"overallComplete\", \"sourceUpdatedAt\"]) && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (newData.child('startsAt').val() == data.child('startsAt').val() && newData.child('endsAt').val() == data.child('endsAt').val())) && (newData.exists()) && (newData.parent().parent().child('private').child('admin').child($campaignId).child('enabled').val() == true) && (newData.child('version').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('version').val()) && (newData.child('revision').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('revision').val()) && (newData.child('targetUid').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('targetUid').val()) && (newData.child('displayName').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('displayName').val()) && (newData.child('goalRoleLabel').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('goalRoleLabel').val()) && (newData.child('teamKey').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('teamKey').val()) && (newData.child('week1Start').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('week1Start').val()) && (newData.child('weeklyTarget').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('weeklyTarget').val()) && (newData.child('weekCount').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('weekCount').val()) && (newData.child('displayFrom').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('displayFrom').val()) && (newData.child('currency').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('currency').val()) && (newData.child('bondDeductionBps').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('bondDeductionBps').val()) && (newData.child('multiplierBps').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('multiplierBps').val()) && (newData.child('calcBasis').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('calcBasis').val()) && (newData.child('calculationMode').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('calculationMode').val()) && (newData.child('thresholdBasis').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('thresholdBasis').val()) && (newData.child('sourceUpdatedAt').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('updatedAt').val()) && (newData.child('startsAt').isNumber()) && (newData.child('startsAt').val() % 86400000 == 54000000) && (newData.child('endsAt').isNumber()) && (newData.child('endsAt').val() % 86400000 == 54000000) && (newData.child('endsAt').val() > newData.child('startsAt').val()) && (newData.child('endsAt').val() - newData.child('startsAt').val() <= 1209600000) && (newData.child('weeks').child('w1').child('startDate').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('date').val()) && (newData.child('weeks').child('w1').child('endDate').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('date').val()) && (newData.child('weeks').child('w1').child('targetAmount').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('weeklyTarget').val()) && (newData.child('weeks').child('w1').child('confirmedDays').val() == ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? 1 : 0))) && (newData.child('weeks').child('w1').child('expectedDays').val() == 7) && (newData.child('weeks').child('w1').child('status').val() == (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? 1 : 0)) == 0 ? 'missing' : (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? 1 : 0)) == 7 ? 'complete' : 'partial'))) && ((((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? 1 : 0)) == 0 ? (!newData.child('weeks').child('w1').child('gross').exists() && !newData.child('weeks').child('w1').child('net').exists()) : (newData.child('weeks').child('w1').child('gross').val() == ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').val() : 0)) && newData.child('weeks').child('w1').child('net').isNumber() && newData.child('weeks').child('w1').child('net').val() % 1 == 0 && newData.child('weeks').child('w1').child('net').val() >= 0 && newData.child('weeks').child('w1').child('net').val() * 10000 <= ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').val() : 0)) * newData.parent().parent().child('private').child('admin').child($campaignId).child('multiplierBps').val() + 5000 && (newData.child('weeks').child('w1').child('net').val() + 1) * 10000 > ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').val() : 0)) * newData.parent().parent().child('private').child('admin').child($campaignId).child('multiplierBps').val() + 5000))) && (newData.child('weeks').child('w1').child('achieved').val() == (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d0').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d1').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d2').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d3').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d4').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d5').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d6').child('amount').exists() ? 1 : 0)) > 0 && newData.child('weeks').child('w1').child('net').val() >= newData.parent().parent().child('private').child('admin').child($campaignId).child('weeklyTarget').val())) && (newData.child('weeks').child('w2').child('startDate').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('date').val()) && (newData.child('weeks').child('w2').child('endDate').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('date').val()) && (newData.child('weeks').child('w2').child('targetAmount').val() == newData.parent().parent().child('private').child('admin').child($campaignId).child('weeklyTarget').val()) && (newData.child('weeks').child('w2').child('confirmedDays').val() == ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? 1 : 0))) && (newData.child('weeks').child('w2').child('expectedDays').val() == 7) && (newData.child('weeks').child('w2').child('status').val() == (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? 1 : 0)) == 0 ? 'missing' : (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? 1 : 0)) == 7 ? 'complete' : 'partial'))) && ((((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? 1 : 0)) == 0 ? (!newData.child('weeks').child('w2').child('gross').exists() && !newData.child('weeks').child('w2').child('net').exists()) : (newData.child('weeks').child('w2').child('gross').val() == ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').val() : 0)) && newData.child('weeks').child('w2').child('net').isNumber() && newData.child('weeks').child('w2').child('net').val() % 1 == 0 && newData.child('weeks').child('w2').child('net').val() >= 0 && newData.child('weeks').child('w2').child('net').val() * 10000 <= ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').val() : 0)) * newData.parent().parent().child('private').child('admin').child($campaignId).child('multiplierBps').val() + 5000 && (newData.child('weeks').child('w2').child('net').val() + 1) * 10000 > ((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').val() : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').val() : 0)) * newData.parent().parent().child('private').child('admin').child($campaignId).child('multiplierBps').val() + 5000))) && (newData.child('weeks').child('w2').child('achieved').val() == (((newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d7').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d8').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d9').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d10').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d11').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d12').child('amount').exists() ? 1 : 0) + (newData.parent().parent().child('private').child('admin').child($campaignId).child('ledger').child('d13').child('amount').exists() ? 1 : 0)) > 0 && newData.child('weeks').child('w2').child('net').val() >= newData.parent().parent().child('private').child('admin').child($campaignId).child('weeklyTarget').val())) && (newData.child('overallComplete').val() == (newData.child('weeks').child('w1').child('achieved').val() == true && newData.child('weeks').child('w2').child('achieved').val() == true))",
+      "version": {
+        ".validate": true
+      },
+      "revision": {
+        ".validate": true
+      },
+      "targetUid": {
+        ".validate": true
+      },
+      "displayName": {
+        ".validate": true
+      },
+      "goalRoleLabel": {
+        ".validate": true
+      },
+      "teamKey": {
+        ".validate": true
+      },
+      "week1Start": {
+        ".validate": true
+      },
+      "weeklyTarget": {
+        ".validate": true
+      },
+      "weekCount": {
+        ".validate": true
+      },
+      "displayFrom": {
+        ".validate": true
+      },
+      "currency": {
+        ".validate": true
+      },
+      "bondDeductionBps": {
+        ".validate": true
+      },
+      "multiplierBps": {
+        ".validate": true
+      },
+      "calcBasis": {
+        ".validate": true
+      },
+      "calculationMode": {
+        ".validate": true
+      },
+      "thresholdBasis": {
+        ".validate": true
+      },
+      "startsAt": {
+        ".validate": true
+      },
+      "endsAt": {
+        ".validate": true
+      },
+      "overallComplete": {
+        ".validate": true
+      },
+      "sourceUpdatedAt": {
+        ".validate": true
+      },
+      "weeks": {
+        ".validate": "newData.hasChildren(['w1','w2'])",
+        "w1": {
+          ".validate": "newData.hasChildren(['startDate','endDate','targetAmount','confirmedDays','expectedDays','status','achieved'])",
+          "startDate": {
+            ".validate": true
+          },
+          "endDate": {
+            ".validate": true
+          },
+          "targetAmount": {
+            ".validate": true
+          },
+          "gross": {
+            ".validate": true
+          },
+          "net": {
+            ".validate": true
+          },
+          "confirmedDays": {
+            ".validate": true
+          },
+          "expectedDays": {
+            ".validate": true
+          },
+          "status": {
+            ".validate": true
+          },
+          "achieved": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "w2": {
+          ".validate": "newData.hasChildren(['startDate','endDate','targetAmount','confirmedDays','expectedDays','status','achieved'])",
+          "startDate": {
+            ".validate": true
+          },
+          "endDate": {
+            ".validate": true
+          },
+          "targetAmount": {
+            ".validate": true
+          },
+          "gross": {
+            ".validate": true
+          },
+          "net": {
+            ".validate": true
+          },
+          "confirmedDays": {
+            ".validate": true
+          },
+          "expectedDays": {
+            ".validate": true
+          },
+          "status": {
+            ".validate": true
+          },
+          "achieved": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    }
+  },
+  "$other": {
+    ".validate": false
+  }
+}
