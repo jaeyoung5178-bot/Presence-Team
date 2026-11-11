@@ -1,0 +1,7 @@
+.pw-home-task-links{display:grid;grid-column:1/-1;width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 24px}
+.pw-home-task-links>button{display:flex;align-items:center;gap:12px;min-width:0;min-height:72px;padding:14px 16px;border:1px solid #d4c29a;border-radius:16px;background:#fffaf0;color:#153f33;font-family:inherit;font-size:16px;font-weight:600;line-height:1.45;text-align:left;word-break:keep-all;cursor:pointer;box-shadow:0 3px 0 #d8c8a133}
+.pw-home-task-links>button:hover{background:#f4ecd9;border-color:#a88549}.pw-home-task-links>button:focus-visible{outline:3px solid #a33542;outline-offset:3px}
+.pw-home-task-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:11px;background:#e8eee2;color:#225f47}.pw-home-task-icon svg{width:26px;height:26px}
+.pw-home-task-arrow{margin-left:auto;color:#94733c;font-size:20px}
+.pw-home-task-links>button>span:nth-child(2){white-space:nowrap}
+@media(max-width:700px){.pw-home-task-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:20px}.pw-home-task-links>button{min-height:68px;gap:9px;padding:12px;font-size:16px}.pw-home-task-icon{flex-basis:30px;width:30px;height:34px}.pw-home-task-icon svg{width:24px;height:24px}.pw-home-task-arrow{font-size:17px}}

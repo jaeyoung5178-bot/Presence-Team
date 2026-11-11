@@ -19,18 +19,22 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
   __firebaseReady=true;__booting=false;window.__previewRole=null;window.__adminOff=false;
   const leaderUid=Object.entries(TL_HOME_CONFIGS).find(([,v])=>v.teamKey==='youngwave')[0];
   me={uid:role==='admin'?'admin':role==='assignedTL'?leaderUid:role,name:'화면 예시',role:role==='admin'?'AOP':role==='IC'?'IC':'TL',status:'active'};
-  state.users={[me.uid]:me};state.dossier={};state.sales={};
+  state.users={[me.uid]:me};state.dossier={};state.sales={};state.pr=201;state.waters={};PresenceWorkspace.dispose();
   const cloud=PresencePromotionCampaignCloud;
   window.qaConfig={version:1,revision:1,targetUid:'fixtureLead',displayName:'화면 예시',goalRoleLabel:'AOP',teamKey:'youngwave',week1Start:'2026-11-09',weeklyTarget:3200000,weekCount:2,displayFrom:'2026-11-11',currency:'KRW',bondDeductionBps:4500,multiplierBps:5500,thresholdBasis:'net',calcBasis:'dailyFundraising',calculationMode:'bondDeduction',enabled:true,updatedAt:qaNow,updatedBy:'admin',ledger:{}};
   qaConfig.targetUid=leaderUid;
   cloud.datesForCampaign(qaConfig).forEach((date,i)=>qaConfig.ledger['d'+i]={date,startsAt:Date.parse(date+'T00:00:00+09:00'),revision:1,updatedAt:qaNow,updatedBy:'admin'});
   window.qaPrivatePaths=[];window.qaCallbacks={};window.qaWrites=0;
   DB.get=async()=>null;DB.set=DB.update=async path=>{if(String(path).startsWith('promotionGoalCampaigns'))qaWrites++;throw Error('Fixture offline: no actual writes');};
-  DB.on=(path,cb,err)=>{(qaCallbacks[path]??=[]).push(cb);if(path.startsWith('promotionGoalCampaigns/private'))qaPrivatePaths.push(path);queueMicrotask(()=>{if(path==='promotionGoalCampaigns/private/admin')cb({'youngwave-aop-20261111':qaConfig});else if(path==='promotionGoalCampaigns/private/admin/youngwave-aop-20261111'){if(role==='assignedTL')cb(qaConfig);else err?.(Error('permission denied'));}else if(path.startsWith('promotionGoalCampaigns/public/'))cb(cloud.project(qaConfig));else if(path==='workspaceSettings')cb({season:'winter'});});return()=>{};};
+  DB.on=(path,cb,err)=>{(qaCallbacks[path]??=[]).push(cb);if(path.startsWith('promotionGoalCampaigns/private'))qaPrivatePaths.push(path);queueMicrotask(()=>{if(path==='promotionGoalCampaigns/private/admin')cb({'youngwave-aop-20261111':qaConfig});else if(path==='promotionGoalCampaigns/private/admin/youngwave-aop-20261111'){if(role==='assignedTL')cb(qaConfig);else err?.(Error('permission denied'));}else if(path.startsWith('promotionGoalCampaigns/public/'))cb(cloud.project(qaConfig));else if(path==='workspaceSettings')cb({season:'winter'});else if(path==='pr')cb(201);else if(path==='waters')cb({});else if(path==='workspaceGarden')cb({fixture:{count:48}});});return()=>{};};
   PresencePromotionCampaignController.dispose();document.body.classList.add('app-on','presence-workspace-v2');document.getElementById('app').classList.remove('hidden');document.getElementById('app').style.setProperty('display','block','important');['authGate','presenceGameLoader','presenceEntryLobby','ffAskModal'].forEach(id=>document.getElementById(id)?.style.setProperty('display','none','important'));PresenceSeason.sync();goTab('home');PresenceWorkspace.render();PresencePromotionCampaignController.sync();
  },role);
  await page.waitForTimeout(120);
  if(role==='assignedTL'||role==='admin') {
+  await page.waitForSelector('.ppc-record-entry');
+  if(process.env.PRESENCE_QA_STAGE){await page.evaluate(empty=>{qaConfig.displayName='윤채영';if(!empty)qaConfig.ledger.d0.amount=3200000;for(const[path,callbacks]of Object.entries(qaCallbacks))if(path.startsWith('promotionGoalCampaigns/public/'))callbacks.forEach(cb=>cb(PresencePromotionCampaignCloud.project(qaConfig)));},!!process.env.PRESENCE_QA_STAGE_EMPTY);await page.locator('.ppc-boss-card').evaluate(el=>scrollTo(0,scrollY+el.getBoundingClientRect().top-90));await page.screenshot({path:`${out}/card-${width}.png`});await page.locator('.ppc-record-entry').evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({path:`${out}/entry-${width}.png`});await page.locator('.ppc-record-entry').click();await page.waitForSelector('.ppc-daily-primary');await page.locator('.ppc-daily-primary').scrollIntoViewIfNeeded();await page.screenshot({path:`${out}/editor-${width}.png`});console.log('STAGED',width,role);await page.close();continue;}
+  await page.locator('.ppc-record-entry').evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+  assert.equal(await page.locator('.ppc-record-entry').evaluate(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return r.height>=44&&(hit===e||e.contains(hit));}),true);
   if(role==='assignedTL') {
    await page.evaluate(()=>{goTab('tlhome');renderTLHome();PresencePromotionCampaignController.sync();});
    assert.equal(await page.locator('#promotionCampaignLeadEntry').count(),1);
@@ -38,16 +42,17 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
    await page.waitForFunction(()=>document.getElementById('promotionCampaignLeadEntry'));
    const box=await page.locator('#promotionCampaignLeadEntry').boundingBox();assert.ok(box.height>=44);
    await page.locator('#promotionCampaignLeadEntry').click();
-  } else await page.evaluate(()=>PresencePromotionCampaignController.openAdmin());
+  } else await page.locator('.ppc-record-entry').click();
   await page.waitForSelector('[data-ppc-gross]');
   assert.equal(await page.locator('.ppc-fields input,.ppc-fields select,.ppc-day-picker select,.ppc-day-input input').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=16)),true);
   assert.equal(await page.locator('[data-ppc-config]').count(),role==='admin'?6:0);
   assert.equal(await page.locator('[data-ppc-enabled]').count(),role==='admin'?1:0);
   assert.equal(await page.locator('[data-ppc-preview]').count(),role==='admin'?1:0);
-  if(role==='admin') {const rate=page.locator('[data-ppc-config="bondDeductionBps"]');await rate.fill('0');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('100');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('45');}
+  if(role==='admin') {await page.locator('.ppc-settings summary').click();const rate=page.locator('[data-ppc-config="bondDeductionBps"]');await rate.fill('0');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('100');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('45');await page.locator('.ppc-settings summary').click();}
   await page.locator('[data-ppc-date]').selectOption('2026-11-22');assert.equal(await page.locator('[data-ppc-gross]').isDisabled(),true);assert.equal(await page.locator('[data-ppc-save-day]').isDisabled(),true);
   await page.locator('[data-ppc-date]').selectOption('2026-11-11');assert.equal(await page.locator('[data-ppc-gross]').isDisabled(),false);
   await page.locator('[data-ppc-gross]').fill('0');await page.evaluate(()=>PresencePromotionCampaign.sync());assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'0');
+  await page.locator('.ppc-back-home').click();await page.waitForFunction(()=>curTab==='home'&&document.activeElement?.classList.contains('ppc-record-entry'));await page.locator('.ppc-record-entry').press('Enter');await page.waitForSelector('[data-ppc-gross]');assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'0');
   if(width===390&&role==='assignedTL') {
    await page.evaluate(()=>{qaConfig={...qaConfig,revision:2};for(const cb of qaCallbacks['promotionGoalCampaigns/private/admin/youngwave-aop-20261111']||[])cb(qaConfig);});
    await page.locator('[data-ppc-save-day]').click();await page.waitForFunction(()=>document.querySelector('.ppc-day-status').textContent.includes('다른 창'));assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'0');assert.equal(await page.evaluate(()=>qaWrites),0);
@@ -65,7 +70,7 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
   await page.screenshot({path:`${out}/${role}-${width}.png`});
   if(role==='assignedTL'&&width===390){await page.evaluate(()=>{me.status='inactive';PresencePromotionCampaignController.sync()});assert.equal(await page.locator('[data-promotion-campaign-admin]').count(),0);assert.equal(await page.locator('#promotionCampaignLeadEntry').count(),0);}
  } else {
-  await page.evaluate(()=>PresencePromotionCampaignController.openAdmin());assert.equal(await page.locator('[data-promotion-campaign-admin]').count(),0);assert.equal(await page.locator('#promotionCampaignLeadEntry').count(),0);if(role==='IC')assert.equal(await page.evaluate(()=>qaPrivatePaths.length),0);
+  assert.equal(await page.locator('.ppc-record-entry').count(),0);await page.evaluate(()=>PresencePromotionCampaignController.openAdmin());assert.equal(await page.locator('[data-promotion-campaign-admin]').count(),0);assert.equal(await page.locator('#promotionCampaignLeadEntry').count(),0);if(role==='IC')assert.equal(await page.evaluate(()=>qaPrivatePaths.length),0);
  }
  assert.equal(await page.evaluate(()=>qaWrites),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
