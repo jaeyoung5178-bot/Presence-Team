@@ -6232,12 +6232,12 @@ function prcNum(v){return Math.max(0,parseInt(v,10)||0);}
 function prcFmt(v){return Number(v||0).toLocaleString('ko-KR');}
 function prcMoneyInput(el){const pos=prcWon(el.value);el.value=pos?prcFmt(pos):'';}
 function prcMyRecord(pay,uid){uid=uid||((me||{}).uid);const teamKey=recapStudioScopedTeam(me)||recapStudioTeamForUid(uid,pay),snap=recapStudioTeamSnapshot(teamKey),teamRecord=((((snap||{}).weekly||{})[pay]||{})[uid]||null);if(teamRecord)return teamRecord;return (((state.weeklyProfitRecaps||{})[pay]||{})[uid]||null);}
-const PRC_RECAP_MEMBER_POLICIES=[{name:'김하진',excludedFrom:'2026-09'}];
+const PRC_RECAP_MEMBER_POLICIES=[{name:'김하진',excludedFrom:'2026-09',excludedThrough:'2026-10'}];
 function prcMemberEligibleForRecap(person,periodKey){
   if(!person)return false;
   const name=String(person.name||person).replace(/\s/g,''),raw=String(periodKey||profitRecapPayDate||TODAY),match=raw.match(/^(\d{4}-\d{2})/),month=match?match[1]:'';
   const policy=PRC_RECAP_MEMBER_POLICIES.find(function(item){return String(item.name||'').replace(/\s/g,'')===name;});
-  return !policy||!month||month<policy.excludedFrom;
+  return !policy||!month||month<policy.excludedFrom||!!policy.excludedThrough&&month>policy.excludedThrough;
 }
 function prcRecordsFor(uid){const out=[],teamKey=recapStudioScopedTeam(me),snap=recapStudioTeamSnapshot(teamKey),roster=teamKey?recapStudioEffectiveRoster(teamKey):{},pays=new Set(Object.keys(state.weeklyProfitRecaps||{}));Object.keys((snap&&snap.weekly)||{}).forEach(function(pay){pays.add(pay);});pays.forEach(function(pay){const r=prcMyRecord(pay,uid),person=teamKey?(roster[uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))out.push(r);});return out.sort(function(a,b){return String(b.payDate||'').localeCompare(String(a.payDate||''));});}
 function prcTLRecapGrant(u){const cfg=tlHomeConfig(u),access=window.PresenceTLWorkspaceAccess,grant=cfg&&access&&access.get(u,cfg);return !!cfg&&cfg.kind==='team'&&!!grant&&grant.teamKey===cfg.teamKey&&grant.capabilities&&grant.capabilities.recap===true&&recapStudioScopedTeam(u)===cfg.teamKey;}
@@ -6250,7 +6250,7 @@ function prcFieldMoney(id,label,value,help,full){return '<div class="prc-field'+
 function prcCount(id,label,value){return '<div class="prc-count"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="number" inputmode="numeric" min="0" step="1" value="'+prcNum(value)+'" aria-label="'+label+' 건수"></div>';}
 function prcStatusHTML(rec,info){
   const isFriday=new Date(TODAY+'T12:00:00').getDay()===5,isPast=info.pay<TODAY;
-  if(rec)return '<div class="prc-status saved"><span>✅</span><div><strong>작성 완료</strong><br>저장된 리캡을 다시 열어 수정할 수 있어요.</div></div>';
+  if(rec&&Object.keys(rec).length)return '<div class="prc-status saved"><span>✅</span><div><strong>작성 완료</strong><br>저장된 리캡을 다시 열어 수정할 수 있어요.</div></div>';
   if(info.pay>TODAY)return '<div class="prc-status"><span>🔒</span><div><strong>아직 급여일 전이에요.</strong><br>해당 금요일부터 작성할 수 있어요.</div></div>';
   return '<div class="prc-status"><span>🧾</span><div><strong>'+(isFriday&&!isPast?'오늘 작성하는 리캡이에요.':'놓친 주간도 보완 작성할 수 있어요.')+'</strong><br>급여 형태를 먼저 선택한 뒤 이번 주 입금액을 기록해 주세요.</div></div>';
 }
