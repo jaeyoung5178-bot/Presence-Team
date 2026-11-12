@@ -4486,6 +4486,9 @@ let SIGNUP_TOKEN_FROM='9999-12-31';
 let WELCOME_MSG='Presence 웹앱 가입을 축하합니다 🎉';
 function allMembers(){const ex=(typeof state!=='undefined'&&Array.isArray(state.extraMembers))?state.extraMembers:[];const rm=((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).map(n=>(n||'').replace(/\s/g,''));const seen={},out=[];ALLOWED_MEMBERS.concat(ex).forEach(n=>{const k=(n||'').replace(/\s/g,'');if(k&&!seen[k]&&rm.indexOf(k)<0){seen[k]=1;out.push(n);}});return out;}
 function isAllowedName(name){const nm=(name||'').replace(/\s/g,'');return allMembers().some(s=>s.replace(/\s/g,'')===nm)}
+/* Display membership is independent of the signup allow-list. */
+function memberRosterNames(){const seen=new Set(),out=[],info=state.memberInfo||{},norm=n=>String(n||'').replace(/\s/g,''),users=Object.values(state.users||{}),known=new Set(users.filter(Boolean).map(u=>norm(u.name)));function add(name){const key=norm(name);if(!key||seen.has(key)||isDeparted(name)||isTestName_(name)||Object.entries(info).some(([n,m])=>norm(n)===key&&m&&m.left))return;seen.add(key);out.push(String(name).trim());}users.forEach(u=>{if(u&&u.status==='active'&&!isTestBot(u))add(u.name);});allMembers().forEach(name=>{if(!known.has(norm(name)))add(name);});return out;}
+function memberRosterUser(name){const key=String(name||'').replace(/\s/g,'');return Object.values(state.users||{}).find(u=>u&&u.status==='active'&&!isTestBot(u)&&String(u.name||'').replace(/\s/g,'')===key)||null;}
 function nk(name){return String(name||'').trim().replace(/[.#$\/\[\]]/g,'_');}
 function roleOf(name){if(typeof isAdminName==='function'&&isAdminName(name))return 'AOP';const u=Object.values(state.users).find(x=>x.name===name);return u?u.role:'IC';}
 function isDeparted(name){const k=String(name||'').replace(/\s/g,'');if(!k)return false;if(DEPARTED_MEMBERS.some(n=>String(n).replace(/\s/g,'')===k))return true;return ((typeof state!=='undefined'&&Array.isArray(state.removedMembers))?state.removedMembers:[]).some(n=>String(n||'').replace(/\s/g,'')===k);}
@@ -9283,7 +9286,7 @@ function renderDataUsage(){
    👤 팀원 프로필 — 세부정보·동료평가·1:1·하위팀·리쿠르팅·PDF
    ════════════════════════════════════════════════════ */
 var mbName=null;
-function userByName(name){return Object.values(state.users||{}).find(function(x){return x.name===name;})||null;}
+function userByName(name){return memberRosterUser(name)||Object.values(state.users||{}).find(function(x){return x.name===name;})||null;}
 function mbCanCoach(){return !!me&&isFounder(me);}
 function dossierOf(name){var k=nk(name);state.dossier=state.dossier||{};return state.dossier[k]||(state.dossier[k]={});}
 function dossierSet(name,field,val){var k=nk(name);state.dossier=state.dossier||{};var d=state.dossier[k]||(state.dossier[k]={});d[field]=val;if(LIVE)DB.set('dossier/'+k+'/'+field,val);}
@@ -9334,7 +9337,7 @@ function mbDeleteAcct(){if(!mbName||!(me&&isFounder(me)))return;var u=userByName
 
 function renderMember(){
   var name=mbName;if(!name)return;var E=esc,u=userByName(name),d=dossierOf(name);
-  var role=roleOf(name),roleLbl=ROLE_LABEL[role]||role,ten=mbTenure(name),team=d.teamName||'',up=d.upline||'';
+  var role=u?u.role:roleOf(name),roleLbl=ROLE_LABEL[role]||role,ten=mbTenure(name),team=d.teamName||'',up=d.upline||'';
   var hd=document.getElementById('mbHead');
   hd.innerHTML='<span class="av" style="background:'+avColor(name)+'">'+avInner(name)+'</span>'
     +'<div class="who"><div class="nm">'+E(name)+'<span class="rk">'+E(roleLbl)+'</span></div>'
@@ -9391,7 +9394,7 @@ function renderMember(){
   h+='</div>';
   /* ⚙️ 관리 — 직급·권한·계정·퇴사 (관리자 전용) */
   if(me&&isFounder(me)){
-    var _isAct=allMembers().some(function(x){return x.replace(/\s/g,'')===name.replace(/\s/g,'');});
+    var _isAct=memberRosterNames().some(function(x){return x.replace(/\s/g,'')===name.replace(/\s/g,'');});
     var _isMe=u&&me&&u.uid===me.uid;
     h+='<div class="mb-sec mb-managez"><div class="mb-sh">⚙️ 관리</div>';
     if(_isAct){
@@ -9572,11 +9575,11 @@ function renderMemberAdmin(){
   const box=document.getElementById('memberAdminBody');if(!box)return;
   const ex=state.extraMembers||[];const exk=ex.map(n=>(n||'').replace(/\s/g,''));
   const mi=state.memberInfo||{};
-  const active=allMembers();
+  const active=memberRosterNames();
   box.innerHTML=`<div class="mem-add"><input id="newMemberIn" placeholder="새 팀원 이름" maxlength="12" onkeydown="if(event.key==='Enter')addMember(document.getElementById('newMemberIn').value)"/><button onclick="addMember(document.getElementById('newMemberIn').value)">+ 추가</button></div>`
     +`<div class="mem-sec-h">✅ 재직 ${active.length}명</div>`
     +`<div class="mem-rows">`
-    + active.map(n=>{const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;const u=userByName(n);const rl=u?u.role:roleOf(n);const reg=!!u;const mgr=u&&isManager(u);const sec=u&&isSectorLeader(u);return `<button type="button" class="mem-row${isEx?' extra':''}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 직급·권한·계정 관리" aria-label="${esc(n)} 프로필 및 팀원 관리 열기"><span class="mr-av" style="background:${avColor(n)}">${avInner(n)}</span><span class="mr-nm">${esc(n)}</span><span class="mr-role">${esc(ROLE_LABEL[rl]||rl)}</span><span class="mr-perm">${mgr?'<span class="mr-pm" title="매니저">🧑‍💼</span>':''}${sec?'<span class="mr-pm" title="섹터리더">🗺️</span>':''}${reg?'':'<span class="mem-noacct">계정없음</span>'}</span><span class="mr-chev">›</span></button>`;}).join('')
+    + active.map(n=>{const isEx=exk.indexOf(n.replace(/\s/g,''))>=0;const u=memberRosterUser(n);const rl=u?u.role:roleOf(n);const reg=!!u;const mgr=u&&isManager(u);const sec=u&&isSectorLeader(u);return `<button type="button" class="mem-row${isEx?' extra':''}" onclick="openMember('${esc(n).replace(/'/g,"\\'")}')" title="프로필 열기 · 직급·권한·계정 관리" aria-label="${esc(n)} 프로필 및 팀원 관리 열기"><span class="mr-av" style="background:${avColor(n)}">${avInner(n)}</span><span class="mr-nm">${esc(n)}</span><span class="mr-role">${esc(ROLE_LABEL[rl]||rl)}</span><span class="mr-perm">${mgr?'<span class="mr-pm" title="매니저">🧑‍💼</span>':''}${sec?'<span class="mr-pm" title="섹터리더">🗺️</span>':''}${reg?'':'<span class="mem-noacct">계정없음</span>'}</span><span class="mr-chev">›</span></button>`;}).join('')
     +`</div>`
     +`<button class="mem-sync" onclick="pullRoster({manual:true})">🔄 구글시트 '팀' 탭에서 팀원 동기화</button>`
     +`<div class="mem-note">이름을 누르면 <b>프로필</b>이 열려요 — 그 안에서 <b>직급 변경 · 🧑‍💼매니저/🗺️섹터리더 권한 · 🔑계정(비번재설정·삭제) · 퇴사 처리</b>까지 다 됩니다. 퇴사하면 「퇴사자」 카드로 이동하고 명단에선 빠져요(기록은 보존).</div>`;
@@ -9587,7 +9590,7 @@ function renderDepartedAdmin(){
   const box=document.getElementById('departedBody');if(!box)return;
   const badge=document.getElementById('departedBadge');
   const mi=state.memberInfo||{};
-  const active=allMembers();const activek=active.map(n=>n.replace(/\s/g,''));
+  const active=memberRosterNames();const activek=active.map(n=>n.replace(/\s/g,''));
   const dep={};const addDep=n=>{if(!n)return;const k=(n||'').replace(/\s/g,'');if(k&&!dep[k])dep[k]=n;};
   (state.removedMembers||[]).forEach(addDep);DEPARTED_MEMBERS.forEach(addDep);Object.keys(mi).forEach(n=>{if(mi[n]&&mi[n].left)addDep(n);});
   const depNames=Object.keys(dep).filter(k=>activek.indexOf(k)<0).map(k=>dep[k]).sort((a,b)=>a.localeCompare(b,'ko'));
@@ -9617,7 +9620,7 @@ function orgEnsureSeed(){
 }
 function orgCmp(a,b){return (ri(roleOf(b))-ri(roleOf(a)))||a.localeCompare(b,'ko');}
 function orgBuildTree(){
-  var mem=allMembers().filter(function(n){return !isTestName_(n)&&nk(n)!==nk('관리자')&&nk(n)!==nk('테스터');});var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
+  var mem=memberRosterNames().filter(function(n){return !isTestName_(n)&&nk(n)!==nk('관리자')&&nk(n)!==nk('테스터');});var byk={};mem.forEach(function(n){byk[nk(n)]=n;});
   var childMap={},roots=[];
   mem.forEach(function(n){
     var up=(dossierOf(n).upline||'').trim();
@@ -9637,7 +9640,7 @@ function orgNodeHTML(name,childMap,seen){
     +'<span class="onode-av" style="background:'+avColor(name)+'">'+avInner(name)+'</span>'
     +'<span class="onode-nm">'+esc(name)+'</span>'
     +'<span class="onode-role">'+esc(ROLE_LABEL[roleOf(name)]||roleOf(name))+'</span>'
-    +(team?'<span class="onode-team">🏷️ '+esc(team)+'</span>':'')
+    +(team?'<span class="onode-team">🏷️ '+esc(team)+'</span>':'<span class="onode-team">팀 연결 미지정</span>')
     +(kids.length?'<span class="onode-cnt">'+kids.length+'</span>':'')
     +'</div>';
   var ch=kids.length?'<ul>'+kids.map(function(k){return orgNodeHTML(k,childMap,seen);}).join('')+'</ul>':'';
@@ -10655,6 +10658,7 @@ async function initFirebase(generation){
     if(me)me=state.users[me.uid]||me;
     if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
+    if(me&&curTab==='teamtree')orgRefreshTree();
     window.PresenceAdminHome?.invalidate?.();
     if(me&&curTab==='recap'&&canManageTeamRecords(me))renderProfitRecapAdminView();
   });
@@ -14488,7 +14492,7 @@ function spawnKernel(layer,cx,cy){
 
   /* ── 퇴사자 제외: 시스템 체크/권한 영역엔 활동 멤버만 ── */
   function pmsrIsDeparted(name){const k=(name||'').replace(/\s/g,'');if(!k)return false;if(typeof isDeparted==='function'&&isDeparted(name))return true;const mi=(state.memberInfo||{})[name];return !!(mi&&mi.left);}
-  function pmsrActive(){const set=new Set((typeof allMembers==='function'?allMembers():[]).map(n=>(n||'').replace(/\s/g,'')));return Object.values(state.users||{}).filter(u=>u&&u.status==='active'&&set.has((u.name||'').replace(/\s/g,''))&&!pmsrIsDeparted(u.name));}
+  function pmsrActive(){return memberRosterNames().map(memberRosterUser).filter(u=>u&&!pmsrIsDeparted(u.name));}
 
   /* ── 멤버 모달용 리젝노트/셋업비서 토글 (매니저/섹터리더와 같은 줄) ── */
   function modalOpen(){const m=document.getElementById('memberModal');return m&&m.classList.contains('on');}
