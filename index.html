@@ -1814,6 +1814,8 @@ body.can-mod #fxPanel #fxBar{display:grid}
 #m-profitrecap .prc-auto{font-size:11px;color:var(--green-soft);line-height:1.55;margin-top:6px}
 #m-profitrecap .prc-export{margin-top:16px;border-top:1px solid var(--line);padding-top:15px}
 #m-profitrecap .prc-export-grid{display:grid;grid-template-columns:1fr;gap:9px}
+#m-profitrecap .prc-export-month{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;align-items:center}#m-profitrecap .prc-export-month button{min-width:44px;min-height:44px;padding:0;font-size:20px}#m-profitrecap .prc-export-month input{min-width:0;width:100%;min-height:44px;font-size:16px}
+#m-profitrecap .prc-export-month button{color:#173d30!important;background:#fff8e9!important;border:1px solid #b39a60!important}
 #m-profitrecap .prc-export select,#m-profitrecap .prc-export input{width:100%;box-sizing:border-box;min-height:46px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--cream);color-scheme:dark;padding:0 12px;font-size:16px}
 #m-profitrecap .prc-export-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 #m-profitrecap .prc-export button{min-height:46px;border-radius:11px;border:1px solid rgba(37,93,235,.45);background:rgba(37,93,235,.14);color:#9fc0ff;font-weight:850;cursor:pointer;padding:8px 10px}
@@ -6468,16 +6470,26 @@ function renderProfitRecapAdminView(){
   box.innerHTML=controls+'<div class="pra-deck">'+prcCoverHTML(data,prcAdminFrom,prcAdminTo,scopeName)+prcSummaryHTML(data,rangeLabel)+prcProductivityHTML(data)+prcAdminDetailSlides(data,prcAdminScope,scopeName,rangeLabel)+'</div>';
   prcPendingMount(chosenMonth);
 }
+const prcExportSelections=new Map();
+let prcExportSelectionActor='';
+function prcExportSelection(){const key=String((me||{}).uid||'');if(key!==prcExportSelectionActor){prcExportSelections.clear();prcExportSelectionActor=key;}if(!prcExportSelections.has(key))prcExportSelections.set(key,{});return prcExportSelections.get(key);}
+function prcExportShiftMonth(delta){const input=document.getElementById('prcExportMonth');if(!input||!prcValidMonth(input.value))return;const parts=input.value.split('-').map(Number),date=new Date(parts[0],parts[1]-1+delta,1);prcExportMonthChanged(date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0'));}
+function prcExportHasData(month,uid){return prcAdminAgg(month,month,uid||'').rows.some(r=>r.savedWeeks||r.fieldDays||r.sales||r.income||r.rejects||r.resubmits);}
+function prcExportUpdateAvailability(){const input=document.getElementById('prcExportMonth'),select=document.getElementById('prcExportUid');if(!input||!select)return;const team=document.querySelector('.prc-export-actions button:first-child'),person=document.querySelector('.prc-export [data-prc-person-export]');if(team)team.disabled=!prcExportHasData(input.value,'');if(person)person.disabled=!select.value||!prcExportHasData(input.value,select.value);const host=input.closest('.prc-export');if(host){let status=host.querySelector('[data-prc-export-status]');if(!status){status=document.createElement('p');status.dataset.prcExportStatus='';status.setAttribute('role','status');host.appendChild(status);}status.textContent=team&&team.disabled?'선택한 월에 내보낼 기록이 없습니다.':prcMonthLabel(input.value)+' 자료';}}
 function prcExportHTML(month){
   if(!canManageTeamRecords(me))return '';
+  const selection=prcExportSelection();month=prcValidMonth(selection.month)||month;
+  requestAnimationFrame(function(){prcExportUpdateAvailability();const select=document.getElementById('prcExportUid');if(select)select.onchange=function(){prcExportSelection().uid=this.value;prcExportUpdateAvailability();};});
   const leaders=prcEditableUsers(month).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
-  return '<div class="prc-export"><div class="prc-side-title"><b>📊 샘플 양식 PPT</b><span>모든 도형·표·차트 수정 가능</span></div><div class="prc-export-grid"><input id="prcExportMonth" type="month" value="'+month+'" onchange="prcExportMonthChanged(this.value)" aria-label="PPT 리캡 월"><select id="prcExportUid" aria-label="개인 리캡 대상"'+(leaders.length?'':' disabled')+'>'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'">'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><div class="prc-export-actions"><button onclick="exportProfitRecapPpt(\'team\',\'weekly\')">팀 전체자료 PPT</button><button data-prc-person-export onclick="exportProfitRecapPpt(\'person\',\'weekly\')"'+(leaders.length?'':' disabled')+'>개인자료 PPT</button></div></div></div>';
+  return '<div class="prc-export"><div class="prc-side-title"><b>📊 샘플 양식 PPT</b><span>모든 도형·표·차트 수정 가능</span></div><div class="prc-export-grid"><div class="prc-export-month"><button type="button" onclick="prcExportShiftMonth(-1)" aria-label="PPT 이전 달">‹</button><input id="prcExportMonth" type="month" value="'+month+'" onchange="prcExportMonthChanged(this.value)" aria-label="PPT 리캡 월"><button type="button" onclick="prcExportShiftMonth(1)" aria-label="PPT 다음 달">›</button></div><select id="prcExportUid" aria-label="개인 리캡 대상" onchange="prcExportSelection().uid=this.value"'+(leaders.length?'':' disabled')+'>'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===selection.uid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><div class="prc-export-actions"><button onclick="exportProfitRecapPpt(\'team\',\'weekly\')">팀 전체자료 PPT</button><button data-prc-person-export onclick="exportProfitRecapPpt(\'person\',\'weekly\')"'+(leaders.length?'':' disabled')+'>개인자료 PPT</button></div></div></div>';
 }
 function prcExportMonthChanged(month){
-  if(!/^\d{4}-\d{2}$/.test(month||''))return;
+  if(!prcValidMonth(month))return;const selection=prcExportSelection();selection.month=month;const input=document.getElementById('prcExportMonth');if(input)input.value=month;
   const select=document.getElementById('prcExportUid');if(!select)return;const previous=select.value,users=prcEditableUsers(month).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
   select.innerHTML=users.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===previous?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('');select.disabled=!users.length;
   const button=document.querySelector('.prc-export [data-prc-person-export]');if(button)button.disabled=!users.length;
+  selection.uid=users.some(u=>u.uid===previous)?previous:((users[0]||{}).uid||'');
+  prcExportUpdateAvailability();
 }
 function renderProfitRecap(){
   const box=document.getElementById('profitRecapBody');if(!box)return;
@@ -6796,6 +6808,7 @@ function prcPptDetail(pptx,data,rows,start,rowPage,rowPages,weekStart,weekEnd,pa
 async function exportProfitRecapPpt(scope,source){
   if(!canManageTeamRecords(me)){toast('관리자 또는 매니저만 다운로드할 수 있어요');return;}
   const range=prcResolveExportRange(source),from=range.from,to=range.to,uid=scope==='person'?(range.source==='weekly'?((document.getElementById('prcExportUid')||{}).value||''):((document.getElementById('praUid')||{}).value||'')):'';
+  if(range.source==='weekly'&&((scope==='person'&&!uid)||!prcExportHasData(from,uid))){toast('선택한 월에 내보낼 기록이 없습니다.');return;}
   const data=prcAdminAgg(from,to,uid);if(!data.rows.length){toast('선택한 범위에 세일즈·리캡 데이터가 없어요');return;}
   toast('샘플 양식으로 편집 가능한 PPT를 만드는 중이에요…');
   try{
