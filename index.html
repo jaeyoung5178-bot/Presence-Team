@@ -4639,6 +4639,9 @@ function recapStudioPersonHasMirrorSource(snapshot,person){const uids=(person&&p
 function recapStudioUnreviewedNeedsDecision(snapshot,person){if(recapStudioPersonHasMirrorSource(snapshot,person))return true;const info=recapStudioMemberInfoFor(snapshot,person&&person.name),join=info&&recapStudioDate(info.join)?info.join:'0000-01-01',left=info&&recapStudioDate(info.left)?info.left:'';if(!info||!left)return true;return recapStudioPayDates().some(function(pay){return join<=pay&&pay<=left;});}
 function recapStudioWeeklyValid(source,uid,pay){return !!source&&source.uid===uid&&source.payDate===pay&&recapStudioDate(source.weekEnding)&&typeof source.netPayment==='number'&&Number.isFinite(source.netPayment)&&typeof source.rejectCLCount==='number'&&Number.isFinite(source.rejectCLCount)&&typeof source.rejectSWCount==='number'&&Number.isFinite(source.rejectSWCount)&&typeof source.updatedAt==='number'&&Number.isFinite(source.updatedAt);}
 function recapStudioPayDates(){const out=[];RECAP_STUDIO_MIRROR_MONTHS.forEach(function(month){const y=Number(month.slice(0,4)),m=Number(month.slice(5,7)),last=new Date(y,m,0).getDate();for(let day=1;day<=last;day++){const pay=month+'-'+String(day).padStart(2,'0');if(new Date(pay+'T12:00:00').getDay()===5)out.push(pay);}});return out;}
+/* Read periods grow independently of the immutable historical migration scope. */
+function recapStudioReadMonths(now){const current=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit'}).formatToParts(now||new Date()),end=current.find(p=>p.type==='year').value+'-'+current.find(p=>p.type==='month').value,out=[],first=RECAP_STUDIO_MIRROR_MONTHS.slice().sort()[0];for(let month=first;month<=end;){out.push(month);const y=Number(month.slice(0,4)),m=Number(month.slice(5));month=m===12?(y+1)+'-01':y+'-'+String(m+1).padStart(2,'0');}return out;}
+function recapStudioReadPayDates(){const out=[];recapStudioReadMonths().forEach(function(month){const y=Number(month.slice(0,4)),m=Number(month.slice(5)),last=new Date(y,m,0).getDate();for(let d=1;d<=last;d++){const pay=month+'-'+String(d).padStart(2,'0');if(new Date(pay+'T12:00:00').getDay()===5)out.push(pay);}});return out;}
 function recapStudioWeeklyCore(source){if(!source||typeof source!=='object')return source;const out=Object.assign({},source);delete out.teamKey;delete out.assignmentId;delete out.assignmentConfigHash;return out;}
 function recapStudioCanonicalWeekly(source,a,configHash){return Object.assign({},recapStudioWeeklyCore(source),{teamKey:a.teamKey,assignmentId:a.assignmentId,assignmentConfigHash:configHash});}
 function recapStudioPlanHistoryV3(snapshot,stamp){
@@ -4706,6 +4709,7 @@ function recapStudioTeamSnapshot(teamKey){if(!teamKey)return null;if(state&&stat
    only members are retained, while reviewed entries are authoritative. */
 function recapStudioEffectiveRoster(teamKey){const snap=recapStudioTeamSnapshot(teamKey),reviewed=(RECAP_STUDIO_REVIEWED_ROSTER&&RECAP_STUDIO_REVIEWED_ROSTER[teamKey])||{},canonical=(snap&&snap.roster)||{};return Object.assign({},canonical,reviewed);}
 function recapStudioEffectiveWeekly(teamKey){const snap=recapStudioTeamSnapshot(teamKey),legacy=(state&&state.weeklyProfitRecaps)||{},canonical=(snap&&snap.weekly)||{},out={};new Set(Object.keys(legacy).concat(Object.keys(canonical))).forEach(function(pay){out[pay]=Object.assign({},legacy[pay]||{},canonical[pay]||{});});return out;}
+function prcReadableWeekly(){const teamKey=recapStudioScopedTeam(me);if(teamKey)return recapStudioEffectiveWeekly(teamKey);const out={};Object.keys(state.weeklyProfitRecaps||{}).forEach(pay=>out[pay]=Object.assign({},state.weeklyProfitRecaps[pay]));if(recapStudioIsAdmin(me))Object.values(state.recapStudioTeams||{}).forEach(team=>Object.keys(team.weekly||{}).forEach(pay=>{out[pay]=Object.assign({},out[pay]||{},team.weekly[pay]);}));return out;}
 function recapStudioRosterUsers(teamKey,pay){const roster=recapStudioEffectiveRoster(teamKey);return Object.entries(roster).filter(function(pair){return recapStudioRosterActive(pair[1],pay);}).map(function(pair){const uid=pair[0],entry=pair[1]||{},interval=recapStudioRosterIntervalAt(entry,pay)||{},user=(state.users||{})[uid]||{};return {uid:uid,name:interval.name||entry.name||user.name||'',role:interval.role||entry.role||user.role||'IC',status:'active'};}).filter(function(u){return u.name&&prcMemberEligibleForRecap(u,pay);});}
 function recapStudioTeamForUid(uid,pay){const teams=state&&state.recapStudioTeams||{},keys=new Set(Object.keys(teams).concat(Object.keys(RECAP_STUDIO_REVIEWED_ROSTER||{}))),matches=[];if(state&&state.recapStudioTeamKey)keys.add(state.recapStudioTeamKey);keys.forEach(function(teamKey){const entry=recapStudioEffectiveRoster(teamKey)[uid];if(recapStudioRosterActive(entry,pay))matches.push(teamKey);});return matches.length===1?matches[0]:'';}
 async function recapStudioResolveAssignment(uid,pay,month,requireMonth){
@@ -5219,8 +5223,10 @@ function recapStudioRefresh(){
   if(curTab==='tlhome')renderTLHome();
   else if(curTab==='profitrecap')renderProfitRecap();
   else if(curTab==='recap'&&me&&canManageTeamRecords(me))renderRecap();
+  else if(curTab==='profithub')window.PresenceWorkspace?.schedule?.();
 }
 function recapStudioClearSession(){
+  state.recapStudioCanonicalReady=false;
   while(recapStudioOff.length){try{recapStudioOff.pop()();}catch(e){}}
   if(recapStudioTeamOff){try{recapStudioTeamOff();}catch(e){}recapStudioTeamOff=null;}
   state.recapStudioAccess=null;state.recapStudioTeams={};state.recapStudioTeam=null;state.recapStudioTeamKey='';state.recapStudioMigration=null;state.recapStudioError='';window.__recapStudioAuthAccess=null;window.__recapStudioMigration=null;
@@ -5302,7 +5308,7 @@ function recapStudioSubscribe(){
   ['status','marker'].forEach(function(kind){recapStudioOff.push(DB.on(RECAP_STUDIO_MIGRATION_PATH+'/'+kind,function(v){state.recapStudioMigration=state.recapStudioMigration||{status:null,marker:null};state.recapStudioMigration[kind]=v||null;window.__recapStudioMigration={status:state.recapStudioMigration.status||null,marker:state.recapStudioMigration.marker||null};recapStudioRefresh();},function(){state.recapStudioMigration=state.recapStudioMigration||{status:null,marker:null};state.recapStudioMigration[kind]=null;window.__recapStudioMigration={status:state.recapStudioMigration.status||null,marker:state.recapStudioMigration.marker||null};}));});
   if(isFounder(me)){
     state.recapStudioAccess={active:true,scope:'all',uid:me.uid};window.__recapStudioAuthAccess=state.recapStudioAccess;
-    recapStudioOff.push(DB.on('recapStudioTeams',function(v){state.recapStudioTeams=v||{};state.recapStudioError='';recapStudioRefresh();},function(){state.recapStudioError='전사 리캡 미러를 불러오지 못했습니다.';recapStudioRefresh();}));
+    recapStudioOff.push(DB.on('recapStudioTeams',function(v){state.recapStudioTeams=v||{};state.recapStudioCanonicalReady=true;state.recapStudioError='';recapStudioRefresh();},function(){state.recapStudioTeams={};state.recapStudioCanonicalReady=false;state.recapStudioError='전사 리캡 미러를 불러오지 못했습니다.';recapStudioRefresh();}));
     return;
   }
   const uid=me.uid,cfg=tlHomeConfig(me);
@@ -5313,7 +5319,7 @@ function recapStudioSubscribe(){
     state.recapStudioTeamKey=access.teamKey;state.recapStudioError='';
     recapStudioTeamOff=DB.on('recapStudioTeams/'+access.teamKey,function(team){state.recapStudioTeam=team||{roster:{},weekly:{},bep:{}};prcPendingRecapReadyUid=uid;state.recapStudioError='';recapStudioRefresh();},function(){state.recapStudioTeam=null;state.recapStudioError='팀 리캡 미러를 불러오지 못했습니다.';recapStudioRefresh();});
     recapStudioRefresh();
-  },function(){state.recapStudioAccess=null;state.recapStudioError='리캡 접근 권한을 확인하지 못했습니다.';recapStudioRefresh();}));
+  },function(){if(recapStudioTeamOff){try{recapStudioTeamOff();}catch(e){}recapStudioTeamOff=null;}state.recapStudioTeam=null;state.recapStudioTeamKey='';state.recapStudioAccess=null;window.__recapStudioAuthAccess=null;state.recapStudioError='리캡 접근 권한을 확인하지 못했습니다.';recapStudioRefresh();}));
 }
 function tlhParse(s){const p=String(s||'').split('-').map(Number);return new Date(p[0],(p[1]||1)-1,p[2]||1,12,0,0,0);}
 function tlhAdd(s,n){const d=tlhParse(s);d.setDate(d.getDate()+n);return ymd(d);}
@@ -6231,7 +6237,7 @@ function prcWon(v){return Math.max(0,parseInt(String(v==null?'0':v).replace(/[^0
 function prcNum(v){return Math.max(0,parseInt(v,10)||0);}
 function prcFmt(v){return Number(v||0).toLocaleString('ko-KR');}
 function prcMoneyInput(el){const pos=prcWon(el.value);el.value=pos?prcFmt(pos):'';}
-function prcMyRecord(pay,uid){uid=uid||((me||{}).uid);const teamKey=recapStudioScopedTeam(me)||recapStudioTeamForUid(uid,pay),snap=recapStudioTeamSnapshot(teamKey),teamRecord=((((snap||{}).weekly||{})[pay]||{})[uid]||null);if(teamRecord)return teamRecord;return (((state.weeklyProfitRecaps||{})[pay]||{})[uid]||null);}
+function prcMyRecord(pay,uid){uid=uid||((me||{}).uid);return ((prcReadableWeekly()[pay]||{})[uid]||null);}
 const PRC_RECAP_MEMBER_POLICIES=[{name:'김하진',excludedFrom:'2026-09',excludedThrough:'2026-10'}];
 function prcMemberEligibleForRecap(person,periodKey){
   if(!person)return false;
@@ -6239,7 +6245,7 @@ function prcMemberEligibleForRecap(person,periodKey){
   const policy=PRC_RECAP_MEMBER_POLICIES.find(function(item){return String(item.name||'').replace(/\s/g,'')===name;});
   return !policy||!month||month<policy.excludedFrom||!!policy.excludedThrough&&month>policy.excludedThrough;
 }
-function prcRecordsFor(uid){const out=[],teamKey=recapStudioScopedTeam(me),snap=recapStudioTeamSnapshot(teamKey),roster=teamKey?recapStudioEffectiveRoster(teamKey):{},pays=new Set(Object.keys(state.weeklyProfitRecaps||{}));Object.keys((snap&&snap.weekly)||{}).forEach(function(pay){pays.add(pay);});pays.forEach(function(pay){const r=prcMyRecord(pay,uid),person=teamKey?(roster[uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))out.push(r);});return out.sort(function(a,b){return String(b.payDate||'').localeCompare(String(a.payDate||''));});}
+function prcRecordsFor(uid){const out=[],teamKey=recapStudioScopedTeam(me),source=prcReadableWeekly(),roster=teamKey?recapStudioEffectiveRoster(teamKey):{};Object.keys(source).forEach(function(pay){const r=(source[pay]||{})[uid],person=teamKey?(roster[uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))out.push(r);});return out.sort(function(a,b){return String(b.payDate||'').localeCompare(String(a.payDate||''));});}
 function prcTLRecapGrant(u){const cfg=tlHomeConfig(u),access=window.PresenceTLWorkspaceAccess,grant=cfg&&access&&access.get(u,cfg);return !!cfg&&cfg.kind==='team'&&!!grant&&grant.teamKey===cfg.teamKey&&grant.capabilities&&grant.capabilities.recap===true&&recapStudioScopedTeam(u)===cfg.teamKey;}
 function prcCanManageRecaps(u){return canManageTeamRecords(u)||prcTLRecapGrant(u);}
 function prcEditableUsers(periodKey){const pay=/^\d{4}-\d{2}$/.test(periodKey||'')?periodKey+'-28':prcFriday(periodKey||TODAY),teamKey=recapStudioScopedTeam(me),source=teamKey?recapStudioRosterUsers(teamKey,pay):Object.values(state.users||{});return source.filter(function(u){return u&&u.status==='active'&&(prcTLRecapGrant(me)?(u.uid===me.uid||u.role==='IC'):ri(u.role)>=1)&&!isTestBot(u)&&prcMemberEligibleForRecap(u,periodKey);}).sort(function(a,b){return ri(b.role)-ri(a.role)||String(a.name).localeCompare(String(b.name),'ko');});}
@@ -6284,7 +6290,7 @@ function prcPendingRecapMembers(month){
     const first=salesFirstFieldDate(u.name);
     return (!first||first<=through)&&worked.has(name);
   });
-  const weekly=teamKey?(((recapStudioTeamSnapshot(teamKey)||{}).weekly)||{}):(state.weeklyProfitRecaps||{});
+  const weekly=prcReadableWeekly();
   const pending=eligible.filter(function(u){
     return !pays.some(function(pay){return (weekly[pay]||{})[u.uid]!=null;});
   }).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});
@@ -6476,6 +6482,7 @@ function prcExportMonthChanged(month){
 function renderProfitRecap(){
   const box=document.getElementById('profitRecapBody');if(!box)return;
   if(!canProfitRecap(me)){box.innerHTML='';return;}
+  if(state.recapStudioError||(isFounder(me)&&state.recapStudioCanonicalReady===false)){box.innerHTML='<div class="prc-empty" role="status">'+esc(state.recapStudioError||'리캡 기록을 불러오는 중입니다. 잠시만 기다려 주세요.')+'</div>';return;}
   if(!profitRecapPayDate)profitRecapPayDate=prcFriday(TODAY);
   const info=prcWeekInfo(profitRecapPayDate);profitRecapPayDate=info.pay;
   const scopedTeam=recapStudioScopedTeam(me);
@@ -6503,6 +6510,7 @@ function prcSetPayDate(ds){if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;const f
 function prcMove(n){const next=prcAddDays(profitRecapPayDate||prcFriday(TODAY),n);if(next>TODAY){toast('다음 급여일 이후에는 이동할 수 없어요');return;}profitRecapPayDate=next;renderProfitRecap();}
 async function saveProfitRecap(){
   if(!canProfitRecap(me)){toast('활동 중인 계정으로 로그인해 주세요');return;}
+  if(state.recapStudioError||(isFounder(me)&&state.recapStudioCanonicalReady===false)){toast(state.recapStudioError||'기존 리캡 기록을 불러온 뒤 저장해 주세요');return;}
   const target=prcTargetUser();if(!target)return;if(target.uid!==me.uid&&!prcCanManageRecaps(me)){toast('다른 팀원의 리캡은 관리자 또는 매니저만 수정할 수 있어요');return;}
   const info=prcWeekInfo(profitRecapPayDate||TODAY);if(info.pay>TODAY){toast('급여일 이후에 작성해 주세요');return;}
   if(target.uid!==me.uid&&prcTLRecapGrant(me)){const actorUid=me.uid;const allowed=await window.PresenceTLWorkspaceAccess.canWriteTLRecapTarget(target.uid,info.pay);if(!allowed||!me||me.uid!==actorUid||!prcTLRecapGrant(me)){toast('팀 배정·기간·리캡 권한을 확인해 주세요');return;}}
@@ -6518,7 +6526,7 @@ async function saveProfitRecap(){
   catch(e){if(old)state.weeklyProfitRecaps[info.pay][target.uid]=old;else delete state.weeklyProfitRecaps[info.pay][target.uid];if(teamSnap){if(oldTeam)teamSnap.weekly[info.pay][target.uid]=oldTeam;else delete teamSnap.weekly[info.pay][target.uid];if(payType==='performance'){if(oldTeamBep==null)delete teamSnap.bep[month][target.uid];else teamSnap.bep[month][target.uid]=oldTeamBep;}}if(payType==='performance'){if(oldBep==null)delete state.profitMonthlyBep[month][target.uid];else state.profitMonthlyBep[month][target.uid]=oldBep;}renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
 }
 function prcPptLoad(){return new Promise(function(resolve,reject){if(window.PptxGenJS){resolve(window.PptxGenJS);return;}const old=document.getElementById('pptxgen-lib');if(old){old.addEventListener('load',function(){resolve(window.PptxGenJS);},{once:true});old.addEventListener('error',reject,{once:true});return;}const s=document.createElement('script');s.id='pptxgen-lib';s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=function(){resolve(window.PptxGenJS)};s.onerror=function(){reject(new Error('PPT library load failed'))};document.head.appendChild(s);});}
-function prcRangeRecords(from,to,uid){const rows=[],teamKey=recapStudioScopedTeam(me),source=teamKey?recapStudioEffectiveWeekly(teamKey):(state.weeklyProfitRecaps||{}),roster=teamKey?recapStudioEffectiveRoster(teamKey):{};Object.keys(source).sort().forEach(function(pay){const mk=pay.slice(0,7);if(mk<from||mk>to)return;Object.values(source[pay]||{}).forEach(function(r){const person=teamKey?(roster[(r||{}).uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!uid||r.uid===uid)&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))rows.push(r);});});return rows;}
+function prcRangeRecords(from,to,uid){const rows=[],teamKey=recapStudioScopedTeam(me),source=prcReadableWeekly(),roster=teamKey?recapStudioEffectiveRoster(teamKey):{};Object.keys(source).sort().forEach(function(pay){const mk=pay.slice(0,7);if(mk<from||mk>to)return;Object.values(source[pay]||{}).forEach(function(r){const person=teamKey?(roster[(r||{}).uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!uid||r.uid===uid)&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))rows.push(r);});});return rows;}
 function prcMonthRecords(month,uid){return prcRangeRecords(month,month,uid);}
 function prcSalesRange(name,from,to){let sales=0;const days=new Set();Object.values(state.sales||{}).forEach(function(s){const mk=String((s||{}).date||'').slice(0,7);if(s&&s.name===name&&mk>=from&&mk<=to&&saleEntryCountsAsWork(s)){sales+=Number(s.count)||0;days.add(s.date);}});return {sales:sales,days:days.size};}
 function prcSalesFor(name,month){return prcSalesRange(name,month,month);}
@@ -10527,8 +10535,8 @@ async function initFirebase(generation){
       const refreshOwnProfit=()=>{Object.keys(ownWeekly).forEach(pay=>delete ownWeekly[pay]);new Set(Object.keys(legacyWeekly).concat(Object.keys(canonicalWeekly))).forEach(pay=>{const record=canonicalWeekly[pay]||legacyWeekly[pay];if(record)ownWeekly[pay]={[uid]:record};});Object.keys(ownBep).forEach(month=>delete ownBep[month]);new Set(Object.keys(legacyBep).concat(Object.keys(canonicalBep))).forEach(month=>{const value=canonicalBep[month]!=null?canonicalBep[month]:legacyBep[month];if(value!=null)ownBep[month]={[uid]:value};});if(canProfitRecap(me)&&typeof curTab!=='undefined'&&curTab==='profitrecap')renderProfitRecap();};
       profitRecapOff.push(rawOn('weeklyProfitRecapsPrivate/'+uid,v=>{Object.keys(legacyWeekly).forEach(pay=>delete legacyWeekly[pay]);Object.assign(legacyWeekly,v||{});refreshOwnProfit();}));
       profitRecapOff.push(rawOn('profitMonthlyBepPrivate/'+uid,v=>{Object.keys(legacyBep).forEach(month=>delete legacyBep[month]);Object.assign(legacyBep,v||{});refreshOwnProfit();}));
-      recapStudioPayDates().forEach(pay=>{profitRecapOff.push(rawOn('recapStudioAssignments/byPay/'+pay+'/'+uid,index=>{if(weeklyValueOff[pay]){try{weeklyValueOff[pay]();}catch(e){}delete weeklyValueOff[pay];}delete canonicalWeekly[pay];refreshOwnProfit();if(!index||index.uid!==uid||!index.teamKey)return;weeklyValueOff[pay]=rawOn('recapStudioTeams/'+index.teamKey+'/weekly/'+pay+'/'+uid,record=>{if(record)canonicalWeekly[pay]=record;else delete canonicalWeekly[pay];refreshOwnProfit();});profitRecapOff.push(weeklyValueOff[pay]);}));});
-      RECAP_STUDIO_MIRROR_MONTHS.forEach(month=>{profitRecapOff.push(rawOn('recapStudioAssignments/byMonth/'+month+'/'+uid,index=>{if(bepValueOff[month]){try{bepValueOff[month]();}catch(e){}delete bepValueOff[month];}delete canonicalBep[month];refreshOwnProfit();if(!index||index.uid!==uid||!index.teamKey)return;bepValueOff[month]=rawOn('recapStudioTeams/'+index.teamKey+'/bep/'+month+'/'+uid,value=>{if(value!=null)canonicalBep[month]=value;else delete canonicalBep[month];refreshOwnProfit();});profitRecapOff.push(bepValueOff[month]);}));});
+      recapStudioReadPayDates().forEach(pay=>{let generation=0;profitRecapOff.push(()=>{generation++;});profitRecapOff.push(rawOn('recapStudioAssignments/byPay/'+pay+'/'+uid,index=>{const ticket=++generation;if(weeklyValueOff[pay]){try{weeklyValueOff[pay]();}catch(e){}delete weeklyValueOff[pay];}delete canonicalWeekly[pay];refreshOwnProfit();if(!index||index.uid!==uid||!index.teamKey)return;weeklyValueOff[pay]=rawOn('recapStudioTeams/'+index.teamKey+'/weekly/'+pay+'/'+uid,record=>{if(ticket!==generation)return;if(record)canonicalWeekly[pay]=record;else delete canonicalWeekly[pay];refreshOwnProfit();},()=>{if(ticket!==generation)return;delete canonicalWeekly[pay];refreshOwnProfit();});profitRecapOff.push(weeklyValueOff[pay]);},()=>{generation++;delete canonicalWeekly[pay];refreshOwnProfit();}));});
+      recapStudioReadMonths().forEach(month=>{let generation=0;profitRecapOff.push(()=>{generation++;});profitRecapOff.push(rawOn('recapStudioAssignments/byMonth/'+month+'/'+uid,index=>{const ticket=++generation;if(bepValueOff[month]){try{bepValueOff[month]();}catch(e){}delete bepValueOff[month];}delete canonicalBep[month];refreshOwnProfit();if(!index||index.uid!==uid||!index.teamKey)return;bepValueOff[month]=rawOn('recapStudioTeams/'+index.teamKey+'/bep/'+month+'/'+uid,value=>{if(ticket!==generation)return;if(value!=null)canonicalBep[month]=value;else delete canonicalBep[month];refreshOwnProfit();},()=>{if(ticket!==generation)return;delete canonicalBep[month];refreshOwnProfit();});profitRecapOff.push(bepValueOff[month]);},()=>{generation++;delete canonicalBep[month];refreshOwnProfit();}));});
     }
     return within(profileRequest,8000,'user profile');};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(p?fb.ref(db,p):fb.ref(db),v);DB.remove=p=>fb.remove(fb.ref(db,p));
@@ -17972,7 +17980,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261111-boss1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261112-recap-read1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
