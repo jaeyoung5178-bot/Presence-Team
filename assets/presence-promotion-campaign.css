@@ -23,3 +23,7 @@
 .ppc-defense-gap{margin:6px 0 0;font-size:13px;line-height:1.5;color:#53634e;word-break:keep-all}
 
 .ppc-presets{grid-template-columns:repeat(6,minmax(0,1fr))}.ppc-presets [data-ppc-undo]{grid-column:1/-1}@media(max-width:600px){.ppc-presets{grid-template-columns:repeat(3,minmax(0,1fr))}.ppc-presets button,.ppc-presets button:nth-last-child(-n+2){grid-column:auto}.ppc-presets [data-ppc-undo]{grid-column:1/-1}}
+
+.ppc-qualification-gap{margin:10px 0 0;font-size:13px;line-height:1.5;color:#53634e;word-break:keep-all}
+
+.ppc-operating-hint{margin:10px 0 0;font-size:13px;line-height:1.5;color:#53634e;word-break:keep-all}
