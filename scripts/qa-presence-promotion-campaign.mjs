@@ -21,7 +21,7 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
   me={uid:role==='admin'?'admin':role==='assignedTL'?leaderUid:role,name:'화면 예시',role:role==='admin'?'AOP':role==='IC'?'IC':'TL',status:'active'};
   state.users={[me.uid]:me};state.dossier={};state.sales={};state.pr=201;state.waters={};PresenceWorkspace.dispose();
   const cloud=PresencePromotionCampaignCloud;
-  window.qaConfig={version:1,revision:1,targetUid:'fixtureLead',displayName:'화면 예시',goalRoleLabel:'AOP',teamKey:'youngwave',week1Start:'2026-11-09',weeklyTarget:3200000,weekCount:2,displayFrom:'2026-11-11',currency:'KRW',bondDeductionBps:4500,multiplierBps:5500,thresholdBasis:'net',calcBasis:'dailyFundraising',calculationMode:'bondDeduction',enabled:true,updatedAt:qaNow,updatedBy:'admin',ledger:{}};
+  window.qaConfig={version:1,revision:1,targetUid:'fixtureLead',displayName:'화면 예시',goalRoleLabel:'AOP',teamKey:'youngwave',week1Start:'2026-11-09',weeklyTarget:3200000,weekCount:2,displayFrom:'2026-11-11',currency:'KRW',bondDeductionBps:0,multiplierBps:10000,thresholdBasis:'net',calcBasis:'dailyFundraising',calculationMode:'bondDeduction',enabled:true,updatedAt:qaNow,updatedBy:'admin',ledger:{}};
   qaConfig.targetUid=leaderUid;
   cloud.datesForCampaign(qaConfig).forEach((date,i)=>qaConfig.ledger['d'+i]={date,startsAt:Date.parse(date+'T00:00:00+09:00'),revision:1,updatedAt:qaNow,updatedBy:'admin'});
   window.qaPrivatePaths=[];window.qaCallbacks={};window.qaWrites=0;
@@ -48,12 +48,12 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
   assert.equal(await page.locator('[data-ppc-config]').count(),role==='admin'?6:0);
   assert.equal(await page.locator('[data-ppc-enabled]').count(),role==='admin'?1:0);
   assert.equal(await page.locator('[data-ppc-preview]').count(),role==='admin'?1:0);
-  if(role==='admin') {await page.locator('.ppc-settings summary').click();const rate=page.locator('[data-ppc-config="bondDeductionBps"]');await rate.fill('0');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('100');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('45');await page.locator('.ppc-settings summary').click();}
+  if(role==='admin') {await page.locator('.ppc-settings summary').click();const rate=page.locator('[data-ppc-config="bondDeductionBps"]');await rate.fill('0');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('100');assert.equal(await rate.evaluate(e=>e.checkValidity()),true);await rate.fill('0');await page.locator('.ppc-settings summary').click();}
   await page.locator('[data-ppc-date]').selectOption('2026-11-22');assert.equal(await page.locator('[data-ppc-gross]').isDisabled(),true);assert.equal(await page.locator('[data-ppc-save-day]').isDisabled(),true);
   assert.equal(await page.locator('[data-ppc-add]').evaluateAll(nodes=>nodes.length===5&&nodes.every(n=>n.disabled)),true);
   await page.locator('[data-ppc-date]').selectOption('2026-11-11');assert.equal(await page.locator('[data-ppc-gross]').isDisabled(),false);
   assert.equal(await page.locator('[data-ppc-add]').evaluateAll(nodes=>nodes.length===5&&nodes.every(n=>n.getBoundingClientRect().height>=44&&n.getBoundingClientRect().width>=44&&parseFloat(getComputedStyle(n).fontSize)>=16)),true);
-  await page.locator('[data-ppc-add="30000"]').click();await page.locator('[data-ppc-add="30000"]').click();assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'60000');assert.deepEqual(await page.locator('.ppc-day-preview dd').allTextContents(),['60,000원','27,000원','33,000원']);assert.match(await page.locator('.ppc-net-preview').innerText(),/33,000원/);assert.equal(await page.evaluate(()=>qaWrites),0);
+  await page.locator('[data-ppc-add="30000"]').click();await page.locator('[data-ppc-add="30000"]').click();assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'60000');assert.deepEqual(await page.locator('.ppc-day-preview dd').allTextContents(),['60,000원','60,000원']);assert.match(await page.locator('.ppc-net-preview').innerText(),/60,000원/);assert.equal(await page.evaluate(()=>qaWrites),0);
   await page.locator('[data-ppc-gross]').fill('1000');await page.locator('[data-ppc-add="40000"]').click();assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'41000');await page.locator('[data-ppc-date]').selectOption('2026-11-09');assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'');await page.locator('[data-ppc-date]').selectOption('2026-11-11');assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'41000');
   await page.locator('[data-ppc-gross]').fill('0');await page.evaluate(()=>PresencePromotionCampaign.sync());assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'0');
   await page.locator('.ppc-back-home').click();await page.waitForFunction(()=>curTab==='home'&&document.activeElement?.classList.contains('ppc-record-entry'));await page.locator('.ppc-record-entry').press('Enter');await page.waitForSelector('[data-ppc-gross]');assert.equal(await page.locator('[data-ppc-gross]').inputValue(),'0');
@@ -80,7 +80,7 @@ for(const width of (process.env.PRESENCE_QA_WIDTHS||'390,1024,1440').split(',').
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
  if(width===390&&role==='admin') await page.evaluate(()=>{
   const cloud=PresencePromotionCampaignCloud,c=structuredClone(qaConfig);c.ledger.d0.amount=8000000;c.ledger.d7.amount=1000000;const p=cloud.project(c);
-  if(p.weeks.w1.net!==4400000||p.weeks.w2.net!==550000||!p.weeks.w1.achieved||p.weeks.w2.achieved)throw Error('Independent weekly bond calculation');
+  if(p.weeks.w1.net!==8000000||p.weeks.w2.net!==1000000||!p.weeks.w1.achieved||p.weeks.w2.achieved)throw Error('Independent full-productivity/no-carry calculation');
   if(PresencePromotionCampaign.homeHTML({...p,enabled:true},{today:'2026-11-10'})!=='')throw Error('Pre-display leak');
   if(!PresencePromotionCampaign.homeHTML({...p,enabled:true},{today:'2026-11-11'}))throw Error('Display start missing');
  });
