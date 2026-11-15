@@ -7,3 +7,11 @@ const one=html();for(const text of ['4,300,000원','69.2%','1,326,000원','226,0
 const noPolicy=html(seed,{});assert(noPolicy.includes('92.9%'));assert(!noPolicy.includes('4,300,000원'));assert(!noPolicy.includes('ppc-qualification-gap'));
 for(const [amount,defense]of[[3200000,0],[3310000,1],[4300000,10]]){const s=JSON.parse(original);s.weeks.w1.gross=s.weeks.w1.net=amount;const h=html(s);assert(h.includes('<strong>'+defense+'건</strong>'));assert(h.includes('자격 금액 달성'));if(amount===3200000)assert(h.includes('1,100,000원'));if(amount===4300000)assert(h.includes('aria-valuenow="100.0"'));assert(h.includes('시작 전 · 미입력'));}
 const invalid=html({...seed,weeklyTarget:0});assert(invalid.includes('미설정'));assert(!invalid.includes('is-achieved'));console.log('PASS view-only 4300000/69.2/1326000 vs qualification3200000/226000/defense0/336000, boundaries0+1+10, no carry, missing, no-policy unchanged, invalidgoal, input immutable');
+// Home-only compact summary uses the calendar week, retaining all detailed data.
+const compactSeed=JSON.parse(original);compactSeed.weeks.w1.gross=compactSeed.weeks.w1.net=3514000;compactSeed.weeks.w1.confirmedDays=6;
+const compact=html(compactSeed,{rejectBuffer:10,compact:true,canRecord:true,today:'2026-11-15'});
+for(const text of ['ppc-home-compact','3,514,000원','81.7%','786,000원','리젝 방어 예상 2건','<span>W1</span>','2주 진척 자세히 보기'])assert(compact.includes(text),text);
+assert.equal((compact.match(/class="ppc-record-entry"/g)||[]).length,1);assert(compact.includes('시작 전 · 미입력'));
+const next=html(compactSeed,{rejectBuffer:10,compact:true,today:'2026-11-16'});assert(next.includes('<span>W2</span>'));assert(next.includes('금액 입력 대기'));assert.equal(JSON.stringify(compactSeed.weeks.w1.gross),'3514000');
+console.log('PASS compact calendar W1/W2, raw totals unchanged, one entry, detailed missing state retained');
+const invalidCompact=html({...compactSeed,weeklyTarget:0},{rejectBuffer:10,compact:true});assert(invalidCompact.includes('목표를 확인해 주세요'));assert(!invalidCompact.includes('null건'));assert(!invalidCompact.includes('Infinity'));

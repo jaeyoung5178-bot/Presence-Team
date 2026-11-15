@@ -10335,6 +10335,7 @@ const FX=(function(){
     _emojiCache[key]=c;return c;
   }
   function drawEmoji(e,x,y,sc,flip,rot){
+    if(W<980&&cv.dataset.sceneHost==='page')return; // Mobile keeps snow and lights; large global sprites never cross readable UI.
     const spr=emojiSprite(e,sc),d=spr._dim;           // 매 프레임 fillText 대신 캐시 이미지를 그림(모바일 대폭 개선)
     ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot);if(flip===-1)ctx.scale(-1,1);ctx.globalAlpha=1;
     const width=spr._width||d,height=spr._height||d;
@@ -14103,7 +14104,7 @@ function spawnKernel(layer,cx,cy){
     const el=document.getElementById('m-setupkit');if(!el||el.dataset.built)return;el.dataset.built='1';
     el.innerHTML='<div class="wrap"><section class="sec">'
       +'<div class="sec-head"><h2>🐑 셋업 비서</h2><span class="ko">데일리·위클리 글 자동 생성 · <b id="skSyncState" data-tone="busy">실시간 연결 중…</b></span></div>'
-      +'<div class="pmsr-row" style="align-items:flex-end;margin-bottom:12px"><div class="pmsr-col" style="max-width:170px"><label class="sk-lab">필드 기준일</label><input type="date" id="skDate" class="sk-f"></div><button class="pmsr-btn ghost sm" id="skTomorrow">내일로</button><span id="skDow" class="pmsr-chip" style="margin-left:auto"></span></div>'
+      +'<div class="pmsr-row sk-date-row"><div class="pmsr-col sk-date-field"><label class="sk-lab" for="skDate">필드 기준일</label><input type="date" id="skDate" class="sk-f"></div><button class="pmsr-btn ghost sm" id="skTomorrow">내일로</button><span id="skDow" class="pmsr-chip" style="margin-left:auto"></span></div>'
       +'<div class="sk-sub"><button data-sk="daily" class="on">🌅 데일리</button><button data-sk="byday">📋 요일별 셋업</button><button data-sk="roster">👥 셋업명단편성</button><button data-sk="weekly">📅 위클리</button><button data-sk="set">⚙️ 명단·방</button></div>'
       // daily
       +'<div class="sk-page on" id="skp-daily">'
@@ -17976,7 +17977,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261110-garden-load1"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261115-home-ready1"></script>
 <script src="assets/presence-youtube-bgm.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
@@ -17997,11 +17998,13 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-birthday.css?v=20261110-birthday1">
 <link rel="stylesheet" href="assets/presence-promotion-campaign.css?v=20261114-buffer10-goal3">
 <link rel="stylesheet" href="assets/presence-sales-holiday.css?v=20261110-sales-visible2">
+<link rel="stylesheet" href="assets/presence-home-calm.css?v=20261115-home-calm1">
+<link rel="stylesheet" href="assets/presence-mobile-safety.css?v=20261115-safe1">
 <script src="assets/presence-sales-holiday.js?v=20261110-sales-visible2"></script>
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261112-recap-read1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261115-home-calm1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
@@ -18013,7 +18016,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-birthday-cloud.js?v=20261110-birthday1"></script>
 <script src="assets/presence-birthday.js?v=20261110-birthday-heic1"></script>
 <script src="assets/presence-promotion-campaign-cloud.js?v=20261115-owner-access1"></script>
-<script src="assets/presence-promotion-campaign.js?v=20261114-buffer10-goal3"></script>
-<script src="assets/presence-promotion-campaign-controller.js?v=20261115-owner-access1"></script>
+<script src="assets/presence-promotion-campaign.js?v=20261115-home-compact1"></script>
+<script src="assets/presence-promotion-campaign-controller.js?v=20261115-home-compact1"></script>
+<script src="assets/presence-mobile-safety.js?v=20261115-safe1"></script>
 </body>
 </html>

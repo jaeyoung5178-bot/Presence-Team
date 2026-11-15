@@ -773,6 +773,7 @@
 
   function preloadCritical() {
     var season = seasonNow();
+    if (!BACKGROUNDS[season]) return; // Seasonal settings are still loading; the ready callback upgrades the scene.
     var period = timePeriod();
     var mode = period.key === 'night' || period.key === 'dawn' ? 'night' : 'day';
     var context = treeContext();
