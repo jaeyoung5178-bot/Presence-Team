@@ -7,7 +7,7 @@ assert.deepEqual(api.previousWeek(Date.parse('2026-11-22T15:00:00Z')),{start:'20
 assert.deepEqual(api.previousWeek(Date.parse('2027-01-03T15:00:00Z')),{start:'2026-12-28',end:'2027-01-03'});
 const env={actor:{uid:'tl',role:'TL',status:'active'},members:[{name:'A'},{name:'B'},{name:'C'},{name:'D',firstField:'2026-11-16'},{name:'Left',left:'2026-11-14'}],sales:{a:{name:'A',date:'2026-11-09',count:3},b:{name:'B',date:'2026-11-10',count:0,checked:true},c:{name:'C',date:'2026-11-10',na:true},d:{name:'D',date:'2026-11-10',count:9},left:{name:'Left',date:'2026-11-13',count:2},after:{name:'Left',date:'2026-11-14',count:99},other:{name:'Other',date:'2026-11-10',count:999}}};
 const period={start:'2026-11-09',end:'2026-11-15'},snapshot=JSON.stringify(env),out=api.summarize(env,period,30);
-assert.equal(out.sales,5);assert.equal(out.days,3);assert.equal(out.expectedRejects,1.5);assert.equal(out.estimate,385000);assert.equal(out.rows[1].estimate,0);assert.equal(out.rows[2].estimate,null);assert.equal(out.rows[3].status,'before-first');assert.equal(out.rows.reduce((s,r)=>s+(r.estimate||0),0),out.estimate);assert.equal(JSON.stringify(env),snapshot);
+assert.equal(out.sales,5);assert.equal(out.days,3);assert.equal(out.expectedRejects,1.5);assert.equal(out.estimate,385000);assert.equal(out.rows[1].estimate,0);assert.equal(out.rows.length,3);assert(out.rows.every(r=>r.days>0));assert.equal(out.rows.reduce((s,r)=>s+(r.estimate||0),0),out.estimate);assert.equal(JSON.stringify(env),snapshot);
 assert.equal(api.summarize({...env,actor:{role:'IC',status:'active'}},period,30).denied,true);
 assert.equal(api.summarize(env,period,100).estimate,0);assert.equal(api.summarize(env,period,0).estimate,550000);
 const ten=api.summarize({...env,members:[{name:'A'}],sales:{a:{name:'A',date:'2026-11-09',count:10}}},period,30);assert.equal(ten.estimate,770000);assert.equal(ten.cash,423500);assert.equal(ten.bond,346500);assert.equal(ten.cash+ten.bond,ten.estimate);assert.equal(out.rows.reduce((s,r)=>s+(r.cash||0),0),out.cash);
@@ -15,5 +15,7 @@ const override=api.summarize(env,period,30,{A:50});assert.equal(override.estimat
 const duplicate={...env,sales:{...env.sales,again:{...env.sales.a}}};assert.equal(api.summarize(duplicate,period,30).sales,5);
 const newest={...env,sales:{...env.sales,again:{...env.sales.a,count:4,updatedAt:2}}};assert.equal(api.summarize(newest,period,30).sales,6);
 const wrongUid={...env,sales:{...env.sales,wrong:{name:'A',uid:'another',date:'2026-11-11',count:900}}};assert.equal(api.summarize(wrongUid,period,30).sales,5);
-const empty=api.summarize({...env,sales:{}},period,30);assert.equal(empty.estimate,null);assert.equal(empty.avg,null);assert.equal(empty.rows[0].status,'missing');
+const empty=api.summarize({...env,sales:{}},period,30);assert.equal(empty.estimate,null);assert.equal(empty.avg,null);assert.equal(empty.rows.length,0);
+const terminated=api.summarize({...env,members:env.members.map(m=>({...m,terminated:m.name==='Left'}))},period,30);assert.equal(terminated.sales,3);assert.equal(terminated.rows.length,2);assert.equal(terminated.participants,2);
+const decimal=api.summarize({...env,members:[{name:'A'}],sales:{a:{name:'A',date:'2026-11-09',count:10}}},period,20.5);assert.equal(decimal.estimate,874500);assert.equal(decimal.cash+decimal.bond,874500);
 console.log('PASS: KST rollover, scope, first/left dates, missing/zero, fractional rejects, rounding, IC deny, immutability');

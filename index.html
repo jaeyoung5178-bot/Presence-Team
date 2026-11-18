@@ -5459,7 +5459,17 @@ let tlHomeView='manage',tlHomeViewActor='';
 function tlhSetView(value){if(!['manage','weekly'].includes(value))return;tlHomeView=value;renderTLHome();document.querySelector('[data-tlh-view="'+value+'"]')?.focus({preventScroll:true});}
 /* Read-only completed-week simulation; canonical roster intervals retain past team scope. */
 const teamWeeklySelectedByUid={};
-function teamWeeklyRecapEnv(){
+function teamWeeklyTerminated(member){
+  if(!member)return false;
+  const user=(state.users||{})[member.uid];
+  if(user&&user.status==='retired')return true;
+  if(typeof isDeparted==='function'&&isDeparted(member.name))return true;
+  const name=String(member.name||'').replace(/\s/g,''),matches=Object.entries(state.memberInfo||{}).filter(function(pair){return String(pair[0]).replace(/\s/g,'')===name;});
+  const left=matches.length===1&&(matches[0][1]||{}).left,today=new Date(Date.now()+32400000).toISOString().slice(0,10);
+  if(typeof left!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(left)||!Number.isFinite(Date.parse(left+'T00:00:00Z')))return false;
+  return new Date(left+'T00:00:00Z').toISOString().slice(0,10)===left&&left<=today;
+}
+function teamWeeklyRecapEnv(previewSelection){
   const cfg=tlHomeConfig(me);if(!cfg)return null;
   const labels={presence:'Presence',fuse:'Fuse',youngwave:'Young wave'},leaders={presence:TL_HOME_CONFIGS.admin.leaderName,fuse:TL_HOME_CONFIGS.umqn54ujf.leaderName,youngwave:TL_HOME_CONFIGS.umqna7jpj.leaderName};
   const rootKeys=isFounder(me)?Object.keys(state.recapStudioTeams||{}).filter(function(key){return !!((state.recapStudioTeams[key]||{}).roster);}):[cfg.teamKey];
@@ -5469,7 +5479,7 @@ function teamWeeklyRecapEnv(){
     const seen=new Set([String(labels[key]||key).toLowerCase().replace(/\s/g,'')]);
     (typeof orgBuildTree==='function'?orgBuildTree().mem:[]).forEach(function(name){const label=String((dossierOf(name)||{}).teamName||'').trim(),normalized=label.toLowerCase().replace(/\s/g,'');if(!label||seen.has(normalized)||!leaders[key]||!orgIsDescendant(name,leaders[key]))return;const nearestRoot=Object.keys(leaders).find(function(k){return k!==key&&orgIsDescendant(name,leaders[k])&&orgIsDescendant(leaders[k],leaders[key]);});if(nearestRoot)return;seen.add(normalized);teamOptions.push({key:'sub:'+key+':'+name,label:label,rootKey:key,anchor:name});});
   });
-  const selectedTeam=teamOptions.some(function(t){return t.key===teamWeeklySelectedByUid[me.uid];})?teamWeeklySelectedByUid[me.uid]:teamOptions[0].key,selection=teamOptions.find(function(t){return t.key===selectedTeam;});
+  const wantedSelection=previewSelection||teamWeeklySelectedByUid[me.uid],selectedTeam=teamOptions.some(function(t){return t.key===wantedSelection;})?wantedSelection:teamOptions[0].key,selection=teamOptions.find(function(t){return t.key===selectedTeam;});
   const selectedRoot=selection.rootKey||cfg.teamKey,teams=selection.all?(state.recapStudioTeams||{}):{[selectedRoot]:isFounder(me)?((state.recapStudioTeams||{})[selectedRoot]||{}):(state.recapStudioTeam||{})},byUid=new Map(),nameOwners=new Map();
   Object.keys(teams).forEach(function(teamKey){Object.entries((teams[teamKey]||{}).roster||{}).forEach(function(pair){const uid=pair[0],r=pair[1]||{},intervals=recapStudioRosterIntervals(r),u=(state.users||{})[uid]||{},name=r.name||u.name||(intervals[0]||{}).name;if(!name||isTestName_(name)||isTestBot(u))return;let entry=byUid.get(uid);if(!entry){const info=(state.memberInfo||{})[name]||{};entry={uid:uid,name:name,role:r.role||u.role||(intervals[0]||{}).role||'',firstField:firstFieldOf(u)||info.join||'',left:info.left||'',intervals:[]};byUid.set(uid,entry);}entry.intervals.push.apply(entry.intervals,intervals);});});
   /* A new member's explicit first week may precede the historical mirror; never backfill older weeks from today's tree. */
@@ -5483,15 +5493,19 @@ function teamWeeklyRecapEnv(){
   });
   byUid.forEach(function(m){let name=m.name,seen={};for(let i=0;i<16&&name&&!seen[nk(name)];i++){seen[nk(name)]=true;const d=dossierOf(name)||{};if(d.teamName){m.teamLabel=d.teamName;break;}name=d.upline||'';}});
   byUid.forEach(function(m){nameOwners.set(m.name,(nameOwners.get(m.name)||0)+1);});
-  const members=[...byUid.values()].filter(function(m){return nameOwners.get(m.name)===1&&!(period&&m.left&&m.left<=period.start)&&(!selection.anchor||orgIsDescendant(m.name,selection.anchor));});
-  return {sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'판매 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
+  const members=[...byUid.values()].filter(function(m){m.terminated=teamWeeklyTerminated(m);return !m.terminated&&nameOwners.get(m.name)===1&&!(period&&m.left&&m.left<=period.start)&&(!selection.anchor||orgIsDescendant(m.name,selection.anchor));});
+  const env={sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'세일즈 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
+  if(!previewSelection&&period&&window.PresenceTeamWeeklyRecap&&env.sourceStatus==='ready'){
+    env.teamOptions=teamOptions.map(function(option){const candidate=teamWeeklyRecapEnv(option.key),stats=PresenceTeamWeeklyRecap.summarize(candidate,period,30);return Object.assign({},option,{disabled:stats.rows.length===0});});
+  }
+  return env;
 }
 let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
 function ensureTeamWeeklyAssets(){
   if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
   if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
-    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly1';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
-    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly1';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly2';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly2';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
   ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
   return teamWeeklyAssetsPromise;
 }
