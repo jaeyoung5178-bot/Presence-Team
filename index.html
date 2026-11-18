@@ -4734,7 +4734,7 @@ const reqSurvey=(r,name)=>{if(name&&isSurveyExempt(name))return null;if(r==='IC'
 function applyPrivateConfig(c){
   c=c||{};window.__PRIVATE_CONFIG=c;
   Object.assign(FOUNDER,c.founder||{});
-  ALLOWED_MEMBERS=c.allowedMembers||[];DEPARTED_MEMBERS=c.departedMembers||[];
+  ALLOWED_MEMBERS=c.allowedMembers||[];DEPARTED_MEMBERS=c.departedMembers||[];setTimeout(presenceScheduleTLMemberProjection,0);
   SIGNUP_TOKEN_FROM=c.signupTokenFrom||'9999-12-31';WELCOME_MSG=c.welcomeMessage||WELCOME_MSG;
   HUB_FIRST_NAMES=c.hubFirstNames||[];HUB_ENGLISH_NAMES=c.hubEnglishNames||{};HUB_NAME_ORDER=c.hubNameOrder||[];
   SALES_TARGET=Number(c.salesTarget)||0;TEAM_TARGET=Number(c.teamTarget)||0;
@@ -5448,6 +5448,15 @@ function tlhScheduleHTML(cfg,sd,draft){
   return head+members.map(m=>`<div class="tlh-srow"><div class="tlh-member"><b>${esc(m.name)}</b><small>${esc(ROLE_LABEL[m.role]||m.role||'IC')}</small></div>${dates.map((date,i)=>{const on=!!(draft.schedule[m.name]&&draft.schedule[m.name][date]);return `<button type="button" class="tlh-day${on?' on':''}" aria-pressed="${on}" aria-label="${esc(m.name)} ${date} ${on?'필드 예정 해제':'필드 예정 등록'}" onclick="tlhToggle('${tlhEscAttr(m.name)}','${date}')"><b>${tlhParse(date).getDate()}</b>${wd[i]}</button>`;}).join('')}</div>`).join('');
 }
 function tlhLiveRows(stats){const rows=Object.entries(stats.by||{}).sort((a,b)=>b[1].sales-a[1].sales);return rows.length?rows.slice(0,8).map(([name,v])=>`<div class="tlh-live-row"><b>${esc(name)}</b><span>${v.sales}건 · ${v.days}일</span><span class="avg">AVG ${v.avg.toFixed(2)}</span></div>`).join(''):'<div class="tlh-empty" style="padding:18px 4px">이번 주 입력된 세일즈가 아직 없어요.</div>';}
+let presenceTLMemberSyncTimer=0,presenceTLMemberSyncKey='';
+function presenceScheduleTLMemberProjection(){
+  if(!LIVE||!me||me.uid!=='admin'||me.status!=='active'||window.__previewRole||window.__adminOff===true)return;
+  const ready=window.__presenceWorkspaceBaseReady||{},access=window.PresenceTLWorkspaceAccess;
+  if(!ready.users||!ready.dossier||!access?.ensureMemberProjection)return;
+  let fingerprint;try{const source={users:state.users,dossier:state.dossier,memberInfo:state.memberInfo,removedMembers:state.removedMembers,departedMembers:DEPARTED_MEMBERS};fingerprint=JSON.stringify(['fuse','youngwave'].map(key=>access.buildMemberProjection(source,key)));}catch(error){console.warn('[TL member projection]',error.message);return;}
+  if(fingerprint===presenceTLMemberSyncKey)return;clearTimeout(presenceTLMemberSyncTimer);
+  presenceTLMemberSyncTimer=setTimeout(async function(){if(!me||me.uid!=='admin'||window.__previewRole||window.__adminOff===true)return;try{await access.ensureMemberProjection();presenceTLMemberSyncKey=fingerprint;}catch(error){console.warn('[TL member projection]',error.message);}},800);
+}
 function presenceTLWorkspaceLeaders(){return Object.entries(TL_HOME_CONFIGS).filter(function(pair){return pair[1].kind==='team';}).map(function(pair){const uid=pair[0],cfg=pair[1],account=(state.users||{})[uid]||{};return {uid:uid,name:account.name||cfg.leaderName,teamKey:cfg.teamKey,teamName:cfg.teamName,status:account.status||'',role:account.role||''};});}
 let presenceTLPreviewTeam='fuse';
 function presenceTLWorkspaceConfig(){return isFounder(me)?Object.values(TL_HOME_CONFIGS).find(c=>c.kind==='team'&&c.teamKey===presenceTLPreviewTeam):tlHomeConfig(me);}
@@ -8861,6 +8870,7 @@ function saveMent(i){state.obj[i].ment=document.getElementById('mta-'+i).value.t
    ============================================================ */
 function renderAdmin(){
   if(!me||!isFounder(me))return;
+  presenceScheduleTLMemberProjection();
   const users=Object.values(state.users);
   const pend=users.filter(u=>u.status==='pending');
   const pb=document.getElementById('pendBadge');pb.textContent=pend.length;pb.classList.toggle('zero',pend.length===0);
@@ -10741,9 +10751,9 @@ async function initFirebase(generation){
   DB.on('rewards',v=>{state.rewards=Array.isArray(v)?v:(v?Object.values(v):[]);if(me&&isFounder(me))renderRewardAdmin();});
   DB.on('comp',v=>{state.comp=v||{};});
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
-  DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
-  DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
-  DB.on('dossier',v=>{state.dossier=v||{};(window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).dossier=true;if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();window.PresenceWorkspace?.schedule?.();}});
+  DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);presenceScheduleTLMemberProjection();if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
+  DB.on('memberInfo',v=>{state.memberInfo=v||{};presenceScheduleTLMemberProjection();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
+  DB.on('dossier',v=>{state.dossier=v||{};(window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).dossier=true;presenceScheduleTLMemberProjection();if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();window.PresenceWorkspace?.schedule?.();}});
   DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
@@ -10764,7 +10774,7 @@ async function initFirebase(generation){
     (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).users=true;
     if(me)me=state.users[me.uid]||me;
     if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
-    if(me&&isFounder(me))syncHubDirectory();
+    if(me&&isFounder(me)){syncHubDirectory();presenceScheduleTLMemberProjection();}
     if(me&&curTab==='teamtree')orgRefreshTree();
     window.PresenceAdminHome?.invalidate?.();
     if(me&&curTab==='recap'&&canManageTeamRecords(me))renderProfitRecapAdminView();
@@ -18110,7 +18120,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
 <script src="assets/presence-workspace-v2.js?v=20261115-home-calm1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
-<script src="assets/presence-tl-workspace-access.js?v=20261109-tl-workspace3"></script>
+<script src="assets/presence-tl-workspace-access.js?v=20261118-ic-members"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
 <script src="assets/presence-admin-home.js?v=20261110-campaign1"></script>
 <script src="assets/presence-recap-assignment-periods.js?v=20261111-periods1"></script>
