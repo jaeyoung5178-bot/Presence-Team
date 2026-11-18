@@ -5503,7 +5503,7 @@ function teamWeeklyRecapEnv(previewSelection){
   byUid.forEach(function(m){let name=m.name,seen={};for(let i=0;i<16&&name&&!seen[nk(name)];i++){seen[nk(name)]=true;const d=dossierOf(name)||{};if(d.teamName){m.teamLabel=d.teamName;break;}name=d.upline||'';}});
   byUid.forEach(function(m){nameOwners.set(m.name,(nameOwners.get(m.name)||0)+1);});
   const members=[...byUid.values()].filter(function(m){m.terminated=teamWeeklyTerminated(m);return !m.terminated&&nameOwners.get(m.name)===1&&!(period&&m.left&&m.left<=period.start)&&(!selection.anchor||orgIsDescendant(m.name,selection.anchor));});
-  const env={sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},openDay:teamWeeklyOpenDay,expectedOn:function(m,date){const records=(state.teamWeeklyOps||{})[period&&period.start]||{};let answer=null;Object.values(records).forEach(function(rec){Object.values((rec||{}).schedule||{}).forEach(function(row){if(row&&row.name===m.name&&Object.prototype.hasOwnProperty.call(row.dates||{},date)){if(row.dates[date]===true)answer=true;else if(row.dates[date]===false&&answer!==true)answer=false;}});});return answer;},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'세일즈 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
+  const env={sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,excludedUids:['umqonn3id'],exclusionNote:'장기 NA 제외',sales:state.sales||{},openDay:teamWeeklyOpenDay,expectedOn:function(m,date){const records=(state.teamWeeklyOps||{})[period&&period.start]||{};let answer=null;Object.values(records).forEach(function(rec){Object.values((rec||{}).schedule||{}).forEach(function(row){if(row&&row.name===m.name&&Object.prototype.hasOwnProperty.call(row.dates||{},date)){if(row.dates[date]===true)answer=true;else if(row.dates[date]===false&&answer!==true)answer=false;}});});return answer;},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'세일즈 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
   if(!previewSelection&&period&&window.PresenceTeamWeeklyRecap&&env.sourceStatus==='ready'){
     env.teamOptions=teamOptions.map(function(option){const candidate=teamWeeklyRecapEnv(option.key),stats=PresenceTeamWeeklyRecap.summarize(candidate,period,30);return Object.assign({},option,{disabled:stats.rows.length===0&&PresenceTeamWeeklyRecap.missingReferences(candidate,period).length===0});});
   }
@@ -5526,8 +5526,8 @@ let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
 function ensureTeamWeeklyAssets(){
   if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
   if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
-    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly4';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
-    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly4';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly5';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly5';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
   ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
   return teamWeeklyAssetsPromise;
 }
@@ -18087,12 +18087,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20261118-login-lossless1">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-winter-finish1">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261118-winter-music2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20261118-preload-low1"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261109-winter-finish1"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261118-winter-music2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">

@@ -15,3 +15,28 @@ body.presence-effects-ready #app{position:relative;z-index:2;background:transpar
 @media(prefers-reduced-motion:reduce){#presenceBgmQuick{animation:none!important;transition:none!important}}
 
 body.presence-effects-ready:has(.modal.on,dialog[open]) #fxCanvas{visibility:hidden}
+/* Winter remains below readable surfaces; no tint or interaction interception. */
+#presenceWinterCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none!important}
+body:has(.modal.on,dialog[open]) #presenceWinterCanvas{visibility:hidden}
+#presenceMusicOpen{position:fixed;left:16px;bottom:140px;min-height:44px;padding:8px 12px;border:1px solid #c9b58e;border-radius:12px;background:#fffefa;color:#35554a;font:700 12px system-ui;z-index:298}
+#presenceMusicOpen[hidden]{display:none!important}
+#presenceUtilityDock #presenceMusicOpen{position:static;flex:0 0 auto}
+#presenceMusicPanel{box-sizing:border-box;width:min(560px,calc(100vw - 24px));margin:16px auto;scroll-margin-top:90px;padding:20px;border:1px solid #d4d9ce;border-radius:18px;background:#fffefa;color:#263b2e;overflow:auto}
+
+#presenceMusicPanel h2{margin:0 0 8px;font:700 20px/1.4 system-ui}
+#presenceMusicPanel p,#presenceMusicPanel a{font:400 14px/1.6 system-ui}
+#presenceMusicPanel iframe{display:block;border:0;width:100%;aspect-ratio:16/9;min-height:200px;margin:12px 0}
+#presenceMusicPanel a{display:inline-flex;align-items:center;min-height:44px}
+#presenceMusicPanel button{display:block;margin-top:8px;min-height:44px;width:100%;border:1px solid #8b9e8c;border-radius:10px;background:#e9f0e5;color:#263b2e;font:700 16px system-ui}
+#presenceMusicPanel :focus-visible,#presenceMusicOpen:focus-visible{outline:3px solid #426b50;outline-offset:3px}
+/* In-flow player: the workbook remains interactive while music is visible. */
+#presenceMusicPanel{display:block!important;position:relative!important;inset:auto!important;width:100%;max-width:560px;padding:0;overflow:hidden}
+#presenceMusicPanel h2{margin:16px 12px 8px}
+#presenceMusicPanel p{margin:8px 12px}
+#presenceMusicPanel a{margin:0 12px}
+#presenceMusicPanel button{margin:8px 12px 12px;width:calc(100% - 24px)}
+/* Outrank the older absolute mini-player rules, including later season CSS. */
+#presenceMusicPanel[role="region"]{display:block!important;position:relative!important;inset:auto!important;background:#fffefa!important;color:#263b2e!important;height:auto!important;max-height:none!important}
+#presenceMusicPanel[role="region"] iframe{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:auto!important;min-height:200px!important;aspect-ratio:16/9;margin:12px 0!important}
+#presenceMusicPanel[role="region"]{z-index:auto!important;box-shadow:0 3px 14px #263b2e12}
+#presenceMusicPanel[role="region"] p{color:#263b2e!important}

@@ -28,3 +28,11 @@ assert.equal(api.missingReferences({...ko,sales:{...ko.sales,zero:{uid:'ko',name
 console.log('PASS missing references: NA, checked zero, rally, expected/unknown, Sunday, terminated/scope');
 const cleared={...ko,sales:{...ko.sales,old:{uid:'ko',name:'고윤경',date:'2026-11-14',checked:true,count:0,t:1},latest:{uid:'ko',name:'고윤경',date:'2026-11-14',cleared:true,t:2}}};assert.deepEqual(api.missingReferences(cleared,period).map(r=>r.date),['2026-11-14','2026-11-15']);assert.equal(api.summarize(cleared,period,30).days,2);
 console.log('PASS latest cleared tombstone replaces older checked record in statistics and references');
+assert.equal(api.summarize({...ko,excludedUids:['ko']},period,30).rows.length,0);assert.equal(api.missingReferences({...ko,excludedUids:['ko']},period).length,0);assert.deepEqual(api.weeklyDays(ko,ko.members[0],period).map(d=>d.status),['na','na','na','complete','complete','missing','missing']);
+console.log('PASS weekly-only excluded UID and seven-day rail states');
+const ordered=[{uid:'late',name:'가나다',firstField:'2026-10-01'},{uid:'early',name:'하나',firstField:'2026-09-01'},{uid:'unknown',name:'나나'},{uid:'bad',name:'다다',firstField:'2026-02-30'},{uid:'admin',name:'대표'}].sort(api.compareMembers);
+assert.deepEqual(ordered.map(m=>m.uid),['admin','early','late','unknown','bad']);
+const orderEnv={...ko,members:ordered,sales:Object.fromEntries(ordered.map(m=>[m.uid,{uid:m.uid,name:m.name,date:'2026-11-14',count:10,checked:true}]))};
+const orderResult=api.summarize(orderEnv,period,30,{early:20});assert.deepEqual(orderResult.rows.map(m=>m.uid),['admin','early','late','unknown','bad']);assert.equal(orderResult.rows.find(m=>m.uid==='early').estimate,880000);
+assert.deepEqual([...new Set(api.missingReferences(orderEnv,period).sort((a,b)=>api.compareMembers(a.member,b.member)).map(r=>r.member.uid))],ordered.map(m=>m.uid));
+console.log('PASS firstField order, invalid/unknown dates last, representative missing-date first, UID override retained');

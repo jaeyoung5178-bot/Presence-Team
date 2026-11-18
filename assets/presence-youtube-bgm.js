@@ -1,4 +1,4 @@
-/* One seasonal effects owner and one gesture-started local carol. No YouTube. */
+/* Seasonal background visuals and a gesture-opened, visible official YouTube player. */
 (function () {
   'use strict';
   var KEY = 'presence_local_season_effects.';
@@ -8,22 +8,42 @@
   var installed = false;
   var seasonHint = '';
   var preferenceUid = '';
-  var audio = null, audioIssue = '', audioWanted = false;
-  function stopCarol() { audioWanted = false; if (audio) { audio.pause(); audio.currentTime = 0; } }
-  function playCarol() {
-    if (!active() || !enabled || season() !== 'winter') return;
-    if (!audio) { audio = document.createElement('audio'); audio.id = 'presenceCarolAudio'; audio.src = 'audio/carol.mp3'; audio.loop = true; audio.preload = 'none'; document.body.appendChild(audio); }
-    audioWanted = true; audioIssue = ''; audio.muted = false; audio.volume = .55;
-    var attempt = audio.play();
-    if (attempt && attempt.then) attempt.then(function () { if (!audioWanted) audio.pause(); renderButton(); }).catch(function () { if (audioWanted) { audioIssue = '음악 재시도'; renderButton(); } });
-  }
-  function readPreference() {
+  var VIDEO = 'rxULak5ND40', panel = null, musicButton = null, winterCanvas = null, winterFrame = 0, winterStarted = 0, musicWait = 0;
+ function stopCarol() { clearTimeout(musicWait);musicWait=0;if (panel) { panel.remove(); panel = null;if(musicButton&&musicButton.isConnected&&!document.hidden)musicButton.focus({preventScroll:true}); } var old=document.getElementById('presenceCarolAudio');if(old){old.pause();old.remove();} }
+ function playCarol() {
+   if (!active() || season() !== 'winter') return;
+   silence(); stopCarol();
+   panel = document.createElement('section'); panel.id = 'presenceMusicPanel';panel.setAttribute('role','region'); panel.setAttribute('aria-labelledby','presenceMusicTitle');
+   panel.innerHTML = '<h2 id="presenceMusicTitle">크리스마스 음악</h2><p data-music-status role="status" aria-live="polite">공식 YouTube 플레이어에서 재생해 주세요.</p><iframe id="presenceBgmPlayer" title="그 시절 케빈 가족들이 틀어 놓는 뉴욕 캐롤 플레이리스트 | PLAYLIST" allow="encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><a href="https://www.youtube.com/watch?v='+VIDEO+'" target="_blank" rel="noopener noreferrer">YouTube에서 원본 보기</a><button type="button" data-music-close>닫기</button>';
+   panel.querySelector('iframe').src = 'https://www.youtube.com/embed/'+VIDEO+'?controls=1&playsinline=1&rel=0';
+   var opened=panel;function fallback(){if(panel===opened)opened.querySelector('[data-music-status]').textContent='재생 화면이 보이지 않으면 아래 YouTube에서 원본 보기를 눌러 주세요.';}
+   panel.querySelector('iframe').addEventListener('error',fallback);musicWait=setTimeout(fallback,8000);
+   panel.querySelector('[data-music-close]').onclick = stopCarol;
+
+   var host=document.querySelector('#app main')||document.body;host.prepend(panel);panel.scrollIntoView({block:'start',behavior:'instant'});panel.querySelector('[data-music-close]').focus({preventScroll:true});
+ }
+ function winterEffects(on) {
+   if (!on) { if(winterFrame)cancelAnimationFrame(winterFrame);winterFrame=0;if(winterCanvas)winterCanvas.remove();winterCanvas=null;return; }
+   if(winterCanvas)return;
+   winterCanvas=document.createElement('canvas');winterCanvas.id='presenceWinterCanvas';winterCanvas.setAttribute('aria-hidden','true');document.body.appendChild(winterCanvas);
+   var ctx=winterCanvas.getContext('2d');if(!ctx){winterCanvas.remove();winterCanvas=null;return;}winterStarted=performance.now();
+   function draw(now){
+     if(!winterCanvas)return;var w=innerWidth,h=innerHeight,d=Math.min(devicePixelRatio||1,1.5);
+     if(winterCanvas.width!==Math.round(w*d)||winterCanvas.height!==Math.round(h*d)){winterCanvas.width=Math.round(w*d);winterCanvas.height=Math.round(h*d);}
+     ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);var t=(now-winterStarted)/1000;
+     ctx.fillStyle='#b49d72';for(var i=0;i<24;i++){var x=((i*97+Math.sin(t*.4+i)*14)%w+w)%w,y=(i*67+t*(15+i%4*4))%h;ctx.globalAlpha=.45+(i%3)*.15;ctx.beginPath();ctx.arc(x,y,1.2+i%3*.45,0,Math.PI*2);ctx.fill();}
+     // A tiny edge-only sleigh, never a large sprite across the reading column.
+     var phase=t%32;if(phase<6){ctx.globalAlpha=Math.sin(phase/6*Math.PI)*.8;ctx.font='18px sans-serif';ctx.fillText('🛷',Math.max(0,w-22),h*.22+phase*8);}
+     ctx.globalAlpha=1;winterFrame=requestAnimationFrame(draw);
+   }winterFrame=requestAnimationFrame(draw);
+ }
+ function readPreference() {
     var uid = active() ? String(actor().uid || '') : '';
     if (uid === preferenceUid) return;
     stopCarol();
     preferenceUid = uid;
     enabled = false;
-    try { if (uid) enabled = localStorage.getItem(KEY + uid) === 'on'; } catch (ignore) {}
+    try { if (uid) { var saved=localStorage.getItem(KEY + uid); enabled=saved==='on'||(saved!=='off'&&!matchMedia('(prefers-reduced-motion: reduce)').matches); } } catch (ignore) {}
   }
 
   function actor() { return typeof me !== 'undefined' ? me : null; }
@@ -54,16 +74,17 @@
     var label = (season() === 'winter' ? '크리스마스 효과 ' : '분위기 효과 ') + (enabled ? '끄기' : '켜기');
     button.setAttribute('aria-label', label);
     button.setAttribute('aria-checked', String(enabled));
-    button.title = audioIssue || label;
-    button.dataset.audioState = audioIssue ? 'blocked' : audio && !audio.paused ? 'playing' : 'off';
-    button.querySelector('[data-effect-label]').textContent = audioIssue || (enabled && season() === 'winter' && (!audio || audio.paused) ? '크리스마스 음악 켜기' : label);
+    button.title = label;
+    button.dataset.audioState = panel ? 'player' : 'off';
+    button.querySelector('[data-effect-label]').textContent = label;
     button.querySelector('[data-effect-icon]').textContent = season() === 'winter' ? '❄' : '✧';
     button.classList.toggle('is-on', enabled);
   }
   function apply() {
     silence();
     placeCanvas();
-    if (originalSet) originalSet(active() && enabled && !document.hidden ? mode() : null);
+    var show=active()&&enabled&&!document.hidden; winterEffects(show&&season()==='winter'); if(originalSet)originalSet(show&&season()!=='winter'?mode():null);
+   if(musicButton){musicButton.hidden=!active()||season()!=='winter';var dock=document.getElementById('presenceUtilityDock');if(dock&&musicButton.parentNode!==dock)dock.appendChild(musicButton);}
     renderButton();
     window.dispatchEvent(new CustomEvent('presence:effectchange', {detail: {enabled: enabled, mode: mode()}}));
   }
@@ -88,16 +109,16 @@
     enabled = value === true;
     try { if (preferenceUid) localStorage.setItem(KEY + preferenceUid, enabled ? 'on' : 'off'); } catch (ignore) {}
     sync();
-    if (enabled) playCarol(); else stopCarol();
+    if (!enabled) stopCarol();
     return enabled;
   }
-  function toggle() { readPreference(); if (enabled && season() === 'winter' && (audioIssue || !audio || audio.paused)) { playCarol(); renderButton(); return true; } return setEnabled(!enabled); }
-  function suspend() {
+  function toggle() { readPreference(); return setEnabled(!enabled); }
+ function suspend() {
     silence();
     stopCarol();
     readPreference();
     placeCanvas();
-    if (originalSet) originalSet(null);
+    winterEffects(false); if (originalSet) originalSet(null);
     renderButton();
   }
   function boot() {
@@ -112,6 +133,7 @@
     button.innerHTML = '<span data-effect-icon aria-hidden="true">❄</span><span data-effect-label></span><span class="presence-effect-dot" aria-hidden="true"></span>';
     button.onclick = toggle;
     if (!button.parentNode) document.body.appendChild(button);
+    musicButton=document.createElement('button');musicButton.id='presenceMusicOpen';musicButton.type='button';musicButton.textContent='음악';musicButton.setAttribute('aria-controls','presenceMusicPanel');musicButton.onclick=playCarol;document.body.appendChild(musicButton);
     document.body.classList.add('presence-effects-ready', 'presence-music-ready');
     sync();
     window.addEventListener('presence:seasonchange', function (event) {
@@ -119,11 +141,13 @@
       if (season() !== 'winter') stopCarol();
       sync();
     });
-    document.addEventListener('visibilitychange', apply);
+    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&panel)stopCarol();});
+    document.addEventListener('visibilitychange',function(){if(document.hidden)stopCarol();apply();});
+    var motion=window.matchMedia('(prefers-reduced-motion: reduce)');if(motion.addEventListener)motion.addEventListener('change',function(){preferenceUid='';sync();});
   }
-  window.PresenceChristmasEffects = Object.freeze({toggle: toggle, setEnabled: setEnabled, sync: sync, get enabled() { return enabled; }, get mode() { return mode(); }, get audioState() { return audioIssue ? 'blocked' : audio && !audio.paused ? 'playing' : 'off'; }});
-  // Kept for older workspace callers. These methods never create media or play sound.
-  window.PresenceBgm = Object.freeze({play: function () { setEnabled(true); }, pause: function () { setEnabled(false); }, stop: suspend, toggle: toggle, togglePanel: toggle, setTrack: sync, get playing() { return false; }, get videoId() { return null; }});
+  window.PresenceChristmasEffects = Object.freeze({toggle: toggle, setEnabled: setEnabled, sync: sync, get enabled() { return enabled; }, get mode() { return mode(); }, get audioState() { return panel ? 'player' : 'off'; }});
+  // Compatibility entry points; opening the visible player still requires a caller gesture.
+  window.PresenceBgm = Object.freeze({play: playCarol, pause: function () { setEnabled(false); }, stop: suspend, toggle: toggle, togglePanel: toggle, setTrack: sync, get playing() { return false; }, get videoId() { return VIDEO; }});
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
