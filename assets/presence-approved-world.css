@@ -201,7 +201,7 @@ body:has(.approved-world-shell){
   padding:clamp(14px,2vh,24px)!important;
   overflow:hidden!important;
   background-color:#071827!important;
-  background-image:url("farm-world/approved/login-village-approved.png")!important;
+  background-image:url("farm-world/approved/login-village-approved-lossless.webp")!important;
   background-repeat:no-repeat!important;
   background-position:50% 50%!important;
   background-size:cover!important;

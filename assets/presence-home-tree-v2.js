@@ -786,6 +786,7 @@
     urls.forEach(function (url) {
       var image = new Image();
       image.decoding = 'async';
+      image.fetchPriority = 'low';
       image.src = versioned(url);
     });
   }

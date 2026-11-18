@@ -4192,6 +4192,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
     </section></div></div>
 
     <!-- TL+ LEADER HOME -->
+    <div class="mpanel" id="m-teamweeklyrecap"><div id="teamWeeklyRecapRoot" class="pw-private-root" aria-live="polite"></div></div>
     <div class="mpanel" id="m-tlhome"><div class="tlh-page" id="tlHomeRoot" aria-live="polite"></div></div>
   </main>
 
@@ -5226,7 +5227,7 @@ const tlhPendingChecks=new Set();
 function recapStudioRefresh(){
   window.PresenceExecutiveRecap?.invalidate?.();
   if(typeof curTab==='undefined')return;
-  if(curTab==='tlhome')renderTLHome();
+  if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();
   else if(curTab==='profitrecap')renderProfitRecap();
   else if(curTab==='recap'&&me&&canManageTeamRecords(me))renderRecap();
   else if(curTab==='profithub')window.PresenceWorkspace?.schedule?.();
@@ -5392,7 +5393,7 @@ async function tlhSave(){
   catch(e){console.warn('[TL Home save]',e);toast('저장하지 못했어요. 연결을 확인해 주세요');}
   renderTLHome();
 }
-function tlhSubscribe(){if(!LIVE||tlHomeSubscribed||!isTlHomeUser(me))return;tlHomeSubscribed=true;tlHomeOff.push(DB.on('teamWeeklyOps',v=>{state.teamWeeklyOps=v||{};if(curTab==='tlhome')renderTLHome();}));tlHomeOff.push(DB.on('teamLeaderAccess',v=>{state.teamLeaderAccess=v||{};}));tlHomeOff.push(DB.on('teamCalendarEvents',v=>{state.teamCalendarEvents=v||{};if(curTab==='tlhome')renderTLHome();}));recapStudioSubscribe();}
+function tlhSubscribe(){if(!LIVE||tlHomeSubscribed||!isTlHomeUser(me))return;tlHomeSubscribed=true;tlHomeOff.push(DB.on('teamWeeklyOps',v=>{state.teamWeeklyOps=v||{};if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();}));tlHomeOff.push(DB.on('teamLeaderAccess',v=>{state.teamLeaderAccess=v||{};}));tlHomeOff.push(DB.on('teamCalendarEvents',v=>{state.teamCalendarEvents=v||{};if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();}));recapStudioSubscribe();}
 function tlhToggleResultDetails(key){
   const safe=String(key||'').replace(/[^a-z0-9_-]/gi,''),wasOpen=!!tlhResultDetailsOpen[safe];tlhResultDetailsOpen[safe]=!wasOpen;renderTLHome();requestAnimationFrame(()=>document.getElementById('tlhResultToggle-'+safe)?.focus());
 }
@@ -5456,7 +5457,63 @@ async function presenceTLWorkspaceNavigate(feature){const cfg=presenceTLWorkspac
 function presenceTLWorkspaceOpenRegistration(request){if(!me||!isFounder(me))return;goTab('admin');requestAnimationFrame(function(){const input=document.getElementById('newMemberIn');if(input){input.value=String(request&&request.name||'');input.focus();input.scrollIntoView({block:'center'});}});}
 let tlHomeView='manage',tlHomeViewActor='';
 function tlhSetView(value){if(!['manage','weekly'].includes(value))return;tlHomeView=value;renderTLHome();document.querySelector('[data-tlh-view="'+value+'"]')?.focus({preventScroll:true});}
+/* Read-only completed-week simulation; canonical roster intervals retain past team scope. */
+const teamWeeklySelectedByUid={};
+function teamWeeklyRecapEnv(){
+  const cfg=tlHomeConfig(me);if(!cfg)return null;
+  const labels={presence:'Presence',fuse:'Fuse',youngwave:'Young wave'},leaders={presence:TL_HOME_CONFIGS.admin.leaderName,fuse:TL_HOME_CONFIGS.umqn54ujf.leaderName,youngwave:TL_HOME_CONFIGS.umqna7jpj.leaderName};
+  const rootKeys=isFounder(me)?Object.keys(state.recapStudioTeams||{}).filter(function(key){return !!((state.recapStudioTeams[key]||{}).roster);}):[cfg.teamKey];
+  if(!rootKeys.length)rootKeys.push(cfg.teamKey);
+  const teamOptions=isFounder(me)?[{key:'all',label:'프레젠스 전체',all:true}]:[];
+  rootKeys.forEach(function(key){teamOptions.push({key:key,label:(labels[key]||key)+(key==='presence'?' 직속·하위팀':''),rootKey:key});
+    const seen=new Set([String(labels[key]||key).toLowerCase().replace(/\s/g,'')]);
+    (typeof orgBuildTree==='function'?orgBuildTree().mem:[]).forEach(function(name){const label=String((dossierOf(name)||{}).teamName||'').trim(),normalized=label.toLowerCase().replace(/\s/g,'');if(!label||seen.has(normalized)||!leaders[key]||!orgIsDescendant(name,leaders[key]))return;const nearestRoot=Object.keys(leaders).find(function(k){return k!==key&&orgIsDescendant(name,leaders[k])&&orgIsDescendant(leaders[k],leaders[key]);});if(nearestRoot)return;seen.add(normalized);teamOptions.push({key:'sub:'+key+':'+name,label:label,rootKey:key,anchor:name});});
+  });
+  const selectedTeam=teamOptions.some(function(t){return t.key===teamWeeklySelectedByUid[me.uid];})?teamWeeklySelectedByUid[me.uid]:teamOptions[0].key,selection=teamOptions.find(function(t){return t.key===selectedTeam;});
+  const selectedRoot=selection.rootKey||cfg.teamKey,teams=selection.all?(state.recapStudioTeams||{}):{[selectedRoot]:isFounder(me)?((state.recapStudioTeams||{})[selectedRoot]||{}):(state.recapStudioTeam||{})},byUid=new Map(),nameOwners=new Map();
+  Object.keys(teams).forEach(function(teamKey){Object.entries((teams[teamKey]||{}).roster||{}).forEach(function(pair){const uid=pair[0],r=pair[1]||{},intervals=recapStudioRosterIntervals(r),u=(state.users||{})[uid]||{},name=r.name||u.name||(intervals[0]||{}).name;if(!name||isTestName_(name)||isTestBot(u))return;let entry=byUid.get(uid);if(!entry){const info=(state.memberInfo||{})[name]||{};entry={uid:uid,name:name,role:r.role||u.role||(intervals[0]||{}).role||'',firstField:firstFieldOf(u)||info.join||'',left:info.left||'',intervals:[]};byUid.set(uid,entry);}entry.intervals.push.apply(entry.intervals,intervals);});});
+  /* A new member's explicit first week may precede the historical mirror; never backfill older weeks from today's tree. */
+  const period=window.PresenceTeamWeeklyRecap?PresenceTeamWeeklyRecap.previousWeek():null,rootLeader=selection.anchor||(selection.all?leaders.presence:leaders[selectedRoot]||'');
+  Object.values(state.users||{}).forEach(function(u){
+    if(!u||!u.uid||u.status!=='active'||isTestBot(u)||isTestName_(u.name)||!rootLeader||!orgIsDescendant(u.name,rootLeader)||byUid.has(u.uid))return;
+    if(!selection.all&&Object.keys(leaders).some(function(key){return key!==selectedRoot&&orgIsDescendant(u.name,leaders[key])&&orgIsDescendant(leaders[key],leaders[selectedRoot]||'');}))return;
+    const info=(state.memberInfo||{})[u.name]||{},first=firstFieldOf(u)||info.join||'',conflict=Object.entries(state.recapStudioTeams||{}).some(function(pair){return !selection.all&&pair[0]!==selectedRoot&&recapStudioRosterIntervals(((pair[1]||{}).roster||{})[u.uid]).some(function(a){return period&&(a.activeFrom||a.from||'0000')<=period.end&&(a.activeTo||a.to||'9999')>=period.start;});});
+    const approvedFirstWeek=!!(period&&/^\d{4}-\d{2}-\d{2}$/.test(first)&&first>=period.start&&first<=period.end&&!conflict);
+    byUid.set(u.uid,{uid:u.uid,name:u.name,role:u.role,firstField:first,left:info.left||'',intervals:approvedFirstWeek?[{activeFrom:first,source:'approved-tree-first-field-week'}]:[],currentOnly:!approvedFirstWeek,membershipSource:approvedFirstWeek?'approved-tree-first-field-week':'period-assignment-unconfirmed'});
+  });
+  byUid.forEach(function(m){let name=m.name,seen={};for(let i=0;i<16&&name&&!seen[nk(name)];i++){seen[nk(name)]=true;const d=dossierOf(name)||{};if(d.teamName){m.teamLabel=d.teamName;break;}name=d.upline||'';}});
+  byUid.forEach(function(m){nameOwners.set(m.name,(nameOwners.get(m.name)||0)+1);});
+  const members=[...byUid.values()].filter(function(m){return nameOwners.get(m.name)===1&&!(period&&m.left&&m.left<=period.start)&&(!selection.anchor||orgIsDescendant(m.name,selection.anchor));});
+  return {sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'판매 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
+}
+let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
+function ensureTeamWeeklyAssets(){
+  if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
+  if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly1';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly1';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+  ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
+  return teamWeeklyAssetsPromise;
+}
+function maybeTeamWeeklySundayNotice(){
+  if(curTab!=='tlhome'||!me||me.status!=='active'||me.role!=='TL'){window.PresenceTeamWeeklyNotice?.dispose?.();return;}
+  const key=new Date(Date.now()+32400000).toISOString().slice(0,10);if(new Date(key+'T00:00:00Z').getUTCDay()!==0)return;
+  const uid=me.uid,show=function(){if(curTab==='tlhome'&&me&&me.uid===uid)PresenceTeamWeeklyNotice.maybeShow({actor:me,openUpdate:function(){location.hash='teamweeklyrecap';goTab('teamweeklyrecap');}});};
+  if(window.PresenceTeamWeeklyNotice){show();return;}
+  if(!teamWeeklyNoticePromise)teamWeeklyNoticePromise=new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-notice.js?v=20261118-weekly1';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);}).catch(function(){teamWeeklyNoticePromise=null;});
+  teamWeeklyNoticePromise.then(function(){if(window.PresenceTeamWeeklyNotice)show();});
+}
+function renderTeamWeeklyRecap(){
+  const host=document.getElementById('teamWeeklyRecapRoot');if(!host)return;
+  const env=teamWeeklyRecapEnv();if(!env){host.replaceChildren();return;}
+  if(!window.PresenceTeamWeeklyRecap){host.textContent='주간리캡을 불러오는 중입니다.';ensureTeamWeeklyAssets().then(function(){if(curTab==='teamweeklyrecap'&&me&&me.uid===env.actor.uid)renderTeamWeeklyRecap();}).catch(function(){if(curTab==='teamweeklyrecap')host.textContent='화면을 불러오지 못했습니다. 연결을 확인하고 다시 열어 주세요.';});return;}
+  PresenceTeamWeeklyRecap.render(host,env);host.dataset.weekStart=PresenceTeamWeeklyRecap.previousWeek().start;
+}
+function teamWeeklyCheckWeek(){if(document.visibilityState==='hidden'||curTab!=='teamweeklyrecap'||!window.PresenceTeamWeeklyRecap)return;const host=document.getElementById('teamWeeklyRecapRoot');if(host&&host.dataset.weekStart!==PresenceTeamWeeklyRecap.previousWeek().start)renderTeamWeeklyRecap();}
+window.addEventListener('focus',teamWeeklyCheckWeek);document.addEventListener('visibilitychange',teamWeeklyCheckWeek);
+window.addEventListener('hashchange',function(){if(location.hash==='#teamweeklyrecap'&&me&&isTlHomeUser(me))goTab('teamweeklyrecap');});
 function renderTLHome(){
+  maybeTeamWeeklySundayNotice();
   const root=document.getElementById('tlHomeRoot'),cfg=tlHomeConfig(me),btn=document.getElementById('tlHomeEntryBtn');if(btn){btn.classList.toggle('show',!!cfg);btn.setAttribute('aria-pressed',curTab==='tlhome'?'true':'false');}if(!root)return;if(!cfg){root.innerHTML='';if(curTab==='tlhome')goTab('home');return;}
   if(tlHomeViewActor!==me.uid){tlHomeViewActor=me.uid;tlHomeView='manage';}if(!tlHomeWeekStart)tlHomeWeekStart=tlhDefaultPlanWeek();const planSd=tlHomeWeekStart,draft=tlhDraft(cfg,planSd),pc=tlhPlanCounts(draft);
   const currentSd=tlhMonday(ymd(new Date())),currentEd=tlhAdd(currentSd,6),lastSd=tlhAdd(currentSd,-7),lastEd=tlhAdd(currentSd,-1),last=tlhStats(cfg,lastSd,lastEd),live=tlhStats(cfg,currentSd,currentEd),currentPlan=tlhSaved(currentSd,cfg.teamKey),goal=tlhNum(currentPlan&&currentPlan.targetSales),ach=tlhPct(live.sales,goal);
@@ -5464,7 +5521,7 @@ function renderTLHome(){
   const managementCfg=presenceTLWorkspaceConfig()||cfg,managementStats=tlhStats(managementCfg,currentSd,currentEd);
   const summary=`${cfg.teamName} 팀 ${tlhWeekLabel(planSd)} 주간 HC는 <em>${pc.hc}명</em>입니다. 세일즈 목표는 <em>${Math.round(draft.targetSales||0)}개</em>, <em>${(draft.targetAvg||0).toFixed(2)} AVG</em>로 운영합니다.`;
   root.innerHTML=`<header class="ptw-tl-header"><div><small>TL HOME · ${esc(cfg.teamName)}</small><h1>${esc(me.name)} <span>${cfg.kind==='aop'?'AOP':'팀 리더'}</span></h1></div></header>
-  <nav class="tlh-setup-shortcut" aria-label="현장 준비 바로가기" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">${typeof tabVisible==='function'&&tabVisible('sites')?`<button type="button" id="tlHomeSitesEntry" class="ppc-lead-entry" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;max-width:100%;font-size:16px" onclick="goTab('sites')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M18 10c0 5-6 10-6 10S6 15 6 10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg>사이트 찾기</button>`:''}${typeof canSetupKit==='function'&&canSetupKit(me)?`<button type="button" id="tlHomeSetupEntry" class="ppc-lead-entry" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;max-width:100%;font-size:16px" onclick="goTab('setupkit')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 10l2 2 4-4M8 16h8"/></svg>셋업 비서</button>`:''}</nav>
+  <nav class="tlh-setup-shortcut" aria-label="현장 준비 바로가기" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0"><button type="button" id="tlHomeWeeklyRecapEntry" class="ppc-lead-entry" style="min-height:44px;min-width:44px;font-size:16px" onclick="location.hash='teamweeklyrecap';goTab('teamweeklyrecap')">▤ 우리팀 주간리캡</button>${typeof tabVisible==='function'&&tabVisible('sites')?`<button type="button" id="tlHomeSitesEntry" class="ppc-lead-entry" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;max-width:100%;font-size:16px" onclick="goTab('sites')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M18 10c0 5-6 10-6 10S6 15 6 10a6 6 0 1 1 12 0Z"/><circle cx="12" cy="10" r="2"/></svg>사이트 찾기</button>`:''}${typeof canSetupKit==='function'&&canSetupKit(me)?`<button type="button" id="tlHomeSetupEntry" class="ppc-lead-entry" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;max-width:100%;font-size:16px" onclick="goTab('setupkit')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 10l2 2 4-4M8 16h8"/></svg>셋업 비서</button>`:''}</nav>
   ${isFounder(me)?`<label class="ptw-scope" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0">팀 리더 화면 미리보기<select aria-label="미리 볼 팀" style="min-height:44px;font-size:16px" onchange="presenceTLPreviewSelect(this.value)"><option value="fuse" ${presenceTLPreviewTeam==='fuse'?'selected':''}>FUSE · 고윤경</option><option value="youngwave" ${presenceTLPreviewTeam==='youngwave'?'selected':''}>YOUNG WAVE · 윤채영</option></select></label>`:''}
   <nav class="tlh-view-tabs" aria-label="팀 리더 업무 구분"><button type="button" data-tlh-view="manage" aria-pressed="${tlHomeView==='manage'}" onclick="tlhSetView('manage')">팀 관리</button><button type="button" data-tlh-view="weekly" aria-pressed="${tlHomeView==='weekly'}" onclick="tlhSetView('weekly')">주간 운영</button></nav>
   ${tlHomeView==='manage'?`<section class="tlh-quick-status" aria-label="${esc(managementCfg.teamName)} 이번 주 팀 현황"><div><span>${esc(managementCfg.teamName)} 세일즈</span><strong>${managementStats.sales}<small>건</small></strong></div><div><span>기록된 필드일</span><strong>${managementStats.days}<small>인·일</small></strong></div><div><span>팀 AVG</span><strong>${managementStats.days?managementStats.avg.toFixed(2):'—'}</strong></div></section><div id="tlWorkspaceMount"></div>`:''}
@@ -5634,6 +5691,7 @@ function sendSurveyToSheet(user,key,rec){
 /* enter / leave */
 function enterApp(){
   const tlFast=isTlHomeUser(me);
+  const teamWeeklyRequested=(location.hash==='#teamweeklyrecap'||new URLSearchParams(location.search).get('open')==='teamweeklyrecap')&&isTlHomeUser(me);
   const setupManagerRequested=new URLSearchParams(location.search).get('open')==='setup-manager'&&typeof canSetupKit==='function'&&canSetupKit(me);
   if(me&&!window.__presenceEntryPass&&!tlFast){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
   if(tlFast){const lobby=document.getElementById('presenceEntryLobby');if(lobby){lobby.classList.remove('show');lobby.setAttribute('aria-hidden','true');}try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}}
@@ -5654,13 +5712,21 @@ function enterApp(){
   // prefill name fields
   
   if(tlFast){
-    window.__booting=false;buildRail();tlhSubscribe();goTab(setupManagerRequested?'setupkit':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
+    window.__booting=false;buildRail();tlhSubscribe();goTab(teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
     try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
-    setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();}catch(e){console.warn('[deferred app render]',e);}},80);
+    setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();}catch(e){console.warn('[deferred app render]',e);}},80);
   }else{
     window.__booting=true; try{loadBarStart();}catch(e){}
-    buildRail();renderAll();goTab(setupManagerRequested?'setupkit':'home');startAutoPull();subCbjournal();
-    setTimeout(function(){ window.__booting=false; try{loadBarDone();}catch(e){} try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){} if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}} },1200);
+    buildRail();renderAll();goTab(teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':'home');startAutoPull();subCbjournal();
+    const bootActor=me.uid,bootStarted=performance.now();
+    function finishReadyHome(){
+      if(!me||me.uid!==bootActor)return;
+      const ready=window.__presenceWorkspaceBaseReady||{};
+      if((!ready.users||!ready.sales||!ready.dossier)&&performance.now()-bootStarted<1200){setTimeout(finishReadyHome,40);return;}
+      window.__booting=false;try{loadBarDone();}catch(e){}try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
+      if(curTab==='home'){try{renderHomeDash();renderMvp();renderPraise();}catch(e){}}
+    }
+    requestAnimationFrame(function(){requestAnimationFrame(finishReadyHome);});
   }
   if(setupManagerRequested)setTimeout(function(){const byday=document.querySelector('#m-setupkit [data-sk="byday"]');if(byday)byday.click();},80);
   try{logLogin();}catch(e){}
@@ -5683,6 +5749,8 @@ async function reconcileAuthProfiles(){
   else window.__authProfileRetryCount=0;
 }
 async function logout(){
+  window.PresenceTeamWeeklyNotice?.dispose?.();
+  window.PresenceTeamWeeklyRecap?.dispose?.(document.getElementById('teamWeeklyRecapRoot'));
   window.PresenceBirthday?.dispose();
   window.PresencePromotionCampaignController?.dispose();
   window.PresenceWorkspace?.dispose();
@@ -7243,6 +7311,7 @@ const NAV=[
 const TABMETA={
   home:{e:'🏠',l:'홈'},
   tlhome:{e:'▣',l:'TL Home',g:()=>isTlHomeUser(me)},
+  teamweeklyrecap:{e:'▤',l:'우리팀 주간리캡',g:()=>isTlHomeUser(me)},
   today:{e:'✓',l:'오늘 실행'},
   sale:{e:'🔔',l:'세일즈'},profitrecap:{e:'📒',l:'주간 리캡',g:()=>canProfitRecap(me)},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},hall:{e:'🏅',l:'명예의 전당'},
@@ -7267,7 +7336,7 @@ const TABMETA={
 let curGroup='home',curTab='home';
 function groupTitle(g,compact){if(g&&g.k==='admin'&&!compact&&typeof me!=='undefined'&&me&&me.name)return me.name+' Admin';return g&&g.l||'';}
 function tabVisible(k){const t=TABMETA[k];return !!t&&(!t.g||t.g());}
-function groupFor(tab){if(tab==='home'||tab==='tlhome')return 'home';if(tab==='peoplehub'||tab==='corevalues')return 'people';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
+function groupFor(tab){if(tab==='home'||tab==='tlhome'||tab==='teamweeklyrecap')return 'home';if(tab==='peoplehub'||tab==='corevalues')return 'people';const g=NAV.find(x=>x.tabs.includes(tab));return g?g.k:(NAV[0]?NAV[0].k:'today');}
 function syncTopOffset(){
   const h=document.querySelector('header.top'),n=document.querySelector('nav.rail'),m=document.querySelector('#app main');
   if(!h||!n||!m)return;
@@ -7349,6 +7418,8 @@ function selectGroup(gk){
 }
 function goTab(name){
   const requestedTab=name;
+  if(name!=='tlhome')window.PresenceTeamWeeklyNotice?.dispose?.();
+  if(requestedTab!=='teamweeklyrecap'&&location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);
   if(requestedTab==='home'&&window.PresenceAdminHome)window.PresenceAdminHome.reset('adminHomeMount');
   if(window.PresenceAdminHome)name=window.PresenceAdminHome.guardRoute(name,me,'adminHomeMount')||name;
   /* 권한 가드 단일 출처 — TABMETA[].g 만 보면 됨 (기존 12줄 하드코딩 제거).
@@ -7370,6 +7441,7 @@ function goTab(name){
   if(name==='hall'){try{renderHall();}catch(e){}}
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
   if(name==='tlhome'){tlhSubscribe();renderTLHome();}
+  if(name==='teamweeklyrecap'){tlhSubscribe();renderTeamWeeklyRecap();}
   if(name==='recruitdaily')renderRecruitDaily();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{fetchTreeWeather(renderTreeBg);}catch(e){}try{renderCoopRank();}catch(e){}try{renderToday();}catch(e){}try{renderHomeDash();}catch(e){}try{renderMvp();}catch(e){}try{renderPraise();}catch(e){}try{renderAttend();}catch(e){}try{homeCollapseInit();}catch(e){}try{['treeSecHome','coopSec'].forEach(function(id){var s=document.getElementById(id);if(s){s.classList.remove('collapsed');var c=s.querySelector('.sec-caret');if(c)c.remove();}});}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}if(_adminHomeActive&&window.PresenceAdminHome)window.PresenceAdminHome.render('adminHomeMount',{actor:me,state:state,mode:'admin'});}
   if(name==='today'){try{renderToday();renderCelebrations();renderMvp();renderPraise();renderAttend();homeCollapseInit();}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}}
@@ -10640,7 +10712,7 @@ async function initFirebase(generation){
   DB.on('extraMembers',v=>{state.extraMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('removedMembers',v=>{state.removedMembers=Array.isArray(v)?v:(v?Object.values(v):[]);if(me){renderMemberAdmin();if(document.getElementById('dailyList'))renderDaily();}});
   DB.on('memberInfo',v=>{state.memberInfo=v||{};if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderDaisoCompetition();}if(me&&isFounder(me))renderMemberAdmin();});
-  DB.on('dossier',v=>{state.dossier=v||{};if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();window.PresenceWorkspace?.schedule?.();}});
+  DB.on('dossier',v=>{state.dossier=v||{};(window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).dossier=true;if(me){if(typeof orgRefreshTree==='function'&&document.getElementById('orgTreeBox'))orgRefreshTree();if(mbName&&document.getElementById('memberModal')&&document.getElementById('memberModal').classList.contains('on'))renderMember();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();window.PresenceWorkspace?.schedule?.();}});
   DB.on('customRooms',v=>{state.customRooms=Array.isArray(v)?v:(v?Object.values(v):[]);if(me)renderKakao();});
   DB.on('settings',v=>{state.settings=v||{};renderSheetConn();renderWeb2Conn();});
   DB.on('popupAnnounce',v=>{state.popupAnnounce=v||null;if(me)showAnnounceIfNew();if(me&&isFounder(me))renderAnnounceAdmin();});
@@ -10648,18 +10720,19 @@ async function initFirebase(generation){
   if(typeof meetSubscribe==='function')meetSubscribe();
   DB.on('rnPresets',v=>{state.rnPresets=v||null;if(typeof curTab!=='undefined'&&curTab==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();});
   DB.on('sales',v=>{
-    state.sales=saleRecordsFromSnapshot(v);
+    state.sales=saleRecordsFromSnapshot(v);state.teamWeeklySalesError=false;
     (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).sales=true;
     if(me){renderSales();renderPerfGauge();}
     renderScores();renderComp();renderDaisoCompetition();
     if(me&&curTab==='tlhome')renderTLHome();
+    if(me&&curTab==='teamweeklyrecap')renderTeamWeeklyRecap();
     if(me&&curTab==='recap'&&canManageTeamRecords(me))renderProfitRecapAdminView();
-  });
+  },function(){state.teamWeeklySalesError=true;if(me&&curTab==='teamweeklyrecap')renderTeamWeeklyRecap();});
   DB.on('users',v=>{
     state.users=v?{...v}:{};
     (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).users=true;
     if(me)me=state.users[me.uid]||me;
-    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
+    if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me))syncHubDirectory();
     if(me&&curTab==='teamtree')orgRefreshTree();
     window.PresenceAdminHome?.invalidate?.();
@@ -13215,7 +13288,7 @@ function checkForUpdate(auto){
   try{renderToday();}catch(e){}
   window.addEventListener('resize',()=>{try{syncTopOffset();}catch(e){}});
   setInterval(()=>{if(me){renderWaterFeed();renderGb();renderWins()}},60000);
-  setTimeout(function(){checkForUpdate(true);},2500);       // 진입 직후 자동 확인
+  setTimeout(function(){if(window.requestIdleCallback)requestIdleCallback(function(){checkForUpdate(true);},{timeout:5000});else checkForUpdate(true);},12000);       // 진입 직후 자동 확인
   setInterval(function(){checkForUpdate(false);},60000);     // 이후 1분마다 확인(배너)
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkForUpdate(true);}); // 탭 복귀 시 자동 적용
 })();
@@ -17970,14 +18043,14 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 </script>
 <link rel="stylesheet" href="assets/presence-avatar-studio.css?v=20260718-8">
 <link rel="stylesheet" href="assets/presence-basecamp.css?v=20260718-1">
-<link rel="stylesheet" href="assets/presence-approved-world.css?v=20260809-login-2">
+<link rel="stylesheet" href="assets/presence-approved-world.css?v=20261118-login-lossless1">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
 <link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261109-winter-finish1">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261115-home-ready1"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261118-preload-low1"></script>
 <script src="assets/presence-youtube-bgm.js?v=20261109-winter-finish1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
