@@ -7,6 +7,20 @@
   function allowed(actor){return !!actor&&actor.status==='active'&&['TL','AOP','OP','O'].includes(actor.role);}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function number(v){return typeof v==='number'&&Number.isFinite(v)?v:null;}
+  function missingReferences(env,period=previousWeek(env.now??Date.now())){
+    if(!allowed(env.actor))return [];const out=[],today=dateKey(env.now??Date.now()),entriesSnapshot=Object.entries(env.sales||env.state?.sales||{}).sort(([a],[b])=>a.localeCompare(b)).map(([,e])=>e);
+    for(const member of env.members||[]){if(!member||member.terminated||member.currentOnly||!member.name)continue;
+      for(let date=period.start;date<=period.end;date=addDays(date,1)){
+        if(date>today||member.firstField&&date<member.firstField||member.left&&date>=member.left)continue;
+        if(env.beforeFirstField?.(member.name,date)||env.isActiveOn&&!env.isActiveOn(member,date))continue;
+        const expected=env.expectedOn?.(member,date)??null;if(expected===false)continue;
+        const entries=entriesSnapshot.filter(e=>e&&e.name===member.name&&e.date===date&&(!e.uid||e.uid===member.uid));
+        let latest=null,stamp=-Infinity,conflict=false;for(const e of entries){const next=Number(e.updatedAt||e.t)||0;if(next>stamp){latest=e;stamp=next;conflict=false;}else if(next===stamp&&((Number(e.count)||0)!==(Number(latest.count)||0)||!!e.na!==!!latest.na||!!e.rally!==!!latest.rally||!!e.checked!==!!latest.checked||!!e.cleared!==!!latest.cleared))conflict=true;}
+        const recorded=latest&&!conflict&&(env.isRecorded?env.isRecorded(latest):!latest.cleared&&(latest.checked===true||Number(latest.count)>0||latest.na||latest.rally));if(recorded)continue;
+        out.push({member,date,expected,label:expected===true?'예정일 미입력':'미입력 · 근무 여부 미확인'});
+      }
+    }return out;
+  }
   function summarize(env,period,rate,overrides={}){
     if(!allowed(env.actor))return {denied:true,rows:[]};
     const policy=env.calcPolicy||{},unit=number(policy.unit)??110000,factor=number(policy.factor)??1,bondRate=number(policy.bondRate)??.45;
@@ -65,6 +79,9 @@
     host.querySelectorAll('.ptwr-split-labels span:nth-child(2)').forEach(el=>{el.firstChild.textContent=el.firstChild.textContent.replace('본드 ','본드 보류 ');});
     host.querySelector('.ptwr-primary p').insertAdjacentText('beforeend',' · 리젝을 먼저 차감한 총액을 지급/본드 보류로 나눕니다.');
     const metrics=host.querySelector('.ptwr-metrics'),primary=host.querySelector('.ptwr-primary'),overview=document.createElement('div');overview.className='ptwr-overview';metrics.lastElementChild.remove();metrics.before(overview);overview.append(primary,metrics);
+    const references=missingReferences(env,period),weekday=date=>['일','월','화','수','목','금','토'][new Date(date+'T00:00:00Z').getUTCDay()];
+    host.querySelector('.ptwr').insertAdjacentHTML('beforeend','<section class="ptwr-missing"><h2>참고사항 · 미입력 날짜</h2><p>근무 예정 정보가 없는 날짜는 근무 여부를 먼저 확인해 주세요.</p>'+(references.length?'<ul>'+references.map((entry,i)=>'<li><div><strong>'+esc(entry.member.name)+'</strong><span>'+esc(entry.label)+'</span></div><button type="button" data-missing-day="'+i+'" '+(typeof env.openDay==='function'?'':'disabled')+' aria-label="'+esc(entry.member.name+' '+entry.date+' 입력 확인')+'">'+entry.date.slice(5).replace('-','/')+' ('+weekday(entry.date)+')</button></li>').join('')+'</ul>':'<p>확인이 필요한 미입력 날짜가 없습니다.</p>')+'</section>');
+    host.querySelectorAll('[data-missing-day]').forEach(button=>{button.onclick=()=>{const entry=references[Number(button.dataset.missingDay)];env.openDay?.(entry.member,entry.date);};});
     const controls=[{range:host.querySelector('#ptwrRate'),key:'',rate:state.rate},...data.rows.map((r,i)=>({range:host.querySelector('#ptwr-person-'+i),key:r.uid||r.name,rate:r.rate}))];
     for(const control of controls){const input=control.range;input.step='any';const id=input.id+'Number';input.insertAdjacentHTML('beforebegin','<div class="ptwr-rate-number"><label for="'+id+'">'+(control.key?'개인 리젝률':'전체 기본 리젝률')+'</label><span><input id="'+id+'" type="number" inputmode="decimal" min="0" max="100" step="any" value="'+control.rate+'" aria-describedby="'+id+'Error"> %</span></div><small id="'+id+'Error" role="status" class="ptwr-rate-error"></small>');}
     for(const old of retainedInputs){const next=host.querySelector('#'+old.id);if(next){if(old.type!=='number')old.value=next.value;next.replaceWith(old);if(old.getAttribute('aria-invalid')==='true')host.querySelector('#'+old.id+'Error').textContent='0~100 사이의 리젝률을 입력해 주세요. 마지막 유효값으로 계산합니다.';}}
@@ -78,5 +95,5 @@
     for(const control of controls){const range=host.querySelector('#'+control.range.id),numeric=host.querySelector('#'+range.id+'Number');range.oninput=()=>{update(control.key,Number(range.value));numeric.value=range.value;render(host,env);host.querySelector('#'+range.id)?.focus({preventScroll:true});};numeric.oninput=()=>{const value=numeric.valueAsNumber,valid=numeric.value!==''&&Number.isFinite(value)&&value>=0&&value<=100;numeric.setAttribute('aria-invalid',String(!valid));const error=host.querySelector('#'+numeric.id+'Error');if(!valid){error.textContent='0~100 사이의 리젝률을 입력해 주세요. 마지막 유효값으로 계산합니다.';return;}update(control.key,value);error.textContent='';refreshNumbers();};numeric.onblur=()=>{numeric.value=control.key?(state.overrides[control.key]??state.rate):state.rate;numeric.removeAttribute('aria-invalid');host.querySelector('#'+numeric.id+'Error').textContent='';};}
     host.querySelectorAll('[data-reset-rate]').forEach(button=>{button.onclick=()=>{delete state.overrides[button.dataset.resetRate];const control=controls.find(c=>c.key===button.dataset.resetRate);if(control)host.querySelector('#'+control.range.id+'Number').value=state.rate;render(host,env);};});
   }
-  root.PresenceTeamWeeklyRecap={render,previousWeek,summarize,allowed,dispose:host=>{if(host){sessions.delete(host);host.replaceChildren();}}};
+  root.PresenceTeamWeeklyRecap={render,previousWeek,summarize,missingReferences,allowed,dispose:host=>{if(host){sessions.delete(host);host.replaceChildren();}}};
 })(typeof window==='undefined'?globalThis:window);

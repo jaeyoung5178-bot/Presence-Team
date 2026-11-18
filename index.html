@@ -2979,7 +2979,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
         <button id="saleTabWeekly" role="tab" aria-selected="false" onclick="setSaleView('weekly')">위클리</button>
         <button id="saleTabMonthly" role="tab" aria-selected="false" onclick="setSaleView('monthly')">먼슬리</button>
       </div>
-      <div id="saleDailyPanel">
+      <style>#m-sale [hidden]{display:none!important}</style><div id="saleDailyPanel"><button id="teamWeeklySaleBack" class="btn ghost" style="min-height:44px;margin-bottom:12px" hidden onclick="teamWeeklyReturn()">← 우리팀 주간리캡으로</button>
 <div class="gauge-card" id="adminSaleEdit" style="margin-top:0;margin-bottom:16px;display:none">
         <div class="gauge-top admin-sale-head"><span class="lab" id="aseTitle">✏️ 팀 세일즈 수정 · 관리자/매니저</span><span class="admin-sale-link-state">아래 달력과 연결됨</span></div>
         <div class="admin-sale-controls">
@@ -5494,18 +5494,31 @@ function teamWeeklyRecapEnv(previewSelection){
   byUid.forEach(function(m){let name=m.name,seen={};for(let i=0;i<16&&name&&!seen[nk(name)];i++){seen[nk(name)]=true;const d=dossierOf(name)||{};if(d.teamName){m.teamLabel=d.teamName;break;}name=d.upline||'';}});
   byUid.forEach(function(m){nameOwners.set(m.name,(nameOwners.get(m.name)||0)+1);});
   const members=[...byUid.values()].filter(function(m){m.terminated=teamWeeklyTerminated(m);return !m.terminated&&nameOwners.get(m.name)===1&&!(period&&m.left&&m.left<=period.start)&&(!selection.anchor||orgIsDescendant(m.name,selection.anchor));});
-  const env={sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'세일즈 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
+  const env={sourceStatus:(state.recapStudioError||state.teamWeeklySalesError)?'error':(!(window.__presenceWorkspaceBaseReady||{}).sales?'loading':(isFounder(me)?(state.recapStudioCanonicalReady?'ready':'loading'):(state.recapStudioTeamKey===cfg.teamKey&&state.recapStudioTeam?'ready':'loading'))),actor:me,config:cfg,teamOptions:teamOptions,selectedTeam:selectedTeam,onSelectTeam:function(key){if(!teamOptions.some(function(t){return t.key===key;}))return;teamWeeklySelectedByUid[me.uid]=key;renderTeamWeeklyRecap();},teamName:teamOptions.find(function(t){return t.key===selectedTeam;}).label,members:members,sales:state.sales||{},openDay:teamWeeklyOpenDay,expectedOn:function(m,date){const records=(state.teamWeeklyOps||{})[period&&period.start]||{};let answer=null;Object.values(records).forEach(function(rec){Object.values((rec||{}).schedule||{}).forEach(function(row){if(row&&row.name===m.name&&Object.prototype.hasOwnProperty.call(row.dates||{},date)){if(row.dates[date]===true)answer=true;else if(row.dates[date]===false&&answer!==true)answer=false;}});});return answer;},countsAsWork:saleEntryCountsAsWork,isRecorded:saleEntryIsRecorded,beforeFirstField:saleBeforeFirstField,isActiveOn:function(m,date){return !m.currentOnly&&m.intervals.some(function(a){return (a.activeFrom||a.from||'0000-01-01')<=date&&date<=(a.activeTo||a.to||'9999-12-31');});},back:function(){if(location.hash==='#teamweeklyrecap')history.replaceState(null,'',location.pathname+location.search);goTab('tlhome');},calcPolicy:{unit:110000,factor:1,bondRate:.45,label:'리젝 반영 예상 총액',note:'세일즈 1건당 참고단가 110,000원 · 리젝 차감 후 예상지급 55% / 본드 45% · 실제 입금액과 다른 시뮬레이션 · 시급 정산 미포함'}};
   if(!previewSelection&&period&&window.PresenceTeamWeeklyRecap&&env.sourceStatus==='ready'){
-    env.teamOptions=teamOptions.map(function(option){const candidate=teamWeeklyRecapEnv(option.key),stats=PresenceTeamWeeklyRecap.summarize(candidate,period,30);return Object.assign({},option,{disabled:stats.rows.length===0});});
+    env.teamOptions=teamOptions.map(function(option){const candidate=teamWeeklyRecapEnv(option.key),stats=PresenceTeamWeeklyRecap.summarize(candidate,period,30);return Object.assign({},option,{disabled:stats.rows.length===0&&PresenceTeamWeeklyRecap.missingReferences(candidate,period).length===0});});
   }
   return env;
 }
+let teamWeeklySaleContext=null;
+function teamWeeklyOpenDay(member,date){
+  const env=teamWeeklyRecapEnv(),period=window.PresenceTeamWeeklyRecap&&PresenceTeamWeeklyRecap.previousWeek();
+  const target=env&&env.members.find(function(m){return m.uid===member.uid;});
+  if(!target||!period||date<period.start||date>period.end||!env.isActiveOn(target,date)||saleBeforeFirstField(target.name,date)){toast('허용된 팀원과 날짜만 열 수 있어요');return;}
+  teamWeeklySaleContext=null;goTab('sale');saleView='daily';
+  if(canManageTeamRecords(me)){saleAdminTargetName=target.name;fillAseUsers();const sel=document.getElementById('aseUser');if(sel)sel.value=target.name;}
+  else if(target.uid!==me.uid)teamWeeklySaleContext={actorUid:me.uid,member:target};
+  const back=document.getElementById('teamWeeklySaleBack');if(back)back.hidden=false;
+  salePickDate(date);renderSaleGoalPanels();
+}
+function teamWeeklySaleReadOnly(){return !!(teamWeeklySaleContext&&me&&teamWeeklySaleContext.actorUid===me.uid&&teamWeeklySaleContext.member.uid!==me.uid);}
+function teamWeeklyReturn(){teamWeeklySaleContext=null;document.getElementById('teamWeeklySaleBack').hidden=true;location.hash='teamweeklyrecap';goTab('teamweeklyrecap');}
 let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
 function ensureTeamWeeklyAssets(){
   if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
   if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
-    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly2';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
-    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly2';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly3';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly3';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
   ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
   return teamWeeklyAssetsPromise;
 }
@@ -8591,6 +8604,7 @@ function saleMonthlyGoalHTML(target){const mk=saleCalMonth,plan=saleGoalPlan(tar
 async function saveSalesGoal(){const target=saleTargetUser(),mk=(document.getElementById('saleGoalMonth')||{}).value||saleCalMonth,input=document.getElementById('saleGoalInput'),goal=Math.max(0,Math.round(Number(input&&input.value)||0));if(!target)return;if(target.uid!==me.uid&&!canManageTeamRecords(me)){toast('본인 목표만 설정할 수 있어요');return;}const prior=saleGoalRecord(target.uid,mk),next={goal:goal,updatedAt:Date.now(),updatedBy:me.uid};state.salesGoals=state.salesGoals||{};state.salesGoals[target.uid]=state.salesGoals[target.uid]||{};state.salesGoals[target.uid][mk]=next;renderSales();try{if(LIVE)await DB.set('salesGoals/'+target.uid+'/'+mk,next);toast(target.name+'님의 '+mk.replace('-','년 ')+'월 목표 '+goal+'건을 저장했어요');}catch(e){state.salesGoals[target.uid][mk]=prior;renderSales();console.warn('[sales-goal-save]',e);toast('목표를 저장하지 못했어요. 연결을 확인해 주세요');}}
 function renderSaleGoalPanels(){const target=saleTargetUser()||me,daily=document.getElementById('saleDailyPanel'),weekly=document.getElementById('saleWeeklyPanel'),monthly=document.getElementById('saleMonthlyPanel');['daily','weekly','monthly'].forEach(function(v){const b=document.getElementById('saleTab'+v[0].toUpperCase()+v.slice(1));if(b){const on=saleView===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false');}});if(daily)daily.hidden=saleView!=='daily';if(weekly){weekly.hidden=saleView!=='weekly';if(!weekly.hidden)weekly.innerHTML=saleWeeklyGoalHTML(target);}if(monthly){monthly.hidden=saleView!=='monthly';if(!monthly.hidden)monthly.innerHTML=saleMonthlyGoalHTML(target);}}
 function saleTargetUser(){
+  if(teamWeeklySaleReadOnly()){const env=teamWeeklyRecapEnv(),target=env&&env.members.find(function(m){return m.uid===teamWeeklySaleContext.member.uid;});if(target)return target;teamWeeklySaleContext=null;}
   if(me&&canManageTeamRecords(me)){
     const sel=document.getElementById('aseUser'),wanted=(sel&&sel.value)||saleAdminTargetName;
     const found=rosterMembers().find(u=>u.name===wanted);
@@ -8601,9 +8615,9 @@ function saleTargetUser(){
 function saleEditorRecord(date){const target=saleTargetUser(),e=target?saleRecordFor(target.name,date):null;return saleEntryIsRecorded(e)?e:null}
 function saleEditorCount(date){const e=saleEditorRecord(date);return (e&&!e.na&&!e.rally)?(+e.count||0):0}
 function saleNAFutureLimit(){const d=new Date(TODAY+'T12:00:00');d.setDate(d.getDate()+7);return d.toISOString().slice(0,10)}
-function saleCanSave(){const target=saleTargetUser();return !!(target&&!saleBeforeFirstField(target.name,saleEditDate)&&(saleEditDate<=TODAY||(saleDraftNA&&saleEditDate<=saleNAFutureLimit())))}
+function saleCanSave(){if(teamWeeklySaleReadOnly())return false;const target=saleTargetUser();return !!(target&&!saleBeforeFirstField(target.name,saleEditDate)&&(saleEditDate<=TODAY||(saleDraftNA&&saleEditDate<=saleNAFutureLimit())))}
 function saleLoadDraft(){const e=saleEditorRecord(saleEditDate);saleDraft=(e&&!e.na&&!e.rally)?Math.max(0,+e.count||0):0;saleDraftNA=!!(e&&e.na);saleEditing=false;}
-function initSaleEditor(){if(me){saleAdminTargetName=saleAdminTargetName||me.name;saleEditDate=TODAY;saleCalMonth=TODAY.slice(0,7);saleLoadDraft();renderSales();}}
+function initSaleEditor(){teamWeeklySaleContext=null;const back=document.getElementById('teamWeeklySaleBack');if(back)back.hidden=true;if(me){saleAdminTargetName=saleAdminTargetName||me.name;saleEditDate=TODAY;saleCalMonth=TODAY.slice(0,7);saleLoadDraft();renderSales();}}
 function salePickDate(ds){window.PresenceSalesHoliday?.cancel();if(!/^\d{4}-\d{2}-\d{2}$/.test(ds||''))return;saleEditDate=ds;saleCalMonth=ds.slice(0,7);const dt=document.getElementById('aseDate');if(me&&canManageTeamRecords(me)&&dt)dt.value=ds;saleLoadDraft();renderSales();if(me&&canManageTeamRecords(me))aseLoad();}
 function saleMoveDate(n){const d=new Date(saleEditDate+'T12:00:00');d.setDate(d.getDate()+n);salePickDate(d.toISOString().slice(0,10));}
 function saleMonthMove(n){window.PresenceSalesHoliday?.cancel();const d=new Date(saleCalMonth+'-01T12:00:00');d.setMonth(d.getMonth()+n);saleCalMonth=d.toISOString().slice(0,7);saleEditing=false;renderSales();}
@@ -8611,14 +8625,14 @@ function saleCalendarHTML(){
   const target=saleTargetUser(),targetName=target?target.name:'',targetRole=target?target.role:'',first=new Date(saleCalMonth+'-01T12:00:00'),last=new Date(first.getFullYear(),first.getMonth()+1,0,12),offset=(first.getDay()+6)%7;let days='';
   for(let i=0;i<offset;i++)days+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
   for(let n=1;n<=last.getDate();n++){
-    const ds=saleCalMonth+'-'+String(n).padStart(2,'0'),phase=saleDatePhase(targetName,ds),before=phase==='before',firstField=phase==='first',raw=saleRecordFor(targetName,ds),e=saleEntryIsRecorded(raw)?raw:null,na=!!(e&&e.na),recorded=!!(e&&!na&&!e.rally),count=recorded?Math.max(0,+e.count||0):0,label=na?'NA':(recorded?count+'건':''),aria=before?' 근무 시작 전 · 기록 없음':(firstField?' 첫 필드':(na?' NA':(recorded?' 세일즈 '+count+'건 입력 완료':' 미입력')));
+    const ds=saleCalMonth+'-'+String(n).padStart(2,'0'),phase=saleDatePhase(targetName,ds),before=phase==='before',firstField=phase==='first',raw=saleRecordFor(targetName,ds),e=saleEntryIsRecorded(raw)?raw:null,na=!!(e&&e.na),recorded=!!(e&&!na&&!e.rally),count=recorded?Math.max(0,+e.count||0):0,label=na?'NA':(e&&e.rally?'랠리':(recorded?count+'건':(!before&&ds<TODAY?'미입력':''))),aria=before?' 근무 시작 전 · 기록 없음':(firstField?' 첫 필드':(na?' NA':(e&&e.rally?' 랠리':(recorded?' 세일즈 '+count+'건 입력 완료':(ds<TODAY?' 미입력':' 기록 전')))));
     days+='<button class="'+(ds===saleEditDate?'sel ':'')+(ds===TODAY?'today ':'')+(before?'pre-field ':'')+(firstField?'first-field-day ':'')+(recorded?'has ':'')+(recorded&&count===0?'zero ':'')+(na?'na ':'')+'" '+(before?'disabled':'onclick="salePickDate(\''+ds+'\')"')+' aria-label="'+ds+aria+'"><span>'+n+'</span>'+(firstField?'<em class="first-field-label">첫필드!</em>':'')+(label?'<em>'+label+'</em>':'')+'</button>';
   }
   const adminEditing=me&&canManageTeamRecords(me)&&target&&target.uid!==me.uid;
-  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(adminEditing?'매니저 편집 중':'내 기록')+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-controls">'+(window.PresenceSalesHoliday?.buttonHTML()||'')+'</div><div class="sale-cal-legend"><span><b>●</b> 1건 이상</span><span class="zero">● 0건</span><span class="na">● NA</span><span class="first">● 첫필드!</span><span>무표시: 미입력</span></div>';
+  return '<div class="sale-cal-context"><span>'+esc(targetName)+' · '+esc(targetRole)+' 세일즈 달력</span><small>'+(teamWeeklySaleReadOnly()?'읽기 전용':(adminEditing?'매니저 편집 중':'내 기록'))+'</small></div><div class="sale-cal-head"><button onclick="saleMonthMove(-1)" aria-label="이전 달">‹</button><b>'+saleCalMonth.replace('-','년 ')+'월</b><button onclick="saleMonthMove(1)" aria-label="다음 달">›</button><button class="sale-cal-today" onclick="salePickDate(TODAY)">오늘</button></div><div class="sale-cal-week"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div><div class="sale-cal-days">'+days+'</div><div class="sale-cal-controls">'+(window.PresenceSalesHoliday?.buttonHTML()||'')+'</div><div class="sale-cal-legend"><span><b>●</b> 1건 이상</span><span class="zero">● 0건</span><span class="na">● NA</span><span class="first">● 첫필드!</span><span>미입력: 기록 없음 · 근무 여부 미확인</span></div>';
 }
 function adjSale(delta){
-  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
+  if(!me||saleSaveBusy||teamWeeklySaleReadOnly())return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(saleEditDate>TODAY){toast('미래 날짜에는 기록할 수 없어요');return;}
   if(saleDraftNA){saleDraftNA=false;saleDraft=0;}
   const prev=saleDraft;
   saleDraft=Math.max(0,saleDraft+delta);
@@ -8628,12 +8642,12 @@ function adjSale(delta){
 }
 function toggleSaleNA(){
   window.PresenceSalesHoliday?.cancel();
-  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}if(saleEditDate>TODAY&&saleEditDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}
+  if(!me||saleSaveBusy||teamWeeklySaleReadOnly())return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 NA를 기록할 수 없어요');return;}if(saleEditDate>TODAY&&saleEditDate>saleNAFutureLimit()){toast('NA는 오늘부터 7일 뒤까지만 미리 체크할 수 있어요');return;}
   saleDraftNA=!saleDraftNA;if(saleDraftNA)saleDraft=0;else saleDraft=saleEditorCount(saleEditDate);saleEditing=true;renderSaleEditor();
 }
 async function commitSale(){
   const holidaySource=arguments[0];
-  if(!me||saleSaveBusy)return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(!saleCanSave()){toast(saleEditDate>TODAY?'미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요':'저장할 수 없는 날짜예요');return;}
+  if(!me||saleSaveBusy||teamWeeklySaleReadOnly())return;const target=saleTargetUser();if(target&&saleBeforeFirstField(target.name,saleEditDate)){toast('첫 필드 이전 날짜에는 기록할 수 없어요');return;}if(!saleCanSave()){toast(saleEditDate>TODAY?'미래 날짜는 7일 이내의 NA만 미리 저장할 수 있어요':'저장할 수 없는 날짜예요');return;}
   if(!target)return;if(target.uid!==me.uid&&!canManageTeamRecords(me)){toast('다른 팀원의 기록은 관리자 또는 매니저만 수정할 수 있어요');return;}
   if(isTestBot(target)){saleEditing=false;renderSales();toast('👀 관찰 계정은 집계에 반영되지 않아요 (체험만!)');return;}
   const date=saleEditDate,key=`${date}|${target.name}`,t=Date.now(),prior=state.sales[key],prevCount=(prior&&!prior.na&&!prior.rally)?(+prior.count||0):0;
@@ -8678,6 +8692,9 @@ async function clearSaleRecord(){
   toast(`${target.name}님 · ${date} 체크 해제 완료 · 미입력 빈칸으로 되돌렸어요`);
 }
 function renderSaleEditor(){
+  const readOnly=teamWeeklySaleReadOnly();
+  document.querySelectorAll('#m-sale .sale-cal-controls,#m-sale .sale-stepper,#saleDone,#saleClear,#saleClearHelp,#saleDailyGoal').forEach(function(el){el.hidden=readOnly;});
+  document.querySelectorAll('#saleTabWeekly,#saleTabMonthly').forEach(function(el){el.hidden=readOnly;});
   const target=saleTargetUser(),targetName=target?target.name:me.name,committed=saleEditorCount(saleEditDate),draftCount=saleDraftNA?0:saleDraft,monthKey=monthOf(TODAY),monthBase=sumMonth(targetName,monthKey)-(saleEditDate.startsWith(monthKey)?committed:0)+(saleEditDate.startsWith(monthKey)?draftCount:0);
   const beforeFirst=!!(target&&saleBeforeFirstField(target.name,saleEditDate));
   document.getElementById('saleCount').textContent=saleDraftNA?'NA':saleDraft;
@@ -8689,8 +8706,8 @@ function renderSaleEditor(){
   document.querySelectorAll('#m-sale .sale-stepper .step-btn').forEach(function(btn){btn.disabled=beforeFirst;});
   const saved=saleEditorRecord(saleEditDate),savedCount=(saved&&!saved.na&&!saved.rally)?Math.max(0,+saved.count||0):null;
   const clear=document.getElementById('saleClear');
-  if(clear){clear.disabled=saleSaveBusy||!saved;clear.setAttribute('aria-label',targetName+' '+saleEditDate+' 해당일 체크 해제');}
-  if(status){status.textContent=beforeFirst?'첫 필드 이전 · 근무 시작 전이라 기록이 없는 날짜예요.':(saleDraftNA?(saleEditDate>TODAY?'NA 미리 선택됨 · 오늘부터 7일 뒤까지 저장할 수 있어요':'NA 선택됨 · 해당 날짜는 휴무로 집계됩니다'):(!saleEditing&&savedCount!==null?'입력 완료 · '+savedCount+'건 (리캡에 실제 건수 반영)':(saleEditDate>TODAY?'미래 날짜에는 세일즈 건수를 입력할 수 없어요. NA만 7일 전부터 미리 체크할 수 있어요.':'아직 미입력 · 0건 또는 NA도 직접 저장해야 완료로 표시됩니다.')));status.classList.toggle('na',saleDraftNA&&!beforeFirst);}
+  if(clear){clear.disabled=readOnly||saleSaveBusy||!saved;clear.setAttribute('aria-label',targetName+' '+saleEditDate+' 해당일 체크 해제');}
+  if(status){status.textContent=readOnly?'팀 기록 열람 · 수정은 기존 입력 권한이 있는 계정에서 할 수 있어요':beforeFirst?'첫 필드 이전 · 근무 시작 전이라 기록이 없는 날짜예요.':(saleDraftNA?(saleEditDate>TODAY?'NA 미리 선택됨 · 오늘부터 7일 뒤까지 저장할 수 있어요':'NA 선택됨 · 해당 날짜는 휴무로 집계됩니다'):(!saleEditing&&savedCount!==null?'입력 완료 · '+savedCount+'건 (리캡에 실제 건수 반영)':(saleEditDate>TODAY?'미래 날짜에는 세일즈 건수를 입력할 수 없어요. NA만 7일 전부터 미리 체크할 수 있어요.':'아직 미입력 · 0건 또는 NA도 직접 저장해야 완료로 표시됩니다.')));status.classList.toggle('na',saleDraftNA&&!beforeFirst);}
   if(done){done.disabled=saleSaveBusy||!saleCanSave();done.textContent=saleSaveBusy?'저장·동기화 중…':(beforeFirst?'첫 필드 이전 · 기록 없음':(!saleCanSave()?(saleEditDate>TODAY?'미래 날짜는 NA만 미리 저장할 수 있어요':'저장할 수 없어요'):'✅ '+saleEditDate.slice(5).replace('-','.')+(saleEditDate>TODAY?' NA 미리 저장':' 기록 저장')));}
   const now=new Date(TODAY+'T12:00:00'),dow=(now.getDay()+6)%7,mon=new Date(now);mon.setDate(now.getDate()-dow);const sun=new Date(mon);sun.setDate(mon.getDate()+6),monS=mon.toISOString().slice(0,10),sunS=sun.toISOString().slice(0,10),inWeek=saleEditDate>=monS&&saleEditDate<=sunS;
   const teamWeekLive=sumWeek(null)-(inWeek?committed:0)+(inWeek?draftCount:0);

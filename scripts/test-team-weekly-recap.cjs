@@ -19,3 +19,12 @@ const empty=api.summarize({...env,sales:{}},period,30);assert.equal(empty.estima
 const terminated=api.summarize({...env,members:env.members.map(m=>({...m,terminated:m.name==='Left'}))},period,30);assert.equal(terminated.sales,3);assert.equal(terminated.rows.length,2);assert.equal(terminated.participants,2);
 const decimal=api.summarize({...env,members:[{name:'A'}],sales:{a:{name:'A',date:'2026-11-09',count:10}}},period,20.5);assert.equal(decimal.estimate,874500);assert.equal(decimal.cash+decimal.bond,874500);
 console.log('PASS: KST rollover, scope, first/left dates, missing/zero, fractional rejects, rounding, IC deny, immutability');
+const ko={...env,now:Date.parse('2026-11-18T03:00:00Z'),members:[{uid:'ko',name:'고윤경'}],sales:Object.fromEntries([9,10,11,12,13].map(day=>[day,{name:'고윤경',uid:'ko',date:'2026-11-'+String(day).padStart(2,'0'),...(day<=11?{na:true}:{count:day===12?2:1,checked:true})}]))};
+assert.deepEqual(api.missingReferences(ko,period).map(r=>r.date),['2026-11-14','2026-11-15']);assert(api.missingReferences(ko,period).every(r=>r.label==='미입력 · 근무 여부 미확인'));
+assert.equal(api.missingReferences({...ko,expectedOn:(m,d)=>d.endsWith('15')?false:true},period)[0].label,'예정일 미입력');
+assert.equal(api.missingReferences({...ko,members:[{uid:'ko',name:'고윤경',terminated:true}]},period).length,0);
+assert.equal(api.missingReferences({...ko,members:[{uid:'ko',name:'고윤경',currentOnly:true}]},period).length,0);
+assert.equal(api.missingReferences({...ko,sales:{...ko.sales,zero:{uid:'ko',name:'고윤경',date:'2026-11-14',count:0,checked:true},rally:{uid:'ko',name:'고윤경',date:'2026-11-15',rally:true}}},period).length,0);
+console.log('PASS missing references: NA, checked zero, rally, expected/unknown, Sunday, terminated/scope');
+const cleared={...ko,sales:{...ko.sales,old:{uid:'ko',name:'고윤경',date:'2026-11-14',checked:true,count:0,t:1},latest:{uid:'ko',name:'고윤경',date:'2026-11-14',cleared:true,t:2}}};assert.deepEqual(api.missingReferences(cleared,period).map(r=>r.date),['2026-11-14','2026-11-15']);assert.equal(api.summarize(cleared,period,30).days,2);
+console.log('PASS latest cleared tombstone replaces older checked record in statistics and references');
