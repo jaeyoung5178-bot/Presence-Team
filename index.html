@@ -5526,8 +5526,8 @@ let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
 function ensureTeamWeeklyAssets(){
   if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
   if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
-    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly3';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
-    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly3';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly4';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly4';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
   ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
   return teamWeeklyAssetsPromise;
 }
