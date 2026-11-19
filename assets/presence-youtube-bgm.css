@@ -42,7 +42,7 @@ body:has(.modal.on,dialog[open]) #presenceWinterCanvas{visibility:hidden}
 #presenceMusicPanel[role="region"] p{color:#263b2e!important}
 /* Sparse snow is visible above the opaque page, with text/control hitboxes excluded in JS. */
 #presenceWinterCanvas{z-index:3!important;opacity:1!important}
-#presenceWinterFlight{position:absolute;left:0;right:0;top:clamp(40px,14%,60px);height:45%;margin:0;overflow:hidden;pointer-events:none!important;z-index:4;isolation:isolate}
-#presenceWinterFlight img{display:block;position:absolute;left:0;top:4px;width:180px;height:auto;max-width:none;pointer-events:none!important;will-change:transform}
-@media(min-width:980px){#presenceWinterFlight img{width:260px}}
+#presenceWinterFlight{position:fixed;left:0;top:0;width:200px;height:auto;margin:0;overflow:visible;pointer-events:none!important;z-index:3;will-change:transform,opacity}
+#presenceWinterFlight img{display:block;position:static;width:200px;height:auto;max-width:none;pointer-events:none!important}
+@media(min-width:980px){#presenceWinterFlight,#presenceWinterFlight img{width:290px}}
 body:has(.modal.on,dialog[open]) #presenceWinterFlight{visibility:hidden}
