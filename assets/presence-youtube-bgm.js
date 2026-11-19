@@ -8,7 +8,7 @@
   var installed = false;
   var seasonHint = '';
   var preferenceUid = '';
-  var VIDEO = 'rxULak5ND40', panel = null, musicButton = null, winterCanvas = null, winterFrame = 0, winterStarted = 0, musicWait = 0;
+  var VIDEO = 'rxULak5ND40', panel = null, musicButton = null, winterCanvas = null, winterFrame = 0, winterStarted = 0, winterFlight = null, musicWait = 0;
  function stopCarol() { clearTimeout(musicWait);musicWait=0;if (panel) { panel.remove(); panel = null;if(musicButton&&musicButton.isConnected&&!document.hidden)musicButton.focus({preventScroll:true}); } var old=document.getElementById('presenceCarolAudio');if(old){old.pause();old.remove();} }
  function playCarol() {
    if (!active() || season() !== 'winter') return;
@@ -23,17 +23,22 @@
    var host=document.querySelector('#app main')||document.body;host.prepend(panel);panel.scrollIntoView({block:'start',behavior:'instant'});panel.querySelector('[data-music-close]').focus({preventScroll:true});
  }
  function winterEffects(on) {
-   if (!on) { if(winterFrame)cancelAnimationFrame(winterFrame);winterFrame=0;if(winterCanvas)winterCanvas.remove();winterCanvas=null;return; }
+   if (!on) { if(winterFrame)cancelAnimationFrame(winterFrame);winterFrame=0;if(winterCanvas)winterCanvas.remove();winterCanvas=null;if(winterFlight)winterFlight.remove();winterFlight=null;return; }
    if(winterCanvas)return;
    winterCanvas=document.createElement('canvas');winterCanvas.id='presenceWinterCanvas';winterCanvas.setAttribute('aria-hidden','true');document.body.appendChild(winterCanvas);
+   var safeRects=[],safeAt=0;
    var ctx=winterCanvas.getContext('2d');if(!ctx){winterCanvas.remove();winterCanvas=null;return;}winterStarted=performance.now();
    function draw(now){
      if(!winterCanvas)return;var w=innerWidth,h=innerHeight,d=Math.min(devicePixelRatio||1,1.5);
      if(winterCanvas.width!==Math.round(w*d)||winterCanvas.height!==Math.round(h*d)){winterCanvas.width=Math.round(w*d);winterCanvas.height=Math.round(h*d);}
      ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);var t=(now-winterStarted)/1000;
-     ctx.fillStyle='#b49d72';for(var i=0;i<24;i++){var x=((i*97+Math.sin(t*.4+i)*14)%w+w)%w,y=(i*67+t*(15+i%4*4))%h;ctx.globalAlpha=.45+(i%3)*.15;ctx.beginPath();ctx.arc(x,y,1.2+i%3*.45,0,Math.PI*2);ctx.fill();}
-     // A tiny edge-only sleigh, never a large sprite across the reading column.
-     var phase=t%32;if(phase<6){ctx.globalAlpha=Math.sin(phase/6*Math.PI)*.8;ctx.font='18px sans-serif';ctx.fillText('🛷',Math.max(0,w-22),h*.22+phase*8);}
+     if(now-safeAt>500){safeAt=now;safeRects=Array.from(document.querySelectorAll('header,nav,input,textarea,select,button,a,main h1,main h2,main h3,main p,main label,main strong,main dt,main dd,main td,dialog,.modal.on')).filter(function(e){return e.getClientRects().length;}).map(function(e){return e.getBoundingClientRect();});}
+     for(var i=0;i<28;i++){var near=i%2===1,x=((i*97+Math.sin(t*(near?.5:.28)+i)*14)%w+w)%w,y=(i*67+t*(near?28+i%4*3:12+i%3*2))%h;if(safeRects.some(function(r){return x>r.left-4&&x<r.right+4&&y>r.top-4&&y<r.bottom+4;}))continue;ctx.globalAlpha=near?.58:.38;ctx.fillStyle='#fffdf5';ctx.strokeStyle='#baa477';ctx.lineWidth=near?.55:.4;ctx.beginPath();ctx.arc(x,y,near?1.7+i%3*.2:1+i%3*.15,0,Math.PI*2);ctx.fill();ctx.stroke();}
+     var host=document.querySelector('#workspaceHomeGarden #treeSecHome[data-garden-state="ready"] .tree-stage');var sky=host&&host.querySelector('.tree-v2-background');if(!sky||!sky.complete||!sky.naturalWidth)host=null;
+     if(host&&host.getClientRects().length){
+       if(!winterFlight||!winterFlight.isConnected){winterFlight=document.createElement('div');winterFlight.id='presenceWinterFlight';winterFlight.setAttribute('aria-hidden','true');var img=document.createElement('img');img.alt='';img.src='assets/christmas/santa-sleigh-640.webp';img.srcset='assets/christmas/santa-sleigh-320.webp 320w, assets/christmas/santa-sleigh-640.webp 640w';img.sizes='(min-width:980px) 260px, 180px';img.decoding='async';winterFlight.appendChild(img);host.appendChild(winterFlight);}
+       if(winterFlight.parentNode!==host)host.appendChild(winterFlight);var sprite=winterFlight.firstElementChild,travel=Math.max(0,winterFlight.clientWidth-sprite.clientWidth-16);sprite.style.transform='translateX('+(8+(Math.sin(t*.14)+1)/2*travel)+'px) translateY('+(Math.sin(t*.7)*3)+'px)';
+     }else if(winterFlight){winterFlight.remove();winterFlight=null;}
      ctx.globalAlpha=1;winterFrame=requestAnimationFrame(draw);
    }winterFrame=requestAnimationFrame(draw);
  }

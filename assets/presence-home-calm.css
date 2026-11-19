@@ -1,4 +1,22 @@
 /* Home and TL Home: calm paper surfaces. Canonical scene layers and actions stay intact. */
+body.presence-workspace-v2 #workspaceHome .pw-home-daily{margin:0;align-items:start;gap:16px;min-height:0}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily>section{align-self:start;min-height:0;padding:18px;border:1px solid #c9b989;border-radius:18px;background:linear-gradient(135deg,#fffdf5,#f3f4e9);box-shadow:0 3px 0 #274c3610;color:#24382f}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily h2{font-size:20px;color:#244b35}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily .pw-row{gap:8px}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily .pw-empty{padding:12px 0;border:0;background:none;font-size:16px;line-height:1.5}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily :is(.pw-sub,.pw-note){color:#52634f;font-size:13px;line-height:1.5}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily button{background:#fffdf5;color:#244b35;border-color:#c9b989;border-radius:12px;box-shadow:none}
+body.presence-workspace-v2 #workspaceHome #pwPledgeDetails>summary{min-height:44px;display:flex;align-items:center;color:#8b3445;font-weight:700;cursor:pointer}
+body.presence-workspace-v2 #workspaceHome .pw-home-utility{margin:0;padding:12px;gap:8px;min-height:0;border:1px solid #bfae7e;border-radius:16px;background:#244b35}
+body.presence-workspace-v2 #workspaceHome .pw-home-utility>button{flex:1 1 180px;min-height:44px;background:#fff9e9;color:#244b35;border:1px solid #d7c795;border-radius:11px;box-shadow:none}
+body.presence-workspace-v2 #workspaceHome #pwGlobalStatus:empty{display:none}
+body.presence-workspace-v2 #workspaceHome .pw-home-daily h2{display:flex;align-items:center;gap:8px}
+body.presence-workspace-v2 #workspaceHome .pw-home-note-icon{width:24px;height:24px;flex:none}
+/* Footer retains its own dock/tab safe padding; avoid reserving that space twice. */
+body.presence-workspace-v2:has(#m-home.active) #app main{padding-bottom:32px!important}
+body.presence-workspace-v2 #app #m-home>.wrap{padding-bottom:0!important}
+body.presence-workspace-v2:has(#m-home.active) #app>footer{margin-top:16px}
+@media(max-width:600px){body.presence-workspace-v2 #workspaceHome .pw-home-daily{gap:12px}body.presence-workspace-v2 #workspaceHome .pw-home-daily>section{padding:16px}body.presence-workspace-v2 #workspaceHome .pw-home-utility>button{flex-basis:calc(50% - 8px);padding:10px 8px}}
 body.presence-workspace-v2:has(:is(#m-home,#m-tlhome).active){--home-canvas:#f7f6f2;--home-paper:#fff;--home-ink:#24382f;--home-muted:#59675e;--home-line:#e0e4dd;--home-accent:#306548;--home-font:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--home-canvas)!important}
 body.presence-workspace-v2:has(:is(#m-home,#m-tlhome).active) #app{background:var(--home-canvas)!important}
 body.presence-workspace-v2 #app :is(#m-home,#m-tlhome){--bg:#f7f6f2;--surface:#fff;--card:#fff;--card-2:#f4f6f1;--cream:#24382f;--text:#24382f;--muted:#59675e;--faint:#647267;--line:#e0e4dd;--line-soft:#edf0e9;--green:#306548;--green-soft:#306548;--amber:#765b2b;color:#24382f;font-family:var(--home-font,'Pretendard',sans-serif);font-size:16px;line-height:1.5}

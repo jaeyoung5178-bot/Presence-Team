@@ -67,3 +67,6 @@ body.presence-workspace-v2 #app header.top .me-pill .mrole{background:#306548!im
 #promotionCampaignHome .ppc-compact-details>summary::-webkit-details-marker{display:none}
 #promotionCampaignHome .ppc-boss-detail{margin-top:8px}
 #workspaceHomeGarden>#promotionCampaignHome{margin-top:16px}
+
+/* Weekly finance stays unobscured: utilities occupy their own footer row. */
+body.presence-music-authenticated:has(#m-teamweeklyrecap.active) #presenceUtilityDock{position:relative!important;inset:auto!important;z-index:2;margin:16px auto calc(80px + env(safe-area-inset-bottom));width:fit-content;max-width:calc(100% - 32px);min-height:60px;flex-wrap:wrap;border:1px solid #dedfd8;border-radius:18px}
