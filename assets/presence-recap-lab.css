@@ -35,7 +35,7 @@
 .presence-recap-lab .prl-notice{color:#203e32}
 
 /* Dedicated recap center viewport; other routes keep their original chrome. */
-body.presence-recap-lab-route #app>header.top,body.presence-recap-lab-route #app>nav.rail,body.presence-recap-lab-route #botbar,body.presence-recap-lab-route #app>footer{display:none!important}
+body.presence-recap-lab-route #app>header.top,body.presence-recap-lab-route #app>nav.rail,body.presence-recap-lab-route #app #botbar,body.presence-recap-lab-route #app>footer{display:none!important}
 body.presence-recap-lab-route{background:#082f2c!important;padding:0!important}
 body.presence-recap-lab-route #app{padding:0!important;margin:0!important;min-height:100dvh}
 body.presence-recap-lab-route #app>main,body.presence-recap-lab-route #app>.wrap,body.presence-recap-lab-route #m-recaplab{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
