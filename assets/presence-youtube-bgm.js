@@ -38,11 +38,11 @@
      if(!winterCanvas)return;var w=innerWidth,h=innerHeight,d=Math.min(devicePixelRatio||1,1.5);
      if(winterCanvas.width!==Math.round(w*d)||winterCanvas.height!==Math.round(h*d)){winterCanvas.width=Math.round(w*d);winterCanvas.height=Math.round(h*d);}
      ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);var t=(now-winterStarted)/1000;
-     if(now-safeAt>500){safeAt=now;safeRects=Array.from(document.querySelectorAll('header,nav,iframe,input,textarea,select,button,a,main h1,main h2,main h3,main p,main label,main strong,main b,main .pw-garden-mobile-meta,main .pw-garden-totals,main dt,main dd,main td,dialog,.modal.on')).filter(function(e){return e.getClientRects().length;}).map(function(e){return e.getBoundingClientRect();});}
+     if(now-safeAt>500){safeAt=now;safeRects=Array.from(document.querySelectorAll('header,nav,iframe,input,textarea,select,button,a,#app h1,#app h2,#app h3,#app h4,#app p,#app label,#app summary,#app strong,#app b,#app span,#app .pw-garden-mobile-meta,#app .pw-garden-totals,#app dt,#app dd,#app th,#app td,dialog,.modal.on,#presenceUtilityDock')).filter(function(e){return e.getClientRects().length;}).map(function(e){return e.getBoundingClientRect();}).filter(function(r){return r.width>0&&r.height>0&&r.bottom>0&&r.top<h;});}
      for(var i=0;i<42;i++){var near=i%3!==0,x=((i*97+Math.sin(t*(near?.5:.28)+i)*14)%w+w)%w,y=(i*67+t*(near?34+i%4*5:10+i%3*2))%h;if(safeRects.some(function(r){return x>r.left-4&&x<r.right+4&&y>r.top-4&&y<r.bottom+4;}))continue;ctx.globalAlpha=near?.76:.38;ctx.fillStyle='#ffffff';ctx.strokeStyle='#dce9ef';ctx.lineWidth=.2;ctx.shadowColor='#d2e1e9';ctx.shadowBlur=near?2.2:.8;ctx.beginPath();ctx.arc(x,y,near?2.2+i%3*.6:1.4+i%3*.3,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.shadowBlur=0;
      // Small separate canvas characters drift among snow depths; no bitmap or flight band.
      if(winterFlight){winterFlight.remove();winterFlight=null;}
-     var count=w<980?4:6,visible=0;
+     var count=w<980?3:5,visible=0;
      for(var n=0;n<count;n++){
        var size=(w<980?18:24)+(n%3)*2,cx=w*(n+.55)/count+Math.sin(t*.18+n*1.7)*9,cy=((h*(n*.271+.16)+t*(3+n%3))%(Math.max(1,h-170)))+80+Math.sin(t*.55+n)*3;
        for(var shift of[0,24,-24,48,-48,72,-72,96,-96]){var yy=cy+shift,radius=size*.58;if(yy<84||yy>h-150)continue;

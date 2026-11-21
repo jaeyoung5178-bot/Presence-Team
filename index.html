@@ -5530,8 +5530,8 @@ let teamWeeklyAssetsPromise=null,teamWeeklyNoticePromise=null;
 function ensureTeamWeeklyAssets(){
   if(window.PresenceTeamWeeklyRecap)return Promise.resolve();
   if(!teamWeeklyAssetsPromise)teamWeeklyAssetsPromise=Promise.all([
-    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261118-weekly5';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
-    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261118-weekly5';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
+    new Promise(function(resolve,reject){const link=document.createElement('link');link.rel='stylesheet';link.href='assets/presence-team-weekly-recap.css?v=20261121-mobile-system1';link.onload=resolve;link.onerror=reject;document.head.appendChild(link);}),
+    new Promise(function(resolve,reject){const script=document.createElement('script');script.src='assets/presence-team-weekly-recap.js?v=20261121-mobile-system1';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);})
   ]).catch(function(error){teamWeeklyAssetsPromise=null;throw error;});
   return teamWeeklyAssetsPromise;
 }
@@ -10331,7 +10331,7 @@ function maybeShowWelcome(){
 }
 function closeGiftWin(){closeModal('giftWinModal');}
 function openNotifs(){if(!me)return;renderNotifList();openModal('notifModal');const list=myNotifs();let ch=false;list.forEach(n=>{if(!n.read&&n.type!=='tokengrant'){n.read=true;ch=true}});if(ch){if(LIVE)DB.set('notifs/'+me.uid,list);renderBell()}}
-function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]} · @${me.id}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');var _mv=document.getElementById('meVer');if(_mv)_mv.innerHTML='버전 '+APP_VERSION+' · <button onclick="forceRefresh()" style="background:none;border:none;color:var(--green-soft);font:inherit;font-size:11px;cursor:pointer;padding:0;text-decoration:underline">🔄 최신버전 새로고침</button>';openModal('meModal')}
+function openMe(){if(!me)return;document.getElementById('meName').textContent=me.name;document.getElementById('meDesc').textContent=`${ROLE_LABEL[me.role]||me.role||''}${me.id?' · @'+me.id:''}`;renderMePhoto();const done=Object.keys(me.surveys||{}).filter(k=>SURVEYS[k]);document.getElementById('meBody').innerHTML=isFounder(me)?(done.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">작성한 설문</div>`+done.map(k=>`<div style="margin-bottom:8px"><button class="btn ghost sm" onclick="viewSurvey('${me.uid}','${k}')">${SURVEYS[k].title} 보기</button></div>`).join(''):'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>'):(done.length?`<div style="color:var(--faint);font-size:12.5px;line-height:1.5">✅ 제출한 설문: ${done.map(k=>esc(SURVEYS[k].title)).join(', ')}<br><span style="color:var(--faint)">설문 내용은 관리자만 열람할 수 있어요</span></div>`:'<div style="color:var(--faint);font-size:13px">작성한 설문이 없어요</div>');var _mv=document.getElementById('meVer');if(_mv)_mv.innerHTML='버전 '+APP_VERSION+' · <button onclick="forceRefresh()" style="background:none;border:none;color:var(--green-soft);font:inherit;font-size:11px;cursor:pointer;padding:0;text-decoration:underline">🔄 최신버전 새로고침</button>';openModal('meModal')}
 
 /* modals */
 function openModal(id){const el=document.getElementById(id);if(el)el.classList.add('on')}
@@ -18112,12 +18112,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20261118-login-lossless1">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261120-audio-particles6">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261121-system2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261118-preload-low1"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261120-audio-particles6"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261121-system2"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261121-system2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
@@ -18156,7 +18156,10 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-birthday.js?v=20261110-birthday-heic1"></script>
 <script src="assets/presence-promotion-campaign-cloud.js?v=20261115-owner-access1"></script>
 <script src="assets/presence-promotion-campaign.js?v=20261115-home-compact1"></script>
-<script src="assets/presence-promotion-campaign-controller.js?v=20261115-home-compact1"></script>
-<script src="assets/presence-mobile-safety.js?v=20261119-musicdock2"></script>
+<script src="assets/presence-promotion-campaign-controller.js?v=20261121-system2"></script>
+<script src="assets/presence-mobile-safety.js?v=20261121-system2"></script>
+<link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-system2">
+<link rel="stylesheet" href="assets/presence-secondary-ui.css?v=20261121-system2">
+<script src="assets/presence-ui-system.js?v=20261121-system2"></script>
 </body>
 </html>
