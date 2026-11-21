@@ -33,3 +33,11 @@
 .presence-recap-lab .prl-period-summary{display:flex;flex-wrap:wrap;gap:8px 24px;margin:0 0 20px;color:#c7e5d9;font-size:13px;line-height:1.6}.presence-recap-lab .prl-period-summary span{display:flex;flex-wrap:wrap;gap:4px 8px}.presence-recap-lab .prl-period-summary b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:600px){.presence-recap-lab .prl-period-summary{display:grid;gap:4px;font-size:12px}}
 
 .presence-recap-lab .prl-notice{color:#203e32}
+
+/* Dedicated recap center viewport; other routes keep their original chrome. */
+body.presence-recap-lab-route #app>header.top,body.presence-recap-lab-route #app>nav.rail,body.presence-recap-lab-route #botbar,body.presence-recap-lab-route #app>footer{display:none!important}
+body.presence-recap-lab-route{background:#082f2c!important;padding:0!important}
+body.presence-recap-lab-route #app{padding:0!important;margin:0!important;min-height:100dvh}
+body.presence-recap-lab-route #app>main,body.presence-recap-lab-route #app>.wrap,body.presence-recap-lab-route #m-recaplab{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+body.presence-recap-lab-route #presenceUtilityDock{position:static!important;inset:auto!important;display:flex;flex-wrap:wrap;justify-content:center;margin:24px auto!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;width:fit-content!important;max-width:calc(100% - 32px)!important;z-index:auto!important}
+body.presence-recap-lab-route #presenceBgmQuick,body.presence-recap-lab-route #presenceMusicOpen{position:static!important;inset:auto!important;transform:none!important;margin:8px!important;max-width:calc(100% - 32px)!important}
