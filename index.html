@@ -7486,7 +7486,7 @@ function goTab(name){
   if(!tabVisible(name))name='home';
   {const q=new URL(location.href);if(name==='recaplab'){q.searchParams.set('open','recaplab');if(q.hash==='#profitrecap')q.hash='recaplab';}else if(q.searchParams.get('open')==='recaplab'||q.hash==='#recaplab'||q.hash==='#profitrecap'){if(q.searchParams.get('open')==='recaplab')q.searchParams.delete('open');if(q.hash==='#recaplab'||q.hash==='#profitrecap')q.hash='';}history.replaceState(null,'',q.pathname+q.search+q.hash);}
   window.PresenceWorkspace?.beforeNavigate(name);
-  curTab=name;document.body.classList.toggle('presence-recap-lab-route',name==='recaplab');subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
+  curTab=name;window.PresenceUISystem?.refresh();document.body.classList.toggle('presence-recap-lab-route',name==='recaplab');subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
   var _adminHomeActive=requestedTab==='adminhome'||requestedTab==='admin-home';
   var _homeEntry=document.getElementById('homeEntryBtn');if(_homeEntry)_homeEntry.classList.toggle('active',name==='home'&&!_adminHomeActive);
   var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('show',!!(me&&isTlHomeUser(me)));_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
@@ -11735,7 +11735,7 @@ function renderToday(){
   var de=document.getElementById('todayDate'); if(de)de.textContent=(now.getMonth()+1)+'월 '+now.getDate()+'일 ('+dn+')';
   var doneN=myTodos.filter(function(x){return x.done;}).length;
 
-  var h='<div class="today-add" style="display:flex;gap:7px;margin-bottom:12px"><input id="todoInput" placeholder="오늘 할 일을 적어보세요 — Enter 또는 등록" onkeydown="todoKey(event)" autocomplete="off" style="flex:1;background:var(--card-2);border:1px solid var(--line-soft);color:var(--cream);border-radius:10px;padding:10px 12px;font-size:14px"><button class="btn" style="flex:0 0 auto;padding:10px 16px" onclick="todoAdd()">등록</button></div>';
+  var h='<div class="today-add" style="display:flex;gap:7px;margin-bottom:12px"><input id="todoInput" placeholder="오늘 할 일을 적어보세요" onkeydown="todoKey(event)" autocomplete="off" style="flex:1;background:var(--card-2);border:1px solid var(--line-soft);color:var(--cream);border-radius:10px;padding:10px 12px;font-size:14px"><button class="btn" style="flex:0 0 auto;padding:10px 16px" onclick="todoAdd()">등록</button></div>';
   h+='<div class="today-prog">'+doneN+' / '+myTodos.length+' 달성</div>';
   h+=tdSections(myTodos, true);
   if(doneN)h+='<button class="btn ghost" style="padding:6px 12px;font-size:12px;margin:2px 0 12px" onclick="todoClearDone()">완료 항목 비우기 ('+doneN+')</button>';
@@ -18117,7 +18117,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
-<script src="assets/presence-home-tree-v2.js?v=20261121-system2"></script>
+<script src="assets/presence-home-tree-v2.js?v=20261121-campfire3"></script>
 <script src="assets/presence-youtube-bgm.js?v=20261121-holiday-audio1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
@@ -18144,7 +18144,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261119-home-christmas1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261121-quick-permissions1"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261118-ic-members"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
@@ -18159,8 +18159,8 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-campaign.js?v=20261115-home-compact1"></script>
 <script src="assets/presence-promotion-campaign-controller.js?v=20261121-system2"></script>
 <script src="assets/presence-mobile-safety.js?v=20261121-system2"></script>
-<link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-holiday-audio1">
+<link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-campfire3">
 <link rel="stylesheet" href="assets/presence-secondary-ui.css?v=20261121-system2">
-<script src="assets/presence-ui-system.js?v=20261121-system2"></script>
+<script src="assets/presence-ui-system.js?v=20261121-readability1"></script>
 </body>
 </html>

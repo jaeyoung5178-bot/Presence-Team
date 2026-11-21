@@ -108,3 +108,14 @@ body.presence-ui-system #app #subRail .stab.active{border-color:#bd8d82!importan
 body.presence-ui-system #app #botbar button.active{box-shadow:inset 0 -3px 0 #9b4950!important}
 body.presence-ui-system #app #workspaceHomeGarden #treeSecHome>.sec-head{background-color:#fffaf0!important;background-image:repeating-linear-gradient(89deg,rgba(126,91,50,.025) 0,rgba(126,91,50,.025) 1px,transparent 1px,transparent 22px)!important;border-color:#d7c7aa!important;box-shadow:inset 3px 0 0 #a55256!important}
 body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-stage{box-shadow:inset 0 0 0 1px rgba(155,119,62,.2)!important}
+/* The campfire scene is one full-bleed backdrop; the canonical avatar remains a separate layer. */
+body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-v2-background{object-fit:cover!important;object-position:center center!important}
+body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-stage{background:#173e46!important}
+/* Fill the existing two-column garden height, including the tablet state panel. */
+@media(min-width:960px){body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-wrap{align-items:stretch!important}body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-stage{height:auto!important;min-height:300px!important;max-height:none!important;align-self:stretch!important}}
+@media(min-width:960px) and (max-width:1100px){body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-stage{min-height:220px!important}}
+/* Short value meanings remain readable without clipping or shrinking the body type. */
+body.presence-ui-system #app #workspaceHome .pw-home-value-card{display:flex!important;align-items:center;justify-content:space-between;gap:10px!important}
+body.presence-ui-system #app #workspaceHome .pw-home-value-card h3{flex:0 0 auto;margin:0!important}
+body.presence-ui-system #app #workspaceHome .pw-home-value-brief{display:block!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;font:400 13px/1.6 var(--ui-font)!important;color:#53664f!important}
+@media(max-width:600px){body.presence-ui-system #app #workspaceHome .pw-home-values-grid{grid-template-columns:minmax(0,1fr)!important}body.presence-ui-system #app #workspaceHome .pw-home-value-card{padding:8px 10px!important}}
