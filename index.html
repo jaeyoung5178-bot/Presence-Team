@@ -3035,7 +3035,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
     <!-- PROFIT WEEKLY RECAP (LR+) -->
     <div class="mpanel" id="m-profitrecap"><div class="wrap"><div class="perfseg"></div><section class="sec">
       <div class="sec-head"><h2>📒 주간 리캡</h2><span class="ko">금요일 급여 · 실입금 · 리젝 정리</span><span class="meta">LR 이상</span></div>
-      <div id="profitRecapBody"></div>
+      <p><a href="recap-lab.html" target="_blank" rel="noopener" class="btn">◈ Presence 리캡센터 열기</a></p><div id="profitRecapBody"></div>
     </section></div></div>
 
     <!-- DAILY RECRUITING (everyone) -->
@@ -4192,6 +4192,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
     </section></div></div>
 
     <!-- TL+ LEADER HOME -->
+    <div class="mpanel" id="m-recaplab"><div id="presenceRecapLabRoot" aria-live="polite"></div></div>
     <div class="mpanel" id="m-teamweeklyrecap"><div id="teamWeeklyRecapRoot" class="pw-private-root" aria-live="polite"></div></div>
     <div class="mpanel" id="m-tlhome"><div class="tlh-page" id="tlHomeRoot" aria-live="polite"></div></div>
   </main>
@@ -5229,10 +5230,12 @@ function recapStudioRefresh(){
   if(typeof curTab==='undefined')return;
   if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();
   else if(curTab==='profitrecap')renderProfitRecap();
+  else if(curTab==='recaplab')renderPresenceRecapLab();
   else if(curTab==='recap'&&me&&canManageTeamRecords(me))renderRecap();
   else if(curTab==='profithub')window.PresenceWorkspace?.schedule?.();
 }
 function recapStudioClearSession(){
+  disposePresenceRecapLab();
   state.recapStudioCanonicalReady=false;
   while(recapStudioOff.length){try{recapStudioOff.pop()();}catch(e){}}
   if(recapStudioTeamOff){try{recapStudioTeamOff();}catch(e){}recapStudioTeamOff=null;}
@@ -5728,8 +5731,10 @@ function sendSurveyToSheet(user,key,rec){
 function enterApp(){
   const tlFast=isTlHomeUser(me);
   const teamWeeklyRequested=(location.hash==='#teamweeklyrecap'||new URLSearchParams(location.search).get('open')==='teamweeklyrecap')&&isTlHomeUser(me);
+  const profitRecapRequested=(location.hash==='#profitrecap'||new URLSearchParams(location.search).get('open')==='profitrecap')&&canProfitRecap(me);
+  const recapLabRequested=(location.hash==='#recaplab'||new URLSearchParams(location.search).get('open')==='recaplab')&&canProfitRecap(me);
   const setupManagerRequested=new URLSearchParams(location.search).get('open')==='setup-manager'&&typeof canSetupKit==='function'&&canSetupKit(me);
-  if(me&&!window.__presenceEntryPass&&!tlFast){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
+  if(me&&!window.__presenceEntryPass&&!tlFast&&!recapLabRequested&&!profitRecapRequested){let launched=false;try{launched=window.showPresenceEntryLobby&&window.showPresenceEntryLobby()!==false;}catch(e){console.warn('[entry lobby]',e);}if(launched)return;window.__presenceEntryPass=true;}
   if(tlFast){const lobby=document.getElementById('presenceEntryLobby');if(lobby){lobby.classList.remove('show');lobby.setAttribute('aria-hidden','true');}try{window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}}
   window.__presenceEntryPass=false;
   clearTimeout(postAuthGuardTimer);setLoginBusy(false);
@@ -5747,13 +5752,16 @@ function enterApp(){
   document.getElementById('greet').innerHTML=`안녕하세요, <b>${esc(me.name)}</b>님 👋`;
   // prefill name fields
   
+  if(recapLabRequested||profitRecapRequested){
+    window.__booting=false;buildRail();tlhSubscribe();goTab(recapLabRequested?'recaplab':'profitrecap');try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}requestAnimationFrame(syncTopOffset);return;
+  }
   if(tlFast){
-    window.__booting=false;buildRail();tlhSubscribe();goTab(teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
+    window.__booting=false;buildRail();tlhSubscribe();goTab(recapLabRequested?'recaplab':teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':(window.PresenceWorkspace?'home':'tlhome'));renderTLHome();startAutoPull();subCbjournal();
     try{loadBarDone();window.hidePresenceLoader&&window.hidePresenceLoader();}catch(e){}
     setTimeout(function(){try{renderAll();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();}catch(e){console.warn('[deferred app render]',e);}},80);
   }else{
     window.__booting=true; try{loadBarStart();}catch(e){}
-    buildRail();renderAll();goTab(teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':'home');startAutoPull();subCbjournal();
+    buildRail();renderAll();goTab(recapLabRequested?'recaplab':teamWeeklyRequested?'teamweeklyrecap':setupManagerRequested?'setupkit':'home');startAutoPull();subCbjournal();
     const bootActor=me.uid,bootStarted=performance.now();
     function finishReadyHome(){
       if(!me||me.uid!==bootActor)return;
@@ -5791,7 +5799,7 @@ async function logout(){
   window.PresencePromotionCampaignController?.dispose();
   window.PresenceWorkspace?.dispose();
   window.PresencePromotionJourney?.dispose?.();
-  if(window.__logoutBusy)return;window.__logoutBusy=true;window.PresenceRecapAssignmentPeriods?.reset?.();loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');window.PresenceAdminHome?.reset?.('adminHomeMount');window.PresenceTLWorkspace?.reset?.();tlhClearSubscriptions();me=null;window.__presenceEntryPass=false;
+  if(window.__logoutBusy)return;window.__logoutBusy=true;window.PresenceRecapAssignmentPeriods?.reset?.();loginAttemptSeq++;loginInFlight=false;try{DB.cancelLogin&&DB.cancelLogin();}catch(e){}clearTimeout(postAuthGuardTimer);lsDel('presence_sess');window.PresenceAdminHome?.reset?.('adminHomeMount');window.PresenceTLWorkspace?.reset?.();tlhClearSubscriptions();disposePresenceRecapLab();me=null;window.__presenceEntryPass=false;
   clearTimeout(window.__promotionPopupTimer);window.__promotionPopupShown={};window.__promotionPopupBusy=false;
   var l=document.getElementById('presenceEntryLobby');if(l){l.classList.remove('show');l.setAttribute('aria-hidden','true')}
   prcPendingRecapReadyUid='';prcPendingExpanded=false;const recapAdminView=document.getElementById('profitRecapAdminView');if(recapAdminView)recapAdminView.innerHTML='';
@@ -6646,6 +6654,15 @@ async function saveProfitRecap(){
   try{const patch={};patch['recapStudioTeams/'+teamKey+'/weekly/'+info.pay+'/'+target.uid]=rec;if(payType==='performance')patch['recapStudioTeams/'+teamKey+'/bep/'+month+'/'+target.uid]=bep;await DB.update(null,patch);window.PresenceExecutiveRecap?.invalidate?.();toast('✅ '+(target.uid!==me.uid?target.name+'님 · ':'')+(payType==='hourly'?'시급':'성과')+' 주간 리캡을 저장했어요');}
   catch(e){if(old)state.weeklyProfitRecaps[info.pay][target.uid]=old;else delete state.weeklyProfitRecaps[info.pay][target.uid];if(teamSnap){if(oldTeam)teamSnap.weekly[info.pay][target.uid]=oldTeam;else delete teamSnap.weekly[info.pay][target.uid];if(payType==='performance'){if(oldTeamBep==null)delete teamSnap.bep[month][target.uid];else teamSnap.bep[month][target.uid]=oldTeamBep;}}if(payType==='performance'){if(oldBep==null)delete state.profitMonthlyBep[month][target.uid];else state.profitMonthlyBep[month][target.uid]=oldBep;}renderProfitRecap();toast('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}
 }
+let presenceRecapLabMount=null,presenceRecapLabLoading=null,presenceRecapLabActor='';
+function disposePresenceRecapLab(){try{presenceRecapLabMount?.dispose();window.PresenceRecapLabOCR?.cancel?.();}catch(e){}presenceRecapLabMount=null;presenceRecapLabActor='';document.getElementById('presenceRecapLabRoot')?.replaceChildren();}
+function presenceRecapLabAssets(){if(presenceRecapLabLoading)return presenceRecapLabLoading;presenceRecapLabLoading=(async function(){if(!document.getElementById('presenceRecapLabStyle')){const l=document.createElement('link');l.id='presenceRecapLabStyle';l.rel='stylesheet';l.href='assets/presence-recap-lab.css?v=20261121-lab1';document.head.appendChild(l);}for(const file of ['model','ocr','bridge','']){const name='assets/presence-recap-lab'+(file?'-'+file:'')+'.js?v=20261121-lab1';await new Promise(function(resolve,reject){const s=document.createElement('script');s.src=name;s.onload=resolve;s.onerror=()=>reject(Error('리캡센터를 불러오지 못했어요. 다시 시도해 주세요.'));document.head.appendChild(s);});}})().catch(function(e){presenceRecapLabLoading=null;throw e;});return presenceRecapLabLoading;}
+async function renderPresenceRecapLab(){const root=document.getElementById('presenceRecapLabRoot');if(!root||!me||!canProfitRecap(me))return;const actorUid=me.uid;if(presenceRecapLabMount&&presenceRecapLabActor!==actorUid)disposePresenceRecapLab();if(presenceRecapLabMount)return;root.textContent='리캡센터를 연결하고 있어요…';try{await presenceRecapLabAssets();if(!me||me.uid!==actorUid||curTab!=='recaplab')return;const month=new URLSearchParams(location.search).get('month')||TODAY.slice(0,7);const api={actor:()=>me,month,today:()=>TODAY,admin:()=>isFounder(me),members:m=>prcCanManageRecaps(me)?prcEditableUsers(m):[me],get:p=>DB.get(p),tx:(p,fn)=>DB.tx(p,fn),assignment:(uid,pay,m,req)=>recapStudioResolveAssignment(uid,pay,m,req),canWrite:u=>!!u&&(u.uid===me.uid&&me.status==='active'||prcCanManageRecaps(me)),eligible:(u,pay)=>prcMemberEligibleForRecap(u,pay)&&(!firstFieldOf(u)||prcWeekInfo(pay).ed>=firstFieldOf(u)),verifyWrite:async(u,pay)=>{if(u.uid!==me.uid&&prcTLRecapGrant(me)){const ok=await window.PresenceTLWorkspaceAccess.canWriteTLRecapTarget(u.uid,pay);if(!ok)throw Error('이 팀원의 저장 권한이 없어요。');}},summary:(u,w,r)=>{const stats=prcWeekSales(u.name,w.payDate),daily=Object.values(state.sales||{}).filter(x=>x&&x.name===u.name&&x.date>=w.activityFrom&&x.date<=w.activityTo),allNA=new Set(daily.filter(x=>x.na||x.rally).map(x=>x.date)).size===7,policy=window.PresenceRecapLabModel.weekBondPolicy(w.payDate),rate=policy.rateBps,netReject=r?Math.max(0,prcRejectTotal(r)-prcResubmitTotal(r)):null;return {sales:stats.sales,fieldDays:stats.days,allNA,estimateCents:rate==null||netReject==null?null:Math.round(Math.max(0,stats.sales-netReject)*110000*(1-rate/10000)*100),estimateLabel:'참고 생산성 · 본드 차감 후',estimateNote:rate==null?'기준 변경 주 · 일별 확인 필요':'건당 110,000원 참고 · 실제 입금과 별도'};},back:()=>{const q=new URL(location.href);q.searchParams.delete('open');q.hash='profitrecap';history.replaceState(null,'',q.pathname+q.search+q.hash);goTab('profitrecap');},invalidate:()=>window.PresenceExecutiveRecap?.invalidate?.(),remember:v=>{if(v.uid)profitRecapTargetUid=v.uid;if(v.month){const dates=prcPayDates(v.month,v.month).filter(p=>p<=TODAY);if(dates.length)profitRecapPayDate=dates[dates.length-1];}const q=new URL(location.href);q.searchParams.set('month',v.month);q.searchParams.set('open','recaplab');history.replaceState(null,'',q.pathname+q.search+q.hash);},downloadBondRanking:data=>presenceDownloadBondRanking(data),ranking:month=>presenceRecapBondRanking(month),rankingPeople:()=>isFounder(me)?Object.values(state.users||{}).filter(u=>u&&u.status==='active'&&!isTestBot(u)):[me],firstField:u=>firstFieldOf(u),stats:(u,from,to)=>{if(!(window.__presenceWorkspaceBaseReady||{}).sales)return null;return prcSalesBetween(u.name,from,to);}};presenceRecapLabActor=actorUid;presenceRecapLabMount=window.PresenceRecapLab.mount(root,window.PresenceRecapLabBridge.create(api));}catch(e){root.textContent=e.message||'리캡센터를 불러오지 못했습니다.';}}
+async function presenceRecapBondRanking(recapMonth,onlyUid){await presenceRecapLabAssets();const M=window.PresenceRecapLabModel,p=recapMonth.split('-').map(Number),targetMonth=new Date(Date.UTC(p[0],p[1]-5,1)).toISOString().slice(0,7),weeks=M.monthWeeks(targetMonth),period={from:weeks[0].activityFrom,to:weeks[weeks.length-1].activityTo};if(!(window.__presenceWorkspaceBaseReady||{}).sales)throw Error('필드 기록을 불러온 뒤 다시 확인해 주세요.');const people=isFounder(me)?Object.values(state.users||{}).filter(u=>u&&u.status==='active'&&!isTestBot(u)&&(!onlyUid||u.uid===onlyUid)):[me],items=[];for(const u of people){const first=firstFieldOf(u);if(!first)continue;const stats=prcSalesBetween(u.name,period.from,period.to);if(stats.days<=0)continue;const bond=await DB.get('recapStudioBonds/'+u.uid+'/'+targetMonth);if(!bond)continue;items.push({uid:u.uid,name:u.name,firstField:first,fieldDays:stats.days,sales:stats.sales,bond});}const selectedEnd=new Date(Date.UTC(+recapMonth.slice(0,4),+recapMonth.slice(5,7),0)).toISOString().slice(0,10),asOf=TODAY<selectedEnd?TODAY:selectedEnd;return Object.assign(M.buildBondRanking({recapMonth,asOf,people:items}),{period,asOf});}
+function presenceRecapBondPpt(pptx,ranking,page){if(!ranking.rows.length)return;for(let start=0;start<ranking.rows.length;start+=8){const slide=pptx.addSlide();slide.background={color:'F5FBF8'};prcPptHeader(slide,pptx,'보증금 현황','잔여 본드 현황 · '+ranking.targetMonth,'확인 '+ranking.asOf+' · 필드 '+ranking.period.from+' ~ '+ranking.period.to+' · 원본 잔액 기준',page++);const rows=ranking.rows.slice(start,start+8);rows.forEach((r,i)=>{const y=2.05+i*.52,color=r.paidDate?'64748B':r.balanceCents>0?'087F5B':'B42338';slide.addShape(pptx.ShapeType.roundRect,{x:.9,y,w:11.4,h:.44,rectRadius:.05,fill:{color:'FFFFFF'},line:{color:'D7E6DE',pt:.6}});prcPptText(slide,pptx,String(start+i+1),1.06,y+.1,.4,.2,11,color,true);prcPptText(slide,pptx,r.name,1.65,y+.1,2,.2,12,'123B36',true);prcPptText(slide,pptx,r.fieldDays+'일 · '+r.sales+'건 · AVG '+(r.sales/r.fieldDays).toFixed(2),3.9,y+.1,3.2,.2,10,'435D57');prcPptText(slide,pptx,window.PresenceRecapLabModel.formatMoneyCents(r.balanceCents),7.1,y+.08,2.9,.25,14,color,true,'right');prcPptText(slide,pptx,r.paidDate?'지급완료':r.balanceCents>0?'잔액 있음':'잔액 부족',10.3,y+.1,1.7,.2,10,color,true,'right');});}}
+
+function presenceDownloadBondRanking(data){if(!data||!data.rows?.length){toast('이 기간에 확인할 본드 자료가 없습니다');return;}const fmt=window.PresenceRecapLabModel.formatMoneyCents,rows=data.rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+r.fieldDays+'</td><td>'+r.sales+'</td><td>'+(r.sales/r.fieldDays).toFixed(2)+'</td><td class="'+(r.paidDate?'paid':r.balanceCents>0?'positive':'negative')+'">'+esc(fmt(r.balanceCents))+'</td><td>'+esc(r.paidDate?'지급완료':r.balanceCents>0?'잔액 있음':'잔액 부족')+'</td><td>'+esc(r.asOfDate||'기준일 미기재')+'</td></tr>').join('');const html='<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presence 보증금 현황</title><style>body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:#123b36;background:#f5fbf8;padding:32px;max-width:1100px;margin:auto}h1{font-size:28px}table{width:100%;border-collapse:collapse;background:white}th,td{padding:12px;border-bottom:1px solid #d8e7de;text-align:left;font-variant-numeric:tabular-nums}.positive{color:#087f5b;font-weight:700}.negative{color:#b42338;font-weight:700}.paid{color:#526c65}caption{text-align:left;margin:16px 0}@media print{body{padding:0}table{font-size:12px}}@media(max-width:700px){body{padding:16px}.table{overflow:auto}}</style><h1>보증금 현황 · '+esc(data.targetMonth)+'</h1><p>확인 기준 '+esc(data.asOf)+' · 필드 '+esc(data.period?.from||'')+' ~ '+esc(data.period?.to||'')+'</p><div class="table"><table><thead><tr><th>순위</th><th>팀원</th><th>필드일수</th><th>세일즈</th><th>AVG</th><th>원본 잔액</th><th>상태</th><th>원본 기준일</th></tr></thead><tbody>'+rows+'</tbody></table></div></html>';const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Presence_보증금현황_'+data.targetMonth+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+
 function prcPptLoad(){return new Promise(function(resolve,reject){if(window.PptxGenJS){resolve(window.PptxGenJS);return;}const old=document.getElementById('pptxgen-lib');if(old){old.addEventListener('load',function(){resolve(window.PptxGenJS);},{once:true});old.addEventListener('error',reject,{once:true});return;}const s=document.createElement('script');s.id='pptxgen-lib';s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=function(){resolve(window.PptxGenJS)};s.onerror=function(){reject(new Error('PPT library load failed'))};document.head.appendChild(s);});}
 function prcRangeRecords(from,to,uid){const rows=[],teamKey=recapStudioScopedTeam(me),source=prcReadableWeekly(),roster=teamKey?recapStudioEffectiveRoster(teamKey):{};Object.keys(source).sort().forEach(function(pay){const mk=pay.slice(0,7);if(mk<from||mk>to)return;Object.values(source[pay]||{}).forEach(function(r){const person=teamKey?(roster[(r||{}).uid]||r):(r&&((state.users||{})[r.uid]||r));if(r&&(!uid||r.uid===uid)&&(!teamKey||recapStudioRosterActive(person,pay))&&prcMemberEligibleForRecap(person,pay))rows.push(r);});});return rows;}
 function prcMonthRecords(month,uid){return prcRangeRecords(month,month,uid);}
@@ -6924,6 +6941,7 @@ async function exportProfitRecapPpt(scope,source){
     await prcPreparePptBrandLogo();
     const PptxGenJS=await prcPptLoad(),pptx=new PptxGenJS(),users=Object.fromEntries(Object.values(state.users||{}).map(function(u){return [u.uid,u];})),person=uid?users[uid]:null,scopeName=person?(person.name+' '+(person.role||'')):((me.name||'관리자')+' '+(me.role||'')),rangeLabel=prcRangeLabel(from,to);pptx.layout='LAYOUT_WIDE';pptx.author='Presence';pptx.subject='팀 주간 리캡';pptx.title='Presence '+rangeLabel+' Recap';pptx.company='Presence';pptx.lang='ko-KR';pptx.theme={headFontFace:'Noto Sans KR',bodyFontFace:'Noto Sans KR',lang:'ko-KR'};
     prcPptCover(pptx,data,from,to,scopeName);prcPptSummary(pptx,data,2);prcPptProductivity(pptx,data,3);const rowPages=Math.max(1,Math.ceil(data.rows.length/5)),weekPages=Math.max(1,Math.ceil(data.pays.length/5));let page=4;for(let start=0;start<data.rows.length;start+=5){const rows=data.rows.slice(start,start+5),rowPage=Math.floor(start/5)+1;for(let ws=0;ws<data.pays.length;ws+=5){prcPptDetail(pptx,data,rows,start,rowPage,rowPages,ws,Math.min(ws+5,data.pays.length),page++,rangeLabel);}}
+    try{const bondRanking=await presenceRecapBondRanking(to,uid);presenceRecapBondPpt(pptx,bondRanking,page);}catch(bondError){toast('주간 리캡은 내려받습니다. 본드 현황은 보안 연결 후 추가됩니다.');}
     const file='Presence_'+from+'_'+to+'_'+scopeName.replace(/\s/g,'_')+'_팀리캡.pptx';
     if(!window.PresenceRecapPptx)throw new Error('PPT compatibility validator unavailable');
     const blob=await PresenceRecapPptx.prepare(await pptx.write({outputType:'arraybuffer'})),url=URL.createObjectURL(blob),link=document.createElement('a');
@@ -7349,7 +7367,7 @@ const TABMETA={
   tlhome:{e:'▣',l:'TL Home',g:()=>isTlHomeUser(me)},
   teamweeklyrecap:{e:'▤',l:'우리팀 주간리캡',g:()=>isTlHomeUser(me)},
   today:{e:'✓',l:'오늘 실행'},
-  sale:{e:'🔔',l:'세일즈'},profitrecap:{e:'📒',l:'주간 리캡',g:()=>canProfitRecap(me)},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
+  sale:{e:'🔔',l:'세일즈'},profitrecap:{e:'📒',l:'주간 리캡',g:()=>canProfitRecap(me)},recaplab:{e:'◈',l:'리캡센터',g:()=>canProfitRecap(me)},recruitdaily:{e:'👤',l:'리쿠르팅'},comp:{e:'🥇',l:'컴페티션'},perf:{e:'📊',l:'이번달 목표',g:()=>isLeader(me.role)},
   notice:{e:'📢',l:'공지'},kakao:{e:'💬',l:'카톡'},net:{e:'🤝',l:'네트워킹',c:'net'},act:{e:'🎉',l:'액티비티',c:'act'},wins:{e:'🏆',l:'Wins',c:'wins'},hall:{e:'🏅',l:'명예의 전당'},
   manual:{e:'📖',l:'매뉴얼'},obj:{e:'🛡️',l:'Objection'},training:{e:'🎓',l:'트레이닝 가이드',g:()=>isLeader(me.role)},
   cod:{e:'📕',l:'COD',g:()=>isLeader(me.role)},callback:{e:'📝',l:'콜백싯 작성법'},topics:{e:'🗂️',l:'토픽자료'},petshop:{e:'✦',l:'Avatar'},
@@ -7478,6 +7496,7 @@ function goTab(name){
   if(name==='sale'){initSaleEditor();renderAdminSaleEdit();}
   if(name==='tlhome'){tlhSubscribe();renderTLHome();}
   if(name==='teamweeklyrecap'){tlhSubscribe();renderTeamWeeklyRecap();}
+  if(name==='recaplab'){tlhSubscribe();renderPresenceRecapLab();}
   if(name==='recruitdaily')renderRecruitDaily();
   if(name==='home'){clearTreePrev();treePreviewStep=null;renderTree();renderCelebrations();try{fetchTreeWeather(renderTreeBg);}catch(e){}try{renderCoopRank();}catch(e){}try{renderToday();}catch(e){}try{renderHomeDash();}catch(e){}try{renderMvp();}catch(e){}try{renderPraise();}catch(e){}try{renderAttend();}catch(e){}try{homeCollapseInit();}catch(e){}try{['treeSecHome','coopSec'].forEach(function(id){var s=document.getElementById(id);if(s){s.classList.remove('collapsed');var c=s.querySelector('.sec-caret');if(c)c.remove();}});}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}if(_adminHomeActive&&window.PresenceAdminHome)window.PresenceAdminHome.render('adminHomeMount',{actor:me,state:state,mode:'admin'});}
   if(name==='today'){try{renderToday();renderCelebrations();renderMvp();renderPraise();renderAttend();homeCollapseInit();}catch(e){}try{if(typeof evRenderHomeCard==='function')evRenderHomeCard();}catch(e){}}

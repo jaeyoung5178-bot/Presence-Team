@@ -1,0 +1,109 @@
+{
+  ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+  ".write": false,
+  "$uid": {
+    ".read": "auth != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && (root.child('authSessions').child(auth.uid).child('userUid').val() == $uid || root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin')",
+    "$month": {
+      ".read": "(auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || (auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('uid').val() == $uid && root.child('recapStudioPublicStatus').child('teamHistoryV3').child('status').val() == 'complete' && root.child('recapStudioPublicStatus').child('teamHistoryV3').child('version').val() == '2026-10-03.team-history-v3' && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('configHash').val() == root.child('recapStudioPublicStatus').child('teamHistoryV3').child('configHash').val() && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeFrom').val() <= $month + '-31' && (!root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeTo').exists() || root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeTo').val() >= $month + '-01'))",
+      ".write": "newData.exists() && ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == 'admin') || ((auth != null && root.child('authSessions').child(auth.uid).child('userUid').val() != null && root.child('users').child(root.child('authSessions').child(auth.uid).child('userUid').val()).child('status').val() == 'active' && root.child('authSessions').child(auth.uid).child('userUid').val() == $uid && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('uid').val() == $uid && root.child('recapStudioPublicStatus').child('teamHistoryV3').child('status').val() == 'complete' && root.child('recapStudioPublicStatus').child('teamHistoryV3').child('version').val() == '2026-10-03.team-history-v3' && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('configHash').val() == root.child('recapStudioPublicStatus').child('teamHistoryV3').child('configHash').val() && root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeFrom').val() <= $month + '-31' && (!root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeTo').exists() || root.child('recapStudioAssignments').child('byMonth').child($month).child($uid).child('activeTo').val() >= $month + '-01')) && newData.child('paidDate').val() == data.child('paidDate').val() && newData.child('payoutCents').val() == data.child('payoutCents').val() && newData.child('reviewConfirmed').val() == data.child('reviewConfirmed').val() && newData.child('approvedBy').val() == data.child('approvedBy').val()))",
+      ".validate": "$month.matches(/^\\d{4}-(0[1-9]|1[0-2])$/) && newData.hasChildren(['uid','month','updatedAt','updatedBy']) && newData.hasChildren(['uid','month','updatedAt','updatedBy']) && $month.matches(/^\\d{4}-(0[1-9]|1[0-2])$/)",
+      "uid": {
+        ".validate": "newData.val() == $uid"
+      },
+      "month": {
+        ".validate": "newData.val() == $month"
+      },
+      "updatedAt": {
+        ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+      },
+      "updatedBy": {
+        ".validate": "newData.val() == root.child('authSessions').child(auth.uid).child('userUid').val()"
+      },
+      "paidDate": {
+        ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+      },
+      "payoutCents": {
+        ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= 9007199254740991 && newData.val() >= 0"
+      },
+      "reviewConfirmed": {
+        ".validate": "newData.isBoolean()"
+      },
+      "approvedBy": {
+        ".validate": "newData.val() == 'admin'"
+      },
+      "snapshots": {
+        "$id": {
+          ".validate": "newData.hasChildren(['id','kind','month','source']) && newData.child('id').val() == $id && newData.child('month').val() == $month && newData.child('kind').val() == 'snapshot' && newData.hasChildren(['balanceCents'])",
+          "id": {
+            ".validate": "newData.val() == $id && $id.matches(/^[A-Za-z0-9_-]{1,160}$/)"
+          },
+          "month": {
+            ".validate": "newData.val() == $month"
+          },
+          "kind": {
+            ".validate": "newData.val() == 'snapshot' || newData.val() == 'credit' || newData.val() == 'debit' || newData.val() == 'adjustment'"
+          },
+          "balanceCents": {
+            ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= 9007199254740991 && newData.val() >= -9007199254740991 && newData.parent().child('kind').val() == 'snapshot'"
+          },
+          "amountCents": {
+            ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= 9007199254740991 && newData.val() >= -9007199254740991 && newData.parent().child('kind').val() != 'snapshot' && (newData.val() >= 0 || newData.parent().child('kind').val() == 'adjustment')"
+          },
+          "asOfDate": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "occurredOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "weekEnding": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "source": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "events": {
+        "$id": {
+          ".validate": "newData.hasChildren(['id','kind','month','source']) && newData.child('id').val() == $id && newData.child('month').val() == $month && newData.child('kind').val() != 'snapshot' && newData.hasChildren(['amountCents'])",
+          "id": {
+            ".validate": "newData.val() == $id && $id.matches(/^[A-Za-z0-9_-]{1,160}$/)"
+          },
+          "month": {
+            ".validate": "newData.val() == $month"
+          },
+          "kind": {
+            ".validate": "newData.val() == 'snapshot' || newData.val() == 'credit' || newData.val() == 'debit' || newData.val() == 'adjustment'"
+          },
+          "balanceCents": {
+            ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= 9007199254740991 && newData.val() >= -9007199254740991 && newData.parent().child('kind').val() == 'snapshot'"
+          },
+          "amountCents": {
+            ".validate": "newData.isNumber() && newData.val() % 1 == 0 && newData.val() <= 9007199254740991 && newData.val() >= -9007199254740991 && newData.parent().child('kind').val() != 'snapshot' && (newData.val() >= 0 || newData.parent().child('kind').val() == 'adjustment')"
+          },
+          "asOfDate": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "occurredOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "weekEnding": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "source": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    }
+  }
+}
