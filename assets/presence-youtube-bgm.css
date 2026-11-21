@@ -30,6 +30,8 @@ body:has(.modal.on,dialog[open]) #presenceWinterCanvas{visibility:hidden}
 #presenceMusicOpen:focus-visible{outline:3px solid #426b50;outline-offset:3px}
 /* Sparse snow is visible above the opaque page, with text/control hitboxes excluded in JS. */
 #presenceWinterCanvas{z-index:3!important;opacity:1!important}
+/* The winter map stays visible above opaque cards; JS protects text and controls. */
+body.presence-ui-system.presence-effects-ready.presence-music-authenticated #presenceWinterCanvas{z-index:3!important}
 /* Tiny Santa/reindeer are drawn on the existing pointer-free snow canvas. */
 /* User-provided playlist controls remain inside the shared utility disclosure. */
 #presenceMusicCredit .presence-music-volume{display:grid;grid-template-columns:auto minmax(88px,1fr) 42px;align-items:center;gap:12px;max-width:340px;margin:12px auto 4px}

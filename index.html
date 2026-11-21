@@ -6447,6 +6447,8 @@ function prcMonthShift(mk,n){const d=new Date(mk+'-01T12:00:00');d.setMonth(d.ge
 function prcLatestPayMonth(ds){return prcFriday(ds||TODAY).slice(0,7);}
 function prcMonthLabel(mk){return /^\d{4}-\d{2}$/.test(mk||'')?Number(mk.slice(0,4))+'년 '+Number(mk.slice(5,7))+'월':'';}
 function prcAdminSetMonth(v){if(!/^\d{4}-\d{2}$/.test(v||''))return;prcAdminPreset='month';prcAdminFrom=v;prcAdminTo=v;renderProfitRecapAdminView();}
+function prcAdminMonthOptions(chosen){const months=new Set([chosen]);for(let i=0;i<24;i++)months.add(prcMonthShift(TODAY.slice(0,7),-i));[state.recaps||{},state.weeklyProfitRecaps||{},prcReadableWeekly()||{}].forEach(function(source){Object.keys(source).forEach(function(key){const month=prcValidMonth(key.slice(0,7));if(month&&month<=TODAY.slice(0,7))months.add(month);});});return Array.from(months).sort().reverse().map(function(month){return '<option value="'+month+'"'+(month===chosen?' selected':'')+'>'+prcMonthLabel(month)+'</option>';}).join('');}
+function prcAdminShiftMonth(delta){const anchor=prcValidMonth(prcAdminTo)||prcLatestPayMonth(TODAY),next=prcMonthShift(anchor,delta);if(next>TODAY.slice(0,7))return;prcAdminSetMonth(next);requestAnimationFrame(function(){document.querySelector(delta<0?'[data-pra-prev]':'[data-pra-next]')?.focus();});}
 function prcValidMonth(v){return /^\d{4}-\d{2}$/.test(v||'')?v:'';}
 function prcResolveExportRange(source){
   source=source==='weekly'?'weekly':'admin';
@@ -6584,7 +6586,7 @@ function renderProfitRecapAdminView(){
   const leaders=prcAdminMembers('',prcPayDates(prcAdminFrom,prcAdminTo)).filter(function(u){return ri(u.role)>=1;}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko');});if(!leaders.some(function(u){return u.uid===prcAdminUid;}))prcAdminUid=leaders[0]?leaders[0].uid:'';
   const uid=prcAdminScope==='person'?prcAdminUid:'',data=prcAdminAgg(prcAdminFrom,prcAdminTo,uid),person=leaders.find(function(u){return u.uid===prcAdminUid;}),scopeName=prcAdminScope==='person'?((person||{}).name||'개인')+' '+((person||{}).role||''):(me.name||'관리자')+' '+(me.role||''),rangeLabel=prcRangeLabel(prcAdminFrom,prcAdminTo);
   const singleMonth=prcAdminFrom===prcAdminTo,chosenMonth=singleMonth?prcAdminFrom:prcAdminTo,selectionLabel=singleMonth?prcMonthLabel(prcAdminFrom):rangeLabel,downloadLabel=prcAdminScope==='person'?'개인자료':'팀 전체자료';
-  const monthPicker='<div class="pra-month-picker"><div class="pra-month-copy"><label for="praReportMonth">📅 다운로드할 리캡 월</label><small>월을 선택하면 아래 미리보기와 PPT 다운로드 자료가 같은 월로 즉시 바뀝니다.</small></div><div class="pra-month-input"><input id="praReportMonth" type="month" value="'+chosenMonth+'" onchange="prcAdminSetMonth(this.value)" aria-label="다운로드할 리캡 월"><span aria-live="polite">현재 선택 · '+esc(selectionLabel)+'</span></div></div>';
+  const monthPicker='<div class="pra-month-picker"><div class="pra-month-copy"><label for="praReportMonth">리캡 월</label><small>선택한 월의 미리보기 · PPT 자료</small></div><div class="pra-month-input"><button type="button" data-pra-prev onclick="prcAdminShiftMonth(-1)" aria-label="이전 리캡 월">←</button><select id="praReportMonth" onchange="prcAdminSetMonth(this.value)" aria-label="리캡 월 선택">'+prcAdminMonthOptions(chosenMonth)+'</select><button type="button" data-pra-next onclick="prcAdminShiftMonth(1)" aria-label="다음 리캡 월"'+(chosenMonth>=TODAY.slice(0,7)?' disabled':'')+'>→</button></div></div>';
   const controls=monthPicker+'<div class="pra-controls"><div class="pra-seg"><button class="'+(prcAdminScope==='team'?'on':'')+'" onclick="prcAdminSetScope(\'team\')">팀 전체</button><button class="'+(prcAdminScope==='person'?'on':'')+'" onclick="prcAdminSetScope(\'person\')">개인별</button></div><select id="praUid" onchange="prcAdminSetUid(this.value)"'+(prcAdminScope==='team'?' disabled':'')+' aria-label="개인 리캡 대상">'+leaders.map(function(u){return '<option value="'+esc(u.uid)+'"'+(u.uid===prcAdminUid?' selected':'')+'>'+esc(u.name)+' · '+esc(u.role)+'</option>';}).join('')+'</select><button class="pra-download" onclick="exportProfitRecapPpt(\''+(prcAdminScope==='person'?'person':'team')+'\',\'admin\')">'+esc(selectionLabel)+' '+downloadLabel+' PPT 다운로드</button></div><details class="pra-advanced"'+(prcAdminPreset!=='month'?' open':'')+'><summary>여러 달·분기·반기·연도 자료 받기</summary><div class="pra-range"><select id="praPreset" onchange="prcAdminSetPreset(this.value)" aria-label="보고서 기간 단위"><option value="month"'+(prcAdminPreset==='month'?' selected':'')+'>월간</option><option value="quarter"'+(prcAdminPreset==='quarter'?' selected':'')+'>분기</option><option value="half"'+(prcAdminPreset==='half'?' selected':'')+'>반기</option><option value="year"'+(prcAdminPreset==='year'?' selected':'')+'>연도</option><option value="custom"'+(prcAdminPreset==='custom'?' selected':'')+'>직접 지정</option></select><input id="praFrom" type="month" value="'+prcAdminFrom+'" onchange="prcAdminSetRange(\'from\',this.value)" aria-label="리포트 시작월"><i>~</i><input id="praTo" type="month" value="'+prcAdminTo+'" onchange="prcAdminSetRange(\'to\',this.value)" aria-label="리포트 종료월"></div></details>';
   if(!data.rows.length){box.innerHTML=controls+'<div class="pra-empty">선택한 범위의 세일즈·주간 리캡 데이터가 아직 없어요.<br>세일즈 또는 금요일 리캡이 저장되면 같은 계산 기준으로 바로 반영됩니다.</div>';prcPendingMount(chosenMonth);return;}
   box.innerHTML=controls+'<div class="pra-deck">'+prcCoverHTML(data,prcAdminFrom,prcAdminTo,scopeName)+prcSummaryHTML(data,rangeLabel)+prcProductivityHTML(data)+prcAdminDetailSlides(data,prcAdminScope,scopeName,rangeLabel)+'</div>';
@@ -18113,12 +18115,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20261118-login-lossless1">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261121-holiday-audio1">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261121-winter-visible2">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20261121-campfire3"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261121-holiday-audio1"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261121-winter-visible2"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
@@ -18132,7 +18134,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-season.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-winter-icons.css?v=20261109-winter-ia1">
 <link rel="stylesheet" href="assets/presence-winter-materials.css?v=20261109-winter-finish1">
-<link rel="stylesheet" href="assets/presence-core-values.css?v=20261109-core-values1">
+<link rel="stylesheet" href="assets/presence-core-values.css?v=20261121-core-editorial2">
 <link rel="stylesheet" href="assets/presence-holiday-home.css?v=20261109-sales-home1">
 <link rel="stylesheet" href="assets/presence-home-quick.css?v=20261111-boss1">
 <link rel="stylesheet" href="assets/presence-birthday.css?v=20261110-birthday1">
@@ -18144,7 +18146,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-workspace-core.js?v=20260914-little-garden-7"></script>
 <script src="assets/presence-promotion-core.js?v=20260928-promotion-plan-13"></script>
 <script src="assets/presence-promotion-planner.js?v=20260928-promotion-journey-14"></script>
-<script src="assets/presence-workspace-v2.js?v=20261121-quick-permissions1"></script>
+<script src="assets/presence-workspace-v2.js?v=20261121-core-editorial2"></script>
 <script src="assets/presence-executive-recap.js?v=20261004-1"></script>
 <script src="assets/presence-tl-workspace-access.js?v=20261118-ic-members"></script>
 <script src="assets/presence-tl-workspace.js?v=20261109-winter-polish1"></script>
@@ -18160,7 +18162,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-campaign-controller.js?v=20261121-system2"></script>
 <script src="assets/presence-mobile-safety.js?v=20261121-system2"></script>
 <link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-campfire3">
-<link rel="stylesheet" href="assets/presence-secondary-ui.css?v=20261121-system2">
+<link rel="stylesheet" href="assets/presence-secondary-ui.css?v=20261121-gutters-month2">
 <script src="assets/presence-ui-system.js?v=20261121-readability1"></script>
 </body>
 </html>

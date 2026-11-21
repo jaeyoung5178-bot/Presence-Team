@@ -128,7 +128,7 @@
     const a=actor(),today=C.dateKey(),range=C.period('week',today),now=records(a,range),last=C.aggregate(state.sales,[a.name],range.previousStart,range.previousEnd,saleEntryCountsAsWork),same=C.aggregate(state.sales,[a.name],range.previousStart,range.previousCutoff,saleEntryCountsAsWork),target=goal(a.uid),pct=target?Math.round(now.sales/target*100):null;
     const season=currentSeason(),participated=users().filter(u=>isWatered(u.uid)).length;
     paint($('workspaceHomeGreeting'),'<div><p>'+dateLabel(today)+'</p><h1>'+E(a.name)+'님, 안녕하세요</h1></div>');
-    const valuesHTML='<section class="pw-home-values" aria-labelledby="pwHomeValuesTitle"><header class="pw-home-values-heading"><h2 id="pwHomeValuesTitle">코어밸류</h2>'+button('전체 보기','values')+'</header><div class="pw-home-values-grid">'+coreValues.map((value,index)=>'<article class="pw-home-value-card"><span class="pw-home-value-number" aria-hidden="true">0'+(index+1)+'</span><h3><span>'+E(value.ko)+'</span><span class="pw-value-en">'+E(value.en)+'</span></h3><span class="pw-home-value-brief">'+E(['행복한 마음을 나눠요','함께 더 멀리 나아가요','누구나 주인공이 돼요','작은 실천으로 바꿔요'][index]||'')+'</span><p>'+E(value.description)+'</p></article>').join('')+'</div></section>';
+    const valuesHTML='<section class="pw-home-values" aria-labelledby="pwHomeValuesTitle"><header class="pw-home-values-heading"><div><span class="pw-values-eyebrow">CORE VALUES</span><h2 id="pwHomeValuesTitle">우리의 약속</h2></div>'+button('전체 보기','values').replace('<button ', '<button id="pwHomeValuesEntry" ')+'</header><div class="pw-home-values-grid">'+coreValues.map((value,index)=>'<article class="pw-home-value-card"><span class="pw-home-value-number" aria-hidden="true">0'+(index+1)+'</span><h3><span>'+E(value.ko)+'</span><span class="pw-value-en">'+E(value.en)+'</span></h3><span class="pw-home-value-brief">'+E(['동료의 승리를, 내 기쁨으로.','배운 건 나누고, 막힐 땐 함께.','첫날의 생각도, 당당한 제안으로.','어제의 한계에, 오늘 다시 도전.'][index]||'')+'</span><p>'+E(value.description)+'</p></article>').join('')+'</div></section>';
     const todos=typeof tdList==='function'?tdList(a.uid,TODAY):[];
     const rows=todos.slice(0,3).map(t=>'<div class="pw-row"><label><input type="checkbox" data-action="todo" data-value="'+E(t.id)+'" '+(t.done?'checked':'')+'><span>'+E(t.text)+'</span></label></div>').join('');
     const ownRecord=typeof saleRecordFor==='function'?saleRecordFor(a.name,today):(state.sales||{})[today+'|'+a.name],beforeFirst=typeof saleBeforeFirstField==='function'&&saleBeforeFirstField(a.name,today),submitted=typeof saleEntryIsRecorded==='function'?saleEntryIsRecorded(ownRecord):!!ownRecord;
@@ -142,7 +142,7 @@
     if($('pwPledgeDetails'))pledgeExpanded=$('pwPledgeDetails').open;
     if($('pwHomePendingMore'))homePendingExpanded=$('pwHomePendingMore').open;
     if(!cfg||!pending.length)homePendingExpanded=false;
-    paint($('workspaceHome'),valuesHTML+homeQuickHTML()+
+    paint($('workspaceHome'),homeQuickHTML()+valuesHTML+
       '<section class="pw-home-primary'+(cfg?' pw-home-primary-pending':'')+'"><div class="pw-home-primary-copy"><h2>'+primaryTitle+'</h2><p>'+primaryHint+'</p></div>'+primaryAction+(cfg&&baseReady?homePendingHTML(pending):'')+'</section>'+
       '<section class="pw-panel pw-home-results"><div class="pw-home-result-head"><div><h2>이번 주 나의 성과</h2><span class="pw-sub">'+dateLabel(range.start)+' — '+dateLabel(range.end)+'</span></div>'+linkButton('자세히 보기','profithub')+'</div>'+weekComparison(last,now,range)+'<p class="pw-home-goal">'+(target?'목표 '+num(target)+'건 · 달성 '+pct+'% · '+num(Math.max(0,target-now.sales))+'건 남았어요':'이번 주 목표 미설정')+'</p><details class="pw-home-result-details"><summary>추세와 계산 기준 보기</summary>'+(target?'<div class="pw-progress" role="progressbar" aria-label="주간 목표 달성률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(pct,100)+'"><span style="width:'+Math.min(pct,100)+'%"></span></div>':'')+'<p class="pw-note">지난주 같은 요일까지 대비 '+(now.sales-same.sales>0?'+':'')+num(now.sales-same.sales)+'건</p>'+weeklyChart(a,range)+'<p class="pw-note">AVG = 결과 ÷ 필드 일수 · 미입력은 필드 일수에서 제외해요.</p>'+(target?'':button('이번 주 목표 정하기','pledge-focus'))+'</details></section>'+
       '<div id="pwHomeQuickAccess"></div>'+
@@ -223,7 +223,7 @@
   function fillAccess(){const id=$('pwAccessUser')?.value,r=data.access[id]||{};if($('pwAccessLeader'))$('pwAccessLeader').value=r.leaderUid||'';if($('pwAccessTeam'))$('pwAccessTeam').value=r.teamName||teamName(user(id)||{uid:id,name:''});}
   function preferences(){dialog('나의 홈 설정','<div class="pw-toolbar">'+button('배경 효과 켜기·끄기','music')+'</div><h3>사계절 정원</h3><p class="pw-sub">관리자가 선택한 계절이 정원에 적용됩니다. 성장과 물주기 기록은 유지됩니다.</p><div class="pw-season-grid">'+Object.entries(seasons).map(([key,title])=>'<div><img src="assets/workspace/gardens/'+key+'.jpg" alt="'+E(title)+'"><span>'+E(title)+'</span></div>').join('')+'</div>'+(admin()?'<form data-form="season" class="pw-section"><label>팀 정원 계절<select id="pwSeason"><option value="auto">한국 날짜에 따라 자동 변경</option>'+Object.entries(seasons).map(([k,v])=>'<option value="'+k+'" '+(data.settings.season===k?'selected':'')+'>'+E(v)+'</option>').join('')+'</select></label><button type="submit" class="pw-primary">팀 정원 설정 저장</button><p data-save-status class="pw-note">모든 팀원의 정원에 적용됩니다.</p></form>':''));}
   function showValues(){
-    if(curTab==='peoplehub')coreReturn={uid:actor().uid,scroll:scrollY,focus:document.activeElement?.id||'coreValuesPeopleEntry'};
+    if(curTab==='peoplehub'||curTab==='home')coreReturn={uid:actor().uid,tab:curTab,scroll:scrollY,focus:document.activeElement?.id||(curTab==='home'?'pwHomeValuesEntry':'coreValuesPeopleEntry')};
     else coreReturn=null;
     if($('pwDialog')?.open)$('pwDialog').close();
     goTab('corevalues');
@@ -231,11 +231,11 @@
   }
   function returnFromValues(){
     const saved=coreReturn?.uid===actor().uid?coreReturn:null;
-    goTab('peoplehub');
+    goTab(saved?.tab==='home'?'home':'peoplehub');
     requestAnimationFrame(()=>{scrollTo(0,saved?.scroll||0);$(saved?.focus||'coreValuesPeopleEntry')?.focus({preventScroll:true});});
   }
   function renderCoreValues(){
-    paint($('workspaceCoreValues'),'<div class="pcv-page"><header class="pcv-head"><button type="button" class="pcv-back" data-action="values-back">← People로 돌아가기</button><span class="pcv-kicker">PRESENCE · CORE VALUES</span><h1 id="coreValuesTitle" tabindex="-1">코어 밸류</h1><p>'+E(coreStatement)+'</p></header><div class="pcv-grid">'+coreValues.map((v,i)=>'<article class="pcv-card pcv-card-'+i+'"><span class="pcv-number" aria-hidden="true">0'+(i+1)+'</span><div class="pcv-card-heading"><span class="pcv-english">'+E(v.en)+'</span><h2>'+E(v.ko)+'</h2></div><p class="pcv-description">'+E(v.description)+'</p><div class="pcv-action"><span>매일의 실천</span><p>'+E(v.action)+'</p></div></article>').join('')+'</div><section class="pcv-chant"><span>TEAM CHANT</span><h2>'+E(coreChant)+'</h2><p>'+E(coreStatement)+'</p></section></div>');
+    paint($('workspaceCoreValues'),'<div class="pcv-page"><header class="pcv-head"><button type="button" class="pcv-back" data-action="values-back">← '+(coreReturn?.tab==='home'?'홈':'People')+'로 돌아가기</button><span class="pcv-kicker">PRESENCE · CORE VALUES</span><h1 id="coreValuesTitle" tabindex="-1">서로의 승리에 웃고,<br>함께 한계를 넘습니다.</h1><p>'+E(coreStatement)+'</p></header><div class="pcv-grid">'+coreValues.map((v,i)=>'<article class="pcv-card pcv-card-'+i+'"><span class="pcv-number" aria-hidden="true">0'+(i+1)+'</span><div class="pcv-card-heading"><span class="pcv-english">'+E(v.en)+'</span><h2>'+E(v.ko)+'</h2></div><p class="pcv-topic">'+E(['동료의 승리를, 내 기쁨으로.','배운 건 나누고, 막힐 땐 함께.','첫날의 생각도, 당당한 제안으로.','어제의 한계에, 오늘 다시 도전.'][i])+'</p><p class="pcv-description">'+E(v.description)+'</p><div class="pcv-action"><span>우리의 실천</span><p>'+E(v.action)+'</p></div></article>').join('')+'</div><section class="pcv-chant"><span>TEAM CHANT</span><h2>'+E(coreChant)+'</h2><p>'+E(coreStatement)+'</p></section></div>');
   }
   function openGarden(){if($('pwDialog')?.open)$('pwDialog').close();goTab('garden');}
   function syncGardenScene(){

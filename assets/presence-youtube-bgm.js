@@ -81,7 +81,7 @@
     musicUnlocked=true;if(audio)attemptMusic();else playCarol();
   }
 
-  var winterRectsDirty=true;
+  var winterRectsDirty=true,winterLayoutDirty=true;
   var winterProfile={frames:0,lastFrameMs:0,rectScans:0,canvasCreations:0,particleCount:0,spriteCount:0};
   var spriteCache=null,snowStamp=null;
   function markWinterRects(){winterRectsDirty=true;}
@@ -115,7 +115,7 @@
       return c;
     }
     ['santa','reindeer','gift','snowman'].forEach(function(kind){spriteCache[kind]=sprite(kind);});
-    snowStamp=document.createElement('canvas');snowStamp.width=24;snowStamp.height=24;var sg=snowStamp.getContext('2d'),gradient=sg.createRadialGradient(12,12,0,12,12,12);gradient.addColorStop(0,'rgba(255,255,255,.95)');gradient.addColorStop(.35,'rgba(255,255,255,.8)');gradient.addColorStop(1,'rgba(231,240,235,0)');sg.fillStyle=gradient;sg.fillRect(0,0,24,24);
+    snowStamp=document.createElement('canvas');snowStamp.width=24;snowStamp.height=24;var sg=snowStamp.getContext('2d'),gradient=sg.createRadialGradient(12,12,0,12,12,12);gradient.addColorStop(0,'rgba(255,255,255,1)');gradient.addColorStop(.2,'rgba(255,255,255,.95)');gradient.addColorStop(.42,'rgba(183,204,191,.76)');gradient.addColorStop(.7,'rgba(209,224,213,.42)');gradient.addColorStop(1,'rgba(231,240,235,0)');sg.fillStyle=gradient;sg.fillRect(0,0,24,24);
     return spriteCache;
   }
   function winterEffects(on){
@@ -124,25 +124,39 @@
       if(winterCanvas)winterCanvas.remove();winterCanvas=null;
       if(winterFlight)winterFlight.remove();winterFlight=null;return;
     }
-    if(winterCanvas)return;
+    if(winterCanvas){winterLayoutDirty=true;return;}
     winterCanvas=document.createElement('canvas');winterCanvas.id='presenceWinterCanvas';winterCanvas.setAttribute('aria-hidden','true');document.body.appendChild(winterCanvas);winterProfile.canvasCreations++;
     var ctx=winterCanvas.getContext('2d');if(!ctx){winterCanvas.remove();winterCanvas=null;return;}
     var sprites=winterSprites(),safeRects=[],safeAt=0,lastDraw=0;winterStarted=performance.now();winterRectsDirty=true;
-    function blocked(x,y,rx,ry){return safeRects.some(function(r){return x+rx>r.left-5&&x-rx<r.right+5&&y+ry>r.top-5&&y-ry<r.bottom+5;});}
+    function blocked(x,y,rx,ry){return safeRects.some(function(r){return x+rx>r.left-8&&x-rx<r.right+8&&y+ry>r.top-8&&y-ry<r.bottom+8;});}
     function draw(now){
       if(!winterCanvas)return;
       winterFrame=requestAnimationFrame(draw);if(now-lastDraw<1000/30)return;lastDraw=now;
       var started=performance.now(),w=innerWidth,h=innerHeight,d=Math.min(devicePixelRatio||1,1.5);
       if(winterCanvas.width!==Math.round(w*d)||winterCanvas.height!==Math.round(h*d)){winterCanvas.width=Math.round(w*d);winterCanvas.height=Math.round(h*d);winterRectsDirty=true;}
       ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);var t=(now-winterStarted)/1000;
-      if((winterRectsDirty&&now-safeAt>160)||now-safeAt>1400){
-        safeAt=now;winterRectsDirty=false;winterProfile.rectScans++;
-        safeRects=Array.from(document.querySelectorAll('header,nav,iframe,input,textarea,select,button,a,dialog,.modal.on,#presenceUtilityDock,#app section,#app article,#app .card,#app .panel,#app .pw-card,#app .pw-garden-mobile-card,#app h1,#app h2,#app h3,#app h4,#app p,#app label,#app summary,#app strong,#app b,#app dt,#app dd,#app th,#app td')).map(function(e){return e.getBoundingClientRect();}).filter(function(r){return r.width>0&&r.height>0&&r.bottom>0&&r.top<h;});
+      // Briefly clear during fast scrolling; stale masks must never cover newly moved text.
+      if(winterRectsDirty&&!winterLayoutDirty&&now-safeAt<160)return;
+      if(winterLayoutDirty||(winterRectsDirty&&now-safeAt>=160)||now-safeAt>1400){
+        safeAt=now;winterRectsDirty=false;winterLayoutDirty=false;winterProfile.rectScans++;
+        safeRects=Array.from(document.querySelectorAll('header,nav,#botbar,#subRail,iframe,input,textarea,select,button,a,[role="button"],[contenteditable="true"],dialog,.modal.on,#presenceUtilityDock')).map(function(e){return e.getBoundingClientRect();});
+        // Mask actual line boxes, not full cards. Card backgrounds remain part of the winter map.
+        var textRoot=document.querySelector('#app .mpanel.active')||document.getElementById('app');
+        if(textRoot){
+          var walker=document.createTreeWalker(textRoot,NodeFilter.SHOW_TEXT),node,range=document.createRange();
+          while((node=walker.nextNode())){
+            if(!node.nodeValue.trim()||!node.parentElement||node.parentElement.closest('script,style,template,[hidden],[aria-hidden="true"],.tree-bird-note,.tree-stage .snow,.tree-stage .leaf,.tree-stage .sun-fx'))continue;
+            range.selectNodeContents(node);Array.from(range.getClientRects()).forEach(function(r){safeRects.push(r);});
+          }
+          range.detach();
+        }
+        safeRects=safeRects.filter(function(r){return r.width>0&&r.height>0&&r.bottom>0&&r.top<h;});
+        winterProfile.protectedRectCount=safeRects.length;
       }
-      var flakes=Math.min(46,Math.max(18,Math.round(w/30))),kinds=['santa','reindeer','gift','snowman'],count=w<700?4:7,visible=0;
+      var flakes=Math.min(26,Math.max(18,Math.round(w/20))),kinds=['santa','reindeer','gift','snowman'],count=w<700?4:7,visible=0;
       for(var i=0;i<flakes;i++){
         var near=i%3!==0,x=((i*97+Math.sin(t*(near?.4:.2)+i)*18)%w+w)%w,y=(i*67+t*(near?15+i%4*3:6+i%3))%h,size=near?6+i%3*1.2:4;
-        if(blocked(x,y,size*.4,size*.4))continue;ctx.globalAlpha=near?.82:.42;ctx.drawImage(snowStamp,x-size/2,y-size/2,size,size);
+        if(blocked(x,y,size*.5,size*.5))continue;ctx.globalAlpha=near?.82:.42;ctx.drawImage(snowStamp,x-size/2,y-size/2,size,size);
       }
       for(var n=0;n<count;n++){
         var size=(w<700?23:28)+(n%2)*2,cx=w*(n+.55)/count+Math.sin(t*.1+n*1.7)*18,cy=((h*(n*.223+.13)+t*(2+n%3))%Math.max(1,h-150))+56;
