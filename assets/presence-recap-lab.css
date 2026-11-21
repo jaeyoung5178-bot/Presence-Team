@@ -29,3 +29,7 @@
 @media(prefers-reduced-motion:reduce){.prl-stations button{transition:none}}
 .prl-greeting h1>span{display:inline-block;white-space:nowrap;margin-right:8px}.prl-stat-pair{max-width:none}.prl-editor{max-width:980px;width:100%;justify-self:center}.prl-body:has(.prl-main) .prl-main{justify-items:center;width:100%}.prl-main>.prl-ocr{width:100%;max-width:980px}.prl-brand img{width:42px;height:30px}
 @media(max-width:650px){.prl-greeting h1{font-size:clamp(20px,6.2vw,27px)}.prl-greeting h1>span{margin-right:5px}.prl-editor,.prl-main>.prl-ocr{max-width:none}}
+
+.presence-recap-lab .prl-period-summary{display:flex;flex-wrap:wrap;gap:8px 24px;margin:0 0 20px;color:#c7e5d9;font-size:13px;line-height:1.6}.presence-recap-lab .prl-period-summary span{display:flex;flex-wrap:wrap;gap:4px 8px}.presence-recap-lab .prl-period-summary b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:600px){.presence-recap-lab .prl-period-summary{display:grid;gap:4px;font-size:12px}}
+
+.presence-recap-lab .prl-notice{color:#203e32}
