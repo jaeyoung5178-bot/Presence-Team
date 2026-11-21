@@ -15943,6 +15943,7 @@ h1,h2,h3,.hero,.greet,.values .en{font-family:'Jua','Gowun Dodum',sans-serif!imp
     var search=item('⌕','기능 검색',function(){if(typeof window.toggleHomeQuickDock==='function')window.toggleHomeQuickDock();});search.className='mm-mobile';search.dataset.mmSearch='';m.appendChild(search);
     m.appendChild(item('✨','배경 효과 켜기/끄기',function(){ toggleFxLocal(); }));
     m.appendChild(item('🔈','효과음 켜기/끄기',function(){ toggleSound(); }));
+    var music=item('♪','배경 음악 켜기/끄기',function(){window.PresenceBgm?.toggle();});music.dataset.mmMusic='';m.appendChild(music);
     m.appendChild(item('📲','앱으로 설치',function(){ if(typeof installApp==='function')installApp(); }));
     /* 모바일 전용 — 헤더에서 ⋯ 안으로 들어온 항목 (헤더엔 이름·⋯·🔔만 남음) */
     var mi;
@@ -18112,12 +18113,12 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <link rel="stylesheet" href="assets/presence-approved-world.css?v=20261118-login-lossless1">
 <link rel="stylesheet" href="assets/presence-nav-stability.css?v=20260809-2">
 <link rel="stylesheet" href="assets/presence-home-tree-v2.css?v=20260809-6">
-<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261121-system2">
+<link rel="stylesheet" href="assets/presence-youtube-bgm.css?v=20261121-holiday-audio1">
 <script src="assets/presence-avatar-studio.js?v=20260727-10"></script>
 <script src="assets/presence-home-quickslots.js?v=20261109-header-polish2"></script>
 <script src="assets/presence-basecamp.js?v=20260718-1"></script>
 <script src="assets/presence-home-tree-v2.js?v=20261121-system2"></script>
-<script src="assets/presence-youtube-bgm.js?v=20261121-system2"></script>
+<script src="assets/presence-youtube-bgm.js?v=20261121-holiday-audio1"></script>
 <script src="assets/presence-loader-guard.js?v=20260824-8"></script>
 <link rel="stylesheet" href="assets/presence-workspace-v2.css?v=20261109-winter-finish1">
 <link rel="stylesheet" href="assets/presence-promotion-planner.css?v=20260928-promotion-plan-13">
@@ -18158,7 +18159,7 @@ window.__pj={ooRender:ooRender,jRender:jRender,boot:boot,D:D,
 <script src="assets/presence-promotion-campaign.js?v=20261115-home-compact1"></script>
 <script src="assets/presence-promotion-campaign-controller.js?v=20261121-system2"></script>
 <script src="assets/presence-mobile-safety.js?v=20261121-system2"></script>
-<link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-system2">
+<link rel="stylesheet" href="assets/presence-ui-system.css?v=20261121-holiday-audio1">
 <link rel="stylesheet" href="assets/presence-secondary-ui.css?v=20261121-system2">
 <script src="assets/presence-ui-system.js?v=20261121-system2"></script>
 </body>

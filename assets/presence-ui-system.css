@@ -101,3 +101,10 @@ body.presence-ui-system #app #workspaceHome .pw-home-value-card h3{display:flex;
 body.presence-ui-system #app #workspaceHome .pw-home-value-card .pw-value-en{font-size:12px!important;line-height:1.4!important;color:#63745f!important;font-weight:400}
 /* Selected icons inherit the selected control's readable foreground. */
 body.presence-ui-system #app :is(#rail,#subRail,#botbar) :is(.gtab,.stab,button).active [data-ui-icon],body.presence-ui-system #app :is(#rail,#subRail,#botbar) :is(.gtab,.stab,button).active [data-ui-icon] svg{color:inherit!important}
+/* Seasonal accents: quiet wood grain and berry stitching, never a texture over a reading card. */
+body.presence-ui-system #app header.top{background-color:#fffdf8!important;background-image:repeating-linear-gradient(91deg,rgba(112,78,43,.025) 0,rgba(112,78,43,.025) 1px,transparent 1px,transparent 19px),linear-gradient(180deg,#fffdf8,#faf7ef)!important;border-bottom-color:#d8cbb3!important}
+body.presence-ui-system #app #rail .gtab.active{box-shadow:inset 3px 0 0 #9b4950!important}
+body.presence-ui-system #app #subRail .stab.active{border-color:#bd8d82!important;box-shadow:inset 0 -2px 0 #a35658!important}
+body.presence-ui-system #app #botbar button.active{box-shadow:inset 0 -3px 0 #9b4950!important}
+body.presence-ui-system #app #workspaceHomeGarden #treeSecHome>.sec-head{background-color:#fffaf0!important;background-image:repeating-linear-gradient(89deg,rgba(126,91,50,.025) 0,rgba(126,91,50,.025) 1px,transparent 1px,transparent 22px)!important;border-color:#d7c7aa!important;box-shadow:inset 3px 0 0 #a55256!important}
+body.presence-ui-system #app #workspaceHomeGarden #treeSecHome .tree-stage{box-shadow:inset 0 0 0 1px rgba(155,119,62,.2)!important}

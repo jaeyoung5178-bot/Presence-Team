@@ -31,3 +31,9 @@ body:has(.modal.on,dialog[open]) #presenceWinterCanvas{visibility:hidden}
 /* Sparse snow is visible above the opaque page, with text/control hitboxes excluded in JS. */
 #presenceWinterCanvas{z-index:3!important;opacity:1!important}
 /* Tiny Santa/reindeer are drawn on the existing pointer-free snow canvas. */
+/* User-provided playlist controls remain inside the shared utility disclosure. */
+#presenceMusicCredit .presence-music-volume{display:grid;grid-template-columns:auto minmax(88px,1fr) 42px;align-items:center;gap:12px;max-width:340px;margin:12px auto 4px}
+#presenceMusicCredit .presence-music-volume label{margin:0;font-size:12px;white-space:nowrap;color:inherit}
+#presenceMusicCredit .presence-music-volume input{width:100%;min-width:0;min-height:44px;margin:0;padding:0;accent-color:#315b42;cursor:pointer}
+#presenceMusicCredit .presence-music-volume output{font:600 12px/1.5 system-ui;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+#presenceMusicCredit .presence-music-volume input:focus-visible{outline:3px solid #a98448;outline-offset:3px;border-radius:8px}
