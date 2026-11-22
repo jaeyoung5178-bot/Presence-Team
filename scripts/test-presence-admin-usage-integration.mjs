@@ -10,11 +10,19 @@ if(role==='admin'){
  assert.equal(await p.evaluate(()=>curTab),'adminusage');
  assert((await p.locator('#adminUsageRoot').textContent()).includes('합성 긴이름 팀원'));
  assert.equal(await p.evaluate(()=>usageRangeCalls),1);
+ await p.evaluate(()=>goTab('admin'));
+ await p.locator('#subRail [data-tab="adminusage"]').click();
+ await p.waitForFunction(()=>document.querySelector('.pau-person')&&!document.querySelector('[data-pau-reload]').disabled);
+ assert.equal(await p.evaluate(()=>curGroup),'admin');
+ await p.evaluate(()=>{history.replaceState(null,'','?open=adminusage&release=qa-usage');enterApp();});
+ await p.waitForFunction(()=>curTab==='adminusage'&&document.querySelector('.pau-person')&&!document.querySelector('[data-pau-reload]').disabled);
+ assert.equal(await p.evaluate(()=>document.querySelector('.pau-room-art').complete&&document.querySelector('.pau-room-art').naturalWidth>0),true);
  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
  const controls=await p.locator('#adminUsageRoot button').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));assert(controls.every(h=>h>=44),JSON.stringify(controls));
  await p.screenshot({path:out+'/'+engine+'-owner-'+width+'-usage.png',fullPage:true});
  await p.evaluate(()=>{window.__adminOff=true;presenceUsageDispose();});assert.equal(await p.locator('#adminUsageRoot').textContent(),'');
  await p.evaluate(()=>{window.__adminOff=false;goTab('home');});assert.equal(await p.evaluate(()=>curTab),'home');
+ const beforeDenied=await p.evaluate(()=>usageRangeCalls);await p.evaluate(()=>{me={uid:'nonowner-admin',role:'OP',name:'합성 비대표',status:'active'};goTab('adminusage');});assert.notEqual(await p.evaluate(()=>curTab),'adminusage');assert.equal(await p.evaluate(()=>usageRangeCalls),beforeDenied);assert.equal(await p.locator('#adminUsageRoot').textContent(),'');assert.equal(await p.locator('#subRail [data-tab="adminusage"]').count(),0);
 }else{assert.notEqual(await p.evaluate(()=>curTab),'adminusage');assert.equal(await p.locator('#adminUsageRoot').textContent(),'');assert.equal(await p.evaluate(()=>window.usageRangeCalls||0),0);}
 console.log('PASS usage integration',engine,role,width);
 `;
