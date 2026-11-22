@@ -1,0 +1,28 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const repo=fileURLToPath(new URL('../',import.meta.url)).replace(/\/$/,'');
+let source=await readFile(repo+'/scripts/qa-recap-lab-integration.mjs','utf8');
+source=source.replace('createRequire(import.meta.url)',"createRequire("+JSON.stringify(import.meta.url)+")").replace("resolve(new URL('../',import.meta.url).pathname)",JSON.stringify(repo));
+const extra=`
+const bounds=await p.evaluate(()=>{const input=document.querySelector('[data-lab-month]'),label=input.closest('label'),ctx=input.closest('.prl-context');const rect=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}};const c=getComputedStyle(input);return {input:rect(input),label:rect(label),context:rect(ctx),appearance:c.appearance,boxSizing:c.boxSizing,fontSize:c.fontSize,minWidth:c.minWidth,maxWidth:c.maxWidth};});
+assert(bounds.input.left>=bounds.label.left-1&&bounds.input.right<=bounds.label.right+1,JSON.stringify(bounds));
+assert(bounds.input.right<=bounds.context.right+1,JSON.stringify(bounds));
+const member=await p.locator('[data-lab-member]').evaluate(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,fontSize:getComputedStyle(e).fontSize};});assert(member.height>=44,JSON.stringify(member));
+await p.evaluate(()=>{disposePresenceRecapLab();const M=PresenceRecapLabModel;const snapshot={...M.buildView({month:'2026-11',weeks:{},bond:{},permissions:{canSaveWeek:true,canSaveBond:true,canManageBond:true,canViewBondRanking:true}}),permissions:{canSaveWeek:true,canSaveBond:true,canManageBond:true,canViewBondRanking:true},bondRanking:{targetMonth:'2026-07',rows:[{uid:'one',name:'합성 관리자',teamLabel:'합성팀',balanceCents:18831750,fieldDays:15},{uid:'two',name:'합성 팀원',teamLabel:'두 번째 팀',balanceCents:-125000,fieldDays:20}]}};PresenceRecapLab.mount(document.getElementById('presenceRecapLabRoot'),{actor:me,month:'2026-11',today:'2026-11-22',model:M,selectedUid:me.uid,permittedMembers:[{uid:me.uid,name:'합성 관리자'}],snapshot,onBack:()=>{},onDownloadBondRanking:()=>{}});});
+await p.locator('[data-lab-station=bond]').click();
+await p.locator('.prl-admin>summary').first().click();
+const manualMonth=await p.locator('[data-lab-form=bond] input[type=month]').evaluate(input=>{const label=input.closest('label'),r=input.getBoundingClientRect(),l=label.getBoundingClientRect(),c=getComputedStyle(input);return {input:{left:r.left,right:r.right,width:r.width},label:{left:l.left,right:l.right,width:l.width},appearance:c.appearance,boxSizing:c.boxSizing,fontSize:c.fontSize};});
+assert(manualMonth.input.left>=manualMonth.label.left-1&&manualMonth.input.right<=manualMonth.label.right+1,JSON.stringify(manualMonth));
+const allSelects=await p.locator('.presence-recap-lab select').evaluateAll(es=>es.filter(e=>e.getClientRects().length).map(e=>({name:e.name||e.dataset.labMember||'member',height:e.getBoundingClientRect().height,fontSize:getComputedStyle(e).fontSize})));assert(allSelects.every(s=>s.height>=44&&parseFloat(s.fontSize)>=16),JSON.stringify(allSelects));
+await p.locator('[data-lab-form=bond]').scrollIntoViewIfNeeded();await p.screenshot({path:out+'/webkit-admin-390-manual-month.png'});
+await p.locator('[data-lab-station=ranking]').click();
+await p.locator('.prl-ranking').scrollIntoViewIfNeeded();
+await p.screenshot({path:out+'/webkit-admin-390-ranking-left.png'});
+const scroll=await p.locator('.prl-table-scroll').evaluate(e=>{const initial=e.scrollLeft;e.scrollLeft=e.scrollWidth;const r=e.getBoundingClientRect(),last=e.querySelector('thead th:last-child').getBoundingClientRect();return {initial,scrollLeft:e.scrollLeft,max:e.scrollWidth-e.clientWidth,clientWidth:e.clientWidth,scrollWidth:e.scrollWidth,scroller:{left:r.left,right:r.right},lastColumn:{left:last.left,right:last.right},cue:getComputedStyle(e,'::before').content};});
+assert(scroll.scrollLeft>0&&scroll.scrollLeft>=scroll.max-1,JSON.stringify(scroll));assert(scroll.lastColumn.right<=scroll.scroller.right+1,JSON.stringify(scroll));
+await p.screenshot({path:out+'/webkit-admin-390-ranking-right.png'});
+await writeFile(out+'/targeted.json',JSON.stringify({bounds,member,manualMonth,allSelects,scroll,realNetworkWrites:0,engine:'desktop WebKit; not physical iPhone'},null,2));
+console.log('TARGETED',JSON.stringify({bounds,member,manualMonth,allSelects,scroll}));
+`;
+source=source.replace("console.log('PASS fullindex',engine,role,width);await p.close();",extra+"console.log('PASS fullindex',engine,role,width);await p.close();");
+await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));

@@ -4148,6 +4148,7 @@ window.addEventListener('beforeunload',function(){window.showPresenceLoader('최
       <div id="teamContactsBody"></div>
     </section></div></div>
 
+    <div class="mpanel" id="m-adminusage"><div class="wrap"><section class="sec"><div id="adminUsageRoot"></div></section></div></div>
     <div class="mpanel" id="m-admin"><div class="wrap"><section class="sec">
       <div class="sec-head"><h2>⚙️ 관리</h2><span class="ko">가입 승인 · 팀원 명단 · 직급·권한·계정 · 퇴사자</span><span class="meta">AOP 전용</span></div>
       <div class="adm-grid">
@@ -5729,6 +5730,14 @@ function sendSurveyToSheet(user,key,rec){
 }
 
 /* enter / leave */
+var presenceUsageAssetPromise=null,presenceUsageActor='',presenceUsageEpoch=0;
+function presenceUsageTrackable(u){return !!u&&u.status==='active'&&(!(window.__presenceWorkspaceBaseReady||{}).users||!!(state.users||{})[u.uid]&&(state.users[u.uid].status==='active'))&&!isTestBot(u)&&!window.__previewRole&&!(u.uid===FOUNDER.uid&&window.__adminOff);}
+function presenceUsageOwner(u){return !!u&&u.uid===FOUNDER.uid&&u.status==='active'&&isFounder(u);}
+function presenceUsageAssets(){if(window.PresenceAdminUsage)return Promise.resolve();if(presenceUsageAssetPromise)return presenceUsageAssetPromise;presenceUsageAssetPromise=new Promise((resolve,reject)=>{const el=document.createElement('script');el.src='assets/presence-admin-usage.js?v=20261122-usage1';el.onload=resolve;el.onerror=()=>{presenceUsageAssetPromise=null;el.remove();reject(Error('usage module unavailable'));};document.head.appendChild(el);});return presenceUsageAssetPromise;}
+function presenceUsageDispose(){presenceUsageEpoch++;presenceUsageActor='';try{window.PresenceAdminUsage?.stop();const h=document.getElementById('adminUsageRoot');if(h)window.PresenceAdminUsage?.unmount(h);}catch(e){}}
+function presenceUsageTrack(tab){const uid=me&&me.uid,epoch=presenceUsageEpoch;if(!uid||!presenceUsageTrackable(me))return;presenceUsageAssets().then(()=>{if(epoch!==presenceUsageEpoch||!me||me.uid!==uid||!presenceUsageTrackable(me))return;if(presenceUsageActor!==uid){window.PresenceAdminUsage.start({actor:me,getActor:()=>me,db:DB,canTrack:presenceUsageTrackable});presenceUsageActor=uid;}window.PresenceAdminUsage.trackFeature(tab);}).catch(()=>{});}
+async function renderPresenceAdminUsage(){const h=document.getElementById('adminUsageRoot'),uid=me&&me.uid,epoch=presenceUsageEpoch;if(!h||!presenceUsageOwner(me)){if(h)h.replaceChildren();return;}h.textContent='이용 현황을 불러오고 있어요…';try{await presenceUsageAssets();if(epoch!==presenceUsageEpoch||!me||me.uid!==uid||!presenceUsageOwner(me)||curTab!=='adminusage')return;if(!document.getElementById('presenceUsageCSS')){const l=document.createElement('link');l.id='presenceUsageCSS';l.rel='stylesheet';l.href='assets/presence-admin-usage.css?v=20261122-usage1';document.head.appendChild(l);}window.PresenceAdminUsage.mount(h,{actor:me,getActor:()=>me,isAdmin:presenceUsageOwner,db:DB,users:state.users||{},getUsers:()=>state.users||{}});}catch(e){if(me&&me.uid===uid&&presenceUsageOwner(me))h.textContent='이용 현황 연결을 확인해주세요. 다른 기능은 계속 이용할 수 있습니다.';}}
+
 function enterApp(){
   document.body.classList.remove('presence-recap-lab-route');
   const tlFast=isTlHomeUser(me);
@@ -5795,6 +5804,7 @@ async function reconcileAuthProfiles(){
   else window.__authProfileRetryCount=0;
 }
 async function logout(){
+  presenceUsageDispose();
   document.body.classList.remove('presence-recap-lab-route');
   window.PresenceTeamWeeklyNotice?.dispose?.();
   window.PresenceTeamWeeklyRecap?.dispose?.(document.getElementById('teamWeeklyRecapRoot'));
@@ -7365,7 +7375,7 @@ const NAV=[
   {k:'progress',e:'↗',l:'Progress',tabs:['journey','leaderhit','manual','obj','callback','topics','training','cod']},
   {k:'profit',e:'◆',l:'Profit',tabs:['sale','profitrecap','recruitdaily','comp','perf','cbjournal','rejectnote','daily']},
   {k:'my',e:'✦',l:'My',tabs:['petshop']},
-  {k:'admin',e:'▣',l:'Admin',tabs:['admin','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
+  {k:'admin',e:'▣',l:'Admin',tabs:['admin','adminusage','events','survey','eventsurvey','gsheet','salesmgr','field','recap']}
 ];
 const TABMETA={
   home:{e:'🏠',l:'홈'},
@@ -7390,6 +7400,7 @@ const TABMETA={
   teamtree:{e:'🧭',l:'Team Tree',g:()=>isFounder(me)||isLeader(me.role)},
   setupkit:{e:'🐑',l:'셋업 비서',g:()=>typeof canSetupKit==='function'&&canSetupKit(me)},
   rejectnote:{e:'🛡️',l:'리젝노트',g:()=>typeof canRejectNote==='function'&&canRejectNote(me)},
+  adminusage:{e:'▥',l:'이용 현황',g:()=>presenceUsageOwner(me)},
   admin:{e:'⚙️',l:'관리',c:'pend',g:()=>isFounder(me)}
 };
 let curGroup='home',curTab='home';
@@ -7488,7 +7499,7 @@ function goTab(name){
   if(!tabVisible(name))name='home';
   {const q=new URL(location.href);if(name==='recaplab'){q.searchParams.set('open','recaplab');if(q.hash==='#profitrecap')q.hash='recaplab';}else if(q.searchParams.get('open')==='recaplab'||q.hash==='#recaplab'||q.hash==='#profitrecap'){if(q.searchParams.get('open')==='recaplab')q.searchParams.delete('open');if(q.hash==='#recaplab'||q.hash==='#profitrecap')q.hash='';}history.replaceState(null,'',q.pathname+q.search+q.hash);}
   window.PresenceWorkspace?.beforeNavigate(name);
-  curTab=name;window.PresenceUISystem?.refresh();document.body.classList.toggle('presence-recap-lab-route',name==='recaplab');subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
+  curTab=name;if(name!=='adminusage'){try{const h=document.getElementById('adminUsageRoot');if(h)window.PresenceAdminUsage?.unmount(h);}catch(e){}}presenceUsageTrack(name);window.PresenceUISystem?.refresh();document.body.classList.toggle('presence-recap-lab-route',name==='recaplab');subRailExpanded=false;try{recordRecentTab(name);}catch(e){}const gk=groupFor(name);
   var _adminHomeActive=requestedTab==='adminhome'||requestedTab==='admin-home';
   var _homeEntry=document.getElementById('homeEntryBtn');if(_homeEntry)_homeEntry.classList.toggle('active',name==='home'&&!_adminHomeActive);
   var _tlHomeEntry=document.getElementById('tlHomeEntryBtn');if(_tlHomeEntry){_tlHomeEntry.classList.toggle('show',!!(me&&isTlHomeUser(me)));_tlHomeEntry.classList.toggle('active',name==='tlhome');_tlHomeEntry.setAttribute('aria-pressed',name==='tlhome'?'true':'false');}
@@ -7517,6 +7528,7 @@ function goTab(name){
   if(name==='setupkit'&&typeof renderSetupKit==='function')renderSetupKit();
   if(name==='eventsurvey'&&typeof renderEventSurveyAdmin==='function'&&me&&isFounder(me))renderEventSurveyAdmin();
   if(name==='rejectnote'&&typeof renderRejectNote==='function')renderRejectNote();
+  if(name==='adminusage')renderPresenceAdminUsage();
   if(name==='admin'&&typeof renderMemberAdmin==='function'&&me&&isFounder(me))renderMemberAdmin();
   if(name==='notice')renderNotices();
   if(name==='kakao')renderKakao();
@@ -10699,6 +10711,7 @@ async function initFirebase(generation){
     }
     return within(profileRequest,8000,'user profile');};
   DB.push=(p,v)=>fb.push(fb.ref(db,p),v);DB.set=(p,v)=>rawSet(p,v);DB.get=p=>rawGet(p);DB.update=(p,v)=>fb.update(p?fb.ref(db,p):fb.ref(db),v);DB.remove=p=>fb.remove(fb.ref(db,p));
+  DB.getUsageDays=async(from,to)=>{if(!presenceUsageOwner(me))throw Error('이용 현황은 대표만 볼 수 있습니다.');if(!/^\d{1,8}$/.test(String(from))||!/^\d{1,8}$/.test(String(to))||Number(to)<Number(from)||Number(to)-Number(from)>89)throw Error('이용 현황 조회 범위가 올바르지 않습니다.');return (await fb.get(fb.query(fb.ref(db,'presenceUsageDays'),fb.orderByKey(),fb.startAt(String(from)),fb.endAt(String(to))))).val();};
   DB.tx=(p,fn)=>fb.runTransaction(fb.ref(db,p),fn).then(r=>({committed:r.committed,snapshot:r.snapshot&&r.snapshot.val()}));DB.clearProfitRecapSession=clearProfitRecapSession;
   DB.on=(p,cb,onError)=>{if(p==='.info/connected'||unlocked)return rawOn(p,cb,onError);const q={path:p,callback:cb,error:onError,cancelled:false,off:null};queued.push(q);return ()=>{q.cancelled=true;if(q.off)q.off();};};
   /* 기존 세션 삭제→재생성의 두 단계 사이에서 연결이 끊기면 정상 비밀번호도 실패했다.
@@ -10800,6 +10813,7 @@ async function initFirebase(generation){
     state.users=v?{...v}:{};
     (window.__presenceWorkspaceBaseReady||(window.__presenceWorkspaceBaseReady={})).users=true;
     if(me)me=state.users[me.uid]||me;
+    if(presenceUsageActor&&!presenceUsageTrackable(me))presenceUsageDispose();
     if(me&&isFounder(me))renderAdmin();updateCounts();if(me){renderSales();renderPerfGauge();if(document.getElementById('dailyList'))renderDaily();renderBell();renderRecruitDaily();renderDaisoCompetition();if(curTab==='tlhome')renderTLHome();if(curTab==='teamweeklyrecap')renderTeamWeeklyRecap();if(canManageTeamRecords(me)&&typeof curTab!=='undefined'&&curTab==='contacts')renderTeamContacts();if(document.getElementById('notifModal')&&document.getElementById('notifModal').classList.contains('on'))renderNotifList();}
     if(me&&isFounder(me)){syncHubDirectory();presenceScheduleTLMemberProjection();}
     if(me&&curTab==='teamtree')orgRefreshTree();
@@ -13942,6 +13956,7 @@ function spawnKernel(layer,cx,cy){
   }
   window.toggleAdminMode = function(){
     if(!pmsrRealFounder(me)) return;
+    presenceUsageDispose();
     window.__adminOff = !window.__adminOff;
     try{ document.body.classList.toggle('can-mod', isFounder(me)); }catch(e){}
     pmsrSyncAdminBtn();
@@ -13994,6 +14009,7 @@ function spawnKernel(layer,cx,cy){
   }
   window.setPreviewRole=function(role){
     if(!isOwnerAccount(me)){toast&&toast('관리자만 사용할 수 있어요');return;}
+    presenceUsageDispose();
     window.__previewRole = role || null;
     closeModal('rolePreviewModal');
     previewRerender();
@@ -14001,6 +14017,7 @@ function spawnKernel(layer,cx,cy){
     toast&&toast('👀 '+lbl+'로 보는 중 — 재영님 화면이 아니에요');
   };
   window.exitPreview=function(){
+    presenceUsageDispose();
     window.__previewRole=null;
     closeModal('rolePreviewModal');
     previewRerender();

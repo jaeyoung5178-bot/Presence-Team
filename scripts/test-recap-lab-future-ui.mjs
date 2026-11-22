@@ -9,7 +9,7 @@ try{
   const page=await browser.newPage({viewport:{width:390,height:844}});
   await page.route('**/*',route=>route.abort());
   await page.setContent('<meta charset="utf-8"><div id="root"></div>');
-  for(const file of ['model','bridge',''])await page.addScriptTag({path:root+'assets/presence-recap-lab'+(file?'-'+file:'')+'.js'});
+  for(const file of ['model','bridge','']){const name='assets/presence-recap-lab'+(file?'-'+file:'')+'.js';if(process.env.PRESENCE_QA_ORIGIN){const r=await fetch(process.env.PRESENCE_QA_ORIGIN+'/'+name+'?verify=future-recovery');assert(r.ok);await page.addScriptTag({content:await r.text()});}else await page.addScriptTag({path:root+name});}
   await page.evaluate(role=>{
    const actor={uid:role==='admin'?'admin':'member',name:'Synthetic',status:'active',role},member=role==='admin'?{uid:'member',name:'Synthetic member',status:'active',role:'LR'}:actor;
    window.savedRecords={};window.calls=[];window.pendingAssignment=true;
