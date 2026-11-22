@@ -33,7 +33,7 @@
       },
       "snapshots": {
         "$id": {
-          ".validate": "newData.hasChildren(['id','kind','month','source']) && newData.child('id').val() == $id && newData.child('month').val() == $month && newData.child('kind').val() == 'snapshot' && newData.hasChildren(['balanceCents'])",
+          ".validate": "newData.hasChildren(['id','kind','month','source']) && newData.child('id').val() == $id && newData.child('month').val() == $month && newData.child('kind').val() == 'snapshot' && newData.hasChildren(['balanceCents']) && (!newData.child('supersedesSnapshotIds').exists() || newData.child('asOfDate').isString())",
           "id": {
             ".validate": "newData.val() == $id && $id.matches(/^[A-Za-z0-9_-]{1,160}$/)"
           },
@@ -63,6 +63,39 @@
           },
           "$other": {
             ".validate": false
+          },
+          "sourceHash": {
+            ".validate": "newData.isString() && newData.val().matches(/^[a-fA-F0-9]{64}$/)"
+          },
+          "rawText": {
+            ".validate": "newData.isString() && newData.val().length <= 2000"
+          },
+          "sourceText": {
+            ".validate": "newData.isString() && newData.val().length <= 16000"
+          },
+          "capturedOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "sourceMaturityOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "sourceSlot": {
+            ".validate": "newData.val() == 'balances' || newData.val() == 'details'"
+          },
+          "confidence": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "recognizedAt": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 5000"
+          },
+          "confirmedAt": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 5000"
+          },
+          "supersedesSnapshotIds": {
+            ".validate": "newData.hasChildren()",
+            "$index": {
+              ".validate": "$index.matches(/^[0-9]{1,2}$/) && newData.isString() && newData.val().matches(/^[A-Za-z0-9_-]{1,160}$/) && newData.val() != $id && root.child('recapStudioBonds').child($uid).child($month).child('snapshots').child(newData.val()).exists() && (!root.child('recapStudioBonds').child($uid).child($month).child('snapshots').child(newData.val()).child('asOfDate').exists() || root.child('recapStudioBonds').child($uid).child($month).child('snapshots').child(newData.val()).child('asOfDate').val() <= newData.parent().parent().child('asOfDate').val())"
+            }
           }
         }
       },
@@ -98,6 +131,33 @@
           },
           "$other": {
             ".validate": false
+          },
+          "sourceHash": {
+            ".validate": "newData.isString() && newData.val().matches(/^[a-fA-F0-9]{64}$/)"
+          },
+          "rawText": {
+            ".validate": "newData.isString() && newData.val().length <= 2000"
+          },
+          "sourceText": {
+            ".validate": "newData.isString() && newData.val().length <= 16000"
+          },
+          "capturedOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "sourceMaturityOn": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/)"
+          },
+          "sourceSlot": {
+            ".validate": "newData.val() == 'balances' || newData.val() == 'details'"
+          },
+          "confidence": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "recognizedAt": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 5000"
+          },
+          "confirmedAt": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 5000"
           }
         }
       },
