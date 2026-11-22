@@ -16,7 +16,7 @@ if(role==='admin'){
  assert.equal(await p.evaluate(()=>curGroup),'admin');
  await p.evaluate(()=>{history.replaceState(null,'','?open=adminusage&release=qa-usage');enterApp();});
  await p.waitForFunction(()=>curTab==='adminusage'&&document.querySelector('.pau-person')&&!document.querySelector('[data-pau-reload]').disabled);
- assert.equal(await p.evaluate(()=>document.querySelector('.pau-room-art').complete&&document.querySelector('.pau-room-art').naturalWidth>0),true);
+ await p.waitForFunction(()=>document.querySelector('.pau-room-art').complete&&document.querySelector('.pau-room-art').naturalWidth>0);
  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
  const controls=await p.locator('#adminUsageRoot button').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));assert(controls.every(h=>h>=44),JSON.stringify(controls));
  await p.screenshot({path:out+'/'+engine+'-owner-'+width+'-usage.png',fullPage:true});
