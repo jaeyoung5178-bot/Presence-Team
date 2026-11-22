@@ -49,3 +49,32 @@ body.presence-recap-lab-route #presenceBgmQuick,body.presence-recap-lab-route #p
 .presence-recap-lab .prl-guide-examples{align-items:start}.presence-recap-lab .prl-example-screen{min-width:0;overflow:hidden;background:#10263a;color:#f4e6bf;border:2px solid #bba570;border-radius:14px;box-shadow:0 5px 14px #0a18241a}.presence-recap-lab .prl-example-screen>header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:14px;background:#091b2c;color:#f1d693;font-size:15px;font-weight:700}.presence-recap-lab .prl-example-screen>header b{font-size:12px;border:1px solid #a88a4e;border-radius:20px;padding:4px 8px;white-space:nowrap}.presence-recap-lab .prl-example-year{padding:12px 14px;font-size:14px;color:#e7d5a5}.presence-recap-lab .prl-example-screen table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px;color:#f5edda}.presence-recap-lab .prl-example-screen th,.presence-recap-lab .prl-example-screen td{padding:8px 12px;border-bottom:1px solid #355064;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.presence-recap-lab .prl-example-screen th:first-child{text-align:left}.presence-recap-lab .prl-example-screen thead,.presence-recap-lab .prl-example-screen tfoot{background:#1d374b;color:#f3d992}.presence-recap-lab .prl-example-screen .is-negative{color:#ffc1b5}.presence-recap-lab .prl-example-screen>footer{margin:0;padding:12px;border:0;font-size:12px;color:#d4c8a8;text-align:center}.presence-recap-lab .prl-example-balance{display:grid;gap:6px;margin:14px;padding:16px;border:1px solid #aa945d;border-radius:12px;background:#1c3548}.presence-recap-lab .prl-example-balance span{display:block;margin:0;font-size:14px}.presence-recap-lab .prl-example-balance strong{font-size:24px;color:#ffe2a0;font-variant-numeric:tabular-nums}.presence-recap-lab .prl-example-balance small{font-size:12px;color:#d7d4c4}@media(max-width:600px){.presence-recap-lab .prl-example-screen th,.presence-recap-lab .prl-example-screen td{padding:8px;font-size:13px}.presence-recap-lab .prl-example-screen>header{font-size:14px}}
 
 .presence-recap-lab .prl-upload-slot .prl-file{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;overflow:hidden;cursor:pointer}.presence-recap-lab .prl-upload-slot .prl-file input[type=file]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:44px!important;margin:0!important;padding:0!important;opacity:0;cursor:pointer}.presence-recap-lab .prl-upload-slot .prl-file:focus-within{outline:3px solid #367b61;outline-offset:3px}.presence-recap-lab .prl-file-name{font-size:13px;line-height:1.5;overflow-wrap:anywhere;color:#365745}
+
+/* Compact mobile working surface; retain every recap field and week. */
+.presence-recap-lab :is(.prl-head,.prl-context,.prl-context>label,.prl-member,.prl-month,.prl-main,.prl-form-grid,.prl-form-grid>label){min-width:0;max-width:100%}
+.presence-recap-lab :is(input,select,textarea){box-sizing:border-box;min-width:0;max-width:100%;font-size:16px}
+.presence-recap-lab input[type=month]{min-inline-size:0;max-inline-size:100%}
+@media(max-width:650px){
+ .presence-recap-lab{padding:calc(12px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));word-break:keep-all}
+ .prl-top{gap:10px}.prl-brand{font-size:16px}.prl-top button{padding:10px 0;font-size:14px}
+ .prl-hero{margin:14px 0 16px;grid-template-columns:minmax(0,1fr);gap:0}
+ .prl-greeting h1{font-size:clamp(22px,6vw,26px);line-height:1.4;margin:6px 0}
+ .prl-greeting>p{font-size:15px;line-height:1.5}.prl-eyebrow{font-size:12px}
+ .prl-scene img{height:132px;max-width:100%}
+ .prl-context{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-bottom:14px}
+ .prl-context>label,.prl-context .prl-member{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:100%;max-width:none;font-size:13px}
+ .presence-recap-lab .prl-context :is(input,select){display:block;width:100%;max-width:100%;min-width:0;margin:0;min-height:46px}
+ .prl-stations{gap:8px;margin-bottom:16px}.presence-recap-lab .prl-stations>button{font-size:14px;min-height:44px;box-shadow:none}
+ .prl-weeks{grid-template-columns:minmax(0,1fr);gap:8px;margin:16px 0}
+ .presence-recap-lab .prl-week{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 12px;padding:12px 14px;min-height:84px;border-radius:12px;box-shadow:none}
+ .prl-week-kicker{grid-column:1/-1;min-width:0;flex-wrap:nowrap;gap:8px}
+ .prl-week-kicker small{font-size:12px;white-space:nowrap}.prl-week-period{font-size:12px;min-width:0}
+ .prl-week-money{font-size:20px;white-space:nowrap;text-align:right;grid-column:2;grid-row:2}
+ .prl-week>small{font-size:12px;grid-column:1/-1}.prl-week.is-selected{box-shadow:none;outline:2px solid #d9c47e;outline-offset:1px}
+ .prl-paper{padding:16px;border-radius:16px;box-shadow:none}.prl-section-head{margin-bottom:14px}
+ .prl-stat-pair{grid-template-columns:minmax(0,1fr);margin-bottom:16px}
+ .prl-stat-pair>div{padding:14px;background:#f4f7ef}.prl-stat-pair>div+div{border-left:0;border-top:1px solid var(--prl-line);background:#faf6e9}
+ .prl-stat-pair strong{font-size:26px}.prl-stat-pair span{font-size:13px}
+ .prl-form-grid{grid-template-columns:minmax(0,1fr);gap:12px}.prl-form-grid label{font-size:14px;line-height:1.5}
+ .prl-form-grid input{padding:11px 12px}.prl-status-chip{font-size:12px;max-width:100%}
+}
