@@ -78,3 +78,11 @@ body.presence-recap-lab-route #presenceBgmQuick,body.presence-recap-lab-route #p
  .prl-form-grid{grid-template-columns:minmax(0,1fr);gap:12px}.prl-form-grid label{font-size:14px;line-height:1.5}
  .prl-form-grid input{padding:11px 12px}.prl-status-chip{font-size:12px;max-width:100%}
 }
+/* Native Safari month controls must not contribute an intrinsic grid width. */
+body #app #m-recaplab .presence-recap-lab .prl-context,body #app #m-recaplab .presence-recap-lab .prl-context>label{box-sizing:border-box!important;min-width:0!important;max-width:100%!important;min-inline-size:0!important}
+body #app #m-recaplab .presence-recap-lab input[type=month]{-webkit-appearance:none!important;appearance:none!important;box-sizing:border-box!important;display:block!important;inline-size:100%!important;width:100%!important;min-inline-size:0!important;min-width:0!important;max-inline-size:100%!important;max-width:100%!important;contain:inline-size;overflow:hidden!important;margin:0!important;padding:12px!important;font-size:16px!important;text-align:left!important}
+body #app #m-recaplab .presence-recap-lab [data-lab-member]{box-sizing:border-box!important;display:block;inline-size:100%;width:100%;min-inline-size:0;min-width:0;max-inline-size:100%;max-width:100%;min-height:48px!important;padding:10px 12px!important;margin:0;font-size:16px!important;line-height:1.5}
+.presence-recap-lab input[type=month]::-webkit-datetime-edit{display:block;min-width:0;max-width:100%;padding:0}
+.presence-recap-lab input[type=month]::-webkit-date-and-time-value{min-width:0;max-width:100%;text-align:left}
+.presence-recap-lab .prl-table-scroll{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#66876d #edf2e7}
+@media(max-width:650px){.presence-recap-lab .prl-table-scroll::before{content:'← 좌우로 밀어 잔액·지급 상태 확인 →';display:block;position:sticky;left:0;box-sizing:border-box;width:100%;padding:10px 12px;background:#edf2e7;color:#365840;font-size:12px;font-weight:700;white-space:nowrap}.presence-recap-lab .prl-table-scroll::-webkit-scrollbar{height:8px}.presence-recap-lab .prl-table-scroll::-webkit-scrollbar-thumb{background:#66876d;border-radius:4px}}

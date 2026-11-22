@@ -26,12 +26,13 @@ function fixture({admin=false,role='LR',ineligible='',unassigned=''}={}){
   assert.equal(week.eligible,true,'NA attendance must remain selectable, not outside period');
   assert.equal(week.editable,true);assert.equal(week.status,'na');assert.equal(week.statusLabel,'NA · 휴무');
   for(const i of [0,2]){assert.equal(view.weeks[i].eligible,true);assert.equal(view.weeks[i].editable,true);}
-  assert.equal(view.weeks[3].status,'future');assert.equal(view.weeks[3].editable,false);
-  assert(!f.assignments.includes('2026-11-27'));assert(!f.reads.some(p=>p.includes('2026-11-27')));
+  assert.equal(view.weeks[3].status,'future');assert.equal(view.weeks[3].eligible,true);assert.equal(view.weeks[3].editable,true);assert.equal(view.weeks[3].statusLabel,'예정 · 사전 입력 가능');
+  assert(f.assignments.includes('2026-11-27'));assert(f.reads.some(p=>p.includes('2026-11-27')));
   await f.bridge.onSaveWeek('2026-11-13',{netPaymentCents:0,rejectSWCount:0,rejectCLCount:0});
   const saved=f.store['recapStudioTeams/presence/weekly/2026-11-13/'+f.member.uid];
   assert.equal(saved.netPayment,0);assert.equal(saved.activityFrom,'2026-11-02');assert.equal(saved.activityTo,'2026-11-08');
-  await assert.rejects(()=>f.bridge.onSaveWeek('2026-11-27',{netPaymentCents:0,rejectSWCount:0,rejectCLCount:0}),/권한/);
+  await f.bridge.onSaveWeek('2026-11-27',{netPaymentCents:1250,rejectSWCount:0,rejectCLCount:0});assert.equal(f.store['recapStudioTeams/presence/weekly/2026-11-27/'+f.member.uid].netPayment,12.5);
+  view=await f.bridge.loadMonth('2026-12');assert(view.weeks.every(w=>w.eligible&&w.editable&&w.status==='future'));await f.bridge.onSaveWeek('2026-12-04',{netPaymentCents:0,rejectSWCount:0,rejectCLCount:0});
   view=await f.bridge.loadMonth('2026-10');
   assert.equal(view.weeks[0].activityFrom,'2026-09-21');assert.equal(view.weeks[0].activityTo,'2026-09-27');
   assert.equal(view.weeks[0].eligible,true);assert.equal(view.weeks[0].editable,true);assert.equal(view.weeks[0].statusLabel,'NA · 휴무');
@@ -42,5 +43,5 @@ function fixture({admin=false,role='LR',ineligible='',unassigned=''}={}){
  await assert.rejects(()=>outside.bridge.onSaveWeek('2026-11-13',{netPaymentCents:0,rejectSWCount:0,rejectCLCount:0}),/권한/);
  const unassigned=fixture({unassigned:'2026-11-13'});
  await assert.rejects(()=>unassigned.bridge.loadMonth('2026-11'),/No unique weekly assignment/);assert.equal(unassigned.writes.length,0);
- console.log('PASS assigned NA week selectable/editable/zero save; LR/IC/admin; November neighbors/month boundary; future/ineligible/unassigned remain blocked');
+ console.log('PASS assigned NA week selectable/editable/zero save; LR/IC/admin; November neighbors/month boundary; assigned future week/month save; ineligible/unassigned remain blocked');
 })().catch(error=>{console.error(error);process.exitCode=1;});
