@@ -109,7 +109,11 @@
 
   function actionIcon(action){
     var paths={'birthday':'<path d="M4 11h16v10H4zM4 15c2 3 4-3 6 0s4-3 6 0 4-3 4 0M8 11V7m4 4V6m4 5V7M8 4v1m4-3v2m4 0v1"/>','recap-repair':'<path d="M5 8a7 7 0 1 1-1 8M5 3v5h5"/><path d="m9 13 2 2 4-4"/>','survey':'<path d="M8 4H5v17h14V4h-3M9 2h6v4H9zM8 11h8M8 15h6"/>','new-member':'<circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 12-5m5-1v8m-4-4h8"/>','permissions':'<path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6z"/><path d="m8 11 3 3 5-6"/>','departed':'<path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h14"/>','approvals':'<circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 11-6m2 5 3 3 5-6"/>'};
+    paths.recap='<path d="M6 3h9l4 4v14H5V3zM14 3v5h5M8 12h8M8 16h5"/>';
     return '<svg class="pah-action-icon" viewBox="0 0 24 24" aria-hidden="true">'+(paths[action]||paths.permissions)+'</svg>';
+  }
+  function canOpenRecap() {
+    try { return typeof tabVisible === 'function' && !!tabVisible('recap'); } catch (error) { return false; }
   }
   function actionCard(action, code, title, description, meta) {
     return '<button type="button" class="pah-action" data-pah-action="' + action + '">' +
@@ -319,6 +323,7 @@ function bindRepair(root){
     if (!isAuthorized(actor) || !session.actor || actor.uid !== session.actor.uid) return;
     if (action === 'birthday') { navigate('events'); return; }
     if (action === 'promotion-campaign') { window.PresencePromotionCampaignController?.openAdmin(); return; }
+    if (action === 'recap') { if (canOpenRecap()) navigate('recap'); return; }
     if (action === 'recap-repair') { reviewRecapRepair(); return; }
     if (action === 'survey') { navigate('survey'); return; }
     if (action === 'new-member') { afterAdmin('#newMemberIn', true); return; }
@@ -448,6 +453,7 @@ function bindRepair(root){
       '<div class="pah-actions" aria-label="관리자 빠른 실행">' +
         actionCard('birthday', 'BD', '기념일 관리', '생일 날짜와 사진을 미리 확인하고 당일 표시를 관리합니다.', '<span class="pah-status">BIRTHDAY</span>') +
         actionCard('promotion-campaign', 'GOAL', '프로모션 관리', '주간 목표와 일별 모금액을 관리합니다.', '<span class="pah-status">AOP</span>') +
+        (canOpenRecap() ? actionCard('recap', 'RC', '리캡 자료 보기', '월별 성과를 미리 보고 PPT 자료로 내려받습니다.', '<span class="pah-status">RECAP</span>') : '') +
         actionCard('recap-repair', 'RX', '리캡 배정 복구', '기간 배정을 변경 없이 검토하고, 확인한 항목만 승인합니다.', '<span class="pah-status">REPAIR</span>') +
         actionCard('survey', 'SV', '설문 보기', '팀원 설문과 승진 응답을 확인합니다.', badge(surveys.length, '대기 설문')) +
         actionCard('new-member', '+', '신입 등록', '새 팀원을 등록하는 입력창으로 이동합니다.', '<span class="pah-status">CREATE</span>') +

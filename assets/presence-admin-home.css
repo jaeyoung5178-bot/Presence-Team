@@ -192,7 +192,7 @@
 .pah-section-head p{margin:0;color:var(--pah-muted);font-size:12px;line-height:1.5;text-align:right}
 .pah-actions{
   display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:11px;
   min-width:0;
 }
@@ -275,12 +275,8 @@
 .pah-action-copy small{color:var(--pah-muted);font-size:12px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
 .pah-action-go{position:absolute;right:16px;bottom:14px;color:var(--pah-blue);font-size:18px;font-weight:700;transition:transform .18s ease}
 .pah-action:hover .pah-action-go{transform:translateX(3px)}
+body.presence-christmas [data-pah-action="recap"]{--winter-admin-icon:url('winter-icons/profit.svg')}
 
-@media (min-width:640px) and (max-width:1199px){
-  .pah-actions{grid-template-columns:repeat(6,minmax(0,1fr))}
-  .pah-action{grid-column:span 2}
-  .pah-action:nth-child(4),.pah-action:nth-child(5){grid-column:span 3}
-}
 @media (max-width:960px){
   .pah-hero{grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
   .pah-summary{max-width:580px}
